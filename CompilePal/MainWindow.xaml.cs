@@ -12,12 +12,13 @@ using MahApps.Metro.Controls;
 using Microsoft.Win32;
 using SharpConfig;
 
+
 namespace CompilePal
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : MetroWindow
+    public partial class MainWindow
     {
         public ObservableCollection<Parameter> VRADParameters = new ObservableCollection<Parameter>();
         public ObservableCollection<Parameter> VBSPParameters = new ObservableCollection<Parameter>();
@@ -74,6 +75,8 @@ namespace CompilePal
 
         public void ImportCSGOConfig()
         {
+            //This tries to find all the tools and stuff from the registry.
+
             RegistryKey rk = Registry.CurrentUser.OpenSubKey(@"Software\Valve\Hammer\General");
 
             string binFolder = (string)rk.GetValue("Directory");
@@ -81,6 +84,8 @@ namespace CompilePal
 
             var lines = File.ReadAllLines(GameData);
 
+
+            //Lazy parsing
             VBSPPath = lines[17].Split('"')[3];
             VVISPath = lines[18].Split('"')[3];
             VRADPath = lines[19].Split('"')[3];
@@ -494,7 +499,7 @@ namespace CompilePal
             LoadConfigs();
         }
 
-        private void ConfigComboBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        private void ConfigComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (!string.IsNullOrEmpty((string)ConfigComboBox.SelectedItem))
                 LoadConfig((string)ConfigComboBox.SelectedItem);
