@@ -12,7 +12,7 @@ namespace SharpConfig
     /// The basis of the SharpConfig configuration system.</summary>
     public class Config
     {
-        public ObservableCollection<KeyValue> Values = new ObservableCollection<KeyValue>();
+        public Dictionary<string,object> Values = new Dictionary<string, object>(); 
         /// <summary>
         /// Changes which namespace the configuration saves to. You must create a new object to load from a new namespace.</summary>
         public string Namespace;
@@ -57,13 +57,16 @@ namespace SharpConfig
         /// <param name="key">Designates what configuration item will be changed or retrieved.</param>
         public dynamic this[string key]
         {
-            get { return Values.FirstOrDefault(i => i.Key == key).Value; }
+            get
+            {
+                return Values[key];
+            }
             set
             {
-                if (Exists(key))
-                    Values.FirstOrDefault(i => i.Key == key).Value = value;
+                if (Values.ContainsKey(key))
+                    Values[key] = value;
                 else
-                    Values.Add(new KeyValue() { Key = key, Value = value });
+                    Values.Add(key,value);
 
                 if (AutoSave)
                     Save();
@@ -78,16 +81,11 @@ namespace SharpConfig
             File.WriteAllText(DataFile, json);
         }
 
-        public bool Exists(string key)
-        {
-            return Values.Any(i => i.Key == key);
-        }
-
         /// <summary>
         /// Removes an item from the collection.</summary>
         public void Delete(string key)
         {
-            Values.Remove(Values.FirstOrDefault(i => i.Key == key));
+            Values.Remove(key);
 
             if (AutoSave)
                 Save();
@@ -100,7 +98,10 @@ namespace SharpConfig
             if (File.Exists(DataFile))
             {
                 string json = File.ReadAllText(DataFile);
-                Values = JsonConvert.DeserializeObject<ObservableCollection<KeyValue>>(json);
+                Values = JsonConvert.DeserializeObject<Dictionary<string,object>>(json);
+
+                if(Values == null)
+                    Values = new Dictionary<string, object>();
             }
         }
     }
