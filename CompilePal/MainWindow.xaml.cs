@@ -34,8 +34,7 @@ namespace CompilePal
 
         private string VMFFile;
 
-        private Config uiConfig = new Config("ui", true, true);
-        private Config publicConfig = new Config("public", true, true);
+        public Config uiConfig = new Config("ui", true, true);
 
 
         public MainWindow(GameConfiguration c)
@@ -44,17 +43,14 @@ namespace CompilePal
 
             InitializeComponent();
 
-            if (uiConfig.Exists("vmffile"))
+            if (uiConfig.Values.ContainsKey("vmffile"))
                 MapFileText.Text = uiConfig["vmffile"];
 
-            if (uiConfig.Exists("copymap"))
+            if (uiConfig.Values.ContainsKey("copymap"))
                 CopyMapCheckBox.IsChecked = uiConfig["copymap"];
 
-            if (!publicConfig.Exists("lowpriority"))
-                publicConfig["lowpriority"] = true;
-
-            OptionsDataGrid.ItemsSource = publicConfig.Values;
-
+            if (!uiConfig.Values.ContainsKey("lowpriority"))
+                uiConfig["lowpriority"] = true;
 
             LoadConfigs();
 
@@ -327,7 +323,7 @@ namespace CompilePal
             VBSPProcess.StartInfo.FileName = currentGameConfig.VBSPPath;
             VBSPProcess.StartInfo.Arguments = bspparams;
             VBSPProcess.Start();
-            if (publicConfig["lowpriority"])
+            if (uiConfig.Values.ContainsKey("lowpriority") && uiConfig["lowpriority"])
                 VBSPProcess.PriorityClass = ProcessPriorityClass.BelowNormal;
 
             VBSPProcess.BeginOutputReadLine();
@@ -346,7 +342,7 @@ namespace CompilePal
             VVISProcess.StartInfo.FileName = currentGameConfig.VVISPath;
             VVISProcess.StartInfo.Arguments = visparams;
             VVISProcess.Start();
-            if (publicConfig["lowpriority"])
+            if (uiConfig.Values.ContainsKey("lowpriority") && uiConfig["lowpriority"])
                 VVISProcess.PriorityClass = ProcessPriorityClass.BelowNormal;
 
             VVISProcess.BeginOutputReadLine();
@@ -366,7 +362,7 @@ namespace CompilePal
             VRADProcess.StartInfo.FileName = currentGameConfig.VRADPath;
             VRADProcess.StartInfo.Arguments = radparams;
             VRADProcess.Start();
-            if (publicConfig["lowpriority"])
+            if (uiConfig.Values.ContainsKey("lowpriority") && uiConfig["lowpriority"])
                 VRADProcess.PriorityClass = ProcessPriorityClass.BelowNormal;
 
             VRADProcess.BeginOutputReadLine();
