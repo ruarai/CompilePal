@@ -30,15 +30,7 @@ namespace CompilePal
 
         private string currentConfig = "Normal";
 
-
-        private string GameData;
-
-        private string VVISPath;
-        private string VBSPPath;
-        private string VRADPath;
-
-        private string GamePath;
-        private string MapPath;
+        public GameConfiguration currentGameConfig;
 
         private string VMFFile;
 
@@ -46,8 +38,10 @@ namespace CompilePal
         private Config publicConfig = new Config("public", true, true);
 
 
-        public MainWindow()
+        public MainWindow(GameConfiguration c)
         {
+            currentGameConfig = c;
+
             InitializeComponent();
 
             if (uiConfig.Exists("vmffile"))
@@ -61,7 +55,6 @@ namespace CompilePal
 
             OptionsDataGrid.ItemsSource = publicConfig.Values;
 
-            ImportCSGOConfig();
 
             LoadConfigs();
 
@@ -73,26 +66,6 @@ namespace CompilePal
 
         }
 
-        public void ImportCSGOConfig()
-        {
-            //This tries to find all the tools and stuff from the registry.
-
-            RegistryKey rk = Registry.CurrentUser.OpenSubKey(@"Software\Valve\Hammer\General");
-
-            string binFolder = (string)rk.GetValue("Directory");
-            GameData = Path.Combine(binFolder, "GameConfig.txt");
-
-            var lines = File.ReadAllLines(GameData);
-
-
-            //Lazy parsing
-            VBSPPath = lines[17].Split('"')[3];
-            VVISPath = lines[18].Split('"')[3];
-            VRADPath = lines[19].Split('"')[3];
-
-            GamePath = lines[6].Split('"')[3];
-            MapPath = lines[22].Split('"')[3];
-        }
 
 
         #region SaveLoad
@@ -295,7 +268,7 @@ namespace CompilePal
         private string FinaliseParameters(string parameters)
         {
             VMFFile = MapFileText.Text;
-            parameters = parameters.Replace("$game", "\"" + GamePath + "\"");
+            parameters = parameters.Replace("$game", "\"" + currentGameConfig.GamePath + "\"");
             parameters = parameters.Replace("$map", "\"" + VMFFile + "\"");
 
             return parameters;
@@ -351,7 +324,7 @@ namespace CompilePal
 
             VBSPProcess.OutputDataReceived += OutputDataReceived;
 
-            VBSPProcess.StartInfo.FileName = VBSPPath;
+            VBSPProcess.StartInfo.FileName = currentGameConfig.VBSPPath;
             VBSPProcess.StartInfo.Arguments = bspparams;
             VBSPProcess.Start();
             if (publicConfig["lowpriority"])
@@ -370,7 +343,7 @@ namespace CompilePal
 
             VVISProcess.OutputDataReceived += OutputDataReceived;
 
-            VVISProcess.StartInfo.FileName = VVISPath;
+            VVISProcess.StartInfo.FileName = currentGameConfig.VVISPath;
             VVISProcess.StartInfo.Arguments = visparams;
             VVISProcess.Start();
             if (publicConfig["lowpriority"])
@@ -390,7 +363,7 @@ namespace CompilePal
 
             VRADProcess.OutputDataReceived += OutputDataReceived;
 
-            VRADProcess.StartInfo.FileName = VRADPath;
+            VRADProcess.StartInfo.FileName = currentGameConfig.VRADPath;
             VRADProcess.StartInfo.Arguments = radparams;
             VRADProcess.Start();
             if (publicConfig["lowpriority"])
@@ -415,7 +388,7 @@ namespace CompilePal
 
             if (CopyMapCheckBox.IsChecked.GetValueOrDefault())
             {
-                string newmap = Path.Combine(MapPath, Path.GetFileNameWithoutExtension(VMFFile) + ".bsp");
+                string newmap = Path.Combine(currentGameConfig.MapPath, Path.GetFileNameWithoutExtension(VMFFile) + ".bsp");
                 File.Delete(newmap);
                 File.Copy(VMFFile.Replace(".vmf", ".bsp"), newmap);
             }
