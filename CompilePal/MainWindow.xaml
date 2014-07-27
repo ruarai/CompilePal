@@ -4,7 +4,7 @@
         xmlns:controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
                       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="d"
-                      Title="Compile Pal" Height="515" Width="787" Closing="MetroWindow_Closing" Activated="MainWindow_OnActivated" IconEdgeMode="Aliased" >
+                      Title="Compile Pal" Height="515" Width="787" Closing="MetroWindow_Closing" Activated="MainWindow_OnActivated" IconEdgeMode="Aliased" Icon="CompilePalIcon.ico" ShowIconOnTitleBar="False" >
     <Grid>
         <Button x:Name="CompileButton" Content="Compile" HorizontalAlignment="Right"  VerticalAlignment="Bottom" Margin="10" Width="75" Click="CompileButton_Click"/>
         <TextBox Height="23" Name="MapFileText"  Margin="10,10,90,0" TextWrapping="Wrap" VerticalAlignment="Top"/>
@@ -88,24 +88,6 @@
                         </DataGrid.Columns>
                     </DataGrid>
                     <TextBox x:Name="VRADParamsTextBox" Margin="10,0,10,10" TextWrapping="Wrap" Text="TextBox" Height="26" VerticalAlignment="Bottom"/>
-                </Grid>
-            </TabItem>
-            <TabItem Header="OPTIONS">
-                <Grid Background="#FFE5E5E5">
-                    <Grid Background="#FFE5E5E5">
-                        <DataGrid Name="OptionsDataGrid" Margin="10" AutoGenerateColumns="False" CanUserAddRows="false">
-                            <DataGrid.Columns>
-                                <DataGridTextColumn Header="Key" Binding="{Binding Key}" IsReadOnly="True"></DataGridTextColumn>
-                                <DataGridTemplateColumn Header="Value">
-                                    <DataGridTemplateColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <CheckBox IsChecked="{Binding Value, UpdateSourceTrigger=PropertyChanged}"/>
-                                        </DataTemplate>
-                                    </DataGridTemplateColumn.CellTemplate>
-                                </DataGridTemplateColumn>
-                            </DataGrid.Columns>
-                        </DataGrid>
-                    </Grid>
                 </Grid>
             </TabItem>
             <TabItem Name="OutputTab" Header="OUTPUT">
