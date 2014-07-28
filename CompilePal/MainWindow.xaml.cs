@@ -30,17 +30,22 @@ namespace CompilePal
 
         private string currentConfig = "Normal";
 
-        public GameConfiguration currentGameConfig;
+        private string VBSPPath;
+        private string VVISPath;
+        private string VRADPath;
+
+        private string GamePath;
+        private string MapPath;
+
+
 
         private string VMFFile;
 
         public Config uiConfig = new Config("ui", true, true);
 
 
-        public MainWindow(GameConfiguration c)
+        public MainWindow()
         {
-            currentGameConfig = c;
-
             InitializeComponent();
 
             if (uiConfig.Values.ContainsKey("vmffile"))
@@ -51,6 +56,25 @@ namespace CompilePal
 
             if (!uiConfig.Values.ContainsKey("lowpriority"))
                 uiConfig["lowpriority"] = true;
+
+            //Loading the last used configurations for hammer
+            RegistryKey rk = Registry.CurrentUser.OpenSubKey(@"Software\Valve\Hammer\General");
+
+            string binFolder = (string)rk.GetValue("Directory");
+            string gameData = Path.Combine(binFolder, "GameConfig.txt");
+
+            var lines = File.ReadAllLines(gameData);
+
+
+            //Lazy parsing
+            VBSPPath = lines[17].Split('"')[3];
+            VVISPath = lines[18].Split('"')[3];
+            VRADPath = lines[19].Split('"')[3];
+
+            GamePath = lines[6].Split('"')[3];
+            MapPath = lines[22].Split('"')[3];
+
+            Title="Compile Pal: " + lines[4].Replace("\"", "").Trim();
 
             LoadConfigs();
 
@@ -264,7 +288,7 @@ namespace CompilePal
         private string FinaliseParameters(string parameters)
         {
             VMFFile = MapFileText.Text;
-            parameters = parameters.Replace("$game", "\"" + currentGameConfig.GamePath + "\"");
+            parameters = parameters.Replace("$game", "\"" + GamePath + "\"");
             parameters = parameters.Replace("$map", "\"" + VMFFile + "\"");
 
             return parameters;
@@ -311,6 +335,8 @@ namespace CompilePal
 
         private void Compile(string bspparams, string visparams, string radparams)
         {
+            Dispatcher.Invoke(() => AppendLine("--VBSP Starting."));
+
             VBSPProcess = new Process();
             VBSPProcess.StartInfo.RedirectStandardOutput = true;
             VBSPProcess.StartInfo.RedirectStandardInput = true;
@@ -320,7 +346,7 @@ namespace CompilePal
 
             VBSPProcess.OutputDataReceived += OutputDataReceived;
 
-            VBSPProcess.StartInfo.FileName = currentGameConfig.VBSPPath;
+            VBSPProcess.StartInfo.FileName = VBSPPath;
             VBSPProcess.StartInfo.Arguments = bspparams;
             VBSPProcess.Start();
             if (uiConfig.Values.ContainsKey("lowpriority") && uiConfig["lowpriority"])
@@ -329,6 +355,8 @@ namespace CompilePal
             VBSPProcess.BeginOutputReadLine();
 
             VBSPProcess.WaitForExit();
+
+            Dispatcher.Invoke(() => AppendLine("--VVIS Starting."));
 
             VVISProcess = new Process();
             VVISProcess.StartInfo.RedirectStandardOutput = true;
@@ -339,7 +367,7 @@ namespace CompilePal
 
             VVISProcess.OutputDataReceived += OutputDataReceived;
 
-            VVISProcess.StartInfo.FileName = currentGameConfig.VVISPath;
+            VVISProcess.StartInfo.FileName = VVISPath;
             VVISProcess.StartInfo.Arguments = visparams;
             VVISProcess.Start();
             if (uiConfig.Values.ContainsKey("lowpriority") && uiConfig["lowpriority"])
@@ -349,6 +377,7 @@ namespace CompilePal
 
             VVISProcess.WaitForExit();
 
+            Dispatcher.Invoke(() => AppendLine("--VRAD Starting."));
 
             VRADProcess = new Process();
             VRADProcess.StartInfo.RedirectStandardOutput = true;
@@ -359,7 +388,7 @@ namespace CompilePal
 
             VRADProcess.OutputDataReceived += OutputDataReceived;
 
-            VRADProcess.StartInfo.FileName = currentGameConfig.VRADPath;
+            VRADProcess.StartInfo.FileName = VRADPath;
             VRADProcess.StartInfo.Arguments = radparams;
             VRADProcess.Start();
             if (uiConfig.Values.ContainsKey("lowpriority") && uiConfig["lowpriority"])
@@ -369,13 +398,15 @@ namespace CompilePal
 
             VRADProcess.WaitForExit();
 
+            Dispatcher.Invoke(() => AppendLine("--Compile Ending."));
+
             Dispatcher.Invoke(CompileFinish);
         }
 
         void OutputDataReceived(object sender, DataReceivedEventArgs e)
         {
             if (!string.IsNullOrEmpty(e.Data))
-                CompileOutputTextbox.Dispatcher.Invoke(() => AppendText(e.Data));
+                CompileOutputTextbox.Dispatcher.Invoke(() => AppendLine(e.Data));
         }
 
         void CompileFinish()
@@ -384,39 +415,45 @@ namespace CompilePal
 
             if (CopyMapCheckBox.IsChecked.GetValueOrDefault())
             {
-                string newmap = Path.Combine(currentGameConfig.MapPath, Path.GetFileNameWithoutExtension(VMFFile) + ".bsp");
-                File.Delete(newmap);
-                File.Copy(VMFFile.Replace(".vmf", ".bsp"), newmap);
+                string newmap = Path.Combine(MapPath, Path.GetFileNameWithoutExtension(VMFFile) + ".bsp");
+                string oldmap = VMFFile.Replace(".vmf", ".bsp");
+
+                //Make sure we actually need to copy the map
+                if (!String.Equals(newmap, oldmap, StringComparison.CurrentCultureIgnoreCase))
+                {
+                    File.Delete(newmap);
+
+                    File.Copy(oldmap, newmap);
+                    AppendLine("Map {0} copied to {1}",oldmap, newmap);
+                }
+                else
+                    AppendLine("BSP file didn't have to be copied. Skipping.");
             }
         }
 
-        void AppendText(string s)
+        void AppendLine(string s, params string[] arguments)
         {
+            s = string.Format(s, arguments);
+
             CompileOutputTextbox.Focus();
             CompileOutputTextbox.Text += s + Environment.NewLine;
             CompileOutputTextbox.CaretIndex = CompileOutputTextbox.Text.Length;
             CompileOutputTextbox.ScrollToEnd();
 
 
-            if (s.Contains("vvis"))
+            if (s.Contains("--VVIS Starting."))
             {
                 TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Normal;
                 TaskbarItemInfo.ProgressValue = 0.33;
             }
 
-            if (s.Contains("vrad"))
+            if (s.Contains("--VRAD Starting."))
             {
                 TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Normal;
                 TaskbarItemInfo.ProgressValue = 0.66;
             }
 
-            if (s.StartsWith("Writing") && s.EndsWith(".bsp"))
-            {
-                TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Normal;
-                TaskbarItemInfo.ProgressValue = 1;
-            }
-
-            if (s.StartsWith("Writing") && s.EndsWith(".bsp"))
+            if (s.StartsWith("--Compile Ending."))
             {
                 TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Normal;
                 TaskbarItemInfo.ProgressValue = 1;
@@ -435,16 +472,21 @@ namespace CompilePal
             try
             {
                 VBSPProcess.Kill();
+                AppendLine("Killed VBSP");
             }
-            catch { AppendText("Could not kill VBSP."); } try
+            catch { AppendLine("Could not kill VBSP."); }
+            try
             {
                 VVISProcess.Kill();
+                AppendLine("Killed VVIS");
             }
-            catch { AppendText("Could not kill VVIS."); } try
+            catch { AppendLine("Could not kill VVIS."); }
+            try
             {
                 VRADProcess.Kill();
+                AppendLine("Killed VRAD");
             }
-            catch { AppendText("Could not kill VRAD."); }
+            catch { AppendLine("Could not kill VRAD."); }
 
         }
 
