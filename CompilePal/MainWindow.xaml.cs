@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
@@ -20,26 +21,18 @@ namespace CompilePal
     /// </summary>
     public partial class MainWindow
     {
-        public ObservableCollection<Parameter> VRADParameters = new ObservableCollection<Parameter>();
-        public ObservableCollection<Parameter> VBSPParameters = new ObservableCollection<Parameter>();
-        public ObservableCollection<Parameter> VVISParameters = new ObservableCollection<Parameter>();
-
-        private string OutputVRADParameters = "";
-        private string OutputVBSPParameters = "";
-        private string OutputVVISParameters = "";
+        public List<CompileProgram> CompilePrograms = new List<CompileProgram>();
 
         private string currentConfig = "Normal";
 
-        private string VBSPPath;
-        private string VVISPath;
-        private string VRADPath;
 
         private string GamePath;
         private string MapPath;
 
+        private string oldTitle = "COMPILE PAL";
 
 
-        private string VMFFile;
+        private ObservableCollection<string> mapFiles = new ObservableCollection<string>();
 
         public Config uiConfig = new Config("ui", true, true);
 
@@ -48,14 +41,22 @@ namespace CompilePal
         {
             InitializeComponent();
 
-            if (uiConfig.Values.ContainsKey("vmffile"))
-                MapFileText.Text = uiConfig["vmffile"];
+            mapFilesListBox.ItemsSource = mapFiles;
 
             if (uiConfig.Values.ContainsKey("copymap"))
                 CopyMapCheckBox.IsChecked = uiConfig["copymap"];
 
             if (!uiConfig.Values.ContainsKey("lowpriority"))
                 uiConfig["lowpriority"] = true;
+
+            if (uiConfig.Values.ContainsKey("vmffiles"))
+            {
+                foreach (var vmf in uiConfig["vmffiles"])
+                {
+                    if (!string.IsNullOrEmpty((string)vmf))
+                        mapFiles.Add((string)vmf);
+                }
+            }
 
             //Loading the last used configurations for hammer
             RegistryKey rk = Registry.CurrentUser.OpenSubKey(@"Software\Valve\Hammer\General");
@@ -67,20 +68,20 @@ namespace CompilePal
 
 
             //Lazy parsing
-            VBSPPath = lines[17].Split('"')[3];
-            VVISPath = lines[18].Split('"')[3];
-            VRADPath = lines[19].Split('"')[3];
+            string VBSPPath = lines[17].Split('"')[3];
+            string VVISPath = lines[18].Split('"')[3];
+            string VRADPath = lines[19].Split('"')[3];
+
+            CompilePrograms.Add(new CompileProgram(VBSPPath, "vbsp", VBSPDataGrid, VBSPParamsTextBox));
+            CompilePrograms.Add(new CompileProgram(VVISPath, "vvis", VVISDataGrid, VVISParamsTextBox));
+            CompilePrograms.Add(new CompileProgram(VRADPath, "vrad", VRADDataGrid, VRADParamsTextBox));
 
             GamePath = lines[6].Split('"')[3];
             MapPath = lines[22].Split('"')[3];
 
-            Title="Compile Pal: " + lines[4].Replace("\"", "").Trim();
+            Title = "Compile Pal: " + lines[4].Replace("\"", "").Trim();
 
             LoadConfigs();
-
-            VRADDataGrid.DataContext = VRADParameters;
-            VBSPDataGrid.DataContext = VBSPParameters;
-            VVISDataGrid.DataContext = VVISParameters;
 
             LoadConfig(currentConfig);
 
@@ -105,214 +106,33 @@ namespace CompilePal
         {
             currentConfig = configName;
 
-            LoadVRADConfig();
-            LoadVBSPConfig();
-            LoadVVISConfig();
-        }
-
-        void SaveVRADConfig(string configName)
-        {
-            if (File.Exists(Path.Combine("config", configName, "VRAD.csv")))
-                File.Delete(Path.Combine("config", configName, "VRAD.csv"));
-
-            var lines = new List<string>();
-            foreach (var para in VRADParameters)
+            foreach (CompileProgram program in CompilePrograms)
             {
-                lines.Add(string.Format("{0}^{1}^{2}^{3}^{4}", para.Name, para.Command, para.Option, para.Description, para.Enabled));
+                program.LoadConfig(currentConfig);
             }
-
-            File.WriteAllLines(Path.Combine("config", configName, "VRAD.csv"), lines);
         }
 
-        void SaveVVISConfig(string configName)
-        {
-            if (File.Exists(Path.Combine("config", configName, "VVIS.csv")))
-                File.Delete(Path.Combine("config", configName, "VVIS.csv"));
-
-            var lines = new List<string>();
-            foreach (var para in VVISParameters)
-            {
-                lines.Add(string.Format("{0}^{1}^{2}^{3}^{4}", para.Name, para.Command, para.Option, para.Description, para.Enabled));
-            }
-
-            File.WriteAllLines(Path.Combine("config", configName, "VVIS.csv"), lines);
-        }
-
-        void SaveVBSPConfig(string configName)
-        {
-            if (File.Exists(Path.Combine("config", configName, "VBSP.csv")))
-                File.Delete(Path.Combine("config", configName, "VBSP.csv"));
-
-            var lines = new List<string>();
-            foreach (var para in VBSPParameters)
-            {
-                lines.Add(string.Format("{0}^{1}^{2}^{3}^{4}", para.Name, para.Command, para.Option, para.Description, para.Enabled));
-            }
-
-            File.WriteAllLines(Path.Combine("config", configName, "VBSP.csv"), lines);
-        }
-        #endregion
-
-        #region Config
-        private void LoadVRADConfig()
-        {
-            VRADParameters.Clear();
-            var lines = File.ReadAllLines(Path.Combine("config", currentConfig, "vrad.csv"));
-            foreach (var line in lines)
-            {
-                string[] split = line.Split('^');
-
-                var param = new Parameter()
-                            {
-                                Name = split[0],
-                                Command = split[1],
-                                Option = split[2],
-                                Description = split[3],
-                                Enabled = bool.Parse(split[4])
-                            };
-
-                VRADParameters.Add(param);
-
-            }
-
-            CollateVRADParameters();
-
-        }
-        private void LoadVBSPConfig()
-        {
-            VBSPParameters.Clear();
-            var lines = File.ReadAllLines(System.IO.Path.Combine("config", currentConfig, "VBSP.csv"));
-            foreach (var line in lines)
-            {
-                string[] split = line.Split('^');
-
-                var param = new Parameter()
-                {
-                    Name = split[0],
-                    Command = split[1],
-                    Option = split[2],
-                    Description = split[3],
-                    Enabled = bool.Parse(split[4]),
-                };
-
-                VBSPParameters.Add(param);
-
-            }
-
-            CollateVBSPParameters();
-
-        }
-        private void LoadVVISConfig()
-        {
-            VVISParameters.Clear();
-            var lines = File.ReadAllLines(Path.Combine("config", currentConfig, "VVIS.csv"));
-            foreach (var line in lines)
-            {
-                string[] split = line.Split('^');
-
-                var param = new Parameter()
-                {
-                    Name = split[0],
-                    Command = split[1],
-                    Option = split[2],
-                    Description = split[3],
-                    Enabled = bool.Parse(split[4]),
-                };
-
-                VVISParameters.Add(param);
-
-            }
-
-            CollateVVISParameters();
-
-        }
-        #endregion
-        #region Parameters
-        void CollateVRADParameters()
-        {
-            OutputVRADParameters = string.Empty;
-            foreach (var parameter in VRADParameters)
-            {
-                if (parameter.Enabled)
-                {
-                    OutputVRADParameters += parameter.Command;
-                    if (!string.IsNullOrEmpty(parameter.Option))
-                        OutputVRADParameters += " " + parameter.Option;
-                }
-            }
-
-
-            OutputVRADParameters += " -game $game";
-            OutputVRADParameters += " $map";
-            VRADParamsTextBox.Text = OutputVRADParameters;
-        }
-
-        void CollateVBSPParameters()
-        {
-            OutputVBSPParameters = string.Empty;
-            foreach (var parameter in VBSPParameters)
-            {
-                if (parameter.Enabled)
-                {
-                    OutputVBSPParameters += parameter.Command;
-                    if (!string.IsNullOrEmpty(parameter.Option))
-                        OutputVBSPParameters += " " + parameter.Option;
-                }
-            }
-
-
-            OutputVBSPParameters += " -game $game";
-            OutputVBSPParameters += " $map";
-            VBSPParamsTextBox.Text = OutputVBSPParameters;
-        }
-
-
-        void CollateVVISParameters()
-        {
-            OutputVVISParameters = string.Empty;
-            foreach (var parameter in VVISParameters)
-            {
-                if (parameter.Enabled)
-                {
-                    OutputVVISParameters += parameter.Command;
-                    if (!string.IsNullOrEmpty(parameter.Option))
-                        OutputVVISParameters += " " + parameter.Option;
-                }
-            }
-
-
-            OutputVVISParameters += " -game $game";
-            OutputVVISParameters += " $map";
-            VVISParamsTextBox.Text = OutputVVISParameters;
-        }
-        private string FinaliseParameters(string parameters)
-        {
-            VMFFile = MapFileText.Text;
-            parameters = parameters.Replace("$game", "\"" + GamePath + "\"");
-            parameters = parameters.Replace("$map", "\"" + VMFFile + "\"");
-
-            return parameters;
-        }
         #endregion
 
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog dialog = new OpenFileDialog();
+            dialog.Multiselect = true;
             dialog.Filter = "Valve Map Files (*.vmf)|*.vmf|All files (*.*)|*.*";
 
             dialog.ShowDialog();
 
-            MapFileText.Text = dialog.FileName;
+            if (dialog.FileNames.Any())
+            {
+                foreach (var fileName in dialog.FileNames)
+                {
+                    mapFiles.Add(fileName);
+                }
+            }
         }
 
 
-        private void CheckBox_Click(object sender, RoutedEventArgs e)
-        {
-            CollateVRADParameters();
-            CollateVVISParameters();
-            CollateVBSPParameters();
-        }
 
         private Thread CompileThread;
         private void CompileButton_Click(object sender, RoutedEventArgs e)
@@ -321,143 +141,94 @@ namespace CompilePal
 
             OutputTab.Focus();
 
-            string bspparams = FinaliseParameters(OutputVBSPParameters);
-            string visparams = FinaliseParameters(OutputVVISParameters);
-            string radparams = FinaliseParameters(OutputVRADParameters);
+            oldTitle = Title;
 
-            CompileThread = new Thread(() => Compile(bspparams, visparams, radparams));
+            CompileThread = new Thread(Compile);
             CompileThread.Start();
         }
 
-        private Process VBSPProcess;
-        private Process VVISProcess;
-        private Process VRADProcess;
-
-        private void Compile(string bspparams, string visparams, string radparams)
+        private void Compile()
         {
-            Dispatcher.Invoke(() => AppendLine("--VBSP Starting."));
+            float progress = 0f;
+            foreach (var vmf in mapFiles)
+            {
+                Dispatcher.Invoke(() => AppendLine("Compiling " + vmf));
+                foreach (var program in CompilePrograms)
+                {
+                    Dispatcher.Invoke(() =>Title = string.Format("{0} {1}", program.ToolName, vmf).ToUpper() );
 
-            VBSPProcess = new Process();
-            VBSPProcess.StartInfo.RedirectStandardOutput = true;
-            VBSPProcess.StartInfo.RedirectStandardInput = true;
-            VBSPProcess.StartInfo.RedirectStandardError = true;
-            VBSPProcess.StartInfo.UseShellExecute = false;
-            VBSPProcess.StartInfo.CreateNoWindow = true;
+                    if (program.RunTool(this, vmf, GamePath))
+                        return;//If true, then the compile was cancelled
 
-            VBSPProcess.OutputDataReceived += OutputDataReceived;
+                    progress += (1f / CompilePrograms.Count) / mapFiles.Count;
 
-            VBSPProcess.StartInfo.FileName = VBSPPath;
-            VBSPProcess.StartInfo.Arguments = bspparams;
-            VBSPProcess.Start();
-            if (uiConfig.Values.ContainsKey("lowpriority") && uiConfig["lowpriority"])
-                VBSPProcess.PriorityClass = ProcessPriorityClass.BelowNormal;
+                    Dispatcher.Invoke(() => SetProgress(progress));
 
-            VBSPProcess.BeginOutputReadLine();
-
-            VBSPProcess.WaitForExit();
-
-            Dispatcher.Invoke(() => AppendLine("--VVIS Starting."));
-
-            VVISProcess = new Process();
-            VVISProcess.StartInfo.RedirectStandardOutput = true;
-            VVISProcess.StartInfo.RedirectStandardInput = true;
-            VVISProcess.StartInfo.RedirectStandardError = true;
-            VVISProcess.StartInfo.UseShellExecute = false;
-            VVISProcess.StartInfo.CreateNoWindow = true;
-
-            VVISProcess.OutputDataReceived += OutputDataReceived;
-
-            VVISProcess.StartInfo.FileName = VVISPath;
-            VVISProcess.StartInfo.Arguments = visparams;
-            VVISProcess.Start();
-            if (uiConfig.Values.ContainsKey("lowpriority") && uiConfig["lowpriority"])
-                VVISProcess.PriorityClass = ProcessPriorityClass.BelowNormal;
-
-            VVISProcess.BeginOutputReadLine();
-
-            VVISProcess.WaitForExit();
-
-            Dispatcher.Invoke(() => AppendLine("--VRAD Starting."));
-
-            VRADProcess = new Process();
-            VRADProcess.StartInfo.RedirectStandardOutput = true;
-            VRADProcess.StartInfo.RedirectStandardInput = true;
-            VRADProcess.StartInfo.RedirectStandardError = true;
-            VRADProcess.StartInfo.UseShellExecute = false;
-            VRADProcess.StartInfo.CreateNoWindow = true;
-
-            VRADProcess.OutputDataReceived += OutputDataReceived;
-
-            VRADProcess.StartInfo.FileName = VRADPath;
-            VRADProcess.StartInfo.Arguments = radparams;
-            VRADProcess.Start();
-            if (uiConfig.Values.ContainsKey("lowpriority") && uiConfig["lowpriority"])
-                VRADProcess.PriorityClass = ProcessPriorityClass.BelowNormal;
-
-            VRADProcess.BeginOutputReadLine();
-
-            VRADProcess.WaitForExit();
-
-            Dispatcher.Invoke(() => AppendLine("--Compile Ending."));
-
+                }
+            }
             Dispatcher.Invoke(CompileFinish);
         }
 
-        void OutputDataReceived(object sender, DataReceivedEventArgs e)
+        void SetProgress(double progress)
         {
-            if (!string.IsNullOrEmpty(e.Data))
-                CompileOutputTextbox.Dispatcher.Invoke(() => AppendLine(e.Data));
+
+            TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Normal;
+            TaskbarItemInfo.ProgressValue = progress;
         }
+
+
 
         void CompileFinish()
         {
             CancelCompileButton.Visibility = Visibility.Hidden;
 
+            Title = oldTitle;
+
             if (CopyMapCheckBox.IsChecked.GetValueOrDefault())
             {
-                string newmap = Path.Combine(MapPath, Path.GetFileNameWithoutExtension(VMFFile) + ".bsp");
-                string oldmap = VMFFile.Replace(".vmf", ".bsp");
-
-                //Make sure we actually need to copy the map
-                if (!String.Equals(newmap, oldmap, StringComparison.CurrentCultureIgnoreCase))
+                foreach (var vmf in mapFiles)
                 {
-                    File.Delete(newmap);
+                    string newmap = Path.Combine(MapPath, Path.GetFileNameWithoutExtension(vmf) + ".bsp");
+                    string oldmap = vmf.Replace(".vmf", ".bsp");
 
-                    File.Copy(oldmap, newmap);
-                    AppendLine("Map {0} copied to {1}",oldmap, newmap);
+                    //Make sure we actually need to copy the map
+                    if (!String.Equals(newmap, oldmap, StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        File.Delete(newmap);
+
+                        File.Copy(oldmap, newmap);
+                        AppendLine("Map {0} copied to {1}", oldmap, newmap);
+                    }
+                    else
+                        AppendLine("BSP file didn't have to be copied. Skipping.");
                 }
-                else
-                    AppendLine("BSP file didn't have to be copied. Skipping.");
             }
         }
 
-        void AppendLine(string s, params string[] arguments)
+        public void AppendLine(string s, params string[] arguments)
         {
+            if (string.IsNullOrEmpty(s))
+                return;
             s = string.Format(s, arguments);
+            s += Environment.NewLine;
 
             CompileOutputTextbox.Focus();
-            CompileOutputTextbox.Text += s + Environment.NewLine;
-            CompileOutputTextbox.CaretIndex = CompileOutputTextbox.Text.Length;
+
+            CompileOutputTextbox.AppendText(s);
             CompileOutputTextbox.ScrollToEnd();
+        }
 
+        public void AppendLineC(string s, Brush brush = null)
+        {
+            if (string.IsNullOrEmpty(s))
+                return;
+            s += Environment.NewLine;
 
-            if (s.Contains("--VVIS Starting."))
-            {
-                TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Normal;
-                TaskbarItemInfo.ProgressValue = 0.33;
-            }
+            CompileOutputTextbox.Focus();
 
-            if (s.Contains("--VRAD Starting."))
-            {
-                TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Normal;
-                TaskbarItemInfo.ProgressValue = 0.66;
-            }
-
-            if (s.StartsWith("--Compile Ending."))
-            {
-                TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Normal;
-                TaskbarItemInfo.ProgressValue = 1;
-            }
+            if (brush == null) brush = Brushes.Black;
+            CompileOutputTextbox.AppendText(s, brush);
+            CompileOutputTextbox.ScrollToEnd();
         }
 
 
@@ -469,43 +240,33 @@ namespace CompilePal
         private void CancelCompile()
         {
             CancelCompileButton.Visibility = Visibility.Hidden;
-            try
-            {
-                VBSPProcess.Kill();
-                AppendLine("Killed VBSP");
-            }
-            catch { AppendLine("Could not kill VBSP."); }
-            try
-            {
-                VVISProcess.Kill();
-                AppendLine("Killed VVIS");
-            }
-            catch { AppendLine("Could not kill VVIS."); }
-            try
-            {
-                VRADProcess.Kill();
-                AppendLine("Killed VRAD");
-            }
-            catch { AppendLine("Could not kill VRAD."); }
 
+            foreach (var program in CompilePrograms)
+            {
+                program.Kill();
+            }
         }
 
         private void NewButton_Click(object sender, RoutedEventArgs e)
         {
             if (!Directory.Exists(Path.Combine("config", NewConfigNameBox.Text)))
                 Directory.CreateDirectory(Path.Combine("config", NewConfigNameBox.Text));
-            SaveVBSPConfig(NewConfigNameBox.Text);
-            SaveVRADConfig(NewConfigNameBox.Text);
-            SaveVVISConfig(NewConfigNameBox.Text);
+
+            foreach (CompileProgram program in CompilePrograms)
+            {
+                program.SaveConfig(NewConfigNameBox.Text);
+            }
+            currentConfig = NewConfigNameBox.Text;
 
             LoadConfigs();
         }
 
         private void SaveButton_Click(object sender, RoutedEventArgs e)
         {
-            SaveVBSPConfig(currentConfig);
-            SaveVRADConfig(currentConfig);
-            SaveVVISConfig(currentConfig);
+            foreach (CompileProgram program in CompilePrograms)
+            {
+                program.SaveConfig(currentConfig);
+            }
 
             LoadConfigs();
         }
@@ -518,15 +279,16 @@ namespace CompilePal
 
         private void TextBox_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
         {
-            CollateVRADParameters();
-            CollateVVISParameters();
-            CollateVBSPParameters();
+            foreach (CompileProgram program in CompilePrograms)
+            {
+                program.CollateParameters();
+            }
         }
 
         private void MetroWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             uiConfig["copymap"] = CopyMapCheckBox.IsChecked.GetValueOrDefault();
-            uiConfig["vmffile"] = MapFileText.Text;
+            uiConfig["vmffiles"] = mapFiles;
         }
 
         private void MainWindow_OnActivated(object sender, EventArgs e)
@@ -536,6 +298,11 @@ namespace CompilePal
                 TaskbarItemInfo.ProgressState = TaskbarItemProgressState.None;
                 TaskbarItemInfo.ProgressValue = 0;
             }
+        }
+
+        private void RemoveButton_Click(object sender, RoutedEventArgs e)
+        {
+            mapFiles.Remove((string)mapFilesListBox.SelectedItem);
         }
     }
 }
