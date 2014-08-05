@@ -12,15 +12,15 @@ Taskbar progress display:
 http://a.pomf.se/ephara.mp4
 
 And of course, a silly 'modern' UI:
-http://a.pomf.se/xzaayq.png
+http://i.imgur.com/lYo4dbI.png
 
 **Download**
-https://www.dropbox.com/s/19r4b6pfr59tvt3/Compile%20Pal.7z
+https://www.dropbox.com/s/582hs4ki6bt049v/Compile%20Pal%2002.7z
 
 **Source**
 https://github.com/ruarai/CompilePal
 
-Currently it probably has a lot of bugs I haven't noticed yet.
+Currently it probably has a lot of bugs I haven't noticed yet. 
 
 Configuration
 ==========
