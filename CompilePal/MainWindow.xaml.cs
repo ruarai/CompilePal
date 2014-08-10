@@ -91,6 +91,8 @@ namespace CompilePal
 
             LoadConfig(CurrentConfig);
 
+            VersionChecker.CheckVersion();
+
         }
 
 
