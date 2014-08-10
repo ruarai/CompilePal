@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Threading;
+using SharpConfig;
 
 namespace CompilePal
 {
@@ -16,20 +17,34 @@ namespace CompilePal
     {
         private MainWindow parent;
 
-        public CompileProgram(string path, string name, DataGrid grid, TextBox box)
+        public CompileProgram(string path, string name, DataGrid grid, TextBox box,CheckBox doRunCheckBox)
         {
             ToolName = name;
             ToolPath = path;
 
             ParameterGrid = grid;
             ParameterTextBox = box;
+
+            RunToolBox = doRunCheckBox;
+
+            DoRun = RunToolBox.IsChecked.GetValueOrDefault();
+            RunToolBox.Checked += RunToolBox_Checked;
+            RunToolBox.Unchecked += RunToolBox_Checked;
+        }
+
+        void RunToolBox_Checked(object sender, System.Windows.RoutedEventArgs e)
+        {
+            DoRun = RunToolBox.IsChecked.GetValueOrDefault();
         }
 
         public DataGrid ParameterGrid;
         public TextBox ParameterTextBox;
+        public CheckBox RunToolBox;
+
+        public bool DoRun = false;
 
         private Process process;
-        private bool ForceClosed = false;
+        private bool ForceClosed;
 
         public string ToolPath;
         public string ToolName;
@@ -52,6 +67,8 @@ namespace CompilePal
 
             process.StartInfo.FileName = ToolPath;
             process.StartInfo.Arguments = finalParams;
+            process.StartInfo.WorkingDirectory = "dumps";
+
             process.Start();
             process.PriorityClass = ProcessPriorityClass.BelowNormal;
 
@@ -75,7 +92,7 @@ namespace CompilePal
             }
         }
 
-        public void CollateParameters()
+        public virtual void CollateParameters()
         {
             Parameters = string.Empty;
             foreach (var parameter in ParameterList)
@@ -88,7 +105,6 @@ namespace CompilePal
                 }
             }
 
-
             Parameters += " -game $game";
             Parameters += " $map";
 
@@ -97,42 +113,21 @@ namespace CompilePal
 
         public void SaveConfig(string configName)
         {
-            string fileName = Path.Combine("config", configName, ToolName + ".csv");
-            if (File.Exists(fileName))
-                File.Delete(fileName);
+            Config programConfig = new Config(Path.Combine("config", configName, ToolName) + ".json", true);
 
+            programConfig["parameters"] = ParameterList;
 
-            var lines = new List<string>();
-            foreach (var para in ParameterList)
-            {
-                lines.Add(string.Format("{0}^{1}^{2}^{3}^{4}", para.Name, para.Command, para.Option, para.Description, para.Enabled));
-            }
-
-            File.WriteAllLines(fileName, lines);
+            programConfig["run"] = RunToolBox.IsChecked.GetValueOrDefault();
         }
 
         public void LoadConfig(string configName)
         {
-            string fileName = Path.Combine("config", configName, ToolName + ".csv");
+            Config programConfig = new Config(Path.Combine("config", configName, ToolName) + ".json", true);
 
-            ParameterList.Clear();
-            var lines = File.ReadAllLines(fileName);
-            foreach (var line in lines)
-            {
-                string[] split = line.Split('^');
+            if(programConfig.Values.ContainsKey("run"))
+                RunToolBox.IsChecked = programConfig["run"];
 
-                var param = new Parameter()
-                {
-                    Name = split[0],
-                    Command = split[1],
-                    Option = split[2],
-                    Description = split[3],
-                    Enabled = bool.Parse(split[4])
-                };
-
-                ParameterList.Add(param);
-
-            }
+            ParameterList = programConfig["parameters"].ToObject<ObservableCollection<Parameter>>();
 
             ParameterGrid.ItemsSource = ParameterList;
 
@@ -148,9 +143,9 @@ namespace CompilePal
         {
             parent.Dispatcher.Invoke(() => parent.AppendLine(text));
         }
-        void WriteTextOutC(string text,Brush brush)
+        void WriteTextOutC(string text, Brush brush)
         {
-            parent.Dispatcher.Invoke(() => parent.AppendLineC(text,brush));
+            parent.Dispatcher.Invoke(() => parent.AppendLineC(text, brush));
         }
     }
 }

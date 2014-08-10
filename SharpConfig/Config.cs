@@ -51,6 +51,12 @@ namespace SharpConfig
 
             Load();
         }
+        public Config(string saveLocation, bool autoSave = false)
+        {
+            DataFile = saveLocation;
+            AutoSave = autoSave;
+            Load();
+        }
 
         /// <summary>
         /// Indexer for the configuration, providing dynamic access to the collection of values in the configuration.</summary>

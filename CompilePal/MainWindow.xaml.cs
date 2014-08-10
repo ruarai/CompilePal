@@ -22,8 +22,9 @@ namespace CompilePal
     public partial class MainWindow
     {
         public List<CompileProgram> CompilePrograms = new List<CompileProgram>();
+        private GameProgram game;
 
-        private string currentConfig = "Normal";
+        public static string CurrentConfig = "Normal";
 
 
         private string GamePath;
@@ -49,6 +50,7 @@ namespace CompilePal
             if (!uiConfig.Values.ContainsKey("lowpriority"))
                 uiConfig["lowpriority"] = true;
 
+
             if (uiConfig.Values.ContainsKey("vmffiles"))
             {
                 foreach (var vmf in uiConfig["vmffiles"])
@@ -71,10 +73,14 @@ namespace CompilePal
             string VBSPPath = lines[17].Split('"')[3];
             string VVISPath = lines[18].Split('"')[3];
             string VRADPath = lines[19].Split('"')[3];
+            string GameExe = lines[14].Split('"')[3];
 
-            CompilePrograms.Add(new CompileProgram(VBSPPath, "vbsp", VBSPDataGrid, VBSPParamsTextBox));
-            CompilePrograms.Add(new CompileProgram(VVISPath, "vvis", VVISDataGrid, VVISParamsTextBox));
-            CompilePrograms.Add(new CompileProgram(VRADPath, "vrad", VRADDataGrid, VRADParamsTextBox));
+            CompilePrograms.Add(new CompileProgram(VBSPPath, "vbsp", VBSPDataGrid, VBSPParamsTextBox,VBSPRunCheckBox));
+            CompilePrograms.Add(new CompileProgram(VVISPath, "vvis", VVISDataGrid, VVISParamsTextBox, VVISRunCheckBox));
+            CompilePrograms.Add(new CompileProgram(VRADPath, "vrad", VRADDataGrid, VRADParamsTextBox, VRADRunCheckBox));
+
+            game = new GameProgram(GameExe, "game", GameDataGrid, GameParamsTextBox, GameDataGrid, GameParamsTextBox, GameRunCheckBox);
+
 
             GamePath = lines[6].Split('"')[3];
             MapPath = lines[22].Split('"')[3];
@@ -83,7 +89,7 @@ namespace CompilePal
 
             LoadConfigs();
 
-            LoadConfig(currentConfig);
+            LoadConfig(CurrentConfig);
 
         }
 
@@ -104,12 +110,14 @@ namespace CompilePal
 
         private void LoadConfig(string configName)
         {
-            currentConfig = configName;
+            CurrentConfig = configName;
 
             foreach (CompileProgram program in CompilePrograms)
             {
-                program.LoadConfig(currentConfig);
+                program.LoadConfig(CurrentConfig);
             }
+
+            game.LoadConfig(CurrentConfig);
         }
 
         #endregion
@@ -153,14 +161,17 @@ namespace CompilePal
             foreach (var vmf in mapFiles)
             {
                 Dispatcher.Invoke(() => AppendLine("Compiling " + vmf));
-                foreach (var program in CompilePrograms)
-                {
-                    Dispatcher.Invoke(() =>Title = string.Format("{0} {1}", program.ToolName, vmf).ToUpper() );
 
-                    if (program.RunTool(this, vmf, GamePath))
+                foreach (var program in CompilePrograms.Where(p=>p.DoRun))
+                {
+                    Dispatcher.Invoke(() =>Title = string.Format("{0} {1}", program.ToolName, Path.GetFileNameWithoutExtension(vmf)).ToUpper() );
+
+
+                    bool failure = program.RunTool(this, vmf, GamePath);
+                    if (failure)
                         return;//If true, then the compile was cancelled
 
-                    progress += (1f / CompilePrograms.Count) / mapFiles.Count;
+                    progress += (1f / CompilePrograms.Count(p=>p.DoRun)) / mapFiles.Count;
 
                     Dispatcher.Invoke(() => SetProgress(progress));
 
@@ -171,7 +182,6 @@ namespace CompilePal
 
         void SetProgress(double progress)
         {
-
             TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Normal;
             TaskbarItemInfo.ProgressValue = progress;
         }
@@ -201,8 +211,16 @@ namespace CompilePal
                     }
                     else
                         AppendLine("BSP file didn't have to be copied. Skipping.");
+
+                    if (game.DoRun && mapFiles.IndexOf(vmf) == mapFiles.Count -1)
+                    {
+                        game.Run(Path.GetFileNameWithoutExtension(vmf));
+                    }
                 }
             }
+            else if (game.DoRun)
+                game.Run(Path.GetFileNameWithoutExtension(mapFiles[mapFiles.Count -1]));
+
         }
 
         public void AppendLine(string s, params string[] arguments)
@@ -256,7 +274,9 @@ namespace CompilePal
             {
                 program.SaveConfig(NewConfigNameBox.Text);
             }
-            currentConfig = NewConfigNameBox.Text;
+            game.SaveConfig(NewConfigNameBox.Text);
+
+            CurrentConfig = NewConfigNameBox.Text;
 
             LoadConfigs();
         }
@@ -265,8 +285,9 @@ namespace CompilePal
         {
             foreach (CompileProgram program in CompilePrograms)
             {
-                program.SaveConfig(currentConfig);
+                program.SaveConfig(CurrentConfig);
             }
+            game.SaveConfig(CurrentConfig);
 
             LoadConfigs();
         }

@@ -4,20 +4,20 @@
         xmlns:controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
                       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="d"
-                      Title="Compile Pal" Height="653" Width="892" Closing="MetroWindow_Closing" Activated="MainWindow_OnActivated" IconEdgeMode="Aliased" Icon="CompilePalIcon.ico" ShowIconOnTitleBar="False" >
+                      Title="Compile Pal" Height="700" Width="1053" Closing="MetroWindow_Closing" Activated="MainWindow_OnActivated" IconEdgeMode="Aliased" Icon="CompilePalIcon.ico" ShowIconOnTitleBar="False" >
     <Grid>
         <Button x:Name="CompileButton" Content="Compile" HorizontalAlignment="Right"  VerticalAlignment="Bottom" Margin="10" Width="75" Click="CompileButton_Click"/>
         <Button Content="Add Map..." Margin="0,10,10,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="75" Click="Button_Click"/>
         <Button Name="RemoveButton" Content="Remove" Margin="0,40,10,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="75" Click="RemoveButton_Click" />
         <TabControl Margin="10,112,10,40">
-            <TabItem Header="VBSP" Name="VBSPTab">
+            <TabItem Header="VBSP" Name="VBSPTab" >
+
                 <Grid Background="#FFE5E5E5">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="219*"/>
                         <ColumnDefinition Width="208*"/>
                     </Grid.ColumnDefinitions>
-
-                    <DataGrid Name="VBSPDataGrid" Margin="10,10,10,41"  AutoGenerateColumns="False" CanUserAddRows="False" ItemsSource="{Binding}" Grid.ColumnSpan="2">
+                    <DataGrid Name="VBSPDataGrid" Margin="10,10,10,41"  AutoGenerateColumns="False" CanUserAddRows="False" ItemsSource="{Binding}" Grid.ColumnSpan="2" >
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Name" Binding="{ Binding Name}" IsReadOnly="True"/>
                             <DataGridTemplateColumn Header="">
@@ -37,14 +37,15 @@
                             <DataGridTextColumn Header="Description" Binding="{ Binding Description}" IsReadOnly="True"/>
                         </DataGrid.Columns>
                     </DataGrid>
-                    <TextBox x:Name="VBSPParamsTextBox" Margin="10,0,10,10" TextWrapping="Wrap" Text="TextBox" Height="26" VerticalAlignment="Bottom" Grid.ColumnSpan="2"/>
+                    <TextBox x:Name="VBSPParamsTextBox" Margin="10,0,106,10" TextWrapping="Wrap" Text="TextBox" Height="26" VerticalAlignment="Bottom" Grid.ColumnSpan="2"/>
+                    <CheckBox Name="VBSPRunCheckBox" Content="Run this tool" Grid.Column="1" Margin="0,0,10,15" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="91" IsChecked="True"/>
                 </Grid>
             </TabItem>
             <TabItem Header="VVIS" Name="VVISTab">
                 <Grid Background="#FFE5E5E5">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="30*"/>
-                        <ColumnDefinition Width="719*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition/>
                     </Grid.ColumnDefinitions>
                     <DataGrid Name="VVISDataGrid" Margin="10,10,10,41"  AutoGenerateColumns="False" CanUserAddRows="false" ItemsSource="{Binding}" Grid.ColumnSpan="2">
                         <DataGrid.Columns>
@@ -66,7 +67,8 @@
                             <DataGridTextColumn Header="Description" Binding="{ Binding Description}" IsReadOnly="True"/>
                         </DataGrid.Columns>
                     </DataGrid>
-                    <TextBox x:Name="VVISParamsTextBox" Margin="10,0,10,10" TextWrapping="Wrap" Text="TextBox" Height="26" VerticalAlignment="Bottom" Grid.ColumnSpan="2"/>
+                    <TextBox x:Name="VVISParamsTextBox" Margin="10,0,106,10" TextWrapping="Wrap" Text="TextBox" Height="26" VerticalAlignment="Bottom" Grid.ColumnSpan="2"/>
+                    <CheckBox Name="VVISRunCheckBox" Content="Run this tool" Grid.Column="1" Margin="0,0,10,15" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="91" IsChecked="True"/>
                 </Grid>
             </TabItem>
             <TabItem Header="VRAD" Name="VRADTab">
@@ -91,7 +93,64 @@
                             <DataGridTextColumn Header="Description" Binding="{ Binding Description}" IsReadOnly="True"/>
                         </DataGrid.Columns>
                     </DataGrid>
-                    <TextBox x:Name="VRADParamsTextBox" Margin="10,0,10,10" TextWrapping="Wrap" Text="TextBox" Height="26" VerticalAlignment="Bottom"/>
+                    <TextBox x:Name="VRADParamsTextBox" Margin="10,0,106,10" TextWrapping="Wrap" Text="TextBox" Height="26" VerticalAlignment="Bottom"/>
+                    <CheckBox Name="VRADRunCheckBox" Content="Run this tool" Grid.Column="1" Margin="0,0,10,15" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="91" IsChecked="True"/>
+                </Grid>
+            </TabItem>
+            <TabItem Header="PACK" Visibility="Collapsed">
+                <Grid Background="#FFE5E5E5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="177*"/>
+                        <ColumnDefinition Width="838*"/>
+                    </Grid.ColumnDefinitions>
+                    <DataGrid Name="PackDataGrid" Margin="10,10,10,41"  AutoGenerateColumns="False" CanUserAddRows="false" ItemsSource="{Binding}" Grid.ColumnSpan="2">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Name" Binding="{ Binding Name}" IsReadOnly="True"/>
+                            <DataGridTemplateColumn Header="">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <CheckBox IsChecked="{Binding Enabled, UpdateSourceTrigger=PropertyChanged}"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="Value">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBox Text="{Binding Option, UpdateSourceTrigger=PropertyChanged}" KeyUp="TextBox_KeyUp"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTextColumn Header="Description" Binding="{ Binding Description}" IsReadOnly="True"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                    <TextBox x:Name="PackParamsTextBox" Margin="10,0,106,10" TextWrapping="Wrap" Text="TextBox" Height="26" VerticalAlignment="Bottom" Grid.ColumnSpan="2"/>
+                    <CheckBox Name="VPackRunCheckBox" Content="Run this tool" Grid.Column="1" Margin="0,0,10,15" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="91"/>
+                </Grid>
+            </TabItem>
+            <TabItem Header="GAME">
+                <Grid Background="#FFE5E5E5">
+                    <DataGrid Name="GameDataGrid" Margin="10,10,10,41"  AutoGenerateColumns="False" CanUserAddRows="false" ItemsSource="{Binding}">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Name" Binding="{ Binding Name}" IsReadOnly="True"/>
+                            <DataGridTemplateColumn Header="">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <CheckBox IsChecked="{Binding Enabled, UpdateSourceTrigger=PropertyChanged}"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="Value">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBox Text="{Binding Option, UpdateSourceTrigger=PropertyChanged}" KeyUp="TextBox_KeyUp"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTextColumn Header="Description" Binding="{ Binding Description}" IsReadOnly="True"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                    <TextBox x:Name="GameParamsTextBox" Margin="10,0,106,10" TextWrapping="Wrap" Text="TextBox" Height="26" VerticalAlignment="Bottom"/>
+                    <CheckBox Name="GameRunCheckBox" Content="Run game" Margin="0,0,10,15" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="91"/>
                 </Grid>
             </TabItem>
             <TabItem Name="OutputTab" Header="OUTPUT">
@@ -106,7 +165,9 @@
         <Button x:Name="CancelCompileButton" Content="Cancel" Visibility="Hidden" HorizontalAlignment="Right"  VerticalAlignment="Bottom" Margin="0,0,90,10" Width="75" Click="CancelCompileButton_OnClick"/>
         <Button x:Name="NewButton" Content="Save As" HorizontalAlignment="Left" Margin="280,81,0,0" VerticalAlignment="Top" Width="75" Click="NewButton_Click" RenderTransformOrigin="0.267,0.56"/>
         <TextBox x:Name="NewConfigNameBox"  HorizontalAlignment="Left" Height="23" Margin="360,81,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" RenderTransformOrigin="0.942,0.462"/>
+
         <CheckBox Name="CopyMapCheckBox" Content="Copy to map folder upon completion" HorizontalAlignment="Left" Margin="10,0,0,17" Height="18" VerticalAlignment="Bottom"/>
+
         <ListBox Name="mapFilesListBox" Margin="10,10,90,0" BorderThickness="1" BorderBrush="{DynamicResource {x:Static SystemColors.ActiveBorderBrushKey}}" Height="66" VerticalAlignment="Top"/>
         <Label Content="Config:" HorizontalAlignment="Left" Margin="10,81,0,0" VerticalAlignment="Top"/>
 
@@ -116,3 +177,4 @@
         <TaskbarItemInfo/>
     </Window.TaskbarItemInfo>
 </controls:MetroWindow>
+    
