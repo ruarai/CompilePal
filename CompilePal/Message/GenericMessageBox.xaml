@@ -1,0 +1,9 @@
+﻿<controls:MetroWindow x:Class="CompilePal.GenericMessageBox"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+        Title="Message" Height="165" Width="234" ResizeMode="NoResize" Icon="/CompilePal;component/CompilePalIcon.ico" ShowIconOnTitleBar="False">
+    <Grid>
+        <TextBlock Name="Label" Margin="10" TextWrapping="WrapWithOverflow"/>
+    </Grid>
+</controls:MetroWindow>

@@ -9,6 +9,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shell;
+using CompilePal.Message;
 using MahApps.Metro.Controls;
 using Microsoft.Win32;
 using SharpConfig;
@@ -40,59 +41,86 @@ namespace CompilePal
 
         public MainWindow()
         {
+            Application.Current.DispatcherUnhandledException += Current_DispatcherUnhandledException;
             InitializeComponent();
 
             mapFilesListBox.ItemsSource = mapFiles;
 
-            if (uiConfig.Values.ContainsKey("copymap"))
-                CopyMapCheckBox.IsChecked = uiConfig["copymap"];
+            if (!Directory.Exists("dumps"))
+                Directory.CreateDirectory("dumps");
 
-            if (!uiConfig.Values.ContainsKey("lowpriority"))
-                uiConfig["lowpriority"] = true;
-
-
-            if (uiConfig.Values.ContainsKey("vmffiles"))
+            try
             {
-                foreach (var vmf in uiConfig["vmffiles"])
+                if (uiConfig.Values.ContainsKey("copymap"))
+                    CopyMapCheckBox.IsChecked = uiConfig["copymap"];
+
+                if (!uiConfig.Values.ContainsKey("lowpriority"))
+                    uiConfig["lowpriority"] = true;
+
+
+                if (uiConfig.Values.ContainsKey("vmffiles"))
                 {
-                    if (!string.IsNullOrEmpty((string)vmf))
-                        mapFiles.Add((string)vmf);
+                    foreach (var vmf in uiConfig["vmffiles"])
+                    {
+                        if (!string.IsNullOrEmpty((string)vmf))
+                            mapFiles.Add((string)vmf);
+                    }
                 }
             }
+            catch (Exception e)
+            {
+                ThrowException("An error occured whilst loading the UI configuration.", e);
+            }
 
-            //Loading the last used configurations for hammer
-            RegistryKey rk = Registry.CurrentUser.OpenSubKey(@"Software\Valve\Hammer\General");
+            try
+            {
+                //Loading the last used configurations for hammer
+                RegistryKey rk = Registry.CurrentUser.OpenSubKey(@"Software\Valve\Hammer\General");
 
-            string binFolder = (string)rk.GetValue("Directory");
-            string gameData = Path.Combine(binFolder, "GameConfig.txt");
+                string binFolder = (string)rk.GetValue("Directory");
+                string gameData = Path.Combine(binFolder, "GameConfig.txt");
+                var lines = File.ReadAllLines(gameData);
+                //Lazy parsing
+                string VBSPPath = lines[17].Split('"')[3];
+                string VVISPath = lines[18].Split('"')[3];
+                string VRADPath = lines[19].Split('"')[3];
+                string GameExe = lines[14].Split('"')[3];
 
-            var lines = File.ReadAllLines(gameData);
+                CompilePrograms.Add(new CompileProgram(VBSPPath, "vbsp", VBSPDataGrid, VBSPParamsTextBox, VBSPRunCheckBox));
+                CompilePrograms.Add(new CompileProgram(VVISPath, "vvis", VVISDataGrid, VVISParamsTextBox, VVISRunCheckBox));
+                CompilePrograms.Add(new CompileProgram(VRADPath, "vrad", VRADDataGrid, VRADParamsTextBox, VRADRunCheckBox));
 
-
-            //Lazy parsing
-            string VBSPPath = lines[17].Split('"')[3];
-            string VVISPath = lines[18].Split('"')[3];
-            string VRADPath = lines[19].Split('"')[3];
-            string GameExe = lines[14].Split('"')[3];
-
-            CompilePrograms.Add(new CompileProgram(VBSPPath, "vbsp", VBSPDataGrid, VBSPParamsTextBox,VBSPRunCheckBox));
-            CompilePrograms.Add(new CompileProgram(VVISPath, "vvis", VVISDataGrid, VVISParamsTextBox, VVISRunCheckBox));
-            CompilePrograms.Add(new CompileProgram(VRADPath, "vrad", VRADDataGrid, VRADParamsTextBox, VRADRunCheckBox));
-
-            game = new GameProgram(GameExe, "game", GameDataGrid, GameParamsTextBox, GameDataGrid, GameParamsTextBox, GameRunCheckBox);
+                game = new GameProgram(GameExe, "game", GameDataGrid, GameParamsTextBox, GameDataGrid, GameParamsTextBox, GameRunCheckBox);
 
 
-            GamePath = lines[6].Split('"')[3];
-            MapPath = lines[22].Split('"')[3];
+                GamePath = lines[6].Split('"')[3];
+                MapPath = lines[22].Split('"')[3];
 
-            Title = "Compile Pal: " + lines[4].Replace("\"", "").Trim();
+                //Make the title of the program be what the title says
+                Title = "Compile Pal: " + lines[4].Replace("\"", "").Trim();
+            }
+            catch (Exception e)
+            {
+                ThrowException("An error occured whilst parsing GameConfig.txt", e);
+            }
 
             LoadConfigs();
 
             LoadConfig(CurrentConfig);
 
             VersionChecker.CheckVersion();
+        }
 
+        void Current_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
+        {
+            ThrowException("An unhandled exception occurred.", e.Exception);
+        }
+
+        private void ThrowException(string description, Exception e)
+        {
+            CMessageBox.Show(description + Environment.NewLine + "Crash report written to dumps folder.");
+            File.WriteAllText(Path.Combine("dumps", DateTime.Now.Ticks + ".txt"), e.ToString());
+            throw e;
         }
 
 
@@ -100,12 +128,26 @@ namespace CompilePal
         #region SaveLoad
         private void LoadConfigs()
         {
-            ConfigComboBox.Items.Clear();
-            var dirs = Directory.GetDirectories("config");
-            foreach (var dir in dirs)
+            try
             {
-                string configName = dir.Replace("config\\", "");
-                ConfigComboBox.Items.Add(configName);
+                ConfigComboBox.Items.Clear();
+                var dirs = Directory.GetDirectories("config");
+                foreach (var dir in dirs)
+                {
+                    string configName = dir.Replace("config\\", "");
+                    ConfigComboBox.Items.Add(configName);
+                }
+
+                if (uiConfig.Values.ContainsKey("lastConfig"))
+                {
+                    ConfigComboBox.SelectedItem = uiConfig["lastConfig"];
+                }
+
+
+            }
+            catch (Exception e)
+            {
+                ThrowException("An error occured whilst loading the tool configurations.", e);
             }
 
         }
@@ -164,16 +206,16 @@ namespace CompilePal
             {
                 Dispatcher.Invoke(() => AppendLine("Compiling " + vmf));
 
-                foreach (var program in CompilePrograms.Where(p=>p.DoRun))
+                foreach (var program in CompilePrograms.Where(p => p.DoRun))
                 {
-                    Dispatcher.Invoke(() =>Title = string.Format("{0} {1}", program.ToolName, Path.GetFileNameWithoutExtension(vmf)).ToUpper() );
+                    Dispatcher.Invoke(() => Title = string.Format("{0} {1}", program.ToolName, Path.GetFileNameWithoutExtension(vmf)).ToUpper());
 
 
                     bool failure = program.RunTool(this, vmf, GamePath);
                     if (failure)
                         return;//If true, then the compile was cancelled
 
-                    progress += (1f / CompilePrograms.Count(p=>p.DoRun)) / mapFiles.Count;
+                    progress += (1f / CompilePrograms.Count(p => p.DoRun)) / mapFiles.Count;
 
                     Dispatcher.Invoke(() => SetProgress(progress));
 
@@ -192,36 +234,43 @@ namespace CompilePal
 
         void CompileFinish()
         {
-            CancelCompileButton.Visibility = Visibility.Hidden;
-
-            Title = oldTitle;
-
-            if (CopyMapCheckBox.IsChecked.GetValueOrDefault())
+            try
             {
-                foreach (var vmf in mapFiles)
+                CancelCompileButton.Visibility = Visibility.Hidden;
+
+                Title = oldTitle;
+
+                if (CopyMapCheckBox.IsChecked.GetValueOrDefault())
                 {
-                    string newmap = Path.Combine(MapPath, Path.GetFileNameWithoutExtension(vmf) + ".bsp");
-                    string oldmap = vmf.Replace(".vmf", ".bsp");
-
-                    //Make sure we actually need to copy the map
-                    if (!String.Equals(newmap, oldmap, StringComparison.CurrentCultureIgnoreCase))
+                    foreach (var vmf in mapFiles)
                     {
-                        File.Delete(newmap);
+                        string newmap = Path.Combine(MapPath, Path.GetFileNameWithoutExtension(vmf) + ".bsp");
+                        string oldmap = vmf.Replace(".vmf", ".bsp");
 
-                        File.Copy(oldmap, newmap);
-                        AppendLine("Map {0} copied to {1}", oldmap, newmap);
-                    }
-                    else
-                        AppendLine("BSP file didn't have to be copied. Skipping.");
+                        //Make sure we actually need to copy the map
+                        if (!String.Equals(newmap, oldmap, StringComparison.CurrentCultureIgnoreCase))
+                        {
+                            File.Delete(newmap);
 
-                    if (game.DoRun && mapFiles.IndexOf(vmf) == mapFiles.Count -1)
-                    {
-                        game.Run(Path.GetFileNameWithoutExtension(vmf));
+                            File.Copy(oldmap, newmap);
+                            AppendLine("Map {0} copied to {1}", oldmap, newmap);
+                        }
+                        else
+                            AppendLine("BSP file didn't have to be copied. Skipping.");
+
+                        if (game.DoRun && mapFiles.IndexOf(vmf) == mapFiles.Count - 1)
+                        {
+                            game.Run(Path.GetFileNameWithoutExtension(vmf));
+                        }
                     }
                 }
+                else if (game.DoRun)
+                    game.Run(Path.GetFileNameWithoutExtension(mapFiles[mapFiles.Count - 1]));
             }
-            else if (game.DoRun)
-                game.Run(Path.GetFileNameWithoutExtension(mapFiles[mapFiles.Count -1]));
+            catch (Exception e)
+            {
+                ThrowException("An error occured whilst finilising the compile.", e);
+            }
 
         }
 
@@ -285,13 +334,20 @@ namespace CompilePal
 
         private void SaveButton_Click(object sender, RoutedEventArgs e)
         {
-            foreach (CompileProgram program in CompilePrograms)
+            try
             {
-                program.SaveConfig(CurrentConfig);
-            }
-            game.SaveConfig(CurrentConfig);
+                foreach (CompileProgram program in CompilePrograms)
+                {
+                    program.SaveConfig(CurrentConfig);
+                }
+                game.SaveConfig(CurrentConfig);
 
-            LoadConfigs();
+                LoadConfigs();
+            }
+            catch (Exception ex)
+            {
+                ThrowException("An error occured whilst saving the configurations.", ex);
+            }
         }
 
         private void ConfigComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -312,6 +368,7 @@ namespace CompilePal
         {
             uiConfig["copymap"] = CopyMapCheckBox.IsChecked.GetValueOrDefault();
             uiConfig["vmffiles"] = mapFiles;
+            uiConfig["lastConfig"] = CurrentConfig;
         }
 
         private void MainWindow_OnActivated(object sender, EventArgs e)
