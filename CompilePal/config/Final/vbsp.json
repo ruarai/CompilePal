@@ -1,0 +1,40 @@
+{
+  "parameters": [
+    {
+      "Command": " -verbose",
+      "Name": "Verbose",
+      "Description": "Turn on verbose output (also shows more command-line options).",
+      "Option": "",
+      "Enabled": false
+    },
+    {
+      "Command": " -onlyents",
+      "Name": "Only Entities",
+      "Description": "Only import the entities from the VMF. Brushes and internal entities are not modified. Conserves existing lighting data.",
+      "Option": "",
+      "Enabled": false
+    },
+    {
+      "Command": " -onlyprops",
+      "Name": "Only Props",
+      "Description": "Only update static and detail props (i.e. the internal entities). Does not generate a .prt file, making VVIS fail!",
+      "Option": "",
+      "Enabled": false
+    },
+    {
+      "Command": " -nodetail",
+      "Name": "No Detail",
+      "Description": "Removes func_detail brushes.",
+      "Option": "",
+      "Enabled": false
+    },
+    {
+      "Command": " -nowater",
+      "Name": "No Water",
+      "Description": "Removes water brushes.",
+      "Option": "",
+      "Enabled": false
+    }
+  ],
+  "run": true
+}

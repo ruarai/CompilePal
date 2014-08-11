@@ -1,0 +1,40 @@
+{
+  "parameters": [
+    {
+      "Command": " -fast",
+      "Name": "Fast",
+      "Description": "Only do a quick first pass. Does not actually test visibility.",
+      "Option": "",
+      "Enabled": true
+    },
+    {
+      "Command": " -radius_override",
+      "Name": "Radius Override",
+      "Description": "Force a maximum vis radius, in units, regardless of whether an env_fog_controller specifies one.",
+      "Option": "",
+      "Enabled": false
+    },
+    {
+      "Command": " -nosort",
+      "Name": "No Sort",
+      "Description": "Don't sort (an optimization) portals.",
+      "Option": "",
+      "Enabled": false
+    },
+    {
+      "Command": " -tmpin",
+      "Name": "Temp In",
+      "Description": "Read portals from \\tmp\\<mapname>.",
+      "Option": "",
+      "Enabled": false
+    },
+    {
+      "Command": " -tmpout",
+      "Name": "Temp Out",
+      "Description": "Write portals to \\tmp\\<mapname>.",
+      "Option": "",
+      "Enabled": false
+    }
+  ],
+  "run": true
+}

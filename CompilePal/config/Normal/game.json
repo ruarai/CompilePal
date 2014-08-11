@@ -1,0 +1,19 @@
+{
+  "parameters": [
+    {
+      "Command": " -tools",
+      "Name": "Tools",
+      "Description": "Enables engine tools. Can cause lighting errors in game.",
+      "Option": "",
+      "Enabled": false
+    },
+    {
+      "Command": " -novid",
+      "Name": "No Video",
+      "Description": "Disables the intro video when launching.",
+      "Option": "",
+      "Enabled": true
+    }
+  ],
+  "run": true
+}
