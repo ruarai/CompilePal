@@ -15,7 +15,7 @@ And of course, a silly 'modern' UI:
 http://i.imgur.com/lYo4dbI.png
 
 **Download**
-https://www.dropbox.com/s/582hs4ki6bt049v/Compile%20Pal%2002.7z
+https://www.dropbox.com/s/ve4wdqtqwo6xxsx/Release.7z
 
 **Source**
 https://github.com/ruarai/CompilePal
