@@ -11,6 +11,9 @@ http://a.pomf.se/hfngyl.mp4
 Taskbar progress display:
 http://a.pomf.se/ephara.mp4
 
+Automatic file packing: (prototype)
+http://i.imgur.com/dqDtWdF.png
+
 And of course, a silly 'modern' UI:
 http://i.imgur.com/lYo4dbI.png
 
