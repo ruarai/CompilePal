@@ -189,6 +189,21 @@
     <Content Include="config\Normal\vvis.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="config\Fast\pack.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="config\Final\pack.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="config\Full - HDR\pack.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="config\Full - LDR\pack.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="config\Normal\pack.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -220,6 +235,10 @@
     <Resource Include="CompilePalIcon.ico" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\BSPAutoPack\BSPAutoPack.csproj">
+      <Project>{8f5332b7-6bc6-45bc-b01a-76f0574f61d8}</Project>
+      <Name>BSPAutoPack</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SharpConfig\SharpConfig.csproj">
       <Project>{85c815fa-63ea-48d2-ac32-e0bf2c4f6858}</Project>
       <Name>SharpConfig</Name>

@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Media;
 using System.Windows.Threading;
 using SharpConfig;
@@ -17,7 +18,7 @@ namespace CompilePal
     {
         private MainWindow parent;
 
-        public CompileProgram(string path, string name, DataGrid grid, TextBox box,CheckBox doRunCheckBox)
+        public CompileProgram(string path, string name, DataGrid grid, TextBox box, CheckBox doRunCheckBox)
         {
             ToolName = name;
             ToolPath = path;
@@ -51,6 +52,8 @@ namespace CompilePal
         public string Parameters;
         public ObservableCollection<Parameter> ParameterList = new ObservableCollection<Parameter>();
 
+        public string RunningDirectory = "dumps";
+
         public bool RunTool(MainWindow _parent, string vmfFile, string gamePath)
         {
             parent = _parent;
@@ -59,6 +62,8 @@ namespace CompilePal
 
             string finalParams = Parameters.Replace("$game", "\"" + gamePath + "\"");
             finalParams = finalParams.Replace("$map", "\"" + vmfFile + "\"");
+            finalParams = finalParams.Replace("$bsp", "\"" + vmfFile.Replace(".vmf", ".bsp") + "\"");
+            finalParams = finalParams.Replace("$zip", "\"" + MainWindow.BinFolder + "\\bspzip.exe\"");
 
 
             process = new Process { StartInfo = { RedirectStandardOutput = true, RedirectStandardInput = true, RedirectStandardError = true, UseShellExecute = false, CreateNoWindow = true } };
@@ -67,7 +72,7 @@ namespace CompilePal
 
             process.StartInfo.FileName = ToolPath;
             process.StartInfo.Arguments = finalParams;
-            process.StartInfo.WorkingDirectory = "dumps";
+            process.StartInfo.WorkingDirectory = RunningDirectory;
 
             process.Start();
             process.PriorityClass = ProcessPriorityClass.BelowNormal;
@@ -106,7 +111,8 @@ namespace CompilePal
             }
 
             Parameters += " -game $game";
-            Parameters += " $map";
+            if (ToolName != "pack")
+                Parameters += " $map";
 
             ParameterTextBox.Text = Parameters;
         }
@@ -124,7 +130,7 @@ namespace CompilePal
         {
             Config programConfig = new Config(Path.Combine("config", configName, ToolName) + ".json", true);
 
-            if(programConfig.Values.ContainsKey("run"))
+            if (programConfig.Values.ContainsKey("run"))
                 RunToolBox.IsChecked = programConfig["run"];
 
             ParameterList = programConfig["parameters"].ToObject<ObservableCollection<Parameter>>();

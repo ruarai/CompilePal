@@ -1,11 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30110.0
+VisualStudioVersion = 12.0.30723.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CompilePal", "CompilePal\CompilePal.csproj", "{3C4F48B6-09FA-44F0-847D-260116A1EC7A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SharpConfig", "SharpConfig\SharpConfig.csproj", "{85C815FA-63EA-48D2-AC32-E0BF2C4F6858}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BSPAutoPack", "BSPAutoPack\BSPAutoPack.csproj", "{8F5332B7-6BC6-45BC-B01A-76F0574F61D8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{85C815FA-63EA-48D2-AC32-E0BF2C4F6858}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{85C815FA-63EA-48D2-AC32-E0BF2C4F6858}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{85C815FA-63EA-48D2-AC32-E0BF2C4F6858}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8F5332B7-6BC6-45BC-B01A-76F0574F61D8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8F5332B7-6BC6-45BC-B01A-76F0574F61D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8F5332B7-6BC6-45BC-B01A-76F0574F61D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8F5332B7-6BC6-45BC-B01A-76F0574F61D8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

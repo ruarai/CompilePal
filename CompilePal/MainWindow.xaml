@@ -23,7 +23,7 @@
                             <DataGridTemplateColumn Header="">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <CheckBox IsChecked="{Binding Enabled, UpdateSourceTrigger=PropertyChanged}" />
+                                        <CheckBox IsChecked="{Binding Enabled, UpdateSourceTrigger=PropertyChanged}" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnChecked"/>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
@@ -53,7 +53,7 @@
                             <DataGridTemplateColumn Header="">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <CheckBox IsChecked="{Binding Enabled, UpdateSourceTrigger=PropertyChanged}" />
+                                        <CheckBox IsChecked="{Binding Enabled, UpdateSourceTrigger=PropertyChanged}"  Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnChecked"/>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
@@ -79,7 +79,7 @@
                             <DataGridTemplateColumn Header="">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <CheckBox IsChecked="{Binding Enabled, UpdateSourceTrigger=PropertyChanged}"/>
+                                        <CheckBox IsChecked="{Binding Enabled, UpdateSourceTrigger=PropertyChanged}" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnChecked"/>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
@@ -97,7 +97,7 @@
                     <CheckBox Name="VRADRunCheckBox" Content="Run this tool" Grid.Column="1" Margin="0,0,10,15" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="91" IsChecked="True"/>
                 </Grid>
             </TabItem>
-            <TabItem Header="PACK" Visibility="Collapsed">
+            <TabItem Header="PACK" Name="PackTab">
                 <Grid Background="#FFE5E5E5">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="177*"/>
@@ -109,7 +109,7 @@
                             <DataGridTemplateColumn Header="">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <CheckBox IsChecked="{Binding Enabled, UpdateSourceTrigger=PropertyChanged}"/>
+                                        <CheckBox IsChecked="{Binding Enabled, UpdateSourceTrigger=PropertyChanged}" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnChecked"/>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>
@@ -124,7 +124,7 @@
                         </DataGrid.Columns>
                     </DataGrid>
                     <TextBox x:Name="PackParamsTextBox" Margin="10,0,106,10" TextWrapping="Wrap" Text="TextBox" Height="26" VerticalAlignment="Bottom" Grid.ColumnSpan="2"/>
-                    <CheckBox Name="VPackRunCheckBox" Content="Run this tool" Grid.Column="1" Margin="0,0,10,15" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="91"/>
+                    <CheckBox Name="PackRunCheckBox" Content="Run this tool" Grid.Column="1" Margin="0,0,10,15" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="91"/>
                 </Grid>
             </TabItem>
             <TabItem Header="GAME">
@@ -135,7 +135,7 @@
                             <DataGridTemplateColumn Header="">
                                 <DataGridTemplateColumn.CellTemplate>
                                     <DataTemplate>
-                                        <CheckBox IsChecked="{Binding Enabled, UpdateSourceTrigger=PropertyChanged}"/>
+                                        <CheckBox IsChecked="{Binding Enabled, UpdateSourceTrigger=PropertyChanged}" Checked="ToggleButton_OnChecked" Unchecked="ToggleButton_OnChecked"/>
                                     </DataTemplate>
                                 </DataGridTemplateColumn.CellTemplate>
                             </DataGridTemplateColumn>

@@ -28,8 +28,10 @@ namespace CompilePal
         public static string CurrentConfig = "Normal";
 
 
-        private string GamePath;
-        private string MapPath;
+        public static string GamePath;
+        public static string MapPath;
+        public static string BinFolder;
+
 
         private string oldTitle = "COMPILE PAL";
 
@@ -77,8 +79,8 @@ namespace CompilePal
                 //Loading the last used configurations for hammer
                 RegistryKey rk = Registry.CurrentUser.OpenSubKey(@"Software\Valve\Hammer\General");
 
-                string binFolder = (string)rk.GetValue("Directory");
-                string gameData = Path.Combine(binFolder, "GameConfig.txt");
+                BinFolder = (string)rk.GetValue("Directory");
+                string gameData = Path.Combine(BinFolder, "GameConfig.txt");
                 var lines = File.ReadAllLines(gameData);
                 //Lazy parsing
                 string VBSPPath = lines[17].Split('"')[3];
@@ -89,6 +91,7 @@ namespace CompilePal
                 CompilePrograms.Add(new CompileProgram(VBSPPath, "vbsp", VBSPDataGrid, VBSPParamsTextBox, VBSPRunCheckBox));
                 CompilePrograms.Add(new CompileProgram(VVISPath, "vvis", VVISDataGrid, VVISParamsTextBox, VVISRunCheckBox));
                 CompilePrograms.Add(new CompileProgram(VRADPath, "vrad", VRADDataGrid, VRADParamsTextBox, VRADRunCheckBox));
+                CompilePrograms.Add(new CompileProgram("BSPAutoPack.exe", "pack", PackDataGrid, PackParamsTextBox, PackRunCheckBox){RunningDirectory = ""});
 
                 game = new GameProgram(GameExe, "game", GameDataGrid, GameParamsTextBox, GameDataGrid, GameParamsTextBox, GameRunCheckBox);
 
@@ -383,6 +386,14 @@ namespace CompilePal
         private void RemoveButton_Click(object sender, RoutedEventArgs e)
         {
             mapFiles.Remove((string)mapFilesListBox.SelectedItem);
+        }
+
+        private void ToggleButton_OnChecked(object sender, RoutedEventArgs e)
+        {
+            foreach (CompileProgram program in CompilePrograms)
+            {
+                program.CollateParameters();
+            }
         }
     }
 }
