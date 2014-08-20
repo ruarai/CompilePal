@@ -18,14 +18,12 @@ And of course, a silly 'modern' UI:
 http://i.imgur.com/lYo4dbI.png
 
 **Download**
-https://www.dropbox.com/s/im15e0jo0e4oxma/Compile%20Pal%20005.7z
+https://www.dropbox.com/s/ys6itgs4o7rw04c/Compile%20Pal%20006.7z
 
-**Source**
-https://github.com/ruarai/CompilePal
 
 Currently it probably has a lot of bugs I haven't noticed yet. 
 
 Configuration
 ==========
 
-It should work with any game configuration as long as the SDK for it has been launched last.
+Configuration currently only supported for CS:GO. Milage with other source games may vary and development is underway for full support.
