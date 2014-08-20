@@ -76,31 +76,58 @@ namespace CompilePal
 
             try
             {
-                //Loading the last used configurations for hammer
-                RegistryKey rk = Registry.CurrentUser.OpenSubKey(@"Software\Valve\Hammer\General");
+                if (!uiConfig.Values.ContainsKey("override"))
+                    uiConfig["override"] = false;
+                if (uiConfig["override"])
+                {
+                    string VBSPPath = uiConfig["vbsp"];
+                    string VVISPath = uiConfig["vvis"];
+                    string VRADPath = uiConfig["vrad"];
+                    string GameExe = uiConfig["game"];
 
-                BinFolder = (string)rk.GetValue("Directory");
-                string gameData = Path.Combine(BinFolder, "GameConfig.txt");
-                var lines = File.ReadAllLines(gameData);
-                //Lazy parsing
-                string VBSPPath = lines[17].Split('"')[3];
-                string VVISPath = lines[18].Split('"')[3];
-                string VRADPath = lines[19].Split('"')[3];
-                string GameExe = lines[14].Split('"')[3];
+                    CompilePrograms.Add(new CompileProgram(VBSPPath, "vbsp", VBSPDataGrid, VBSPParamsTextBox, VBSPRunCheckBox));
+                    CompilePrograms.Add(new CompileProgram(VVISPath, "vvis", VVISDataGrid, VVISParamsTextBox, VVISRunCheckBox));
+                    CompilePrograms.Add(new CompileProgram(VRADPath, "vrad", VRADDataGrid, VRADParamsTextBox, VRADRunCheckBox));
+                    CompilePrograms.Add(new CompileProgram("BSPAutoPack.exe", "pack", PackDataGrid, PackParamsTextBox, PackRunCheckBox) { RunningDirectory = "" });
 
-                CompilePrograms.Add(new CompileProgram(VBSPPath, "vbsp", VBSPDataGrid, VBSPParamsTextBox, VBSPRunCheckBox));
-                CompilePrograms.Add(new CompileProgram(VVISPath, "vvis", VVISDataGrid, VVISParamsTextBox, VVISRunCheckBox));
-                CompilePrograms.Add(new CompileProgram(VRADPath, "vrad", VRADDataGrid, VRADParamsTextBox, VRADRunCheckBox));
-                CompilePrograms.Add(new CompileProgram("BSPAutoPack.exe", "pack", PackDataGrid, PackParamsTextBox, PackRunCheckBox){RunningDirectory = ""});
-
-                game = new GameProgram(GameExe, "game", GameDataGrid, GameParamsTextBox, GameDataGrid, GameParamsTextBox, GameRunCheckBox);
+                    game = new GameProgram(GameExe, "game", GameDataGrid, GameParamsTextBox, GameDataGrid, GameParamsTextBox, GameRunCheckBox);
 
 
-                GamePath = lines[6].Split('"')[3];
-                MapPath = lines[22].Split('"')[3];
+                    GamePath = uiConfig["gamePath"];
+                    MapPath = uiConfig["mapPath"];
+                    BinFolder = uiConfig["binFolder"];
 
-                //Make the title of the program be what the title says
-                Title = "Compile Pal: " + lines[4].Replace("\"", "").Trim();
+                    //Make the title of the program be what the title says
+                    Title = "Compile Pal: Custom Game";
+                }
+                else
+                {
+                    //Loading the last used configurations for hammer
+                    RegistryKey rk = Registry.CurrentUser.OpenSubKey(@"Software\Valve\Hammer\General");
+
+                    BinFolder = (string) rk.GetValue("Directory");
+                    string gameData = Path.Combine(BinFolder, "GameConfig.txt");
+                    var lines = File.ReadAllLines(gameData);
+                    //Lazy parsing
+                    string VBSPPath = lines[17].Split('"')[3];
+                    string VVISPath = lines[18].Split('"')[3];
+                    string VRADPath = lines[19].Split('"')[3];
+                    string GameExe = lines[14].Split('"')[3];
+
+                    CompilePrograms.Add(new CompileProgram(VBSPPath, "vbsp", VBSPDataGrid, VBSPParamsTextBox, VBSPRunCheckBox));
+                    CompilePrograms.Add(new CompileProgram(VVISPath, "vvis", VVISDataGrid, VVISParamsTextBox, VVISRunCheckBox));
+                    CompilePrograms.Add(new CompileProgram(VRADPath, "vrad", VRADDataGrid, VRADParamsTextBox, VRADRunCheckBox));
+                    CompilePrograms.Add(new CompileProgram("BSPAutoPack.exe", "pack", PackDataGrid, PackParamsTextBox, PackRunCheckBox) {RunningDirectory = ""});
+
+                    game = new GameProgram(GameExe, "game", GameDataGrid, GameParamsTextBox, GameDataGrid, GameParamsTextBox, GameRunCheckBox);
+
+
+                    GamePath = lines[6].Split('"')[3];
+                    MapPath = lines[22].Split('"')[3];
+
+                    //Make the title of the program be what the title says
+                    Title = "Compile Pal: " + lines[4].Replace("\"", "").Trim();
+                }
             }
             catch (Exception e)
             {
@@ -372,6 +399,16 @@ namespace CompilePal
             uiConfig["copymap"] = CopyMapCheckBox.IsChecked.GetValueOrDefault();
             uiConfig["vmffiles"] = mapFiles;
             uiConfig["lastConfig"] = CurrentConfig;
+
+            foreach (var program in CompilePrograms)
+            {
+                uiConfig[program.ToolName] = program.ToolPath;
+            }
+
+            uiConfig["game"] = game.ToolPath;
+            uiConfig["gamePath"] = GamePath;
+            uiConfig["mapPath"] = MapPath;
+            uiConfig["binFolder"] = BinFolder;
         }
 
         private void MainWindow_OnActivated(object sender, EventArgs e)
