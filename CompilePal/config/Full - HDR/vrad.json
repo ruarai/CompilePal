@@ -12,14 +12,14 @@
       "Name": "LDR",
       "Description": "Compile LDR",
       "Option": "",
-      "Enabled": true
+      "Enabled": false
     },
     {
       "Command": " -hdr",
       "Name": "HDR",
       "Description": "Compile HDR",
       "Option": "",
-      "Enabled": false
+      "Enabled": true
     },
     {
       "Command": " -both",
