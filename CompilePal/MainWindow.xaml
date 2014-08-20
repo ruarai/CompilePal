@@ -37,7 +37,7 @@
                             <DataGridTextColumn Header="Description" Binding="{ Binding Description}" IsReadOnly="True"/>
                         </DataGrid.Columns>
                     </DataGrid>
-                    <TextBox x:Name="VBSPParamsTextBox" Margin="10,0,106,10" TextWrapping="Wrap" Text="TextBox" Height="26" VerticalAlignment="Bottom" Grid.ColumnSpan="2"/>
+                    <TextBox x:Name="VBSPParamsTextBox" Margin="10,0,106,10" TextWrapping="Wrap" Text="TextBox" Height="26" VerticalAlignment="Bottom" Grid.ColumnSpan="2" IsEnabled="False"/>
                     <CheckBox Name="VBSPRunCheckBox" Content="Run this tool" Grid.Column="1" Margin="0,0,10,15" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="91" IsChecked="True"/>
                 </Grid>
             </TabItem>
@@ -67,7 +67,7 @@
                             <DataGridTextColumn Header="Description" Binding="{ Binding Description}" IsReadOnly="True"/>
                         </DataGrid.Columns>
                     </DataGrid>
-                    <TextBox x:Name="VVISParamsTextBox" Margin="10,0,106,10" TextWrapping="Wrap" Text="TextBox" Height="26" VerticalAlignment="Bottom" Grid.ColumnSpan="2"/>
+                    <TextBox x:Name="VVISParamsTextBox" Margin="10,0,106,10" TextWrapping="Wrap" Text="TextBox" Height="26" VerticalAlignment="Bottom" Grid.ColumnSpan="2" IsEnabled="False"/>
                     <CheckBox Name="VVISRunCheckBox" Content="Run this tool" Grid.Column="1" Margin="0,0,10,15" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="91" IsChecked="True"/>
                 </Grid>
             </TabItem>
@@ -93,7 +93,7 @@
                             <DataGridTextColumn Header="Description" Binding="{ Binding Description}" IsReadOnly="True"/>
                         </DataGrid.Columns>
                     </DataGrid>
-                    <TextBox x:Name="VRADParamsTextBox" Margin="10,0,106,10" TextWrapping="Wrap" Text="TextBox" Height="26" VerticalAlignment="Bottom"/>
+                    <TextBox x:Name="VRADParamsTextBox" Margin="10,0,106,10" TextWrapping="Wrap" Text="TextBox" Height="26" VerticalAlignment="Bottom" IsEnabled="False"/>
                     <CheckBox Name="VRADRunCheckBox" Content="Run this tool" Grid.Column="1" Margin="0,0,10,15" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="91" IsChecked="True"/>
                 </Grid>
             </TabItem>
@@ -123,7 +123,7 @@
                             <DataGridTextColumn Header="Description" Binding="{ Binding Description}" IsReadOnly="True"/>
                         </DataGrid.Columns>
                     </DataGrid>
-                    <TextBox x:Name="PackParamsTextBox" Margin="10,0,106,10" TextWrapping="Wrap" Text="TextBox" Height="26" VerticalAlignment="Bottom" Grid.ColumnSpan="2"/>
+                    <TextBox x:Name="PackParamsTextBox" Margin="10,0,106,10" TextWrapping="Wrap" Text="TextBox" Height="26" VerticalAlignment="Bottom" Grid.ColumnSpan="2" IsEnabled="False"/>
                     <CheckBox Name="PackRunCheckBox" Content="Run this tool" Grid.Column="1" Margin="0,0,10,15" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="91"/>
                 </Grid>
             </TabItem>
@@ -149,7 +149,7 @@
                             <DataGridTextColumn Header="Description" Binding="{ Binding Description}" IsReadOnly="True"/>
                         </DataGrid.Columns>
                     </DataGrid>
-                    <TextBox x:Name="GameParamsTextBox" Margin="10,0,106,10" TextWrapping="Wrap" Text="TextBox" Height="26" VerticalAlignment="Bottom"/>
+                    <TextBox x:Name="GameParamsTextBox" Margin="10,0,106,10" TextWrapping="Wrap" Text="TextBox" Height="26" VerticalAlignment="Bottom" IsEnabled="False"/>
                     <CheckBox Name="GameRunCheckBox" Content="Run game" Margin="0,0,10,15" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="91"/>
                 </Grid>
             </TabItem>
