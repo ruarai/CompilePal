@@ -18,7 +18,7 @@ And of course, a silly 'modern' UI:
 ![ui](http://i.imgur.com/zMTThlY.png)
 
 **Download**
-https://www.dropbox.com/s/ys6itgs4o7rw04c/Compile%20Pal%20006.7z?dl=0
+https://www.dropbox.com/s/fw10q1un5ngluc0/Compile%20Pal%20007.7z
 
 
 Currently it probably has a lot of bugs I haven't noticed yet. 
