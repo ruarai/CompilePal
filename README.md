@@ -18,7 +18,7 @@ And of course, a silly 'modern' UI:
 http://i.imgur.com/lYo4dbI.png
 
 **Download**
-https://www.dropbox.com/s/ys6itgs4o7rw04c/Compile%20Pal%20006.7z
+https://www.dropbox.com/s/ys6itgs4o7rw04c/Compile%20Pal%20006.7z?dl=0
 
 
 Currently it probably has a lot of bugs I haven't noticed yet. 
@@ -26,4 +26,4 @@ Currently it probably has a lot of bugs I haven't noticed yet.
 Configuration
 ==========
 
-Configuration currently only supported for CS:GO. Milage with other source games may vary and development is underway for full support.
+Configuration should work for all source engine games as long as the SDK for it has been run last.
