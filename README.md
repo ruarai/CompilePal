@@ -15,7 +15,7 @@ Automatic file packing: (prototype)
 http://i.imgur.com/dqDtWdF.png
 
 And of course, a silly 'modern' UI:
-http://i.imgur.com/lYo4dbI.png
+http://i.imgur.com/zMTThlY.png
 
 **Download**
 https://www.dropbox.com/s/ys6itgs4o7rw04c/Compile%20Pal%20006.7z?dl=0
