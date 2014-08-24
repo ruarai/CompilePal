@@ -78,7 +78,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="GameInfo.cs" />
     <Compile Include="GameProgram.cs" />
+    <Compile Include="LaunchWindow.xaml.cs">
+      <DependentUpon>LaunchWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Message\GenericMessageBox.xaml.cs">
       <DependentUpon>GenericMessageBox.xaml</DependentUpon>
     </Compile>
@@ -88,6 +92,10 @@
       <DependentUpon>UpdateNeededWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="VersionChecker.cs" />
+    <Page Include="LaunchWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Message\GenericMessageBox.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

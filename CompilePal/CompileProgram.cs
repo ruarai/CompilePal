@@ -52,6 +52,8 @@ namespace CompilePal
         public string Parameters;
         public ObservableCollection<Parameter> ParameterList = new ObservableCollection<Parameter>();
 
+        public string ForcedParameters;
+
         public string RunningDirectory = "dumps";
 
         public bool RunTool(MainWindow _parent, string vmfFile, string gamePath)
@@ -63,7 +65,7 @@ namespace CompilePal
             string finalParams = Parameters.Replace("$game", "\"" + gamePath + "\"");
             finalParams = finalParams.Replace("$map", "\"" + vmfFile + "\"");
             finalParams = finalParams.Replace("$bsp", "\"" + vmfFile.Replace(".vmf", ".bsp") + "\"");
-            finalParams = finalParams.Replace("$zip", "\"" + MainWindow.BinFolder + "\\bspzip.exe\"");
+            finalParams = finalParams.Replace("$zip", "\"" + MainWindow.BinFolder + "bspzip.exe\"");
 
 
             process = new Process { StartInfo = { RedirectStandardOutput = true, RedirectStandardInput = true, RedirectStandardError = true, UseShellExecute = false, CreateNoWindow = true } };
@@ -110,9 +112,7 @@ namespace CompilePal
                 }
             }
 
-            Parameters += " -game $game";
-            if (ToolName != "pack")
-                Parameters += " $map";
+            Parameters += ForcedParameters;
 
             ParameterTextBox.Text = Parameters;
         }

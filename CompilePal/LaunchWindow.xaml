@@ -1,0 +1,20 @@
+﻿<controls:MetroWindow x:Class="CompilePal.LaunchWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+        Title="Compile Pal Launcher" Height="423" Width="785" ResizeMode="CanMinimize">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="163*"/>
+            <ColumnDefinition Width="327*"/>
+        </Grid.ColumnDefinitions>
+        <Button x:Name="LaunchButton" Content="Launch" HorizontalAlignment="Left" Margin="435,360,0,0" VerticalAlignment="Top" Width="75"  Height="25" Grid.Column="1" Click="LaunchButton_Click"/>
+        <DataGrid x:Name="GameGrid" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Height="345" Width="759" AutoGenerateColumns="False" CanUserAddRows="False" ItemsSource="{Binding}" Grid.ColumnSpan="2">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Name" Binding="{ Binding Name}" IsReadOnly="True"/>
+                <DataGridTextColumn Header="Path" Binding="{ Binding GameFolder}" IsReadOnly="True"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+    </Grid>
+</controls:MetroWindow>

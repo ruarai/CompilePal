@@ -23,13 +23,12 @@ namespace CompilePal
     public partial class MainWindow
     {
         public List<CompileProgram> CompilePrograms = new List<CompileProgram>();
-        private GameProgram game;
+        private GameProgram gameProgram;
 
         public static string CurrentConfig = "Normal";
 
+        public GameInfo gameInfo;
 
-        public static string GamePath;
-        public static string MapPath;
         public static string BinFolder;
 
 
@@ -41,8 +40,10 @@ namespace CompilePal
         public Config uiConfig = new Config("ui", true, true);
 
 
-        public MainWindow()
+        public MainWindow(GameInfo gameinfo)
         {
+            gameInfo = gameinfo;
+
             Application.Current.DispatcherUnhandledException += Current_DispatcherUnhandledException;
             InitializeComponent();
 
@@ -74,65 +75,15 @@ namespace CompilePal
                 ThrowException("An error occured whilst loading the UI configuration.", e);
             }
 
-            try
-            {
-                if (!uiConfig.Values.ContainsKey("override"))
-                    uiConfig["override"] = false;
-                if (uiConfig["override"])
-                {
-                    string VBSPPath = uiConfig["vbsp"];
-                    string VVISPath = uiConfig["vvis"];
-                    string VRADPath = uiConfig["vrad"];
-                    string GameExe = uiConfig["game"];
+            Title = "Compile Pal: " + gameInfo.Name;
+            CompilePrograms.Add(new CompileProgram(gameInfo.VBSP, "vbsp", VBSPDataGrid, VBSPParamsTextBox, VBSPRunCheckBox) {ForcedParameters = " -game $game $map"});
+            CompilePrograms.Add(new CompileProgram(gameInfo.VVIS, "vvis", VVISDataGrid, VVISParamsTextBox, VVISRunCheckBox) { ForcedParameters = " -game $game $map" });
+            CompilePrograms.Add(new CompileProgram(gameInfo.VRAD, "vrad", VRADDataGrid, VRADParamsTextBox, VRADRunCheckBox) { ForcedParameters = " -game $game $map" });
+            CompilePrograms.Add(new CompileProgram("BSPAutoPack.exe", "pack", PackDataGrid, PackParamsTextBox, PackRunCheckBox) { RunningDirectory = "", ForcedParameters = " -game $game" });
 
-                    CompilePrograms.Add(new CompileProgram(VBSPPath, "vbsp", VBSPDataGrid, VBSPParamsTextBox, VBSPRunCheckBox));
-                    CompilePrograms.Add(new CompileProgram(VVISPath, "vvis", VVISDataGrid, VVISParamsTextBox, VVISRunCheckBox));
-                    CompilePrograms.Add(new CompileProgram(VRADPath, "vrad", VRADDataGrid, VRADParamsTextBox, VRADRunCheckBox));
-                    CompilePrograms.Add(new CompileProgram("BSPAutoPack.exe", "pack", PackDataGrid, PackParamsTextBox, PackRunCheckBox) { RunningDirectory = "" });
+            gameProgram = new GameProgram(gameInfo.GameEXE, "game", GameDataGrid, GameParamsTextBox, GameDataGrid, GameParamsTextBox, GameRunCheckBox);
 
-                    game = new GameProgram(GameExe, "game", GameDataGrid, GameParamsTextBox, GameDataGrid, GameParamsTextBox, GameRunCheckBox);
-
-
-                    GamePath = uiConfig["gamePath"];
-                    MapPath = uiConfig["mapPath"];
-                    BinFolder = uiConfig["binFolder"];
-
-                    //Make the title of the program be what the title says
-                    Title = "Compile Pal: Custom Game";
-                }
-                else
-                {
-                    //Loading the last used configurations for hammer
-                    RegistryKey rk = Registry.CurrentUser.OpenSubKey(@"Software\Valve\Hammer\General");
-
-                    BinFolder = (string) rk.GetValue("Directory");
-                    string gameData = Path.Combine(BinFolder, "GameConfig.txt");
-                    var lines = File.ReadAllLines(gameData);
-                    //Lazy parsing
-                    string VBSPPath = lines[17].Split('"')[3];
-                    string VVISPath = lines[18].Split('"')[3];
-                    string VRADPath = lines[19].Split('"')[3];
-                    string GameExe = lines[14].Split('"')[3];
-
-                    CompilePrograms.Add(new CompileProgram(VBSPPath, "vbsp", VBSPDataGrid, VBSPParamsTextBox, VBSPRunCheckBox));
-                    CompilePrograms.Add(new CompileProgram(VVISPath, "vvis", VVISDataGrid, VVISParamsTextBox, VVISRunCheckBox));
-                    CompilePrograms.Add(new CompileProgram(VRADPath, "vrad", VRADDataGrid, VRADParamsTextBox, VRADRunCheckBox));
-                    CompilePrograms.Add(new CompileProgram("BSPAutoPack.exe", "pack", PackDataGrid, PackParamsTextBox, PackRunCheckBox) {RunningDirectory = ""});
-
-                    game = new GameProgram(GameExe, "game", GameDataGrid, GameParamsTextBox, GameDataGrid, GameParamsTextBox, GameRunCheckBox);
-
-
-                    GamePath = lines[6].Split('"')[3];
-                    MapPath = lines[22].Split('"')[3];
-
-                    //Make the title of the program be what the title says
-                    Title = "Compile Pal: " + lines[4].Replace("\"", "").Trim();
-                }
-            }
-            catch (Exception e)
-            {
-                ThrowException("An error occured whilst parsing GameConfig.txt", e);
-            }
+            BinFolder = gameInfo.BinFolder;
 
             LoadConfigs();
 
@@ -149,7 +100,7 @@ namespace CompilePal
         private void ThrowException(string description, Exception e)
         {
             CMessageBox.Show(description + Environment.NewLine + "Crash report written to dumps folder.");
-            File.WriteAllText(Path.Combine("dumps", DateTime.Now.Ticks + ".txt"), e.ToString());
+            File.WriteAllText(Path.Combine("dumps", DateTime.Now.Ticks + ".txt"), e.ToString() + e.InnerException.ToString());
             throw e;
         }
 
@@ -191,7 +142,7 @@ namespace CompilePal
                 program.LoadConfig(CurrentConfig);
             }
 
-            game.LoadConfig(CurrentConfig);
+            gameProgram.LoadConfig(CurrentConfig);
         }
 
         #endregion
@@ -199,9 +150,7 @@ namespace CompilePal
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            OpenFileDialog dialog = new OpenFileDialog();
-            dialog.Multiselect = true;
-            dialog.Filter = "Valve Map Files (*.vmf)|*.vmf|All files (*.*)|*.*";
+            var dialog = new OpenFileDialog {Multiselect = true, Filter = "Valve Map Files (*.vmf)|*.vmf|All files (*.*)|*.*"};
 
             dialog.ShowDialog();
 
@@ -216,20 +165,27 @@ namespace CompilePal
 
 
 
-        private Thread CompileThread;
         private void CompileButton_Click(object sender, RoutedEventArgs e)
         {
+            if (mapFiles.Any())
+                Compile();
+        }
+
+        private Thread CompileThread;
+        private void Compile()
+        {
             CancelCompileButton.Visibility = Visibility.Visible;
+            CompileButton.Visibility = Visibility.Collapsed;
 
             OutputTab.Focus();
 
             oldTitle = Title;
 
-            CompileThread = new Thread(Compile);
+            CompileThread = new Thread(CompileThreaded);
             CompileThread.Start();
         }
 
-        private void Compile()
+        private void CompileThreaded()
         {
             float progress = 0f;
             foreach (var vmf in mapFiles)
@@ -241,7 +197,7 @@ namespace CompilePal
                     Dispatcher.Invoke(() => Title = string.Format("{0} {1}", program.ToolName, Path.GetFileNameWithoutExtension(vmf)).ToUpper());
 
 
-                    bool failure = program.RunTool(this, vmf, GamePath);
+                    bool failure = program.RunTool(this, vmf, gameInfo.GameFolder);
                     if (failure)
                         return;//If true, then the compile was cancelled
 
@@ -274,7 +230,7 @@ namespace CompilePal
                 {
                     foreach (var vmf in mapFiles)
                     {
-                        string newmap = Path.Combine(MapPath, Path.GetFileNameWithoutExtension(vmf) + ".bsp");
+                        string newmap = Path.Combine(gameInfo.MapFolder, Path.GetFileNameWithoutExtension(vmf) + ".bsp");
                         string oldmap = vmf.Replace(".vmf", ".bsp");
 
                         //Make sure we actually need to copy the map
@@ -288,14 +244,14 @@ namespace CompilePal
                         else
                             AppendLine("BSP file didn't have to be copied. Skipping.");
 
-                        if (game.DoRun && mapFiles.IndexOf(vmf) == mapFiles.Count - 1)
+                        if (gameProgram.DoRun && mapFiles.IndexOf(vmf) == mapFiles.Count - 1)
                         {
-                            game.Run(Path.GetFileNameWithoutExtension(vmf));
+                            gameProgram.Run(Path.GetFileNameWithoutExtension(vmf));
                         }
                     }
                 }
-                else if (game.DoRun)
-                    game.Run(Path.GetFileNameWithoutExtension(mapFiles[mapFiles.Count - 1]));
+                else if (gameProgram.DoRun)
+                    gameProgram.Run(Path.GetFileNameWithoutExtension(mapFiles[mapFiles.Count - 1]));
             }
             catch (Exception e)
             {
@@ -338,12 +294,16 @@ namespace CompilePal
 
         private void CancelCompile()
         {
+            CompileButton.Visibility = Visibility.Visible;
             CancelCompileButton.Visibility = Visibility.Hidden;
 
             foreach (var program in CompilePrograms)
             {
                 program.Kill();
             }
+
+            TaskbarItemInfo.ProgressState = TaskbarItemProgressState.None;
+            TaskbarItemInfo.ProgressValue = 0;
         }
 
         private void NewButton_Click(object sender, RoutedEventArgs e)
@@ -355,7 +315,7 @@ namespace CompilePal
             {
                 program.SaveConfig(NewConfigNameBox.Text);
             }
-            game.SaveConfig(NewConfigNameBox.Text);
+            gameProgram.SaveConfig(NewConfigNameBox.Text);
 
             CurrentConfig = NewConfigNameBox.Text;
 
@@ -370,7 +330,7 @@ namespace CompilePal
                 {
                     program.SaveConfig(CurrentConfig);
                 }
-                game.SaveConfig(CurrentConfig);
+                gameProgram.SaveConfig(CurrentConfig);
 
                 LoadConfigs();
             }
@@ -388,10 +348,20 @@ namespace CompilePal
 
         private void TextBox_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
         {
+            UpdateParameters();
+        }
+        private void ToggleButton_OnChecked(object sender, RoutedEventArgs e)
+        {
+            UpdateParameters();
+        }
+
+        private void UpdateParameters()
+        {
             foreach (CompileProgram program in CompilePrograms)
             {
                 program.CollateParameters();
             }
+            gameProgram.CollateParameters();
         }
 
         private void MetroWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -404,11 +374,6 @@ namespace CompilePal
             {
                 uiConfig[program.ToolName] = program.ToolPath;
             }
-
-            uiConfig["game"] = game.ToolPath;
-            uiConfig["gamePath"] = GamePath;
-            uiConfig["mapPath"] = MapPath;
-            uiConfig["binFolder"] = BinFolder;
         }
 
         private void MainWindow_OnActivated(object sender, EventArgs e)
@@ -425,12 +390,6 @@ namespace CompilePal
             mapFiles.Remove((string)mapFilesListBox.SelectedItem);
         }
 
-        private void ToggleButton_OnChecked(object sender, RoutedEventArgs e)
-        {
-            foreach (CompileProgram program in CompilePrograms)
-            {
-                program.CollateParameters();
-            }
-        }
+
     }
 }

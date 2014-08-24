@@ -17,7 +17,7 @@
                         <ColumnDefinition Width="219*"/>
                         <ColumnDefinition Width="208*"/>
                     </Grid.ColumnDefinitions>
-                    <DataGrid Name="VBSPDataGrid" Margin="10,10,10,41"  AutoGenerateColumns="False" CanUserAddRows="False" ItemsSource="{Binding}" Grid.ColumnSpan="2" >
+                    <DataGrid Name="VBSPDataGrid" Margin="10,10,10,41"  AutoGenerateColumns="False" CanUserAddRows="False" ItemsSource="{Binding}" Grid.ColumnSpan="2">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Name" Binding="{ Binding Name}" IsReadOnly="True"/>
                             <DataGridTemplateColumn Header="">
