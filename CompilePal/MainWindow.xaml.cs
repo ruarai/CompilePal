@@ -223,6 +223,7 @@ namespace CompilePal
             try
             {
                 CancelCompileButton.Visibility = Visibility.Hidden;
+                CompileButton.Visibility = Visibility.Visible;
 
                 Title = oldTitle;
 
