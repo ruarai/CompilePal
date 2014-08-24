@@ -15,17 +15,15 @@ Automatic file packing: (prototype)
 http://i.imgur.com/dqDtWdF.png
 
 And of course, a silly 'modern' UI:
-http://i.imgur.com/lYo4dbI.png
+![ui](http://i.imgur.com/zMTThlY.png)
 
 **Download**
-https://www.dropbox.com/s/im15e0jo0e4oxma/Compile%20Pal%20005.7z
+https://www.dropbox.com/s/ys6itgs4o7rw04c/Compile%20Pal%20006.7z?dl=0
 
-**Source**
-https://github.com/ruarai/CompilePal
 
 Currently it probably has a lot of bugs I haven't noticed yet. 
 
 Configuration
 ==========
 
-It should work with any game configuration as long as the SDK for it has been launched last.
+Configuration should work for all source engine games as long as the SDK for it has been run last.
