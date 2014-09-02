@@ -89,6 +89,7 @@ namespace CompilePal
             LoadConfig(CurrentConfig);
 
             VersionChecker.CheckVersion();
+            Analytics.Startup();
         }
 
         void Current_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)

@@ -53,6 +53,12 @@
     <ApplicationIcon>CompilePalIcon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="GoogleAnalyticsTracker.Core">
+      <HintPath>..\packages\GoogleAnalyticsTracker.Core.3.0.20\lib\portable-net45+win+wp80\GoogleAnalyticsTracker.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="GoogleAnalyticsTracker.Simple">
+      <HintPath>..\packages\GoogleAnalyticsTracker.Simple.3.0.20\lib\net45\GoogleAnalyticsTracker.Simple.dll</HintPath>
+    </Reference>
     <Reference Include="MahApps.Metro">
       <HintPath>..\packages\MahApps.Metro.0.14.0-ALPHA98\lib\net45\MahApps.Metro.dll</HintPath>
     </Reference>
@@ -78,6 +84,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Analytics.cs" />
     <Compile Include="GameInfo.cs" />
     <Compile Include="GameProgram.cs" />
     <Compile Include="LaunchWindow.xaml.cs">

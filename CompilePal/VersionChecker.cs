@@ -29,6 +29,8 @@ namespace CompilePal
             {
                 string currentVersion = File.ReadAllText("version.txt");
 
+                Analytics.Version(currentVersion);
+
                 string newVersion = e.Result;
 
                 if (currentVersion != newVersion)
