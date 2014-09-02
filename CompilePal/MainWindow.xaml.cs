@@ -9,7 +9,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shell;
-using CompilePal.Message;
 using MahApps.Metro.Controls;
 using Microsoft.Win32;
 using SharpConfig;
@@ -99,8 +98,10 @@ namespace CompilePal
 
         private void ThrowException(string description, Exception e)
         {
-            CMessageBox.Show(description + Environment.NewLine + "Crash report written to dumps folder.");
-            File.WriteAllText(Path.Combine("dumps", DateTime.Now.Ticks + ".txt"), e.ToString() + e.InnerException.ToString());
+            string crashName = DateTime.Now.ToString("s").Replace(":","-");
+
+            MessageBox.Show(description + Environment.NewLine + "Crash report " + crashName + " written to dumps folder.");
+            File.WriteAllText(Path.Combine("dumps", crashName + ".txt"), e.ToString() + e.InnerException ?? "");
             throw e;
         }
 
@@ -196,10 +197,13 @@ namespace CompilePal
                 {
                     Dispatcher.Invoke(() => Title = string.Format("{0} {1}", program.ToolName, Path.GetFileNameWithoutExtension(vmf)).ToUpper());
 
-
                     bool failure = program.RunTool(this, vmf, gameInfo.GameFolder);
                     if (failure)
-                        return;//If true, then the compile was cancelled
+                    {
+                        Dispatcher.Invoke(() => AppendLineC("Compile program failed", Brushes.OrangeRed));
+                        Dispatcher.Invoke(CompileFinish);
+                        return; //If true, then the compile was cancelled
+                    }
 
                     progress += (1f / CompilePrograms.Count(p => p.DoRun)) / mapFiles.Count;
 
@@ -302,6 +306,10 @@ namespace CompilePal
             {
                 program.Kill();
             }
+
+            CompileThread.Abort();
+
+            Title = oldTitle;
 
             TaskbarItemInfo.ProgressState = TaskbarItemProgressState.None;
             TaskbarItemInfo.ProgressValue = 0;

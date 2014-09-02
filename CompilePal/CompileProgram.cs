@@ -58,6 +58,8 @@ namespace CompilePal
 
         public bool RunTool(MainWindow _parent, string vmfFile, string gamePath)
         {
+            ForceClosed = false;
+
             parent = _parent;
 
             WriteTextOutC("Starting " + ToolName.ToUpper(), Brushes.Green);

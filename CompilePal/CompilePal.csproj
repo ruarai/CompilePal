@@ -83,20 +83,12 @@
     <Compile Include="LaunchWindow.xaml.cs">
       <DependentUpon>LaunchWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Message\GenericMessageBox.xaml.cs">
-      <DependentUpon>GenericMessageBox.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Message\CMessageBox.cs" />
     <Compile Include="RichTextBoxExtensions.cs" />
     <Compile Include="UpdateNeededWindow.xaml.cs">
       <DependentUpon>UpdateNeededWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="VersionChecker.cs" />
     <Page Include="LaunchWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Message\GenericMessageBox.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
