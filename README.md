@@ -17,7 +17,10 @@ http://i.imgur.com/dqDtWdF.png
 And of course, a silly 'modern' UI:
 ![ui](http://i.imgur.com/zMTThlY.png)
 
-**Download**
+Download
+==========
+
+**Latest Build:007**
 https://www.dropbox.com/s/fw10q1un5ngluc0/Compile%20Pal%20007.7z
 
 
