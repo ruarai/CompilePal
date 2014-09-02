@@ -1,7 +1,7 @@
 CompilePal
 ==========
 
-Compile Pal is a wrapper for the source map compiling tools that provides easy configuration as well as overall UI.
+Compile Pal is a wrapper for the source map compiling tools that provides easy configuration as well as extra features.
 
 It was inspired by VBCT and serves to be an easier to use replacement with improvements such as:
 
@@ -17,7 +17,10 @@ http://i.imgur.com/dqDtWdF.png
 And of course, a silly 'modern' UI:
 ![ui](http://i.imgur.com/zMTThlY.png)
 
-**Download**
+Download
+==========
+
+**Latest Build:007**
 https://www.dropbox.com/s/fw10q1un5ngluc0/Compile%20Pal%20007.7z
 
 
