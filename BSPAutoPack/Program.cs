@@ -19,7 +19,7 @@ namespace BSPAutoPack
 
         private static List<string> vmfSoundKeys;
         private static List<string> vmfMaterialKeys;
-        //private static List<string> vmfModelKeys;
+        private static List<string> vmfModelKeys;
 
         private static List<string> vmfAllKeys = new List<string>();
 
@@ -34,11 +34,11 @@ namespace BSPAutoPack
 
                 vmfSoundKeys = File.ReadAllLines(Path.Combine("keys", "vmfsoundkeys.txt")).ToList();
                 vmfMaterialKeys = File.ReadAllLines(Path.Combine("keys", "vmfmaterialkeys.txt")).ToList();
-                //vmfModelKeys = File.ReadAllLines(Path.Combine("keys","vmfmodelkeys.txt")).ToList();
+                vmfModelKeys = File.ReadAllLines(Path.Combine("keys","vmfmodelkeys.txt")).ToList();
 
                 vmfAllKeys.AddRange(vmfSoundKeys);
                 vmfAllKeys.AddRange(vmfMaterialKeys);
-                //vmfAllKeys.AddRange(vmfModelKeys);
+                vmfAllKeys.AddRange(vmfModelKeys);
 
                 for (int i = 0; i < args.Length; i++)
                 {
@@ -108,9 +108,10 @@ namespace BSPAutoPack
                 {
                     fileList.AddRange(GetMaterialReferences(content));
                 }
+
                 if (Path.GetExtension(content) == ".mdl")
                 {
-                    fileList.AddRange(GetMaterialReferences(content));
+                    fileList.AddRange(GetModelReferences(content));
                 }
             }
 
@@ -158,22 +159,51 @@ namespace BSPAutoPack
             Console.WriteLine(e.Data);
         }
 
+        static List<string> GetModelReferences(string mdlPath)
+        {
+            var references = new List<string>();
+
+            var variations = new List<string>() {".dx80.vtx",".dx90.vtx",".phy",".sw.vtx",".sw.vtx"};
+            foreach (string variation in variations)
+            {
+                string variant = mdlPath.Replace(".mdl", variation);
+                if(File.Exists(variant))
+                    references.Add(variant);
+            }
+
+            string materialFile = mdlPath.Replace(@"\models", @"\materials\models").Replace(".mdl",".vmt");
+            if (File.Exists(materialFile))
+            {
+                references.Add(materialFile);
+                references.AddRange(GetMaterialReferences(materialFile));
+            }
+
+            return references;
+        }
+
 
         static List<string> GetMaterialReferences(string vmtpath)
         {
             var vmtLines = File.ReadAllLines(vmtpath);
 
-            var textureLines = vmtLines.Where(l => vmtTexturekeyWords.Any(l.Contains));
+            var textureLines = vmtLines.Where(l => vmtTexturekeyWords.Any(t => l.ToLower().Contains(t.ToLower())));
+
 
             var contentFiles = new List<string>();
 
             foreach (string line in textureLines)
             {
-                string path = (Path.Combine(gameFolder, "materials", GetValue(line)) + ".vtf").Replace("/", "\\");
+                string path;
+                if (GetValue(line).EndsWith(".vtf"))
+                {
+                    path = (Path.Combine(gameFolder, "materials", GetValue(line))).Replace("/", "\\");
+                }
+                else
+                {
+                    path = (Path.Combine(gameFolder, "materials", GetValue(line)) + ".vtf").Replace("/", "\\");
+                }
                 if (File.Exists(path))
                     contentFiles.Add(path);
-
-
             }
 
             var materialLines = vmtLines.Where(l => vmtMaterialkeyWords.Any(l.Contains));
@@ -213,13 +243,15 @@ namespace BSPAutoPack
         {
             string contentPath = "";
 
-            //if (vmfModelKeys.Contains(key))
-            //    contentPath = Path.Combine(gameFolder, value);
+            if (vmfModelKeys.Contains(key))
+                contentPath = Path.Combine(gameFolder, value);
+
             if (vmfMaterialKeys.Contains(key))
                 contentPath = Path.Combine(gameFolder, "materials", value) + ".vmt";
 
             if (vmfSoundKeys.Contains(key))
                 contentPath = Path.Combine(gameFolder, "sound", value);
+
 
             return contentPath;
         }
