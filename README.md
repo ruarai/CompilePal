@@ -20,8 +20,8 @@ And of course, a silly 'modern' UI:
 Download
 ==========
 
-**Latest Build:007**
-https://www.dropbox.com/s/fw10q1un5ngluc0/Compile%20Pal%20007.7z
+**Latest Build:008**
+https://www.dropbox.com/s/dtzz7u1ttkfn3b9/Compile%20Pal%20008.7z
 
 
 Currently it probably has a lot of bugs I haven't noticed yet. 
