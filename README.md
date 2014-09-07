@@ -20,13 +20,17 @@ And of course, a silly 'modern' UI:
 Download
 ==========
 
-**Latest Build:008**
-https://www.dropbox.com/s/dtzz7u1ttkfn3b9/Compile%20Pal%20008.7z
+**Latest Build:009**
+https://www.dropbox.com/s/l8eknmmo8ook70i/Compile%20Pal%20009.7z
 
-
-Currently it probably has a lot of bugs I haven't noticed yet. 
 
 Configuration
 ==========
 
-Configuration should work for all source engine games as long as the SDK for it has been run last.
+Compile Pal should automatically find any game configurations - as long as the game's SDK was run last.
+
+Packing
+==========
+PACK is a prototype feature that allows for the automatic packing of custom content into a map BSP. It does not cover all custom content, so is best suited for when you simply want to share a map with a friend.
+
+
