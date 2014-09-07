@@ -8,14 +8,14 @@ It was inspired by VBCT and serves to be an easier to use replacement with impro
 Fast configuration management:
 http://a.pomf.se/hfngyl.mp4
 
-Taskbar progress display:
-http://a.pomf.se/ephara.mp4
+Taskbar progress display (Windows 7):
+![progress](https://zippy.gfycat.com/UnlawfulImpeccableGrosbeak.webm)
 
 Automatic file packing: (prototype)
 http://i.imgur.com/dqDtWdF.png
 
 And of course, a silly 'modern' UI:
-![ui](http://i.imgur.com/zMTThlY.png)
+![ui](http://i.imgur.com/lR4SlKy.png)
 
 Download
 ==========
