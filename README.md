@@ -9,7 +9,7 @@ Fast configuration management:
 http://a.pomf.se/hfngyl.mp4
 
 Taskbar progress display (Windows 7):
-![progress](https://zippy.gfycat.com/UnlawfulImpeccableGrosbeak.webm)
+![progress](http://zippy.gfycat.com/UnlawfulImpeccableGrosbeak.gif)
 
 Automatic file packing: (prototype)
 http://i.imgur.com/dqDtWdF.png
