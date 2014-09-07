@@ -9,9 +9,11 @@ An easy to manage UI:
 ![ui](http://i.imgur.com/lR4SlKy.png)
 
 Fast configuration management:
+
 ![config](http://zippy.gfycat.com/EasyBewitchedColt.gif)
 
 Taskbar progress display (Windows 7):
+
 ![progress](http://zippy.gfycat.com/UnlawfulImpeccableGrosbeak.gif)
 
 Automatic file packing:
