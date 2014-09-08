@@ -24,8 +24,8 @@ Download
 ==========
 
 **Latest Build:010**
-https://www.dropbox.com/s/ftpvi6usa8dw8bw/release010.7z
 
+https://www.dropbox.com/s/9h6ob7ouywh5g7c/Compile%20Pal%20010.7z
 
 Configuration
 ==========
