@@ -39,16 +39,16 @@ PACK is a prototype feature that allows for the automatic packing of custom cont
 Changes
 ==========
 
-010:
+#### 010:
 
 - Fixed major error with model packing where models would not be packed at all.
 - Fixed typo
 
-009:
+#### 009:
 
 - Add model packing to PACK
 
-008:
+#### 008:
 
 - Fix major compile cancel error
 - Fix for exception handling
