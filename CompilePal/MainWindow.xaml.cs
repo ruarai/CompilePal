@@ -377,11 +377,6 @@ namespace CompilePal
             uiConfig["copymap"] = CopyMapCheckBox.IsChecked.GetValueOrDefault();
             uiConfig["vmffiles"] = mapFiles;
             uiConfig["lastConfig"] = CurrentConfig;
-
-            foreach (var program in CompilePrograms)
-            {
-                uiConfig[program.ToolName] = program.ToolPath;
-            }
         }
 
         private void MainWindow_OnActivated(object sender, EventArgs e)
