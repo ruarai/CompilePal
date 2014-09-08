@@ -140,7 +140,7 @@ namespace BSPAutoPack
             string arguments = "-addlist \"$bspnew\"  \"$list\" \"$bspold\" -game \"$game\"";
             arguments = arguments.Replace("$bspnew", bspPath);
             arguments = arguments.Replace("$bspold", bspPath);
-            arguments = arguments.Replace("$list", @"C:\Users\Ruarai\Dropbox\My Documents\Visual Studio 2013\Projects\BSPAutoPack\BSPAutoPack\bin\Debug\" + "files.txt");
+            arguments = arguments.Replace("$list","files.txt");
             arguments = arguments.Replace("$game", gameFolder);
 
             Process p = new Process();
