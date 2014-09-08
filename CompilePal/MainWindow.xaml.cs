@@ -261,7 +261,7 @@ namespace CompilePal
             }
             catch (Exception e)
             {
-                ThrowException("An error occured whilst finilising the compile.", e);
+                ThrowException("An error occured whilst finalising the compile.", e);
             }
 
         }
