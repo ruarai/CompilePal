@@ -13,7 +13,28 @@
       "Description": "Disables the intro video when launching.",
       "Option": "",
       "Enabled": true
+    },
+    {
+      "Command": " -dev",
+      "Name": "Developer Mode",
+      "Description": "Disables the automatic loading of menu background maps and stops the quit dialog from appearing on exit.",
+      "Option": "",
+      "Enabled": false
+    },
+    {
+      "Command": " -console",
+      "Name": "Console",
+      "Description": "Starts the game with the developer console enabled.",
+      "Option": "",
+      "Enabled": false
+    },
+    {
+      "Command": " +map",
+      "Name": "Map",
+      "Description": "Loads the specified map.",
+      "Option": "$map",
+      "Enabled": true
     }
   ],
-  "run": true
+  "run": false
 }
