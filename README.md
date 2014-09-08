@@ -23,8 +23,8 @@ Automatic file packing:
 Download
 ==========
 
-**Latest Build:009**
-https://www.dropbox.com/s/l8eknmmo8ook70i/Compile%20Pal%20009.7z
+**Latest Build:010**
+https://www.dropbox.com/s/ftpvi6usa8dw8bw/release010.7z
 
 
 Configuration
@@ -36,4 +36,21 @@ Packing
 ==========
 PACK is a prototype feature that allows for the automatic packing of custom content into a map BSP. It does not cover all custom content, so is best suited for when you simply want to share a map with a friend.
 
+Changes
+==========
+
+010:
+
+- Fixed major error with model packing where models would not be packed at all.
+- Fixed typo
+
+009:
+
+- Add model packing to PACK
+
+008:
+
+- Fix major compile cancel error
+- Fix for exception handling
+- Add analytics
 
