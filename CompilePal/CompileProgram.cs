@@ -1,15 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Controls;
-using System.Windows.Documents;
 using System.Windows.Media;
-using System.Windows.Threading;
 using SharpConfig;
 
 namespace CompilePal
@@ -121,7 +114,7 @@ namespace CompilePal
 
         public void SaveConfig(string configName)
         {
-            Config programConfig = new Config(Path.Combine("config", configName, ToolName) + ".json", true);
+            var programConfig = new Config(Path.Combine("config", configName, ToolName) + ".json", true);
 
             programConfig["parameters"] = ParameterList;
 
@@ -130,7 +123,7 @@ namespace CompilePal
 
         public void LoadConfig(string configName)
         {
-            Config programConfig = new Config(Path.Combine("config", configName, ToolName) + ".json", true);
+            var programConfig = new Config(Path.Combine("config", configName, ToolName) + ".json", true);
 
             if (programConfig.Values.ContainsKey("run"))
                 RunToolBox.IsChecked = programConfig["run"];

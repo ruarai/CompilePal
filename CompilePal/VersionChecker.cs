@@ -1,21 +1,18 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CompilePal
 {
     class VersionChecker
     {
-        static string VersionURL = "https://raw.githubusercontent.com/ruarai/CompilePal/master/CompilePal/version.txt";
+        private const string VersionURL = "https://raw.githubusercontent.com/ruarai/CompilePal/master/CompilePal/version.txt";
+
         public static void CheckVersion()
         {
             try
             {
-                WebClient c = new WebClient();
+                var c = new WebClient();
                 c.DownloadStringCompleted += c_DownloadStringCompleted;
                 c.DownloadStringAsync(new Uri(VersionURL));
             }

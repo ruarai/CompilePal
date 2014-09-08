@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -9,7 +8,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shell;
-using MahApps.Metro.Controls;
 using Microsoft.Win32;
 using SharpConfig;
 
@@ -266,7 +264,7 @@ namespace CompilePal
 
         }
 
-        public void AppendLine(string s, params string[] arguments)
+        public void AppendLine(string s, params object[] arguments)
         {
             if (string.IsNullOrEmpty(s))
                 return;
@@ -388,7 +386,7 @@ namespace CompilePal
 
         private void MainWindow_OnActivated(object sender, EventArgs e)
         {
-            if (TaskbarItemInfo.ProgressValue == 1)
+            if (TaskbarItemInfo.ProgressValue == 1.0)
             {
                 TaskbarItemInfo.ProgressState = TaskbarItemProgressState.None;
                 TaskbarItemInfo.ProgressValue = 0;
@@ -399,7 +397,5 @@ namespace CompilePal
         {
             mapFiles.Remove((string)mapFilesListBox.SelectedItem);
         }
-
-
     }
 }

@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using Newtonsoft.Json;
 
@@ -12,6 +10,8 @@ namespace SharpConfig
     /// The basis of the SharpConfig configuration system.</summary>
     public class Config
     {
+        /// <summary>
+        /// Dictionary containing all values stored in this config.</summary>
         public Dictionary<string,object> Values = new Dictionary<string, object>(); 
         /// <summary>
         /// Changes which namespace the configuration saves to. You must create a new object to load from a new namespace.</summary>
@@ -51,6 +51,11 @@ namespace SharpConfig
 
             Load();
         }
+
+        /// <summary>
+        /// The constructor. Loads the configuration from the specified path. </summary>
+        /// <param name="saveLocation">Designates the path of the json config file.</param>
+        /// <param name="autoSave">Designates whether the configuration will be saved everytime it is changed.</param>
         public Config(string saveLocation, bool autoSave = false)
         {
             DataFile = saveLocation;
@@ -104,10 +109,7 @@ namespace SharpConfig
             if (File.Exists(DataFile))
             {
                 string json = File.ReadAllText(DataFile);
-                Values = JsonConvert.DeserializeObject<Dictionary<string,object>>(json);
-
-                if(Values == null)
-                    Values = new Dictionary<string, object>();
+                Values = JsonConvert.DeserializeObject<Dictionary<string,object>>(json) ?? new Dictionary<string, object>();
             }
         }
     }

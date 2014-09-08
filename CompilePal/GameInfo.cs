@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CompilePal
 {
@@ -46,8 +43,7 @@ namespace CompilePal
                 if (line == "	}" || line == "        }")
                     break;
 
-                var game = new GameInfo();
-                game.Name = GetKey(line);
+                var game = new GameInfo {Name = GetKey(line)};
                 Console.WriteLine();
                 Console.WriteLine();
                 Console.WriteLine(GetKey(line));

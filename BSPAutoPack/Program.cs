@@ -3,10 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Net.Mime;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace BSPAutoPack
 {
@@ -143,11 +140,7 @@ namespace BSPAutoPack
             arguments = arguments.Replace("$list","files.txt");
             arguments = arguments.Replace("$game", gameFolder);
 
-            Process p = new Process();
-            p.StartInfo.Arguments = arguments;
-            p.StartInfo.FileName = bspZip;
-            p.StartInfo.UseShellExecute = false;
-            p.StartInfo.RedirectStandardOutput = true;
+            var p = new Process {StartInfo = {Arguments = arguments, FileName = bspZip, UseShellExecute = false, RedirectStandardOutput = true}};
 
             p.OutputDataReceived += p_OutputDataReceived;
 
@@ -159,11 +152,11 @@ namespace BSPAutoPack
             Console.WriteLine(e.Data);
         }
 
-        static List<string> GetModelReferences(string mdlPath)
+        static IEnumerable<string> GetModelReferences(string mdlPath)
         {
             var references = new List<string>();
 
-            var variations = new List<string>() {".dx80.vtx",".dx90.vtx",".phy",".sw.vtx",".sw.vtx"};
+            var variations = new List<string> {".dx80.vtx",".dx90.vtx",".phy",".sw.vtx",".sw.vtx"};
             foreach (string variation in variations)
             {
                 string variant = mdlPath.Replace(".mdl", variation);
@@ -182,7 +175,7 @@ namespace BSPAutoPack
         }
 
 
-        static List<string> GetMaterialReferences(string vmtpath)
+        static IEnumerable<string> GetMaterialReferences(string vmtpath)
         {
             var vmtLines = File.ReadAllLines(vmtpath);
 
