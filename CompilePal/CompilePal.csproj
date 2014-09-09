@@ -53,6 +53,9 @@
     <ApplicationIcon>CompilePalIcon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="GlobalHotKey">
+      <HintPath>..\packages\GlobalHotKey.1.1.0\lib\GlobalHotKey.dll</HintPath>
+    </Reference>
     <Reference Include="GoogleAnalyticsTracker.Core">
       <HintPath>..\packages\GoogleAnalyticsTracker.Core.3.0.20\lib\portable-net45+win+wp80\GoogleAnalyticsTracker.Core.dll</HintPath>
     </Reference>

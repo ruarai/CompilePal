@@ -6,8 +6,10 @@ using System.Linq;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shell;
+using GlobalHotKey;
 using Microsoft.Win32;
 using SharpConfig;
 
@@ -35,6 +37,8 @@ namespace CompilePal
         private ObservableCollection<string> mapFiles = new ObservableCollection<string>();
 
         public Config uiConfig = new Config("ui", true, true);
+
+        private HotKeyManager hotkeyManager;
 
 
         public MainWindow(GameInfo gameinfo)
@@ -88,6 +92,20 @@ namespace CompilePal
 
             VersionChecker.CheckVersion();
             Analytics.Startup();
+
+
+            hotkeyManager = new HotKeyManager();
+            hotkeyManager.Register(Key.F8, ModifierKeys.None);
+
+            hotkeyManager.KeyPressed += hotkeyManager_KeyPressed;
+        }
+
+        void hotkeyManager_KeyPressed(object sender, KeyPressedEventArgs e)
+        {
+            Activate();
+            //Bring up the window on hotkey press
+
+            CompileButton.Focus();
         }
 
         void Current_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
@@ -392,5 +410,6 @@ namespace CompilePal
         {
             mapFiles.Remove((string)mapFilesListBox.SelectedItem);
         }
+
     }
 }
