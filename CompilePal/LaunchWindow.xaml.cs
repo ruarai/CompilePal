@@ -1,6 +1,9 @@
 ﻿using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Windows;
 using Microsoft.Win32;
+using SharpConfig;
 
 namespace CompilePal
 {
@@ -9,6 +12,7 @@ namespace CompilePal
     /// </summary>
     public partial class LaunchWindow
     {
+        static Config launchConfig = new Config("launch",true,true);
         public LaunchWindow()
         {
             InitializeComponent();
@@ -17,9 +21,18 @@ namespace CompilePal
             RegistryKey rk = Registry.CurrentUser.OpenSubKey(@"Software\Valve\Hammer\General");
 
             string BinFolder = (string)rk.GetValue("Directory");
-            string gameData = System.IO.Path.Combine(BinFolder, "GameConfig.txt");
+            string gameData = Path.Combine(BinFolder, "GameConfig.txt");
 
             List<GameInfo> gameInfos = GameConfigs.Parse(gameData);
+
+            if(launchConfig.Values.ContainsKey("infos"))
+                gameInfos.AddRange(launchConfig["infos"].ToObject<List<GameInfo>>());
+
+            //remove duplicates
+            gameInfos = gameInfos.GroupBy(g => g.Name).Select(grp => grp.First()).ToList();
+
+            launchConfig["infos"] = gameInfos;
+
 
             if (gameInfos.Count == 1)
                 Launch(gameInfos[0]);
