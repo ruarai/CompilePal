@@ -24,7 +24,7 @@
     {
       "Command": " -both",
       "Name": "Both",
-      "Description": "Compile both HDR and LDR",
+      "Description": "Compile both HDR and LDR. Can have issues with some versions of the source engine.",
       "Option": "",
       "Enabled": false
     },
@@ -95,6 +95,20 @@
       "Command": " -threads",
       "Name": "Threads",
       "Description": "Override the number of CPU threads used.",
+      "Option": "",
+      "Enabled": false
+    },
+    {
+      "Command": " -verbose",
+      "Name": "Verbose",
+      "Description": "Turn on verbose output.",
+      "Option": "",
+      "Enabled": false
+    },
+    {
+      "Command": " -noskyboxrecurse",
+      "Name": "No Skybox Recursion",
+      "Description": "Turn off recursion into 3d skybox (skybox shadows on world).",
       "Option": "",
       "Enabled": false
     }

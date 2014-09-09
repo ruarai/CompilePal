@@ -41,6 +41,13 @@
       "Description": "Override the number of CPU threads used.",
       "Option": "",
       "Enabled": false
+    },
+    {
+      "Command": " -verbose",
+      "Name": "Verbose",
+      "Description": "Turn on verbose output.",
+      "Option": "",
+      "Enabled": false
     }
   ],
   "run": true

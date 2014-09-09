@@ -29,6 +29,27 @@
       "Enabled": false
     },
     {
+      "Command": " -windowed",
+      "Name": "Windowed",
+      "Description": "Loads game in windows mode.",
+      "Option": "",
+      "Enabled": false
+    },
+    {
+      "Command": " -width",
+      "Name": "Window Width",
+      "Description": "Sets window resolution width.",
+      "Option": "1280",
+      "Enabled": false
+    },
+    {
+      "Command": " -height",
+      "Name": "Window Height",
+      "Description": "Sets window resolution height.",
+      "Option": "720",
+      "Enabled": false
+    },
+    {
       "Command": " +map",
       "Name": "Map",
       "Description": "Loads the specified map.",

@@ -34,6 +34,27 @@
       "Description": "Removes water brushes.",
       "Option": "",
       "Enabled": false
+    },
+    {
+      "Command": " -notjunc",
+      "Name": "No T-Junc",
+      "Description": "Don't fixup t-junctions.",
+      "Option": "",
+      "Enabled": false
+    },
+    {
+      "Command": " -leaktest",
+      "Name": "Leak Test",
+      "Description": "Stop processing the map if a leak is detected. For older versions of the source engine.",
+      "Option": "",
+      "Enabled": false
+    },
+    {
+      "Command": " -alldetail",
+      "Name": "All Detail",
+      "Description": "Makes all geometry not split visleaves, improving vvis times. Use with -radius_override 2500 on VVIS.",
+      "Option": "",
+      "Enabled": false
     }
   ],
   "run": true
