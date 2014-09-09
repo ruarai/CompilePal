@@ -214,6 +214,11 @@
     <Content Include="config\Normal\pack.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <None Include="config\Only Entities\game.json" />
+    <None Include="config\Only Entities\pack.json" />
+    <None Include="config\Only Entities\vbsp.json" />
+    <None Include="config\Only Entities\vrad.json" />
+    <None Include="config\Only Entities\vvis.json" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
