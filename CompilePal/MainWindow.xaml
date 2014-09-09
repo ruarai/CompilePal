@@ -155,7 +155,8 @@
             </TabItem>
             <TabItem Name="OutputTab" Header="OUTPUT">
                 <Grid Background="#FFE5E5E5">
-                    <RichTextBox  x:Name="CompileOutputTextbox" AcceptsReturn="True" VerticalScrollBarVisibility="Auto"  Margin="10" FontFamily="Segoe UI, Lucida Sans Unicode, Verdana" IsReadOnlyCaretVisible="True" Block.LineHeight="2"/>
+                    <RichTextBox  x:Name="CompileOutputTextbox" AcceptsReturn="True" VerticalScrollBarVisibility="Auto"  Margin="10,10,10,40" FontFamily="Segoe UI, Lucida Sans Unicode, Verdana" IsReadOnlyCaretVisible="True" Block.LineHeight="2"/>
+                    <Button Name="CopyButton" Content="Copy All" HorizontalAlignment="Left" Margin="930,434,0,0" VerticalAlignment="Top" Width="75" Click="CopyButton_Click"/>
                 </Grid>
             </TabItem>
         </TabControl>

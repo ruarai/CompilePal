@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shell;
@@ -176,7 +177,8 @@ namespace CompilePal
             {
                 foreach (var fileName in dialog.FileNames)
                 {
-                    mapFiles.Add(fileName);
+                    if(!mapFiles.Contains(fileName))
+                        mapFiles.Add(fileName);
                 }
             }
         }
@@ -410,6 +412,12 @@ namespace CompilePal
         {
             mapFiles.Remove((string)mapFilesListBox.SelectedItem);
         }
+
+        private void CopyButton_Click(object sender, RoutedEventArgs e)
+        {
+            Clipboard.SetText(new TextRange(CompileOutputTextbox.Document.ContentStart,CompileOutputTextbox.Document.ContentEnd).Text);
+        }
+
 
     }
 }
