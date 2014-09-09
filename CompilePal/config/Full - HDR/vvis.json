@@ -34,6 +34,13 @@
       "Description": "Write portals to \\tmp\\<mapname>.",
       "Option": "",
       "Enabled": false
+    },
+    {
+      "Command": " -threads",
+      "Name": "Threads",
+      "Description": "Override the number of CPU threads used.",
+      "Option": "",
+      "Enabled": false
     }
   ],
   "run": true

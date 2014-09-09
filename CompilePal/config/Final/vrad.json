@@ -90,6 +90,13 @@
       "Description": "Generates lightmap shadows from $translucent surfaces of models (NOT brushes)",
       "Option": "",
       "Enabled": false
+    },
+    {
+      "Command": " -threads",
+      "Name": "Threads",
+      "Description": "Override the number of CPU threads used.",
+      "Option": "",
+      "Enabled": false
     }
   ],
   "run": true
