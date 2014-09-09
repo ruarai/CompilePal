@@ -93,6 +93,7 @@
     <Compile Include="LaunchWindow.xaml.cs">
       <DependentUpon>LaunchWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="PostCompileActions.cs" />
     <Compile Include="RichTextBoxExtensions.cs" />
     <Compile Include="UpdateNeededWindow.xaml.cs">
       <DependentUpon>UpdateNeededWindow.xaml</DependentUpon>
@@ -214,8 +215,26 @@
     <Content Include="config\Normal\pack.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="config\Fast\post.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="config\Final\post.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="config\Full - HDR\post.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="config\Full - LDR\post.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="config\Normal\post.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <None Include="config\Only Entities\game.json" />
     <None Include="config\Only Entities\pack.json" />
+    <Content Include="config\Only Entities\post.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <None Include="config\Only Entities\vbsp.json" />
     <None Include="config\Only Entities\vrad.json" />
     <None Include="config\Only Entities\vvis.json" />

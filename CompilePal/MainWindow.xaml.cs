@@ -85,6 +85,14 @@ namespace CompilePal
 
             gameProgram = new GameProgram(gameInfo.GameEXE, "game", GameDataGrid, GameParamsTextBox, GameDataGrid, GameParamsTextBox, GameRunCheckBox);
 
+
+            PostCompileActions.fileListBox = RunFilesListBox;
+            RunFilesListBox.ItemsSource = PostCompileActions.fileList;
+
+            PostCompileActions.runFileCheckBox = RunFileCheckBox;
+            PostCompileActions.shutdownCheckBox = ShutdownCheckBox;
+
+
             BinFolder = gameInfo.BinFolder;
 
             LoadConfigs();
@@ -162,6 +170,8 @@ namespace CompilePal
             }
 
             gameProgram.LoadConfig(CurrentConfig);
+
+            PostCompileActions.LoadConfig(CurrentConfig);
         }
 
         #endregion
@@ -276,6 +286,8 @@ namespace CompilePal
                 }
                 else if (gameProgram.DoRun)
                     gameProgram.Run(Path.GetFileNameWithoutExtension(mapFiles[mapFiles.Count - 1]));
+
+                PostCompileActions.Run();
             }
             catch (Exception e)
             {
@@ -360,6 +372,8 @@ namespace CompilePal
                 }
                 gameProgram.SaveConfig(CurrentConfig);
 
+                PostCompileActions.SaveConfig(CurrentConfig);
+
                 LoadConfigs();
             }
             catch (Exception ex)
@@ -416,6 +430,28 @@ namespace CompilePal
         private void CopyButton_Click(object sender, RoutedEventArgs e)
         {
             Clipboard.SetText(new TextRange(CompileOutputTextbox.Document.ContentStart,CompileOutputTextbox.Document.ContentEnd).Text);
+        }
+
+        private void FileBrowse_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new OpenFileDialog { Multiselect = true};
+
+            dialog.ShowDialog();
+
+            if (dialog.FileNames.Any())
+            {
+                foreach (var fileName in dialog.FileNames)
+                {
+                    if (!PostCompileActions.fileList.Contains(fileName))
+                        PostCompileActions.fileList.Add(fileName);
+                }
+            }
+        }
+
+        private void FileRemoveBox_Click(object sender, RoutedEventArgs e)
+        {
+
+            PostCompileActions.fileList.Remove((string)RunFilesListBox.SelectedItem);
         }
 
 

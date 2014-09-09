@@ -4,7 +4,7 @@
         xmlns:controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
                       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="d"
-                      Title="Compile Pal" Height="700" Width="1053" Closing="MetroWindow_Closing" Activated="MainWindow_OnActivated" IconEdgeMode="Aliased" Icon="CompilePalIcon.ico" ShowIconOnTitleBar="False">
+                      Title="Compile Pal" Height="700" MinWidth="1050" MinHeight="700" Width="1053" Closing="MetroWindow_Closing" Activated="MainWindow_OnActivated" IconEdgeMode="Aliased" Icon="CompilePalIcon.ico" ShowIconOnTitleBar="False">
     <Grid>
         <Button x:Name="CompileButton" Content="Compile" HorizontalAlignment="Right"  VerticalAlignment="Bottom" Margin="10" Width="75" Click="CompileButton_Click"/>
         <Button Content="Add Map..." Margin="0,10,10,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="75" Click="Button_Click"/>
@@ -125,6 +125,23 @@
                     </DataGrid>
                     <TextBox x:Name="PackParamsTextBox" Margin="10,0,106,10" TextWrapping="Wrap" Text="TextBox" Height="26" VerticalAlignment="Bottom" Grid.ColumnSpan="2" IsEnabled="False"/>
                     <CheckBox Name="PackRunCheckBox" Content="Run this tool" Grid.Column="1" Margin="0,0,10,15" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="91"/>
+                </Grid>
+            </TabItem>
+            <TabItem Header="POST" Name="PostTab">
+                <Grid Background="#FFE5E5E5">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="195*"/>
+                        <RowDefinition Height="274*"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="40*"/>
+                        <ColumnDefinition Width="163*"/>
+                    </Grid.ColumnDefinitions>
+                    <CheckBox x:Name="RunFileCheckBox" Content="Run files upon compile finish:" HorizontalAlignment="Left" Margin="10,41,0,0" VerticalAlignment="Top" Height="26" Width="191" Grid.ColumnSpan="2"/>
+                    <CheckBox x:Name="ShutdownCheckBox" Content="Shutdown upon compile finish" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Height="26" Width="191" Grid.ColumnSpan="2"/>
+                    <ListBox x:Name="RunFilesListBox" Grid.Column="1" Margin="10,41,90,10" Grid.RowSpan="2"/>
+                    <Button x:Name="FileBrowse" Content="BROWSE..." Grid.Column="1" HorizontalAlignment="Right" Margin="0,41,10,0" VerticalAlignment="Top" Width="75" Click="FileBrowse_Click" Height="25"/>
+                    <Button x:Name="FileRemoveBox" Content="REMOVE" Grid.Column="1" HorizontalAlignment="Right" Margin="0,71,10,0" VerticalAlignment="Top" Width="75" Click="FileRemoveBox_Click" Height="25"/>
                 </Grid>
             </TabItem>
             <TabItem Header="GAME">
