@@ -306,7 +306,7 @@ namespace CompilePal
                 program.Kill();
             }
 
-            CompileThread.Abort();
+            //CompileThread.Abort();
 
             Title = oldTitle;
 
