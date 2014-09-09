@@ -166,7 +166,7 @@
         <Button x:Name="NewButton" Content="Save As" HorizontalAlignment="Left" Margin="280,81,0,0" VerticalAlignment="Top" Width="75" Click="NewButton_Click" RenderTransformOrigin="0.267,0.56"/>
         <TextBox x:Name="NewConfigNameBox"  HorizontalAlignment="Left" Height="23" Margin="360,81,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" RenderTransformOrigin="0.942,0.462"/>
 
-        <CheckBox Name="CopyMapCheckBox" Content="Copy to map folder upon completion" HorizontalAlignment="Left" Margin="10,0,0,17" Height="18" VerticalAlignment="Bottom"/>
+        <CheckBox Name="CopyMapCheckBox" IsChecked="True" Content="Copy to map folder upon completion" HorizontalAlignment="Left" Margin="10,0,0,17" Height="18" VerticalAlignment="Bottom"/>
 
         <ListBox Name="mapFilesListBox" Margin="10,10,90,0" BorderThickness="1" BorderBrush="{DynamicResource {x:Static SystemColors.ActiveBorderBrushKey}}" Height="66" VerticalAlignment="Top"/>
         <Label Content="Config:" HorizontalAlignment="Left" Margin="10,81,0,0" VerticalAlignment="Top"/>
