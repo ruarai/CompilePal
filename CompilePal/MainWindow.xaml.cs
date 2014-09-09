@@ -24,6 +24,7 @@ namespace CompilePal
     {
         public List<CompileProgram> CompilePrograms = new List<CompileProgram>();
         private GameProgram gameProgram;
+        private PostCompileActions postCompile;
 
         public static string CurrentConfig = "Normal";
 
@@ -85,12 +86,12 @@ namespace CompilePal
 
             gameProgram = new GameProgram(gameInfo.GameEXE, "game", GameDataGrid, GameParamsTextBox, GameDataGrid, GameParamsTextBox, GameRunCheckBox);
 
+            postCompile = new PostCompileActions();
+            postCompile.fileListBox = RunFilesListBox;
+            postCompile.fileListBox.ItemsSource = postCompile.fileList;
 
-            PostCompileActions.fileListBox = RunFilesListBox;
-            RunFilesListBox.ItemsSource = PostCompileActions.fileList;
-
-            PostCompileActions.runFileCheckBox = RunFileCheckBox;
-            PostCompileActions.shutdownCheckBox = ShutdownCheckBox;
+            postCompile.runFileCheckBox = RunFileCheckBox;
+            postCompile.shutdownCheckBox = ShutdownCheckBox;
 
 
             BinFolder = gameInfo.BinFolder;
@@ -98,6 +99,8 @@ namespace CompilePal
             LoadConfigs();
 
             LoadConfig(CurrentConfig);
+
+            postCompile.fileListBox.ItemsSource = postCompile.fileList;
 
             VersionChecker.CheckVersion();
             Analytics.Startup();
@@ -171,7 +174,7 @@ namespace CompilePal
 
             gameProgram.LoadConfig(CurrentConfig);
 
-            PostCompileActions.LoadConfig(CurrentConfig);
+            postCompile.LoadConfig(CurrentConfig);
         }
 
         #endregion
@@ -287,7 +290,7 @@ namespace CompilePal
                 else if (gameProgram.DoRun)
                     gameProgram.Run(Path.GetFileNameWithoutExtension(mapFiles[mapFiles.Count - 1]));
 
-                PostCompileActions.Run();
+                postCompile.Run();
             }
             catch (Exception e)
             {
@@ -372,7 +375,7 @@ namespace CompilePal
                 }
                 gameProgram.SaveConfig(CurrentConfig);
 
-                PostCompileActions.SaveConfig(CurrentConfig);
+                postCompile.SaveConfig(CurrentConfig);
 
                 LoadConfigs();
             }
@@ -442,8 +445,8 @@ namespace CompilePal
             {
                 foreach (var fileName in dialog.FileNames)
                 {
-                    if (!PostCompileActions.fileList.Contains(fileName))
-                        PostCompileActions.fileList.Add(fileName);
+                    if (!postCompile.fileList.Contains(fileName))
+                        postCompile.fileList.Add(fileName);
                 }
             }
         }
@@ -451,9 +454,7 @@ namespace CompilePal
         private void FileRemoveBox_Click(object sender, RoutedEventArgs e)
         {
 
-            PostCompileActions.fileList.Remove((string)RunFilesListBox.SelectedItem);
+            postCompile.fileList.Remove((string)RunFilesListBox.SelectedItem);
         }
-
-
     }
 }
