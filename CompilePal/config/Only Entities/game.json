@@ -1,0 +1,61 @@
+{
+  "parameters": [
+    {
+      "Command": " -tools",
+      "Name": "Tools",
+      "Description": "Enables engine tools. Can cause lighting errors in game.",
+      "Option": "",
+      "Enabled": false
+    },
+    {
+      "Command": " -novid",
+      "Name": "No Video",
+      "Description": "Disables the intro video when launching.",
+      "Option": "",
+      "Enabled": true
+    },
+    {
+      "Command": " -dev",
+      "Name": "Developer Mode",
+      "Description": "Disables the automatic loading of menu background maps and stops the quit dialog from appearing on exit.",
+      "Option": "",
+      "Enabled": false
+    },
+    {
+      "Command": " -console",
+      "Name": "Console",
+      "Description": "Starts the game with the developer console enabled.",
+      "Option": "",
+      "Enabled": false
+    },
+    {
+      "Command": " -windowed",
+      "Name": "Windowed",
+      "Description": "Loads game in windows mode.",
+      "Option": "",
+      "Enabled": false
+    },
+    {
+      "Command": " -width",
+      "Name": "Window Width",
+      "Description": "Sets window resolution width.",
+      "Option": "1280",
+      "Enabled": false
+    },
+    {
+      "Command": " -height",
+      "Name": "Window Height",
+      "Description": "Sets window resolution height.",
+      "Option": "720",
+      "Enabled": false
+    },
+    {
+      "Command": " +map",
+      "Name": "Map",
+      "Description": "Loads the specified map.",
+      "Option": "$map",
+      "Enabled": true
+    }
+  ],
+  "run": false
+}
