@@ -8,10 +8,11 @@ namespace CompilePal
         {
             try
             {
-                using (var tracker = new SimpleTracker("UA-46896943-4", "www.compilepal.com"))
-                {
-                    tracker.TrackPageViewAsync("Compile Pal", "");
-                }
+                if (!System.Diagnostics.Debugger.IsAttached)
+                    using (var tracker = new SimpleTracker("UA-46896943-4", "www.compilepal.com"))
+                    {
+                        tracker.TrackPageViewAsync("Compile Pal", "");
+                    }
             }
             catch { }
         }
@@ -20,13 +21,14 @@ namespace CompilePal
         {
             try
             {
-                using (var tracker = new SimpleTracker("UA-46896943-4", "www.compilepal.com"))
-                {
-                    tracker.TrackPageViewAsync("Compile Pal", version);
-                }
+                if (!System.Diagnostics.Debugger.IsAttached)
+                    using (var tracker = new SimpleTracker("UA-46896943-4", "www.compilepal.com"))
+                    {
+                        tracker.TrackPageViewAsync("Compile Pal", version);
+                    }
             }
             catch { }
         }
-        
+
     }
 }
