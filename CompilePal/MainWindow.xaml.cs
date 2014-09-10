@@ -214,6 +214,8 @@ namespace CompilePal
 
             oldTitle = Title;
 
+            CompileOutputTextbox.Document.Blocks.Clear();
+
             CompileThread = new Thread(CompileThreaded);
             CompileThread.Start();
         }
@@ -290,6 +292,13 @@ namespace CompilePal
                 else if (gameProgram.DoRun)
                     gameProgram.Run(Path.GetFileNameWithoutExtension(mapFiles[mapFiles.Count - 1]));
 
+
+                if (!Directory.Exists("logs"))
+                    Directory.CreateDirectory("logs");
+
+                string logText = new TextRange(CompileOutputTextbox.Document.ContentStart, CompileOutputTextbox.Document.ContentEnd).Text;
+
+                File.WriteAllText(Path.Combine("logs", "Compile Pal log - " + DateTime.Now.ToString("s").Replace(":", "-") +".txt"),logText);
                 postCompile.Run();
             }
             catch (Exception e)
