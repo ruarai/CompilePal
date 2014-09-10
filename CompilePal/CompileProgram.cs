@@ -75,7 +75,6 @@ namespace CompilePal
             process.PriorityClass = ProcessPriorityClass.BelowNormal;
 
             char[] buffer = new char[256];
-            string output = "";
             Task<int> read = null;
 
             while (true)
