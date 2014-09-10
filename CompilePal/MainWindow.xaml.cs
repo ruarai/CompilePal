@@ -320,6 +320,17 @@ namespace CompilePal
             CompileOutputTextbox.AppendText(s);
             CompileOutputTextbox.ScrollToEnd();
         }
+        public void AppendText(string s, params object[] arguments)
+        {
+            if (string.IsNullOrEmpty(s))
+                return;
+            s = string.Format(s, arguments);
+
+            CompileOutputTextbox.Focus();
+
+            CompileOutputTextbox.AppendText(s);
+            CompileOutputTextbox.ScrollToEnd();
+        }
 
         public void AppendLineC(string s, Brush brush = null)
         {

@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
+using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Media;
 using SharpConfig;
@@ -55,7 +56,7 @@ namespace CompilePal
 
             parent = _parent;
 
-            WriteTextOutC("Starting " + ToolName.ToUpper(), Brushes.Green);
+            WriteLineOutC("Starting " + ToolName.ToUpper(), Brushes.Green);
 
             string finalParams = Parameters.Replace("$game", "\"" + gamePath + "\"");
             finalParams = finalParams.Replace("$map", "\"" + vmfFile + "\"");
@@ -65,7 +66,6 @@ namespace CompilePal
 
             process = new Process { StartInfo = { RedirectStandardOutput = true, RedirectStandardInput = true, RedirectStandardError = true, UseShellExecute = false, CreateNoWindow = true } };
 
-            process.OutputDataReceived += Process_OutputDataReceived;
 
             process.StartInfo.FileName = ToolPath;
             process.StartInfo.Arguments = finalParams;
@@ -74,11 +74,34 @@ namespace CompilePal
             process.Start();
             process.PriorityClass = ProcessPriorityClass.BelowNormal;
 
-            process.BeginOutputReadLine();
+            char[] buffer = new char[256];
+            string output = "";
+            Task<int> read = null;
+
+            while (true)
+            {
+                if (read == null)
+                    read = process.StandardOutput.ReadAsync(buffer, 0, buffer.Length);
+
+                read.Wait(100); // an arbitray timeout
+
+                if (read.IsCompleted)
+                {
+                    if (read.Result > 0)
+                    {
+                        WriteTextOut(new string(buffer, 0, read.Result));
+                        read = null; // ok, this task completed so we need to create a new one
+                        continue;
+                    }
+
+                    // got -1, process ended
+                    break;
+                }
+            }
 
             process.WaitForExit();
             if (!ForceClosed)
-                WriteTextOutC("Finished " + ToolName.ToUpper(), Brushes.Green);
+                WriteLineOutC("Finished " + ToolName.ToUpper(), Brushes.Green);
 
             return ForceClosed;
         }
@@ -90,7 +113,7 @@ namespace CompilePal
                 process.Kill();
                 ForceClosed = true;
 
-                WriteTextOutC("Killed " + ToolName.ToUpper(), Brushes.OrangeRed);
+                WriteLineOutC("Killed " + ToolName.ToUpper(), Brushes.OrangeRed);
             }
         }
 
@@ -135,16 +158,16 @@ namespace CompilePal
             CollateParameters();
         }
 
-        void Process_OutputDataReceived(object sender, DataReceivedEventArgs e)
-        {
-            WriteTextOut(e.Data);
-        }
 
-        void WriteTextOut(string text)
+        void WriteLineOut(string text)
         {
             parent.Dispatcher.Invoke(() => parent.AppendLine(text));
         }
-        void WriteTextOutC(string text, Brush brush)
+        void WriteTextOut(string text)
+        {
+            parent.Dispatcher.Invoke(() => parent.AppendText(text));
+        }
+        void WriteLineOutC(string text, Brush brush)
         {
             parent.Dispatcher.Invoke(() => parent.AppendLineC(text, brush));
         }
