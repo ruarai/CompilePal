@@ -60,6 +60,9 @@ namespace CompilePal
                 if (uiConfig.Values.ContainsKey("copymap"))
                     CopyMapCheckBox.IsChecked = uiConfig["copymap"];
 
+                if (uiConfig.Values.ContainsKey("hotkey"))
+                    HotkeyCheckbox.IsChecked = uiConfig["hotkey"];
+
                 if (!uiConfig.Values.ContainsKey("lowpriority"))
                     uiConfig["lowpriority"] = true;
 
@@ -115,10 +118,13 @@ namespace CompilePal
 
         void hotkeyManager_KeyPressed(object sender, KeyPressedEventArgs e)
         {
-            Activate();
-            //Bring up the window on hotkey press
+            if (HotkeyCheckbox.IsChecked.GetValueOrDefault())
+            {
+                Activate();
+                //Bring up the window on hotkey press
 
-            CompileButton.Focus();
+                CompileButton.Focus();
+            }
         }
 
         void Current_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
@@ -435,6 +441,7 @@ namespace CompilePal
             uiConfig["copymap"] = CopyMapCheckBox.IsChecked.GetValueOrDefault();
             uiConfig["vmffiles"] = mapFiles;
             uiConfig["lastConfig"] = CurrentConfig;
+            uiConfig["hotkey"] = HotkeyCheckbox.IsChecked.GetValueOrDefault();
         }
 
         private void MainWindow_OnActivated(object sender, EventArgs e)
