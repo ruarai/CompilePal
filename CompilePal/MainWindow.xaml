@@ -137,13 +137,13 @@
                         <ColumnDefinition Width="291*"/>
                         <ColumnDefinition Width="724*"/>
                     </Grid.ColumnDefinitions>
-                    <CheckBox x:Name="RunFileCheckBox" Content="Run files upon compile finish:" HorizontalAlignment="Left" Margin="10,95,0,0" VerticalAlignment="Top" Height="26" Width="191"/>
+                    <CheckBox x:Name="RunFileCheckBox" Content="Run files upon compile finish:" HorizontalAlignment="Left" Margin="10,90,0,0" VerticalAlignment="Top" Height="26" Width="191"/>
                     <CheckBox x:Name="ShutdownCheckBox" Content="Shutdown upon compile finish" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Height="26" Width="191"/>
-                    <CheckBox Name="CopyMapCheckBox" IsChecked="True" Content="Copy BSP to map folder upon compile finish." HorizontalAlignment="Left" Margin="10,0,0,105" Height="18" VerticalAlignment="Bottom" Width="271"/>
-                    <ListBox x:Name="RunFilesListBox" Grid.Column="1" Margin="10,95,90,10" Grid.Row="0" Grid.RowSpan="2" BorderThickness="1" BorderBrush="{DynamicResource {x:Static SystemColors.ActiveBorderBrushKey}}"/>
-                    <Button x:Name="FileBrowse" Content="BROWSE..." Grid.Column="1" HorizontalAlignment="Right" Margin="0,95,10,0" VerticalAlignment="Top" Width="75" Click="FileBrowse_Click" Height="25"/>
-                    <Button x:Name="FileRemoveBox" Content="REMOVE" Grid.Column="1" HorizontalAlignment="Right" Margin="0,125,10,0" VerticalAlignment="Top" Width="75" Click="FileRemoveBox_Click" Height="25"/>
-                    <CheckBox x:Name="ArchiveMapCheckBox" Content="Archive VMF file upon compile finish." HorizontalAlignment="Left" Margin="10,41,0,0" VerticalAlignment="Top" Height="26" Width="239"/>
+                    <CheckBox Name="CopyMapCheckBox" IsChecked="True" Content="Copy BSP to map folder upon compile finish." HorizontalAlignment="Left" Margin="10,0,0,110" Height="18" VerticalAlignment="Bottom" Width="271"/>
+                    <ListBox x:Name="RunFilesListBox" Grid.Column="1" Margin="10,90,90,10" Grid.Row="0" Grid.RowSpan="2" BorderThickness="1" BorderBrush="{DynamicResource {x:Static SystemColors.ActiveBorderBrushKey}}"/>
+                    <Button x:Name="FileBrowse" Content="BROWSE..." Grid.Column="1" HorizontalAlignment="Right" Margin="0,90,10,0" VerticalAlignment="Top" Width="75" Click="FileBrowse_Click" Height="25"/>
+                    <Button x:Name="FileRemoveBox" Content="REMOVE" Grid.Column="1" HorizontalAlignment="Right" Margin="0,120,10,0" VerticalAlignment="Top" Width="75" Click="FileRemoveBox_Click" Height="25"/>
+                    <CheckBox x:Name="ArchiveMapCheckBox" Content="Archive VMF file upon compile finish." HorizontalAlignment="Left" Margin="10,36,0,0" VerticalAlignment="Top" Height="26" Width="239"/>
                 </Grid>
             </TabItem>
             <TabItem Header="GAME">
