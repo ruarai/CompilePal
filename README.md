@@ -17,9 +17,11 @@ Taskbar progress display (Windows 7):
 ![progress](http://zippy.gfycat.com/UnlawfulImpeccableGrosbeak.gif)
 
 Automatic file packing:
+
 ![packing](http://i.imgur.com/G5SKGdE.png)
 
 Post compile actions:
+
 ![post](http://i.imgur.com/pLlIWCK.png)
 
 Download
