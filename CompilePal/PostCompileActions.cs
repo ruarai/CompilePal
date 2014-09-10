@@ -35,10 +35,10 @@ namespace CompilePal
 
         public static void Archive(string vmfPath)
         {
-            File.Copy(vmfPath,vmfPath.Replace(".vmf"," " + DateTime.Now.ToString("s").Replace(":", "-") + ".vmf"));
+            File.Copy(vmfPath, vmfPath.Replace(".vmf", " " + DateTime.Now.ToString("s").Replace(":", "-") + ".vmf"));
         }
 
-        public void Run()
+        public void Run(IEnumerable<string> vmfFiles)
         {
             if (shutdownCheckBox.IsChecked.GetValueOrDefault())
                 Shutdown();
@@ -49,6 +49,14 @@ namespace CompilePal
                 foreach (var file in fileList)
                 {
                     Run(file);
+                }
+            }
+
+            if (archiveMapCheckBox.IsChecked.GetValueOrDefault())
+            {
+                foreach (var vmfFile in vmfFiles)
+                {
+                    Archive(vmfFile);
                 }
             }
         }

@@ -92,6 +92,7 @@ namespace CompilePal
 
             postCompile.runFileCheckBox = RunFileCheckBox;
             postCompile.shutdownCheckBox = ShutdownCheckBox;
+            postCompile.archiveMapCheckBox = ArchiveMapCheckBox;
 
 
             BinFolder = gameInfo.BinFolder;
@@ -299,7 +300,7 @@ namespace CompilePal
                 string logText = new TextRange(CompileOutputTextbox.Document.ContentStart, CompileOutputTextbox.Document.ContentEnd).Text;
 
                 File.WriteAllText(Path.Combine("logs", "Compile Pal log - " + DateTime.Now.ToString("s").Replace(":", "-") +".txt"),logText);
-                postCompile.Run();
+                postCompile.Run(mapFiles);
             }
             catch (Exception e)
             {
