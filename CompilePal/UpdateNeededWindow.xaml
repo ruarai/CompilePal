@@ -2,7 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
-        Title="Update Found" Height="178" Width="300" ResizeMode="NoResize">
+        Title="Update Found" Height="178" Width="300" ResizeMode="NoResize"  IconEdgeMode="Aliased" Icon="CompilePalIcon.ico" ShowIconOnTitleBar="False">
     <Grid>
         <Label Content="An update has been found for Compile Pal. " HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
         <Label Margin="10,108,10,10">
