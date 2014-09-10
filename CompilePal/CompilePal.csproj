@@ -230,14 +230,24 @@
     <Content Include="config\Normal\post.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <None Include="config\Only Entities\game.json" />
-    <None Include="config\Only Entities\pack.json" />
+    <Content Include="config\Only Entities\game.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="config\Only Entities\pack.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="config\Only Entities\post.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <None Include="config\Only Entities\vbsp.json" />
-    <None Include="config\Only Entities\vrad.json" />
-    <None Include="config\Only Entities\vvis.json" />
+    <Content Include="config\Only Entities\vbsp.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="config\Only Entities\vrad.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="config\Only Entities\vvis.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
