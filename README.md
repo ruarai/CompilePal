@@ -19,13 +19,15 @@ Taskbar progress display (Windows 7):
 Automatic file packing:
 ![packing](http://i.imgur.com/G5SKGdE.png)
 
+Post compile actions:
+![post](http://i.imgur.com/pLlIWCK.png)
 
 Download
 ==========
 
-**Latest Build:010**
+**Latest Build:011**
+https://www.dropbox.com/s/38jbehbd27zkvvw/Compile%20Pal%20011.7z
 
-https://www.dropbox.com/s/9h6ob7ouywh5g7c/Compile%20Pal%20010.7z
 
 Configuration
 ==========
@@ -38,6 +40,19 @@ PACK is a prototype feature that allows for the automatic packing of custom cont
 
 Changes
 ==========
+
+#### 011:
+
+- Make output work on a character-by-character basis so you can see progress in realtime
+- Add post compile options such as map file archive, shutdown and run file
+- Fixed issue where cancelling compile would crash
+- Added memory of previous games to the launch window
+- Add hotkey support. Press F8 to bring up Compile Pal and press enter to immediately begin compiling after.
+- Add large number of extra program configuration options
+- Make map copy checkbox ticked by default
+- Lots of minor bug fixes
+
+Thanks to TopHATTWaffle for his ideas that contributed to this version.
 
 #### 010:
 
