@@ -26,9 +26,8 @@ Post compile actions:
 
 Download
 ==========
-
-**Latest Build:011**
-https://www.dropbox.com/s/38jbehbd27zkvvw/Compile%20Pal%20011.7z
+*
+https://github.com/ruarai/CompilePal/releases/latest
 
 
 Configuration
