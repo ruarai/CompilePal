@@ -292,6 +292,9 @@
     <Resource Include="license.txt" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="config\errors.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="version.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

@@ -1,0 +1,36 @@
+﻿If compile output contains a line from these, it is presumed to be an error and compile is cancelled. Use with care. 
+**** leaked ****
+has no head node
+bounds out of range
+FloatPlane: bad normal Side
+MAX_MAP_BRUSHSIDES
+MAX_MAP_PLANES
+nummapbrushes == MAX_MAP_BRUSHES
+num_entities == MAX_MAP_ENTITIES
+origin brushes not allowed in world
+nummapdispinfo > MAX_MAP_DISPINFO
+Can't compile displacement physics, exiting.
+func_areaportal can only be a single brush
+entity sky_camera in solid volume
+Too many detail props emitted on this map
+entity - not supported
+Face List Count >= OVERLAY_BSP_FACE_COUNT
+Find Visible Detail Sides...Bad detail brush side
+HashVec: point outside valid range
+Map has too many texinfos
+MAX_MAP_MODELS
+numvertexes == MAX_MAP_VERTS
+has invalid render order
+Overlay touching too many faces
+Too many portal verts
+Too many t-junctions to fix up!
+Trying to create a non-quad displacement!
+BSP node with unbounded volume
+with too many portals. Use vbsp -glview to compile, then glview -portal -portalhighlight X to view the problem.
+The map overflows the max portal count
+Vis decompression overrun
+lightmap too big to fit in page
+points exceeded estimate
+Error trying to allocate
+stylenum == MAX_SWITCHED_LIGHTS
+

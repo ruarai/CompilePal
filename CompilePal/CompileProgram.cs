@@ -1,8 +1,11 @@
-﻿using System.Collections.ObjectModel;
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Media;
 using SharpConfig;
 
@@ -11,6 +14,8 @@ namespace CompilePal
     public class CompileProgram
     {
         private MainWindow parent;
+
+        List<string> errors = new List<string>();
 
         public CompileProgram(string path, string name, DataGrid grid, TextBox box, CheckBox doRunCheckBox)
         {
@@ -25,6 +30,8 @@ namespace CompilePal
             DoRun = RunToolBox.IsChecked.GetValueOrDefault();
             RunToolBox.Checked += RunToolBox_Checked;
             RunToolBox.Unchecked += RunToolBox_Checked;
+
+            errors = File.ReadAllLines(Path.Combine("config", "errors.txt")).Where(e => !string.IsNullOrWhiteSpace(e)).ToList();
         }
 
         void RunToolBox_Checked(object sender, System.Windows.RoutedEventArgs e)
@@ -88,7 +95,12 @@ namespace CompilePal
                 {
                     if (read.Result > 0)
                     {
-                        WriteTextOut(new string(buffer, 0, read.Result));
+                        string text = new string(buffer, 0, read.Result);
+                        WriteTextOut(text);
+
+                        if (ForceClosed)
+                            break;
+
                         read = null; // ok, this task completed so we need to create a new one
                         continue;
                     }
@@ -162,13 +174,44 @@ namespace CompilePal
         {
             parent.Dispatcher.Invoke(() => parent.AppendLine(text));
         }
+
+        private string lineBuffer = "";
         void WriteTextOut(string text)
         {
             parent.Dispatcher.Invoke(() => parent.AppendText(text));
+
+            //The process of trying to sort the random spouts of letters back into lines. Hacky.
+            
+            if (text.Contains("\n"))
+            {
+                lineBuffer += text;
+
+                List<string> lines = lineBuffer.Split('\n').ToList();
+
+                lineBuffer = lines.Last();
+
+                foreach (string line in lines)
+                {
+                    if (ContainsError(line))
+                        ForceClosed = true;
+                }
+            }
+            else
+                lineBuffer += text;
         }
         void WriteLineOutC(string text, Brush brush)
         {
             parent.Dispatcher.Invoke(() => parent.AppendLineC(text, brush));
+        }
+
+        bool ContainsError(string text)
+        {
+            foreach (string error in errors)
+            {
+                if (text.Contains(error))
+                    return true;
+            }
+            return false;
         }
     }
 }
