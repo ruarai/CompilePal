@@ -82,7 +82,7 @@ namespace CompilePal
             }
 
             Title = "Compile Pal: " + gameInfo.Name;
-            CompilePrograms.Add(new CompileProgram(gameInfo.VBSP, "vbsp", VBSPDataGrid, VBSPParamsTextBox, VBSPRunCheckBox) {ForcedParameters = " -game $game $map"});
+            CompilePrograms.Add(new CompileProgram(gameInfo.VBSP, "vbsp", VBSPDataGrid, VBSPParamsTextBox, VBSPRunCheckBox) { ForcedParameters = " -game $game $map" });
             CompilePrograms.Add(new CompileProgram(gameInfo.VVIS, "vvis", VVISDataGrid, VVISParamsTextBox, VVISRunCheckBox) { ForcedParameters = " -game $game $map" });
             CompilePrograms.Add(new CompileProgram(gameInfo.VRAD, "vrad", VRADDataGrid, VRADParamsTextBox, VRADRunCheckBox) { ForcedParameters = " -game $game $map" });
             CompilePrograms.Add(new CompileProgram("BSPAutoPack.exe", "pack", PackDataGrid, PackParamsTextBox, PackRunCheckBox) { RunningDirectory = "", ForcedParameters = " -game $game" });
@@ -114,6 +114,8 @@ namespace CompilePal
             hotkeyManager.Register(Key.F8, ModifierKeys.None);
 
             hotkeyManager.KeyPressed += hotkeyManager_KeyPressed;
+
+
         }
 
         void hotkeyManager_KeyPressed(object sender, KeyPressedEventArgs e)
@@ -134,7 +136,7 @@ namespace CompilePal
 
         private void ThrowException(string description, Exception e)
         {
-            string crashName = DateTime.Now.ToString("s").Replace(":","-");
+            string crashName = DateTime.Now.ToString("s").Replace(":", "-");
 
             MessageBox.Show(description + Environment.NewLine + "Crash report " + crashName + " written to dumps folder.");
             File.WriteAllText(Path.Combine("dumps", crashName + ".txt"), e.ToString() + e.InnerException ?? "");
@@ -189,7 +191,7 @@ namespace CompilePal
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            var dialog = new OpenFileDialog {Multiselect = true, Filter = "Valve Map Files (*.vmf)|*.vmf|All files (*.*)|*.*"};
+            var dialog = new OpenFileDialog { Multiselect = true, Filter = "Valve Map Files (*.vmf)|*.vmf|All files (*.*)|*.*" };
 
             dialog.ShowDialog();
 
@@ -197,7 +199,7 @@ namespace CompilePal
             {
                 foreach (var fileName in dialog.FileNames)
                 {
-                    if(!mapFiles.Contains(fileName))
+                    if (!mapFiles.Contains(fileName))
                         mapFiles.Add(fileName);
                 }
             }
@@ -239,28 +241,27 @@ namespace CompilePal
                     Dispatcher.Invoke(() => Title = string.Format("{0} {1}", program.ToolName, Path.GetFileNameWithoutExtension(vmf)).ToUpper());
 
                     bool failure = program.RunTool(this, vmf, gameInfo.GameFolder);
-                    if (failure)
+                    if (failure)//If true, then the compile was cancelled
                     {
                         Dispatcher.Invoke(() => AppendLineC("Compile program failed", Brushes.OrangeRed));
                         Dispatcher.Invoke(CompileFinish);
-                        return; //If true, then the compile was cancelled
+                        Dispatcher.Invoke(() => SetProgress(1d, false));
+                        return;
                     }
 
                     progress += (1f / CompilePrograms.Count(p => p.DoRun)) / mapFiles.Count;
 
                     Dispatcher.Invoke(() => SetProgress(progress));
-
                 }
             }
             Dispatcher.Invoke(CompileFinish);
         }
 
-        void SetProgress(double progress)
+        void SetProgress(double progress, bool success = true)
         {
-            TaskbarItemInfo.ProgressState = TaskbarItemProgressState.Normal;
+            TaskbarItemInfo.ProgressState = success ? TaskbarItemProgressState.Normal : TaskbarItemProgressState.Error;
             TaskbarItemInfo.ProgressValue = progress;
         }
-
 
 
         void CompileFinish()
@@ -285,7 +286,7 @@ namespace CompilePal
                             File.Delete(newmap);
 
                             File.Copy(oldmap, newmap);
-                            AppendLine("Map {0} copied to {1}", oldmap, newmap);
+                            AppendLine(string.Format("Map {0} copied to {1}", oldmap, newmap));
                         }
                         else
                             AppendLine("BSP file didn't have to be copied. Skipping.");
@@ -305,7 +306,7 @@ namespace CompilePal
 
                 string logText = new TextRange(CompileOutputTextbox.Document.ContentStart, CompileOutputTextbox.Document.ContentEnd).Text;
 
-                File.WriteAllText(Path.Combine("logs", "Compile Pal log - " + DateTime.Now.ToString("s").Replace(":", "-") +".txt"),logText);
+                File.WriteAllText(Path.Combine("logs", "Compile Pal log - " + DateTime.Now.ToString("s").Replace(":", "-") + ".txt"), logText);
                 postCompile.Run(mapFiles);
             }
             catch (Exception e)
@@ -315,11 +316,10 @@ namespace CompilePal
 
         }
 
-        public void AppendLine(string s, params object[] arguments)
+        public void AppendLine(string s)
         {
             if (string.IsNullOrEmpty(s))
                 return;
-            s = string.Format(s, arguments);
             s += Environment.NewLine;
 
             CompileOutputTextbox.Focus();
@@ -327,11 +327,10 @@ namespace CompilePal
             CompileOutputTextbox.AppendText(s);
             CompileOutputTextbox.ScrollToEnd();
         }
-        public void AppendText(string s, params object[] arguments)
+        public void AppendText(string s)
         {
             if (string.IsNullOrEmpty(s))
                 return;
-            s = string.Format(s, arguments);
 
             CompileOutputTextbox.Focus();
 
@@ -460,12 +459,12 @@ namespace CompilePal
 
         private void CopyButton_Click(object sender, RoutedEventArgs e)
         {
-            Clipboard.SetText(new TextRange(CompileOutputTextbox.Document.ContentStart,CompileOutputTextbox.Document.ContentEnd).Text);
+            Clipboard.SetText(new TextRange(CompileOutputTextbox.Document.ContentStart, CompileOutputTextbox.Document.ContentEnd).Text);
         }
 
         private void FileBrowse_Click(object sender, RoutedEventArgs e)
         {
-            var dialog = new OpenFileDialog { Multiselect = true};
+            var dialog = new OpenFileDialog { Multiselect = true };
 
             dialog.ShowDialog();
 

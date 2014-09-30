@@ -134,16 +134,15 @@
                         <RowDefinition Height="274*"/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="291*"/>
-                        <ColumnDefinition Width="724*"/>
                     </Grid.ColumnDefinitions>
-                    <CheckBox x:Name="RunFileCheckBox" Content="Run files upon compile finish:" HorizontalAlignment="Left" Margin="10,90,0,0" VerticalAlignment="Top" Height="26" Width="191"/>
+                    <CheckBox x:Name="RunFileCheckBox" Content="Run files upon compile finish:" HorizontalAlignment="Left" Margin="10,120,0,0" Width="191" Height="26" VerticalAlignment="Top"/>
                     <CheckBox x:Name="ShutdownCheckBox" Content="Shutdown upon compile finish" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Height="26" Width="191"/>
-                    <CheckBox Name="CopyMapCheckBox" IsChecked="True" Content="Copy BSP to map folder upon compile finish." HorizontalAlignment="Left" Margin="10,0,0,110" Height="18" VerticalAlignment="Bottom" Width="271"/>
-                    <ListBox x:Name="RunFilesListBox" Grid.Column="1" Margin="10,90,90,10" Grid.Row="0" Grid.RowSpan="2" BorderThickness="1" BorderBrush="{DynamicResource {x:Static SystemColors.ActiveBorderBrushKey}}"/>
-                    <Button x:Name="FileBrowse" Content="BROWSE..." Grid.Column="1" HorizontalAlignment="Right" Margin="0,90,10,0" VerticalAlignment="Top" Width="75" Click="FileBrowse_Click" Height="25"/>
-                    <Button x:Name="FileRemoveBox" Content="REMOVE" Grid.Column="1" HorizontalAlignment="Right" Margin="0,120,10,0" VerticalAlignment="Top" Width="75" Click="FileRemoveBox_Click" Height="25"/>
+                    <CheckBox Name="CopyMapCheckBox" IsChecked="True" Content="Copy BSP to map folder upon compile finish." HorizontalAlignment="Left" Margin="10,67,0,0" Height="18" VerticalAlignment="Top" Width="271"/>
+                    <ListBox x:Name="RunFilesListBox"  Margin="206,120,90,10" Grid.Row="0" Grid.RowSpan="2" BorderThickness="1" BorderBrush="{DynamicResource {x:Static SystemColors.ActiveBorderBrushKey}}"/>
+                    <Button x:Name="FileBrowse" Content="BROWSE..." HorizontalAlignment="Right" Margin="0,120,10,0" VerticalAlignment="Top" Width="75" Click="FileBrowse_Click" Height="25"/>
+                    <Button x:Name="FileRemoveBox" Content="REMOVE"  HorizontalAlignment="Right" Margin="0,145,10,0" VerticalAlignment="Top" Width="75" Click="FileRemoveBox_Click" Height="25"/>
                     <CheckBox x:Name="ArchiveMapCheckBox" Content="Archive VMF file upon compile finish." HorizontalAlignment="Left" Margin="10,36,0,0" VerticalAlignment="Top" Height="26" Width="239"/>
+                    <CheckBox x:Name="MapCopyCheckBox" IsChecked="False" Content="Add date to map copy filename." HorizontalAlignment="Left" Margin="10,90,0,0" Height="25" VerticalAlignment="Top" Width="271"/>
                 </Grid>
             </TabItem>
             <TabItem Header="GAME">
@@ -175,7 +174,7 @@
             <TabItem Name="OutputTab" Header="OUTPUT">
                 <Grid Background="#FFE5E5E5">
                     <RichTextBox  x:Name="CompileOutputTextbox" AcceptsReturn="True" VerticalScrollBarVisibility="Auto"  Margin="10,10,10,40" FontFamily="Segoe UI, Lucida Sans Unicode, Verdana" IsReadOnlyCaretVisible="True" Block.LineHeight="2"/>
-                    <Button Name="CopyButton" Content="Copy All" HorizontalAlignment="Left" Margin="930,434,0,0" VerticalAlignment="Top" Width="75" Click="CopyButton_Click"/>
+                    <Button Name="CopyButton" Content="Copy All" Margin="0,0,10,10" Click="CopyButton_Click" Height="25" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="75"/>
                 </Grid>
             </TabItem>
         </TabControl>
@@ -189,7 +188,7 @@
 
         <ListBox Name="mapFilesListBox" Margin="10,10,90,0" BorderThickness="1" BorderBrush="{DynamicResource {x:Static SystemColors.ActiveBorderBrushKey}}" Height="66" VerticalAlignment="Top"/>
         <Label Content="Config:" HorizontalAlignment="Left" Margin="10,81,0,0" VerticalAlignment="Top"/>
-        <CheckBox x:Name="HotkeyCheckbox" Content="Enable hotkey usage (F8)" HorizontalAlignment="Left" Margin="10,642,0,0" VerticalAlignment="Top" IsChecked="True"/>
+        <CheckBox x:Name="HotkeyCheckbox" Content="Enable hotkey usage (F8)" Margin="10,0,0,10" IsChecked="True" Height="18" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="156"/>
 
     </Grid>
 
