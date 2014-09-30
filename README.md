@@ -44,10 +44,10 @@ Changes
 
 #### 012:
 
-Added error checking for compile output
+- Added error checking for compile output
 
-Fix crash bug that occured when a compile program output certain characters
-Fixed UI alignment issues
+- Fix crash bug that occured when a compile program output certain characters
+- Fixed UI alignment issues
 
 Thanks to Statua for reporting his discovery of the crash issue.
 
