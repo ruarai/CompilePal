@@ -1,3 +1,9 @@
+
+Download
+==========
+
+https://github.com/ruarai/CompilePal/releases/latest
+
 CompilePal
 ==========
 
@@ -26,7 +32,7 @@ Post compile actions:
 
 Download
 ==========
-*
+
 https://github.com/ruarai/CompilePal/releases/latest
 
 
