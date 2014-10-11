@@ -1,3 +1,9 @@
+
+Download
+==========
+
+https://github.com/ruarai/CompilePal/releases/latest
+
 CompilePal
 ==========
 
@@ -26,7 +32,7 @@ Post compile actions:
 
 Download
 ==========
-*
+
 https://github.com/ruarai/CompilePal/releases/latest
 
 
@@ -41,6 +47,15 @@ PACK is a prototype feature that allows for the automatic packing of custom cont
 
 Changes
 ==========
+
+#### 012:
+
+- Added error checking for compile output
+
+- Fix crash bug that occured when a compile program output certain characters
+- Fixed UI alignment issues
+
+Thanks to Statua for reporting his discovery of the crash issue.
 
 #### 011:
 
