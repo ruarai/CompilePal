@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -214,6 +215,7 @@ namespace CompilePal
         }
 
         private Thread CompileThread;
+        private Stopwatch compileTimeStopwatch;
         private void Compile()
         {
             CancelCompileButton.Visibility = Visibility.Visible;
@@ -225,10 +227,13 @@ namespace CompilePal
 
             CompileOutputTextbox.Document.Blocks.Clear();
 
+            compileTimeStopwatch = new Stopwatch();
+
+            compileTimeStopwatch.Start();
+
             CompileThread = new Thread(CompileThreaded);
             CompileThread.Start();
         }
-
         private void CompileThreaded()
         {
             float progress = 0f;
@@ -268,6 +273,11 @@ namespace CompilePal
         {
             try
             {
+                compileTimeStopwatch.Stop();
+                AppendLineC(string.Format("'{0}' compile finished in {1}",CurrentConfig, compileTimeStopwatch.Elapsed.ToString(@"hh\:mm\:ss")),Brushes.Green);
+                compileTimeStopwatch.Reset();
+
+
                 CancelCompileButton.Visibility = Visibility.Hidden;
                 CompileButton.Visibility = Visibility.Visible;
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 
 namespace BSPAutoPack
@@ -31,7 +32,7 @@ namespace BSPAutoPack
 
                 vmfSoundKeys = File.ReadAllLines(Path.Combine("keys", "vmfsoundkeys.txt")).ToList();
                 vmfMaterialKeys = File.ReadAllLines(Path.Combine("keys", "vmfmaterialkeys.txt")).ToList();
-                vmfModelKeys = File.ReadAllLines(Path.Combine("keys","vmfmodelkeys.txt")).ToList();
+                vmfModelKeys = File.ReadAllLines(Path.Combine("keys", "vmfmodelkeys.txt")).ToList();
 
                 vmfAllKeys.AddRange(vmfSoundKeys);
                 vmfAllKeys.AddRange(vmfMaterialKeys);
@@ -137,10 +138,10 @@ namespace BSPAutoPack
             string arguments = "-addlist \"$bspnew\"  \"$list\" \"$bspold\" -game \"$game\"";
             arguments = arguments.Replace("$bspnew", bspPath);
             arguments = arguments.Replace("$bspold", bspPath);
-            arguments = arguments.Replace("$list","files.txt");
+            arguments = arguments.Replace("$list", "files.txt");
             arguments = arguments.Replace("$game", gameFolder);
 
-            var p = new Process {StartInfo = {Arguments = arguments, FileName = bspZip, UseShellExecute = false, RedirectStandardOutput = true}};
+            var p = new Process { StartInfo = { Arguments = arguments, FileName = bspZip, UseShellExecute = false, RedirectStandardOutput = true } };
 
             p.OutputDataReceived += p_OutputDataReceived;
 
@@ -156,15 +157,15 @@ namespace BSPAutoPack
         {
             var references = new List<string>();
 
-            var variations = new List<string> {".dx80.vtx",".dx90.vtx",".phy",".sw.vtx",".sw.vtx"};
+            var variations = new List<string> { ".dx80.vtx", ".dx90.vtx", ".phy", ".sw.vtx", ".sw.vtx" };
             foreach (string variation in variations)
             {
-                string variant = mdlPath.Replace(".mdl", variation);
-                if(File.Exists(variant))
+                string variant = Path.ChangeExtension(mdlPath, variation);
+                if (File.Exists(variant))
                     references.Add(variant);
             }
 
-            string materialFile = mdlPath.Replace(@"\models", @"\materials\models").Replace(".mdl",".vmt");
+            string materialFile = mdlPath.Replace(@"\models", @"\materials\models").Replace(".mdl", ".vmt");
             if (File.Exists(materialFile))
             {
                 references.Add(materialFile);
@@ -186,17 +187,20 @@ namespace BSPAutoPack
 
             foreach (string line in textureLines)
             {
-                string path;
-                if (GetValue(line).EndsWith(".vtf"))
+                if (IsValidFilename(GetValue(line)))
                 {
-                    path = (Path.Combine(gameFolder, "materials", GetValue(line))).Replace("/", "\\");
+                    string path;
+                    if (GetValue(line).EndsWith(".vtf"))
+                    {
+                        path = (Path.Combine(gameFolder, "materials", GetValue(line))).Replace("/", "\\");
+                    }
+                    else
+                    {
+                        path = (Path.Combine(gameFolder, "materials", GetValue(line)) + ".vtf").Replace("/", "\\");
+                    }
+                    if (File.Exists(path))
+                        contentFiles.Add(path);
                 }
-                else
-                {
-                    path = (Path.Combine(gameFolder, "materials", GetValue(line)) + ".vtf").Replace("/", "\\");
-                }
-                if (File.Exists(path))
-                    contentFiles.Add(path);
             }
 
             var materialLines = vmtLines.Where(l => vmtMaterialkeyWords.Any(l.Contains));
@@ -205,8 +209,10 @@ namespace BSPAutoPack
             foreach (string line in materialLines)
             {
                 string path = DeterminePath(GetKey(line), GetValue(line));
-                if (File.Exists(path))
-                    contentFiles.AddRange(GetMaterialReferences(path));
+
+                if (IsValidFilename(path))
+                    if (File.Exists(path))
+                        contentFiles.AddRange(GetMaterialReferences(path));
             }
             return contentFiles.Distinct().ToList();
 
@@ -258,6 +264,17 @@ namespace BSPAutoPack
         static string GetKey(string line)
         {
             return line.Split(' ').First().Replace("\"", "").Trim();
+        }
+
+        static bool IsValidFilename(string testName)
+        {
+            Regex containsABadCharacter = new Regex("["
+                  + Regex.Escape(new string(System.IO.Path.GetInvalidPathChars())) + "]");
+            if (containsABadCharacter.IsMatch(testName)) { return false; };
+
+            // other checks for UNC, drive-path format, etc
+
+            return true;
         }
     }
 }
