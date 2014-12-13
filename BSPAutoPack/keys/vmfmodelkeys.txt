@@ -1,9 +1,0 @@
-model
-shootmodel
-point_allies_model
-point_axis_model
-point_reset_model
-missilemodel
-team_model_0
-team_model_2
-team_model_3

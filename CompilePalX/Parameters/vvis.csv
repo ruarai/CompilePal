@@ -1,0 +1,9 @@
+sep=;
+Name;Parameter;ValueValid;Description;Issues
+Fast; -fast;false;Only do a quick first pass. Does not actually test visibility.;
+Radius Override; -radius_override;true;Force a maximum vis radius, in units, regardless of whether an env_fog_controller specifies one.;
+No Sort; -nosort;false;Don’t sort portals.;
+Temp In; -tmpin;false;Read portals from \\tmp\\<mapname>.;
+Temp Out; -tmpout;false;Write portals to \\tmp\\<mapname>.;
+Threads; -threads;true;Override the number of CPU threads used.;
+Verbose; -verbose;false;Turn on verbose output for debug purposes.;

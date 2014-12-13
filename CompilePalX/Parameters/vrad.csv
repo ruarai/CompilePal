@@ -1,0 +1,17 @@
+sep=;
+Name;Parameter;ValueValid;Description;Issues
+Bounces; -bounce;true;Set the maximum number of light ray bounces;
+LDR; -ldr;false;Compile with LDR;
+HDR; -hdr;false;Compile with HDR;
+Both; -both;false;Compile with HDR and LDR.;Known to have issues with some versions of Source.
+Fast; -fast;false;Fast lighting.;
+Extra Sky; -extrasky;true;Trace N times as many rays for indirect light and sky ambient.;
+Lights File; -lights;true;Load a custom lights file in addition to lights.rad and map-specific lights file.;
+Smooth; -smooth;true;Set the threshold for smoothing groups, in degrees.;
+Luxel Density; -density;true;Scale down luxels. Maximum value is 1.;Too low a value can cause lighting errors.
+Static Prop Lighting; -StaticPropLighting;false;Generate per-vertex prop_static lighting; always enabled for light_spot entities.;
+Static Prop Polys; -StaticPropPolys;false;Generate lighting on props at polygon precision.;
+Texture Shadows; -TextureShadows;false;Generates lightmap shadows from $translucent surfaces of models. (Not brushes);
+Threads; -threads;true;Override the number of CPU threads used.;
+Disable Skybox Recursion; -noskyboxrecurse;false;Turn off recursion into 3d skybox (skybox shadows on world).;
+Verbose; -verbose;false;Turn on verbose output for debug purposes.;

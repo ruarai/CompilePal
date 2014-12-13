@@ -1,0 +1,12 @@
+This folder contains the files that both which compiling tools are present and how they are handled. The .meta files contain information on each tool and the .csv files have each tool's parameters.
+
+.meta files are formatted as such, with line numbers shown:
+1:The name of the tool.
+2:The path of the tool. You can use substitutions such as %BinFolder% or %VRAD$
+3:The filename of the parameters file.
+4:The default, unremovable parameters.
+5:A number that dictates when the tool will be run.
+6:If the tool is to be run at all. Can be modified at run time.
+
+The .csv parameter files can be viewed in Excel anywhere but only saved in Excel if you live in an area that uses commas as a decimal seperator. For other regions, use notepad instead.
+

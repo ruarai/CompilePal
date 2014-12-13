@@ -1,5 +1,0 @@
-$bottommaterial
-$crackmaterial
-$fallbackmaterial
-$iris
-$underwateroverlay

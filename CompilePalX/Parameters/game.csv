@@ -1,0 +1,10 @@
+sep=;
+Name;Parameter;ValueValid;Description;Issues
+Tools; -tools;FALSE;Enables engine tools.;Can cause lighting errors in game.
+No Video; -novid;FALSE;Disables the intro video when launching.; 
+Developer Mode; -dev;FALSE;Disables the automatic loading of menu background maps and stops the quit dialog from appearing on exit.; 
+Console; -console;FALSE;Starts the game with the console enabled.; 
+Windowed; -windowed;FALSE;Loads game in windowed mode.; 
+Window Width; -width;TRUE;Sets window resolution width.; 
+Window Height; -height;TRUE;Sets window resolution height.;
+Map; +map;TRUE;Loads the specified map on launch.; 

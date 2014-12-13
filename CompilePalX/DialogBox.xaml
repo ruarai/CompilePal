@@ -1,0 +1,12 @@
+﻿<controls:MetroWindow x:Class="CompilePalX.DialogBox"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+        Title="DialogBox" Height="194" Width="300" WindowStyle="ToolWindow" ResizeMode="NoResize" Closing="MetroWindow_Closing"
+                      GlowBrush="{DynamicResource AccentColorBrush}" IconEdgeMode="Aliased" Icon="CompilePalIcon.ico" ShowIconOnTitleBar="False">
+    <Grid>
+        <TextBox x:Name="InputText" HorizontalAlignment="Left" Margin="10,0,0,10" VerticalAlignment="Bottom" Width="274" KeyUp="InputText_KeyUp"/>
+        <TextBlock Name="MessageText" HorizontalAlignment="Left" Margin="10,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Height="120" Width="274"/>
+
+    </Grid>
+</controls:MetroWindow>

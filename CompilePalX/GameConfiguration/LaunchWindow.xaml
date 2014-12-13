@@ -1,0 +1,18 @@
+﻿<controls:MetroWindow x:Class="CompilePalX.LaunchWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+        Title="Game Selector" Height="444" Width="564"
+                      BorderBrush="{DynamicResource AccentColorBrush}" BorderThickness="1" 
+                      IconEdgeMode="Aliased" Icon="..\CompilePalIcon.ico" ShowIconOnTitleBar="False" >
+    <Grid>
+
+        <DataGrid x:Name="GameGrid" Margin="10,10,10,40"  AutoGenerateColumns="False" CanUserAddRows="False" ItemsSource="{Binding}" >
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Name" Binding="{ Binding Name}" IsReadOnly="True"/>
+                <DataGridTextColumn Header="Path" Binding="{ Binding GameFolder}" IsReadOnly="True"/>
+            </DataGrid.Columns>
+        </DataGrid>
+        <Button Content="Launch" Margin="0,0,10,10" Height="25" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="75" Click="Button_Click"/>
+    </Grid>
+</controls:MetroWindow>
