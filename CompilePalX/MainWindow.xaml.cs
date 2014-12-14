@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.NetworkInformation;
 using System.Security.Cryptography;
@@ -15,6 +16,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
+using MahApps.Metro.Controls.Dialogs;
 using Microsoft.Win32;
 
 namespace CompilePalX
@@ -27,9 +29,11 @@ namespace CompilePalX
         public static Dispatcher ActiveDispatcher;
         public MainWindow()
         {
-            ActiveDispatcher = Dispatcher;
+            Application.Current.DispatcherUnhandledException += Current_DispatcherUnhandledException;
 
             InitializeComponent();
+
+            ActiveDispatcher = Dispatcher;
 
             AnalyticsManager.Launch();
             PersistenceManager.Init();
@@ -52,8 +56,15 @@ namespace CompilePalX
 
             CompilingManager.OnWrite += CompilingManager_OnWrite;
             CompilingManager.OnClear += CompilingManager_OnClear;
-
+            CompilingManager.OnFinish += CompilingManager_OnFinish;
         }
+
+
+        void Current_DispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
+        {
+            ExceptionHandler.LogException(e.Exception);
+        }
+
 
         void SetSources()
         {
@@ -99,6 +110,19 @@ namespace CompilePalX
 
         }
 
+
+        private void CompilingManager_OnFinish()
+        {
+            string logName = DateTime.Now.ToString("s").Replace(":", "-") + ".txt";
+            string textLog = new TextRange(CompileOutputTextbox.Document.ContentStart, CompileOutputTextbox.Document.ContentEnd).Text;
+
+            if (Directory.Exists("CompileLogs"))
+                Directory.CreateDirectory("CompileLogs");
+
+            File.WriteAllText(System.IO.Path.Combine("CompileLogs", logName), textLog);
+
+        }
+
         private void OnConfigChanged(object sender, RoutedEventArgs e)
         {
             UpdateParameterTextBox();
@@ -124,34 +148,35 @@ namespace CompilePalX
             UpdateParameterTextBox();
         }
 
-        private void AddPresetButton_Click(object sender, RoutedEventArgs e)
+        private async void AddPresetButton_Click(object sender, RoutedEventArgs e)
         {
-            var dialog = new DialogBox("Name for the new preset:");
-            dialog.ShowDialog();
+            var input = await this.ShowInputAsync("New Preset", "Preset name:");
 
-            string presetName = dialog.TextReturned;
+            if (input != null)
+            {
+                string presetName = input;
 
-            ConfigurationManager.NewPreset(presetName);
+                ConfigurationManager.NewPreset(presetName);
 
-            SetSources();
-            CompileProcessesListBox.SelectedIndex = 0;
-            PresetConfigListBox.SelectedItem = presetName;
-
+                SetSources();
+                CompileProcessesListBox.SelectedIndex = 0;
+                PresetConfigListBox.SelectedItem = presetName;
+            }
         }
-        private void ClonePresetButton_OnClick(object sender, RoutedEventArgs e)
+        private async void ClonePresetButton_OnClick(object sender, RoutedEventArgs e)
         {
-            var dialog = new DialogBox("Name for the cloned preset:");
-            dialog.ShowDialog();
+            var input = await this.ShowInputAsync("Clone Preset", "Cloned preset name:");
 
-            string presetName = dialog.TextReturned;
+            if (input != null)
+            {
+                string presetName = input;
 
-            ConfigurationManager.ClonePreset(presetName);
+                ConfigurationManager.ClonePreset(presetName);
 
-            SetSources();
-            CompileProcessesListBox.SelectedIndex = 0;
-            PresetConfigListBox.SelectedItem = presetName;
-
-
+                SetSources();
+                CompileProcessesListBox.SelectedIndex = 0;
+                PresetConfigListBox.SelectedItem = presetName;
+            }
         }
 
         private void RemovePresetButton_Click(object sender, RoutedEventArgs e)

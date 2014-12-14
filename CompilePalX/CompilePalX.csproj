@@ -70,6 +70,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="ExceptionHandler.cs" />
     <Compile Include="GameConfiguration\GameConfiguration.cs" />
     <Compile Include="GameConfiguration\GameConfigurationParser.cs" />
     <Compile Include="GameConfiguration\LaunchWindow.xaml.cs">
@@ -78,10 +79,6 @@
     <Compile Include="PersistenceManager.cs" />
     <Compile Include="Updating\UpdateManager.cs" />
     <Page Include="Configuration\ParameterAdder.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="DialogBox.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -107,18 +104,11 @@
     <Compile Include="Configuration\ParameterAdder.xaml.cs">
       <DependentUpon>ParameterAdder.xaml</DependentUpon>
     </Compile>
-    <Compile Include="DialogBox.xaml.cs">
-      <DependentUpon>DialogBox.xaml</DependentUpon>
-    </Compile>
     <Compile Include="GameConfiguration\GameConfigurationManager.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="Theme.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ObservableDictionary.cs" />
@@ -239,5 +229,8 @@
   -->
   <Target AfterTargets="AfterBuild;NonWinFodyTarget" Name="CleanReferenceCopyLocalPaths">
     <Delete Files="@(ReferenceCopyLocalPaths->'$(OutDir)%(DestinationSubDirectory)%(Filename).dll')" />
+    <Delete Files="@(ReferenceCopyLocalPaths->'$(OutDir)%(DestinationSubDirectory)%(Filename).pdb')" />
+    <Delete Files="@(ReferenceCopyLocalPaths->'$(OutDir)%(DestinationSubDirectory)%(Filename).xml')" />
+    <Delete Files="@(ReferenceCopyLocalPaths->'$(OutDir)%(DestinationSubDirectory)%(Filename).config')" />
   </Target>
 </Project>

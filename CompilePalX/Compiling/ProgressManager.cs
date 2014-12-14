@@ -48,7 +48,7 @@ namespace CompilePalX
 
                     if (progress >= 1)
                     {
-                        System.Media.SystemSounds.Asterisk.Play();
+                        System.Media.SystemSounds.Exclamation.Play();
                     }
                     if (progress <= 0)
                     {

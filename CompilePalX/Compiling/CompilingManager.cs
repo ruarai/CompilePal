@@ -13,10 +13,12 @@ namespace CompilePalX
 {
     internal delegate void CompileWritten(string line);
     internal delegate void CompileCleared();
+    internal delegate void CompileFinished();
     static class CompilingManager
     {
         public static event CompileWritten OnWrite;
         public static event CompileCleared OnClear;
+        public static event CompileFinished OnFinish;
 
         public static ObservableCollection<string> MapFiles = new ObservableCollection<string>();
 
@@ -122,6 +124,9 @@ namespace CompilePalX
         private static void postCompile()
         {
             writeLine(string.Format("'{0}' compile finished in {1}", ConfigurationManager.CurrentPreset, compileTimeStopwatch.Elapsed.ToString(@"hh\:mm\:ss")));
+
+            OnFinish();
+
             compileTimeStopwatch.Reset();
 
             IsCompiling = false;
@@ -136,7 +141,7 @@ namespace CompilePalX
                 {
                     compileProcess.Process.Kill();
                 }
-                catch { }
+                catch(Exception e) { ExceptionHandler.LogException(e);}
             }
 
             ProgressManager.SetProgress(0);
