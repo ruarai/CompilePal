@@ -43,8 +43,10 @@ namespace CompilePalX
 
         private static void AssemblePresets()
         {
+            //get a list of presets from the directories in the preset folder
             var presets = Directory.GetDirectories(PresetsFolder);
 
+            //clear old lists
             KnownPresets.Clear();
 
             foreach (var process in CompileProcesses)
@@ -62,19 +64,21 @@ namespace CompilePalX
                     string file = Path.Combine(presetPath, process.PresetFile);
                     if (File.Exists(file))
                     {
+                        //read the list of preset parameters
                         var lines = File.ReadAllLines(file);
 
                         foreach (var line in lines)
                         {
                             var item = ParsePresetLine(line);
 
-                            var equivalentparameter = process.ParameterList.FirstOrDefault(c => c.Parameter == item.Parameter);
-
-                            if (equivalentparameter != null)
+                            if (process.ParameterList.Any(c => c.Parameter == item.Parameter))
                             {
-                                equivalentparameter.Value = item.Value;
+                                //remove .clone if you are a masochist and wish to enter the object oriented version of hell
+                                var equivalentItem = (ConfigItem)process.ParameterList.FirstOrDefault(c => c.Parameter == item.Parameter).Clone();
 
-                                process.PresetDictionary[preset].Add(equivalentparameter);
+                                equivalentItem.Value = item.Value;
+
+                                process.PresetDictionary[preset].Add(equivalentItem);
                             }
                         }
                     }
@@ -134,7 +138,7 @@ namespace CompilePalX
         public static void ClonePreset(string name)
         {
             string newFolder = Path.Combine(PresetsFolder, name);
-            string oldFolder = Path.Combine(PresetsFolder,CurrentPreset);
+            string oldFolder = Path.Combine(PresetsFolder, CurrentPreset);
             if (!Directory.Exists(newFolder))
             {
                 SavePresets();
@@ -186,8 +190,12 @@ namespace CompilePalX
 
             var pieces = line.Split(',');
 
-            item.Parameter = pieces[0];
-            item.Value = pieces[1];
+            if (pieces.Any())
+            {
+                item.Parameter = pieces[0];
+                if(pieces.Count() >= 2)
+                    item.Value = pieces[1];
+            }
             return item;
         }
 
@@ -203,11 +211,18 @@ namespace CompilePalX
 
             var pieces = line.Split(';');
 
-            item.Name = pieces[0];
-            item.Parameter = pieces[1];
-            item.CanHaveValue = bool.Parse(pieces[2]);
-            item.Description = pieces[3];
-            item.Warning = pieces[4];
+            if (pieces.Any())
+            {
+                item.Name = pieces[0];
+                if(pieces.Count() >= 2)
+                    item.Parameter = pieces[1];
+                if (pieces.Count() >= 3)
+                    item.CanHaveValue = bool.Parse(pieces[2]);
+                if (pieces.Count() >= 4)
+                    item.Description = pieces[3];
+                if (pieces.Count() >= 5)
+                item.Warning = pieces[4];
+            }
             return item;
         }
 

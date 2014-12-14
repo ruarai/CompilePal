@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CompilePalX
 {
-    public class ConfigItem
+    public class ConfigItem : ICloneable
     {
         public string Name { get; set; }
         public string Parameter { get; set; }
@@ -14,9 +14,13 @@ namespace CompilePalX
 
         public string Value { get; set; }
 
-
         public bool CanHaveValue { get; set; }
 
         public string Warning { get; set; }
+
+        public object Clone()
+        {
+            return new ConfigItem() {Name=Name,Parameter=Parameter,Description = Description,Value=Value,CanHaveValue = CanHaveValue,Warning = Warning};
+        }
     }
 }

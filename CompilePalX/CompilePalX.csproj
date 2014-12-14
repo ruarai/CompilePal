@@ -211,7 +211,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Compilers\BSPPack\" />
-    <Folder Include="Presets\Fast\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BSPPack\BSPPack.csproj">
