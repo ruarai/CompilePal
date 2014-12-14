@@ -41,12 +41,7 @@ namespace CompilePalX
             ProgressManager.ProgressChange += ProgressManager_ProgressChange;
             ProgressManager.Init(TaskbarItemInfo);
 
-
-            CompileProcessesListBox.ItemsSource = ConfigurationManager.CompileProcesses;
-
-            PresetConfigListBox.ItemsSource = ConfigurationManager.KnownPresets;
-
-            MapListBox.ItemsSource = CompilingManager.MapFiles;
+            SetSources();
 
             CompileProcessesListBox.Items.SortDescriptions.Add(new System.ComponentModel.SortDescription("Order", System.ComponentModel.ListSortDirection.Ascending));
 
@@ -60,6 +55,14 @@ namespace CompilePalX
 
         }
 
+        void SetSources()
+        {
+            CompileProcessesListBox.ItemsSource = ConfigurationManager.CompileProcesses;
+
+            PresetConfigListBox.ItemsSource = ConfigurationManager.KnownPresets;
+
+            MapListBox.ItemsSource = CompilingManager.MapFiles;
+        }
 
         void ProgressManager_ProgressChange(double progress)
         {
@@ -130,8 +133,24 @@ namespace CompilePalX
 
             ConfigurationManager.NewPreset(presetName);
 
+            SetSources();
             CompileProcessesListBox.SelectedIndex = 0;
             PresetConfigListBox.SelectedItem = presetName;
+
+        }
+        private void ClonePresetButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            var dialog = new DialogBox("Name for the cloned preset:");
+            dialog.ShowDialog();
+
+            string presetName = dialog.TextReturned;
+
+            ConfigurationManager.ClonePreset(presetName);
+
+            SetSources();
+            CompileProcessesListBox.SelectedIndex = 0;
+            PresetConfigListBox.SelectedItem = presetName;
+
 
         }
 
@@ -142,9 +161,9 @@ namespace CompilePalX
             if (selectedItem != null)
                 ConfigurationManager.RemovePreset(selectedItem);
 
+            SetSources();
             CompileProcessesListBox.SelectedIndex = 0;
             PresetConfigListBox.SelectedIndex = 0;
-
         }
 
         private void MetroWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -229,5 +248,6 @@ namespace CompilePalX
             CompilingManager.ToggleCompileState();
             OutputTab.Focus();
         }
+
     }
 }

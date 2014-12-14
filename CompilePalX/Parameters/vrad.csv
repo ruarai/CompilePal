@@ -4,7 +4,8 @@ Bounces; -bounce;true;Set the maximum number of light ray bounces;
 LDR; -ldr;false;Compile with LDR;
 HDR; -hdr;false;Compile with HDR;
 Both; -both;false;Compile with HDR and LDR.;Known to have issues with some versions of Source.
-Fast; -fast;false;Fast lighting.;
+Fast; -fast;false;Fast lighting; 
+Final; -final;false;Increases the quality of light_environment and indirect lighting by spending more time firing rays.; 
 Extra Sky; -extrasky;true;Trace N times as many rays for indirect light and sky ambient.;
 Lights File; -lights;true;Load a custom lights file in addition to lights.rad and map-specific lights file.;
 Smooth; -smooth;true;Set the threshold for smoothing groups, in degrees.;
