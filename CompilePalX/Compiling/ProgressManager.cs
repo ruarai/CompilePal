@@ -26,6 +26,7 @@ namespace CompilePalX
             TitleChange(string.Format("{0} {1}X {2}", defaultTitle, UpdateManager.Version, GameConfigurationManager.GameConfiguration.Name));
         }
 
+
         static public double Progress
         {
             get
@@ -50,9 +51,14 @@ namespace CompilePalX
                     {
                         System.Media.SystemSounds.Exclamation.Play();
                     }
-                    if (progress <= 0)
+                    else if (progress <= 0)
                     {
                         taskbarInfo.ProgressState = TaskbarItemProgressState.None;
+                        TitleChange(string.Format("{0} {1}X {2}", defaultTitle, UpdateManager.Version, GameConfigurationManager.GameConfiguration.Name));
+                    }
+                    else
+                    {
+                        TitleChange(string.Format("{0}% - Compile Pal {1}X",progress*100,UpdateManager.Version));
                     }
                 });
 
