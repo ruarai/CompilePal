@@ -136,7 +136,10 @@ namespace CompilePalX
             if (c.ChosenItem != null && !selectedProcess.PresetDictionary[ConfigurationManager.CurrentPreset].Contains(c.ChosenItem))
                 selectedProcess.PresetDictionary[ConfigurationManager.CurrentPreset].Add(c.ChosenItem);
 
+            AnalyticsManager.ModifyPreset();
+
             UpdateParameterTextBox();
+
         }
 
         private void RemoveParameterButton_OnClickParameterButton_Click(object sender, RoutedEventArgs e)
@@ -158,6 +161,8 @@ namespace CompilePalX
 
                 ConfigurationManager.NewPreset(presetName);
 
+                AnalyticsManager.NewPreset();
+
                 SetSources();
                 CompileProcessesListBox.SelectedIndex = 0;
                 PresetConfigListBox.SelectedItem = presetName;
@@ -172,6 +177,8 @@ namespace CompilePalX
                 string presetName = input;
 
                 ConfigurationManager.ClonePreset(presetName);
+
+                AnalyticsManager.NewPreset();
 
                 SetSources();
                 CompileProcessesListBox.SelectedIndex = 0;

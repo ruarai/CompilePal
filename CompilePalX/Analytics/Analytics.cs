@@ -14,19 +14,24 @@ namespace CompilePalX
         private static string anonymousUserID;
         private static Segment.Model.Properties userProperties;
 
-        private const bool debuggerCheckOverride = false;
+        private const bool debuggerCheckOverride = true;
         static AnalyticsManager()
         {
             //anonymise the machine name so it's not too stalkery
             anonymousUserID = GetHashString(Environment.MachineName);
 
-            userProperties= new Segment.Model.Properties() {{"version",UpdateManager.Version}};
+            userProperties = new Segment.Model.Properties()
+                            {
+                                {"version",UpdateManager.Version},
+                                {"presets",ConfigurationManager.KnownPresets.Count},
+                                {"game",GameConfigurationManager.GameConfiguration.Name}
+                            };
         }
 
         public static byte[] GetHash(string inputString)
         {
             HashAlgorithm algorithm = SHA256.Create();
-            return algorithm.ComputeHash(Encoding.UTF8.GetBytes(inputString));
+            return algorithm.ComputeHash(Encoding.UTF8.GetBytes(inputString + "random as string that makes it secure like"));
         }
 
         public static string GetHashString(string inputString)
@@ -43,7 +48,7 @@ namespace CompilePalX
             {
                 Analytics.Initialize("5IMRGFe2K7JV76e1NzyC40oBADmta5Oh");
 
-                Analytics.Client.Track(anonymousUserID,"Launch",userProperties);
+                Analytics.Client.Track(anonymousUserID, "Launch", userProperties);
             }
         }
         public static void Compile()
@@ -51,6 +56,27 @@ namespace CompilePalX
             if (!System.Diagnostics.Debugger.IsAttached || debuggerCheckOverride)
             {
                 Analytics.Client.Track(anonymousUserID, "Compile", userProperties);
+            }
+        }
+        public static void NewPreset()
+        {
+            if (!System.Diagnostics.Debugger.IsAttached || debuggerCheckOverride)
+            {
+                Analytics.Client.Track(anonymousUserID, "NewPreset", userProperties);
+            }
+        }
+        public static void ModifyPreset()
+        {
+            if (!System.Diagnostics.Debugger.IsAttached || debuggerCheckOverride)
+            {
+                Analytics.Client.Track(anonymousUserID, "ModifyPreset", userProperties);
+            }
+        }
+        public static void Error()
+        {
+            if (!System.Diagnostics.Debugger.IsAttached || debuggerCheckOverride)
+            {
+                Analytics.Client.Track(anonymousUserID, "Error", userProperties);
             }
         }
     }

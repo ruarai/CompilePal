@@ -38,6 +38,8 @@ namespace CompilePalX
 
         public static void StartCompile()
         {
+            AnalyticsManager.Compile();
+
             IsCompiling = true;
 
             compileTimeStopwatch.Start();

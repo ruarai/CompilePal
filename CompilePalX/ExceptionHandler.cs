@@ -18,6 +18,8 @@ namespace CompilePalX
 
             System.Media.SystemSounds.Asterisk.Play();
 
+            AnalyticsManager.Error();//risky, but /interesting/
+
             Environment.Exit(0);
         }
     }
