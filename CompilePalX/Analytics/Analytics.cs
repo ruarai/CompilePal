@@ -14,7 +14,7 @@ namespace CompilePalX
         private static string anonymousUserID;
         private static Segment.Model.Properties userProperties;
 
-        private const bool debuggerCheckOverride = true;
+        private const bool debuggerCheckOverride = false;
         static AnalyticsManager()
         {
             //anonymise the machine name so it's not too stalkery
