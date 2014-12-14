@@ -49,6 +49,8 @@ namespace CompilePalX
 
                     if (progress >= 1)
                     {
+                        TitleChange(string.Format("{0}% - {1} {2}X", Math.Floor(progress * 100d), defaultTitle, UpdateManager.Version));
+
                         System.Media.SystemSounds.Exclamation.Play();
                     }
                     else if (progress <= 0)
@@ -58,7 +60,7 @@ namespace CompilePalX
                     }
                     else
                     {
-                        TitleChange(string.Format("{0}% - Compile Pal {1}X",progress*100,UpdateManager.Version));
+                        TitleChange(string.Format("{0}% - {1} {2}X", Math.Floor(progress * 100d), defaultTitle, UpdateManager.Version));
                     }
                 });
 
