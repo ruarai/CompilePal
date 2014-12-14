@@ -271,6 +271,9 @@ namespace CompilePalX
         private void CompileStartStopButton_OnClick(object sender, RoutedEventArgs e)
         {
             CompilingManager.ToggleCompileState();
+
+            CompileStartStopButton.Content = (string)CompileStartStopButton.Content == "Compile" ? "Cancel" : "Compile";
+
             OutputTab.Focus();
         }
 
