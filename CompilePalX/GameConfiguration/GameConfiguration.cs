@@ -1,4 +1,6 @@
-﻿namespace CompilePalX
+﻿using System.IO;
+
+namespace CompilePalX
 {
     class GameConfiguration
     {
@@ -7,6 +9,10 @@
         public string VBSP { get; set; }
         public string VVIS { get; set; }
         public string VRAD { get; set; }
+
+        public string BSPZip {
+            get { return Path.Combine(BinFolder, "bspzip.exe"); }
+        }
 
         public string GameEXE { get; set; }
 

@@ -1,0 +1,6 @@
+PACK
+BSPPack.exe
+pack.csv
+ -game $game$ -bsp $bsp$ -vmf $vmfFile$ -bspZip $bspZip$ -keys $keys$
+5.0
+true

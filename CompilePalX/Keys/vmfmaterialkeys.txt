@@ -1,0 +1,15 @@
+material
+ropematerial
+point_hud_icon_neutral
+point_hud_icon_axis
+point_hud_icon_allies
+point_hud_icon_timercap
+point_hud_icon_bombed
+team_icon_0
+team_icon_2
+team_icon_3
+team_overlay_0
+team_overlay_2
+team_overlay_3
+team_base_icon_2
+team_base_icon_3
