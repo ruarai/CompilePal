@@ -1,0 +1,6 @@
+VVIS
+%VVIS%
+vvis.csv
+ -game $game$ $vmfFile$
+2.0
+true

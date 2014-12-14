@@ -1,0 +1,6 @@
+VRAD
+%VRAD%
+vrad.csv
+ -game $game$ $vmfFile$
+3.0
+true
