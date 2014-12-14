@@ -227,6 +227,7 @@ namespace CompilePalX
         private void CompileStartStopButton_OnClick(object sender, RoutedEventArgs e)
         {
             CompilingManager.ToggleCompileState();
+            OutputTab.Focus();
         }
     }
 }
