@@ -43,6 +43,9 @@ namespace CompilePalX
 
         private static void AssemblePresets()
         {
+            if (!Directory.Exists("Presets"))
+                Directory.CreateDirectory("Presets");
+
             //get a list of presets from the directories in the preset folder
             var presets = Directory.GetDirectories(PresetsFolder);
 
