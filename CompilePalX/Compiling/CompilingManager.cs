@@ -141,6 +141,7 @@ namespace CompilePalX
                 {
                     compileProcess.Process.Kill();
                 }
+                catch (InvalidOperationException) { }
                 catch(Exception e) { ExceptionHandler.LogException(e);}
             }
 
