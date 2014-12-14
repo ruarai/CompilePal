@@ -173,10 +173,19 @@ namespace CompilePalX
 
         public static string FinaliseParameterString(string parameterString, string mapFile)
         {
-            parameterString = parameterString.Replace("$vmfFile", string.Format("\"{0}\"", mapFile));
-            parameterString = parameterString.Replace("$map", string.Format("\"{0}\"", Path.GetFileNameWithoutExtension(mapFile)));
-            parameterString = parameterString.Replace("$game", string.Format("\"{0}\"", GameConfigurationManager.GameConfiguration.GameFolder));
-            parameterString = parameterString.Replace("$bsp", string.Format("\"{0}\"", Path.ChangeExtension(mapFile, "bsp")));
+            parameterString = parameterString.Replace("$vmfFile$", string.Format("\"{0}\"", mapFile));
+            parameterString = parameterString.Replace("$map$", string.Format("\"{0}\"", Path.GetFileNameWithoutExtension(mapFile)));
+            parameterString = parameterString.Replace("$bsp$", string.Format("\"{0}\"", Path.ChangeExtension(mapFile, "bsp")));
+
+            parameterString = parameterString.Replace("$mapCopyLocation$", string.Format("\"{0}\"", Path.Combine(GameConfigurationManager.GameConfiguration.MapFolder, Path.GetFileName(mapFile))));
+
+            parameterString = parameterString.Replace("$game$", string.Format("\"{0}\"", GameConfigurationManager.GameConfiguration.GameFolder));
+            parameterString = parameterString.Replace("$gameEXE$", string.Format("\"{0}\"", GameConfigurationManager.GameConfiguration.GameEXE));
+            parameterString = parameterString.Replace("$binFolder$", string.Format("\"{0}\"", GameConfigurationManager.GameConfiguration.BinFolder));
+            parameterString = parameterString.Replace("$mapFolder$", string.Format("\"{0}\"", GameConfigurationManager.GameConfiguration.MapFolder));
+            parameterString = parameterString.Replace("$gameName$", string.Format("\"{0}\"", GameConfigurationManager.GameConfiguration.Name));
+            parameterString = parameterString.Replace("$sdkFolder$", string.Format("\"{0}\"", GameConfigurationManager.GameConfiguration.SDKMapFolder));
+
 
             return parameterString;
         }

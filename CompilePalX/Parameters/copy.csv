@@ -1,0 +1,4 @@
+sep=;
+Name;Parameter;ValueValid;Description;Issues
+Copy Destination; -copyDestination;TRUE;The target location for the map file.; 
+Copy Source; -copySource;TRUE;The source location for the map file.; 
