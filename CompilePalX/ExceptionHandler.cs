@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 using System.Windows;
 
 namespace CompilePalX
@@ -16,9 +17,8 @@ namespace CompilePalX
 
             File.WriteAllText(Path.Combine("CrashLogs", crashLogName + ".txt"), e.ToString() + e.InnerException ?? "");
 
-            System.Media.SystemSounds.Asterisk.Play();
-
             AnalyticsManager.Error();//risky, but /interesting/
+            Thread.Sleep(2000);
 
             Environment.Exit(0);
         }
