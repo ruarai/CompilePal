@@ -199,9 +199,7 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Compilers\BSPPack\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <ProjectReference Include="..\BSPPack\BSPPack.csproj">
       <Project>{7b4c1e60-4fac-45ba-916a-96f3075f64ec}</Project>
