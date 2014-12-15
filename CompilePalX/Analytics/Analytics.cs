@@ -22,7 +22,7 @@ namespace CompilePalX
 
             userProperties = new Segment.Model.Properties()
                             {
-                                {"version",UpdateManager.Version},
+                                {"version",UpdateManager.CurrentVersion},
                                 {"presets",ConfigurationManager.KnownPresets.Count},
                                 {"game",GameConfigurationManager.GameConfiguration.Name}
                             };

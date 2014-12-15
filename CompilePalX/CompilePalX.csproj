@@ -125,6 +125,9 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <Content Include="version.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Resource Include="Presets\presethelp.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>

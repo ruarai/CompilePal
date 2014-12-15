@@ -35,6 +35,10 @@ namespace CompilePalX
 
             ActiveDispatcher = Dispatcher;
 
+
+            UpdateManager.OnUpdateFound += UpdateManager_OnUpdateFound;
+            UpdateManager.CheckVersion();
+
             AnalyticsManager.Launch();
             PersistenceManager.Init();
             ErrorFinder.Init();
@@ -44,6 +48,7 @@ namespace CompilePalX
             ProgressManager.TitleChange += ProgressManager_TitleChange;
             ProgressManager.ProgressChange += ProgressManager_ProgressChange;
             ProgressManager.Init(TaskbarItemInfo);
+
 
             SetSources();
 
@@ -57,6 +62,11 @@ namespace CompilePalX
             CompilingManager.OnWrite += CompilingManager_OnWrite;
             CompilingManager.OnClear += CompilingManager_OnClear;
             CompilingManager.OnFinish += CompilingManager_OnFinish;
+        }
+
+        async void UpdateManager_OnUpdateFound()
+        {
+            await this.ShowMessageAsync("Update Found", "An update has been found for Compile Pal. For the latest download, see https://github.com/ruarai/CompilePal.");
         }
 
 
