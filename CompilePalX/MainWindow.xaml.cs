@@ -95,17 +95,20 @@ namespace CompilePalX
             Title = title;
         }
 
-        void CompilingManager_OnWrite(string line)
+        void CompilingManager_OnWrite(string text)
         {
             Dispatcher.Invoke(() =>
             {
-                if (string.IsNullOrEmpty(line))
+                if (string.IsNullOrEmpty(text))
                     return;
 
                 //OutputTab.Focus();
 
-                CompileOutputTextbox.AppendText(line);
+                CompileOutputTextbox.AppendText(text);
                 CompileOutputTextbox.ScrollToEnd();
+
+                //debug only
+                File.AppendAllText("debug.log",text);
             });
 
         }
@@ -131,6 +134,7 @@ namespace CompilePalX
 
             File.WriteAllText(System.IO.Path.Combine("CompileLogs", logName), textLog);
 
+            CompileStartStopButton.Content = "Compile";
         }
 
         private void OnConfigChanged(object sender, RoutedEventArgs e)
