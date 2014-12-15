@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
@@ -21,7 +22,7 @@ namespace CompilePalX
             Path = GameConfigurationManager.SubstituteValues(lines[1]);
             ParameterFile = lines[2];
             baseParameters = lines[3];
-            Order = float.Parse(lines[4]);
+            Order = float.Parse(lines[4], CultureInfo.InvariantCulture);
             DoRun = bool.Parse(lines[5]);
 
             ParameterList = ConfigurationManager.GetParameters(ParameterFile);
@@ -70,7 +71,7 @@ namespace CompilePalX
 
             lines[5] = DoRun.ToString();
 
-            File.WriteAllLines(MetadataFile,lines);
+            File.WriteAllLines(MetadataFile, lines);
         }
 
         public override string ToString()
