@@ -185,7 +185,7 @@ namespace CompilePalX
             paramString = paramString.Replace("$map$", string.Format("\"{0}\"", Path.GetFileNameWithoutExtension(mapFile)));
             paramString = paramString.Replace("$bsp$", string.Format("\"{0}\"", Path.ChangeExtension(mapFile, "bsp")));
 
-            paramString = paramString.Replace("$mapCopyLocation$", string.Format("\"{0}\"", Path.Combine(GameConfigurationManager.GameConfiguration.MapFolder, Path.GetFileName(mapFile))));
+            paramString = paramString.Replace("$mapCopyLocation$", string.Format("\"{0}\"", Path.Combine(GameConfigurationManager.GameConfiguration.MapFolder, Path.ChangeExtension(Path.GetFileName(mapFile),"bsp"))));
 
             paramString = paramString.Replace("$game$", string.Format("\"{0}\"", GameConfigurationManager.GameConfiguration.GameFolder));
             paramString = paramString.Replace("$gameEXE$", string.Format("\"{0}\"", GameConfigurationManager.GameConfiguration.GameEXE));
