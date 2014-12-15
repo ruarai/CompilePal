@@ -6,10 +6,6 @@ Compile Pal X is the official rewrite of Compile Pal - the amazing wrapper for t
 An easy to manage UI:
 ![ui](http://i.imgur.com/MNMgkNG.png)
 
-Fast configuration management:
-
-![config](http://i.imgur.com/Xwsq14K.gif)
-
 Taskbar progress display:
 
 ![progress](http://i.imgur.com/85G1iDQ.gif)
