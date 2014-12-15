@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CompilePalX.Compiling;
 
 namespace CompilePalX
 {
@@ -15,9 +16,12 @@ namespace CompilePalX
         {
             var lines = File.ReadAllLines(errorText);
 
-            errorList = new List<string>(lines);
+            errorList = lines.Skip(1).ToList();
 
             errorList.RemoveAll(string.IsNullOrWhiteSpace);
+
+            Logger.Log("Error trigger loaded: ");
+            Logger.LogLine(string.Join(Environment.NewLine + "Error trigger loaded: ",errorList));
         }
 
         public static bool IsError(string line)

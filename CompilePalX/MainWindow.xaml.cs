@@ -16,6 +16,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
+using CompilePalX.Compiling;
 using MahApps.Metro.Controls.Dialogs;
 using Microsoft.Win32;
 
@@ -35,6 +36,7 @@ namespace CompilePalX
 
             ActiveDispatcher = Dispatcher;
 
+            Logger.OnWrite += Logger_OnWrite;
 
             UpdateManager.OnUpdateFound += UpdateManager_OnUpdateFound;
             UpdateManager.CheckVersion();
@@ -59,9 +61,23 @@ namespace CompilePalX
 
             UpdateConfigGrid();
 
-            CompilingManager.OnWrite += CompilingManager_OnWrite;
             CompilingManager.OnClear += CompilingManager_OnClear;
             CompilingManager.OnFinish += CompilingManager_OnFinish;
+        }
+
+        void Logger_OnWrite(string s)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                if (string.IsNullOrEmpty(s))
+                    return;
+
+                //OutputTab.Focus();
+
+                CompileOutputTextbox.AppendText(s);
+                CompileOutputTextbox.ScrollToEnd();
+
+            });
         }
 
         async void UpdateManager_OnUpdateFound()
@@ -95,23 +111,6 @@ namespace CompilePalX
             Title = title;
         }
 
-        void CompilingManager_OnWrite(string text)
-        {
-            Dispatcher.Invoke(() =>
-            {
-                if (string.IsNullOrEmpty(text))
-                    return;
-
-                //OutputTab.Focus();
-
-                CompileOutputTextbox.AppendText(text);
-                CompileOutputTextbox.ScrollToEnd();
-
-                //debug only
-                File.AppendAllText("debug.log",text);
-            });
-
-        }
 
         void CompilingManager_OnClear()
         {

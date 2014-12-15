@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using CompilePalX.Compiling;
 
 namespace CompilePalX
 {
@@ -22,11 +23,17 @@ namespace CompilePalX
         {
             try
             {
+                Logger.LogLine("Downloading update information.");
+
                 var c = new WebClient();
                 c.DownloadStringCompleted += c_DownloadStringCompleted;
                 c.DownloadStringAsync(new Uri(UpdateURL));
             }
-            catch { }
+            catch (Exception e)
+            {
+                Logger.LogLine("Failed to find update information due to following exception:");
+                Logger.LogLine(e.ToString());
+            }
         }
 
         static void c_DownloadStringCompleted(object sender, DownloadStringCompletedEventArgs e)
@@ -40,10 +47,23 @@ namespace CompilePalX
                 string newVersion = e.Result;
                 LatestVersion = int.Parse(newVersion);
 
+                Logger.LogLine("Updater found latest version is:{0}, current is {1}.",LatestVersion,CurrentVersion);
+
                 if (CurrentVersion < LatestVersion)
                 {
                     MainWindow.ActiveDispatcher.Invoke(OnUpdateFound);
+
+                    Logger.LogLine("Updater found that Compile Pal is outdated.");
                 }
+                else
+                {
+                    Logger.LogLine("Updater found that Compile Pal is up to date.");
+                }
+            }
+            else
+            {
+                Logger.LogLine("Failed to find update information as an error was returned:");
+                Logger.LogLine(e.Error.ToString());
             }
         }
     }

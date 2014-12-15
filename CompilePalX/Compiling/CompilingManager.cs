@@ -8,15 +8,14 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Threading;
+using CompilePalX.Compiling;
 
 namespace CompilePalX
 {
-    internal delegate void CompileWritten(string line);
     internal delegate void CompileCleared();
     internal delegate void CompileFinished();
     static class CompilingManager
     {
-        public static event CompileWritten OnWrite;
         public static event CompileCleared OnClear;
         public static event CompileFinished OnFinish;
 
@@ -46,7 +45,7 @@ namespace CompilePalX
 
             OnClear();
 
-            writeLine(string.Format("Starting a '{0}' compile.", ConfigurationManager.CurrentPreset));
+            Logger.LogLine(string.Format("Starting a '{0}' compile.", ConfigurationManager.CurrentPreset));
 
             compileThread = new Thread(CompileThreaded);
             compileThread.Start();
@@ -65,7 +64,7 @@ namespace CompilePalX
 
                 foreach (string mapFile in MapFiles)
                 {
-                    writeLine(string.Format("Starting compilation of {0}", mapFile));
+                    Logger.LogLine(string.Format("Starting compilation of {0}", mapFile));
 
                     foreach (var compileProcess in ConfigurationManager.CompileProcesses.Where(c => c.DoRun))
                     {
@@ -94,11 +93,11 @@ namespace CompilePalX
                                 if (read.Result > 0)
                                 {
                                     string text = new string(buffer, 0, read.Result);
-                                    write(text);
+                                    Logger.Log(text);
 
                                     if (CheckError(text))
                                     {
-                                        writeLine("An error cancelled the compile.");
+                                        Logger.LogLine("An error cancelled the compile.");
                                         return;
                                     }
 
@@ -125,7 +124,7 @@ namespace CompilePalX
 
         private static void postCompile()
         {
-            writeLine(string.Format("'{0}' compile finished in {1}", ConfigurationManager.CurrentPreset, compileTimeStopwatch.Elapsed.ToString(@"hh\:mm\:ss")));
+            Logger.LogLine(string.Format("'{0}' compile finished in {1}", ConfigurationManager.CurrentPreset, compileTimeStopwatch.Elapsed.ToString(@"hh\:mm\:ss")));
 
             OnFinish();
 
@@ -142,6 +141,8 @@ namespace CompilePalX
                 try
                 {
                     compileProcess.Process.Kill();
+
+                    Logger.LogLine(string.Join("Killed {0}.",compileProcess.Name));
                 }
                 catch (InvalidOperationException) { }
                 catch(Exception e) { ExceptionHandler.LogException(e);}
@@ -149,7 +150,7 @@ namespace CompilePalX
 
             ProgressManager.SetProgress(0);
 
-            writeLine("Compile forcefully ended.");
+            Logger.LogLine("Compile forcefully ended.");
 
             postCompile();
         }
@@ -179,14 +180,5 @@ namespace CompilePalX
             return false;
         }
 
-
-        private static void write(string text)
-        {
-            OnWrite(text);
-        }
-        private static void writeLine(string line)
-        {
-            OnWrite(line + Environment.NewLine);
-        }
     }
 }

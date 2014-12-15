@@ -70,6 +70,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Compiling\Logger.cs" />
     <Compile Include="ExceptionHandler.cs" />
     <Compile Include="GameConfiguration\GameConfiguration.cs" />
     <Compile Include="GameConfiguration\GameConfigurationParser.cs" />
