@@ -73,7 +73,7 @@ namespace CompilePalX
 
 
                         compileProcess.Process.StartInfo.FileName = compileProcess.Path;
-                        compileProcess.Process.StartInfo.Arguments = FinaliseParameterString(compileProcess.GetParameterString(), mapFile);
+                        compileProcess.Process.StartInfo.Arguments = GameConfigurationManager.SubstituteValues(compileProcess.GetParameterString(), mapFile);
                         compileProcess.Process.StartInfo.WorkingDirectory = runningDirectory;
 
                         compileProcess.Process.Start();
@@ -179,27 +179,6 @@ namespace CompilePalX
             return false;
         }
 
-        public static string FinaliseParameterString(string paramString, string mapFile)
-        {
-            paramString = paramString.Replace("$vmfFile$", string.Format("\"{0}\"", mapFile));
-            paramString = paramString.Replace("$map$", string.Format("\"{0}\"", Path.GetFileNameWithoutExtension(mapFile)));
-            paramString = paramString.Replace("$bsp$", string.Format("\"{0}\"", Path.ChangeExtension(mapFile, "bsp")));
-
-            paramString = paramString.Replace("$mapCopyLocation$", string.Format("\"{0}\"", Path.Combine(GameConfigurationManager.GameConfiguration.MapFolder, Path.ChangeExtension(Path.GetFileName(mapFile),"bsp"))));
-
-            paramString = paramString.Replace("$game$", string.Format("\"{0}\"", GameConfigurationManager.GameConfiguration.GameFolder));
-            paramString = paramString.Replace("$gameEXE$", string.Format("\"{0}\"", GameConfigurationManager.GameConfiguration.GameEXE));
-            paramString = paramString.Replace("$binFolder$", string.Format("\"{0}\"", GameConfigurationManager.GameConfiguration.BinFolder));
-            paramString = paramString.Replace("$mapFolder$", string.Format("\"{0}\"", GameConfigurationManager.GameConfiguration.MapFolder));
-            paramString = paramString.Replace("$gameName$", string.Format("\"{0}\"", GameConfigurationManager.GameConfiguration.Name));
-            paramString = paramString.Replace("$sdkFolder$", string.Format("\"{0}\"", GameConfigurationManager.GameConfiguration.SDKMapFolder));
-
-            paramString = paramString.Replace("$bspZip$", string.Format("\"{0}\"", GameConfigurationManager.GameConfiguration.BSPZip));
-
-            paramString = paramString.Replace("$keys$", string.Format("\"{0}\"",Path.Combine(Environment.CurrentDirectory,"Keys")));
-
-            return paramString;
-        }
 
         private static void write(string text)
         {
