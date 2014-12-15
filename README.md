@@ -31,6 +31,14 @@ PACK is a feature that allows for the automatic packing of custom content into a
 Changes
 ==========
 
+#### 016:
+
+Fixed an issue where sorting floats would fail to parse.
+
+#### 015:
+
+Fixed an issue where files would be copied incorrectly.
+
 #### 014:
 
 A complete rewrite of Compile Pal.
