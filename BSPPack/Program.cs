@@ -24,6 +24,7 @@ namespace BSPAutoPack
 
         private static List<string> vmtTexturekeyWords;
         private static List<string> vmtMaterialkeyWords;
+
         static void Main(string[] args)
         {
             try
@@ -121,6 +122,8 @@ namespace BSPAutoPack
                 }
             }
 
+            fileList = fileList.Distinct().ToList();
+
             Console.WriteLine("Writing file list...");
 
             var outputLines = new List<string>();
@@ -149,6 +152,8 @@ namespace BSPAutoPack
             arguments = arguments.Replace("$list", "files.txt");
             arguments = arguments.Replace("$game", gameFolder);
 
+            Console.WriteLine("Running");
+
             var p = new Process { StartInfo = { Arguments = arguments, FileName = bspZip, UseShellExecute = false, RedirectStandardOutput = true } };
 
             p.OutputDataReceived += p_OutputDataReceived;
@@ -169,12 +174,12 @@ namespace BSPAutoPack
             foreach (string variation in variations)
             {
                 string variant = Path.ChangeExtension(mdlPath, variation);
-                if (File.Exists(variant))
+                if (SourceFileExists(gameFolder,variant))
                     references.Add(variant);
             }
 
             string materialFile = mdlPath.Replace(@"\models", @"\materials\models").Replace(".mdl", ".vmt");
-            if (File.Exists(materialFile))
+            if (SourceFileExists(gameFolder,materialFile))
             {
                 references.Add(materialFile);
                 references.AddRange(GetMaterialReferences(materialFile));
@@ -186,7 +191,7 @@ namespace BSPAutoPack
 
         static IEnumerable<string> GetMaterialReferences(string vmtpath)
         {
-            var vmtLines = File.ReadAllLines(vmtpath);
+            var vmtLines = File.ReadAllLines(GetSourceFile(gameFolder,vmtpath));
 
             var textureLines = vmtLines.Where(l => vmtTexturekeyWords.Any(t => l.ToLower().Contains(t.ToLower())));
 
@@ -200,13 +205,13 @@ namespace BSPAutoPack
                     string path;
                     if (GetValue(line).EndsWith(".vtf"))
                     {
-                        path = (Path.Combine(gameFolder, "materials", GetValue(line))).Replace("/", "\\");
+                        path = (Path.Combine("materials", GetValue(line))).Replace("/", "\\");
                     }
                     else
                     {
-                        path = (Path.Combine(gameFolder, "materials", GetValue(line)) + ".vtf").Replace("/", "\\");
+                        path = (Path.Combine("materials", GetValue(line)) + ".vtf").Replace("/", "\\");
                     }
-                    if (File.Exists(path))
+                    if (SourceFileExists(gameFolder,path))
                         contentFiles.Add(path);
                 }
             }
@@ -219,11 +224,79 @@ namespace BSPAutoPack
                 string path = DeterminePath(GetKey(line), GetValue(line));
 
                 if (IsValidFilename(path))
-                    if (File.Exists(path))
+                    if (SourceFileExists(gameFolder,path))
                         contentFiles.AddRange(GetMaterialReferences(path));
             }
             return contentFiles.Distinct().ToList();
 
+        }
+
+        static string GetSourceFile(string gamePath, string filePath)
+        {
+            string naive = Path.Combine(gamePath, filePath);
+            if (File.Exists(naive))
+                return naive;
+
+            var subDirs = GetSourceDirectories(gamePath);
+            foreach (string subDir in subDirs)
+            {
+                string guess = Path.Combine(subDir, filePath);
+                if (File.Exists(guess))
+                    return guess;
+            }
+
+            return "";
+        }
+
+        static bool SourceFileExists(string gamePath, string filePath)
+        {
+
+            if (File.Exists(Path.Combine(gamePath, filePath)))
+                return true;
+
+            var subDirs = GetSourceDirectories(gamePath);
+            foreach (string subDir in subDirs)
+            {
+                if (File.Exists(Path.Combine(subDir, filePath)))
+                    return true;
+            }
+
+            return false;
+        }
+
+        private static List<string> sourceDirectories; 
+
+        static IEnumerable<string> GetSourceDirectories(string gamePath)
+        {
+            if (sourceDirectories == null)
+            {
+                var subDirs = Directory.GetDirectories(gamePath, "*", SearchOption.AllDirectories);
+
+                var newList = new List<string>();
+
+                foreach (var subDir in subDirs)
+                {
+                    var subsubDirs = Directory.GetDirectories(subDir);
+
+                    foreach (var subsubDir in subsubDirs)
+                    {
+                        string dirName = Path.GetFileName(subsubDir);
+                        if (dirName == "models" || dirName == "sound" || dirName == "materials")
+                        {
+                            Console.WriteLine("Accepted {0} as a source directory.",subDir);
+                            newList.Add(subDir);
+                        }
+                    }
+                }
+
+                sourceDirectories = newList;
+
+                return newList;
+            }
+            else
+            {
+                return sourceDirectories;
+            }
         }
 
         static List<string> GetContentFromVMF()
@@ -238,7 +311,7 @@ namespace BSPAutoPack
             foreach (string line in contentLines)
             {
                 string path = DeterminePath(GetKey(line), GetValue(line));
-                if (File.Exists(path))
+                if (SourceFileExists(gameFolder,path))
                     contentFiles.Add(path);
             }
 
@@ -251,13 +324,13 @@ namespace BSPAutoPack
             string contentPath = "";
 
             if (vmfModelKeys.Contains(key))
-                contentPath = Path.Combine(gameFolder, value);
+                contentPath = value;
 
             if (vmfMaterialKeys.Contains(key))
-                contentPath = Path.Combine(gameFolder, "materials", value) + ".vmt";
+                contentPath = Path.Combine("materials", value) + ".vmt";
 
             if (vmfSoundKeys.Contains(key))
-                contentPath = Path.Combine(gameFolder, "sound", value);
+                contentPath = Path.Combine("sound", value);
 
 
             return contentPath;
