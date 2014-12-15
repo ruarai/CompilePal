@@ -2,5 +2,5 @@ COPY
 CopyTool.exe
 copy.csv
  -copyDestination $mapCopyLocation$ -copySource $bsp$
-4.0
+5.0
 true

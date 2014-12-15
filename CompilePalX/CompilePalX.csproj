@@ -190,36 +190,96 @@
     <Content Include="Parameters\vvis.meta">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <None Include="Presets\Fast\copy.csv" />
-    <None Include="Presets\Fast\game.csv" />
-    <None Include="Presets\Fast\pack.csv" />
-    <None Include="Presets\Fast\vbsp.csv" />
-    <None Include="Presets\Fast\vrad.csv" />
-    <None Include="Presets\Fast\vvis.csv" />
-    <None Include="Presets\Full - Both\copy.csv" />
-    <None Include="Presets\Full - Both\game.csv" />
-    <None Include="Presets\Full - Both\pack.csv" />
-    <None Include="Presets\Full - Both\vbsp.csv" />
-    <None Include="Presets\Full - Both\vrad.csv" />
-    <None Include="Presets\Full - Both\vvis.csv" />
-    <None Include="Presets\Full - HDR\copy.csv" />
-    <None Include="Presets\Full - HDR\game.csv" />
-    <None Include="Presets\Full - HDR\pack.csv" />
-    <None Include="Presets\Full - HDR\vbsp.csv" />
-    <None Include="Presets\Full - HDR\vrad.csv" />
-    <None Include="Presets\Full - HDR\vvis.csv" />
-    <None Include="Presets\Full - LDR\copy.csv" />
-    <None Include="Presets\Full - LDR\game.csv" />
-    <None Include="Presets\Full - LDR\pack.csv" />
-    <None Include="Presets\Full - LDR\vbsp.csv" />
-    <None Include="Presets\Full - LDR\vrad.csv" />
-    <None Include="Presets\Full - LDR\vvis.csv" />
-    <None Include="Presets\Normal\copy.csv" />
-    <None Include="Presets\Normal\game.csv" />
-    <None Include="Presets\Normal\pack.csv" />
-    <None Include="Presets\Normal\vbsp.csv" />
-    <None Include="Presets\Normal\vrad.csv" />
-    <None Include="Presets\Normal\vvis.csv" />
+    <None Include="Presets\Fast\copy.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Presets\Fast\game.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Presets\Fast\pack.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Presets\Fast\vbsp.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Presets\Fast\vrad.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Presets\Fast\vvis.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Presets\Full - Both\copy.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Presets\Full - Both\game.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Presets\Full - Both\pack.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Presets\Full - Both\vbsp.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Presets\Full - Both\vrad.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Presets\Full - Both\vvis.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Presets\Full - HDR\copy.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Presets\Full - HDR\game.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Presets\Full - HDR\pack.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Presets\Full - HDR\vbsp.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Presets\Full - HDR\vrad.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Presets\Full - HDR\vvis.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Presets\Full - LDR\copy.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Presets\Full - LDR\game.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Presets\Full - LDR\pack.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Presets\Full - LDR\vbsp.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Presets\Full - LDR\vrad.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Presets\Full - LDR\vvis.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Presets\Normal\copy.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Presets\Normal\game.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Presets\Normal\pack.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Presets\Normal\vbsp.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Presets\Normal\vrad.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Presets\Normal\vvis.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
