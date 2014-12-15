@@ -16,7 +16,7 @@ namespace CompilePalX
         public static int CurrentVersion;
         public static int LatestVersion;
 
-        private const string UpdateURL = "https://raw.githubusercontent.com/ruarai/CompilePal/compilepalx/CompilePalX/version.txt";
+        private const string UpdateURL = "https://raw.githubusercontent.com/ruarai/CompilePal/master/CompilePalX/version.txt";
 
         public static void CheckVersion()
         {
