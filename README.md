@@ -1,3 +1,8 @@
+Download
+==========
+
+https://github.com/ruarai/CompilePal/releases/latest
+
 Compile Pal X
 ==========
 
@@ -13,12 +18,6 @@ Taskbar progress display:
 Automatic file packing:
 
 ![packing](http://i.imgur.com/kKLsboM.png)
-
-Download
-==========
-
-https://github.com/ruarai/CompilePal/releases/latest
-
 
 Configuration
 ==========
