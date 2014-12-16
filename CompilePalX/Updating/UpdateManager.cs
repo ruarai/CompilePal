@@ -59,6 +59,8 @@ namespace CompilePalX
                 {
                     Logger.LogLine("Updater found that Compile Pal is up to date.");
                 }
+
+                ProgressManager.SetProgress(ProgressManager.Progress);
             }
             else
             {
