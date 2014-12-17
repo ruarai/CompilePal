@@ -27,6 +27,11 @@ Packing
 ==========
 PACK is a feature that allows for the automatic packing of custom content into a map BSP. It does not cover all custom content, so is best suited for when you simply want to share a map with a friend.
 
+Download
+==========
+
+https://github.com/ruarai/CompilePal/releases/latest
+
 Changes
 ==========
 
