@@ -3,8 +3,7 @@ Download
 
 https://github.com/ruarai/CompilePal/releases/latest
 
-Compile Pal X
-==========
+![CompilePal](http://i.imgur.com/jPEig83.png)
 
 Compile Pal X is the official rewrite of Compile Pal - the amazing wrapper for the source map compiling tools that makes compiling a breeze.
 
@@ -27,6 +26,11 @@ Compile Pal should automatically find any game configurations - as long as the g
 Packing
 ==========
 PACK is a feature that allows for the automatic packing of custom content into a map BSP. It does not cover all custom content, so is best suited for when you simply want to share a map with a friend.
+
+Download
+==========
+
+https://github.com/ruarai/CompilePal/releases/latest
 
 Changes
 ==========
