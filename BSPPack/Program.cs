@@ -76,6 +76,10 @@ namespace BSPAutoPack
                     vmfAllKeys.AddRange(vmfMaterialKeys);
                     vmfAllKeys.AddRange(vmfModelKeys);
 
+                    Console.WriteLine("Finding sources of game content...");
+
+                    GetSourceDirectories(gameFolder);
+
                     Console.WriteLine("Discovering files...");
 
                     GenerateFileList();
@@ -130,7 +134,17 @@ namespace BSPAutoPack
             foreach (var f in fileList)
             {
                 string file = f.Replace("/", "\\");
-                outputLines.Add(file.Replace(gameFolder, "").TrimStart('\\'));
+
+                string trimmedPath = file;
+
+                //remove all stuff we dont want, very hacky
+                foreach (string directory in sourceDirectories.OrderByDescending(dir=>dir.Length))
+                {
+                    trimmedPath = trimmedPath.Replace(directory, "");
+                }
+                trimmedPath = trimmedPath.Replace(gameFolder, "").TrimStart('\\');
+
+                outputLines.Add(trimmedPath);
                 outputLines.Add(file);
 
                 Console.WriteLine(file.Replace(gameFolder, ""));
@@ -174,14 +188,14 @@ namespace BSPAutoPack
             foreach (string variation in variations)
             {
                 string variant = Path.ChangeExtension(mdlPath, variation);
-                if (SourceFileExists(gameFolder,variant))
-                    references.Add(variant);
+                if (SourceFileExists(gameFolder, variant))
+                    references.Add(GetSourceFile(gameFolder, variant));
             }
 
             string materialFile = mdlPath.Replace(@"\models", @"\materials\models").Replace(".mdl", ".vmt");
-            if (SourceFileExists(gameFolder,materialFile))
+            if (SourceFileExists(gameFolder, materialFile))
             {
-                references.Add(materialFile);
+                references.Add(GetSourceFile(gameFolder, materialFile));
                 references.AddRange(GetMaterialReferences(materialFile));
             }
 
@@ -191,44 +205,51 @@ namespace BSPAutoPack
 
         static IEnumerable<string> GetMaterialReferences(string vmtpath)
         {
-            var vmtLines = File.ReadAllLines(GetSourceFile(gameFolder,vmtpath));
-
-            var textureLines = vmtLines.Where(l => vmtTexturekeyWords.Any(t => l.ToLower().Contains(t.ToLower())));
-
-
-            var contentFiles = new List<string>();
-
-            foreach (string line in textureLines)
+            try
             {
-                if (IsValidFilename(GetValue(line)))
+                var vmtLines = File.ReadAllLines(GetSourceFile(gameFolder, vmtpath));
+
+                var textureLines = vmtLines.Where(l => vmtTexturekeyWords.Any(t => l.ToLower().Contains(t.ToLower())));
+
+
+                var contentFiles = new List<string>();
+
+                foreach (string line in textureLines)
                 {
-                    string path;
-                    if (GetValue(line).EndsWith(".vtf"))
+                    if (IsValidFilename(GetValue(line)))
                     {
-                        path = (Path.Combine("materials", GetValue(line))).Replace("/", "\\");
+                        string path;
+                        if (GetValue(line).EndsWith(".vtf"))
+                        {
+                            path = (Path.Combine("materials", GetValue(line))).Replace("/", "\\");
+                        }
+                        else
+                        {
+                            path = (Path.Combine("materials", GetValue(line)) + ".vtf").Replace("/", "\\");
+                        }
+                        if (SourceFileExists(gameFolder, path))
+                            contentFiles.Add(GetSourceFile(gameFolder, path));
                     }
-                    else
-                    {
-                        path = (Path.Combine("materials", GetValue(line)) + ".vtf").Replace("/", "\\");
-                    }
-                    if (SourceFileExists(gameFolder,path))
-                        contentFiles.Add(path);
                 }
+
+                var materialLines = vmtLines.Where(l => vmtMaterialkeyWords.Any(l.Contains));
+
+
+                foreach (string line in materialLines)
+                {
+                    string path = DeterminePath(GetKey(line), GetValue(line));
+
+                    if (IsValidFilename(path))
+                        if (SourceFileExists(gameFolder, path))
+                            contentFiles.AddRange(GetMaterialReferences(path));
+                }
+                return contentFiles.Distinct().ToList();
+
             }
-
-            var materialLines = vmtLines.Where(l => vmtMaterialkeyWords.Any(l.Contains));
-
-
-            foreach (string line in materialLines)
+            catch
             {
-                string path = DeterminePath(GetKey(line), GetValue(line));
-
-                if (IsValidFilename(path))
-                    if (SourceFileExists(gameFolder,path))
-                        contentFiles.AddRange(GetMaterialReferences(path));
+                return new List<string>(0);
             }
-            return contentFiles.Distinct().ToList();
-
         }
 
         static string GetSourceFile(string gamePath, string filePath)
@@ -237,7 +258,7 @@ namespace BSPAutoPack
             if (File.Exists(naive))
                 return naive;
 
-            var subDirs = GetSourceDirectories(gamePath);
+            var subDirs = sourceDirectories;
             foreach (string subDir in subDirs)
             {
                 string guess = Path.Combine(subDir, filePath);
@@ -254,7 +275,7 @@ namespace BSPAutoPack
             if (File.Exists(Path.Combine(gamePath, filePath)))
                 return true;
 
-            var subDirs = GetSourceDirectories(gamePath);
+            var subDirs = sourceDirectories;
             foreach (string subDir in subDirs)
             {
                 if (File.Exists(Path.Combine(subDir, filePath)))
@@ -264,40 +285,79 @@ namespace BSPAutoPack
             return false;
         }
 
-        private static List<string> sourceDirectories; 
+        private static List<string> sourceDirectories = new List<string>();
 
-        static IEnumerable<string> GetSourceDirectories(string gamePath)
+        static void GetSourceDirectories(string gamePath)
         {
-            if (sourceDirectories == null)
+            string gameInfo = Path.Combine(gamePath, "gameinfo.txt");
+
+            string rootPath = Directory.GetParent(gamePath).ToString();
+
+            if (File.Exists(gameInfo))
             {
-                var subDirs = Directory.GetDirectories(gamePath, "*", SearchOption.AllDirectories);
+                var lines = File.ReadAllLines(gameInfo);
 
-                var newList = new List<string>();
-
-                foreach (var subDir in subDirs)
+                bool foundSearchPaths = false;
+                for (int i = 0; i < lines.Length; i++)
                 {
-                    var subsubDirs = Directory.GetDirectories(subDir);
+                    var line = lines[i];
 
-                    foreach (var subsubDir in subsubDirs)
+                    if (foundSearchPaths)
                     {
-                        string dirName = Path.GetFileName(subsubDir);
-                        if (dirName == "models" || dirName == "sound" || dirName == "materials")
+                        if (line.Contains("}"))
+                            break;
+
+                        if (line.Contains("//") || string.IsNullOrWhiteSpace(line))
+                            continue;
+
+                        string path = GetInfoValue(line);
+
+                        if (!(path.Contains("|") || path.Contains(".vpk")))
                         {
-                            Console.WriteLine("Accepted {0} as a source directory.",subDir);
-                            newList.Add(subDir);
+                            if (path.Contains("*"))
+                            {
+                                string newPath = path.Replace("*", "");
+
+                                string fullPath = Path.GetFullPath(rootPath + "\\" + newPath.TrimEnd('\\'));
+
+                                Console.WriteLine("Found wildcard path: {0}", fullPath);
+
+                                var directories = Directory.GetDirectories(fullPath);
+
+                                sourceDirectories.AddRange(directories);
+
+                            }
+                            else
+                            {
+                                string fullPath = Path.GetFullPath(rootPath + "\\" + path.TrimEnd('\\'));
+
+                                Console.WriteLine("Found search path: {0}", fullPath);
+
+                                sourceDirectories.Add(fullPath);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (line.Contains("SearchPaths"))
+                        {
+                            Console.WriteLine("Found search paths...");
+                            foundSearchPaths = true;
+                            i++;
                         }
                     }
                 }
-
-                sourceDirectories = newList;
-
-                return newList;
             }
             else
             {
-                return sourceDirectories;
+                Console.WriteLine("Couldn't find gameinfo.txt at {0}", gameInfo);
             }
         }
+        static private string GetInfoValue(string line)
+        {
+            return line.Split(new char[0], StringSplitOptions.RemoveEmptyEntries)[1];
+        }
+
 
         static List<string> GetContentFromVMF()
         {
@@ -311,8 +371,8 @@ namespace BSPAutoPack
             foreach (string line in contentLines)
             {
                 string path = DeterminePath(GetKey(line), GetValue(line));
-                if (SourceFileExists(gameFolder,path))
-                    contentFiles.Add(path);
+                if (SourceFileExists(gameFolder, path))
+                    contentFiles.Add(GetSourceFile(gameFolder, path));
             }
 
             return contentFiles.Distinct().ToList();
