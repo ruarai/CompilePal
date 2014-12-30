@@ -8,4 +8,6 @@ This folder contains the files that both which compiling tools are present and h
 5:A number that dictates when the tool will be run.
 6:If the tool is to be run at all. Can be modified at run time.
 
-The .csv parameter files can be viewed in Excel anywhere but only saved in Excel if you live in an area that uses commas as a decimal seperator. For other regions, use notepad instead.
+To add or modify base parameters:
+The .csv parameter files can be viewed in Excel anywhere but only saved in Excel if you live in an area that uses commas as a decimal seperator.
+For other regions than EU, open in a tool such as notepad instead. Ensure that you maintain the format of Name;Parameter;ValueValid;Description;Issues
