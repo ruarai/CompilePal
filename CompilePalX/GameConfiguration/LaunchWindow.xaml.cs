@@ -34,32 +34,47 @@ namespace CompilePalX
             //Loading the last used configurations for hammer
             RegistryKey rk = Registry.CurrentUser.OpenSubKey(@"Software\Valve\Hammer\General");
 
-            string BinFolder = (string)rk.GetValue("Directory");
+            var configs = new List<GameConfiguration>();
 
-
-            string gameData = Path.Combine(BinFolder, "GameConfig.txt");
-
-            List<GameConfiguration> gameConfigs = GameConfigurationParser.Parse(gameData);
-
+            //try loading json
             if (File.Exists(gameConfigurationsPath))
             {
-                //load
                 string jsonLoadText = File.ReadAllText(gameConfigurationsPath);
-                gameConfigs.AddRange(JsonConvert.DeserializeObject<List<GameConfiguration>>(jsonLoadText));
+                configs.AddRange(JsonConvert.DeserializeObject<List<GameConfiguration>>(jsonLoadText));
             }
 
-            //remove duplicates
-            gameConfigs = gameConfigs.GroupBy(g => g.Name).Select(grp => grp.First()).ToList();
-
-            //save
-            string jsonSaveText = JsonConvert.SerializeObject(gameConfigs,Formatting.Indented);
-            File.WriteAllText(gameConfigurationsPath, jsonSaveText);
-
-            if (gameConfigs.Count == 1)
-                Launch(gameConfigs.First());
+            //try loading from registry
+            if (rk != null)
+            {
+                string BinFolder = (string)rk.GetValue("Directory");
 
 
-            GameGrid.ItemsSource = gameConfigs;
+                string gameData = Path.Combine(BinFolder, "GameConfig.txt");
+
+                configs.AddRange(GameConfigurationParser.Parse(gameData));
+            }
+
+            //finalise config loading
+            if (configs.Any())
+            {
+                //remove duplicates
+                configs = configs.GroupBy(g => g.Name).Select(grp => grp.First()).ToList();
+
+                //save
+                string jsonSaveText = JsonConvert.SerializeObject(configs, Formatting.Indented);
+                File.WriteAllText(gameConfigurationsPath, jsonSaveText);
+
+                if (configs.Count == 1)
+                    Launch(configs.First());
+
+
+                GameGrid.ItemsSource = configs;
+            }
+            else//oh noes
+            {
+                LaunchButton.IsEnabled = false;
+                WarningLabel.Content = "No Hammer configurations found. Cannot launch.";
+            }
         }
 
         private void Launch(GameConfiguration config)
@@ -69,14 +84,14 @@ namespace CompilePalX
             c.Show();
 
             Close();
-            
+
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            var selectedItem = (GameConfiguration) GameGrid.SelectedItem;
+            var selectedItem = (GameConfiguration)GameGrid.SelectedItem;
 
-            if(selectedItem!=null)
+            if (selectedItem != null)
                 Launch(selectedItem);
         }
     }
