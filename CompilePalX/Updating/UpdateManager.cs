@@ -21,6 +21,9 @@ namespace CompilePalX
 
         public static void CheckVersion()
         {
+            string currentVersion = File.ReadAllText("version.txt");
+            CurrentVersion = int.Parse(currentVersion);
+
             try
             {
                 Logger.LogLine("Downloading update information.");
@@ -41,8 +44,6 @@ namespace CompilePalX
 
             if (e.Error == null)
             {
-                string currentVersion = File.ReadAllText("version.txt");
-                CurrentVersion = int.Parse(currentVersion);
 
                 string newVersion = e.Result;
                 LatestVersion = int.Parse(newVersion);
