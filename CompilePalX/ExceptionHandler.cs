@@ -18,10 +18,10 @@ namespace CompilePalX
 
             File.WriteAllText(Path.Combine("CrashLogs", crashLogName + ".txt"), e.ToString() + e.InnerException ?? "");
 
-            Logger.LogLine("An exception was caught by the ExceptionHandler:");
-            Logger.LogLine(e.ToString());
+            CompilePalLogger.LogLine("An exception was caught by the ExceptionHandler:");
+            CompilePalLogger.LogLine(e.ToString());
             if(e.InnerException != null)
-                Logger.LogLine(e.InnerException.ToString());
+                CompilePalLogger.LogLine(e.InnerException.ToString());
 
             AnalyticsManager.Error();//risky, but /interesting/
             Thread.Sleep(2000);

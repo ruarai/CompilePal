@@ -36,7 +36,7 @@ namespace CompilePalX
 
             ActiveDispatcher = Dispatcher;
 
-            Logger.OnWrite += Logger_OnWrite;
+            CompilePalLogger.OnWrite += Logger_OnWrite;
 
             UpdateManager.OnUpdateFound += UpdateManager_OnUpdateFound;
             UpdateManager.CheckVersion();

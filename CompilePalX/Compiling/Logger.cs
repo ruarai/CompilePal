@@ -8,10 +8,10 @@ using System.Threading.Tasks;
 namespace CompilePalX.Compiling
 {
     internal delegate void LogWrite(string s);
-    static class Logger
+    static class CompilePalLogger
     {
         private const string logFile = "debug.log";
-        static Logger()
+        static CompilePalLogger()
         {
             File.Delete(logFile);
         }

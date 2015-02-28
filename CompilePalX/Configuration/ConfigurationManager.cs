@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Documents;
+using CompilePalX.Compiling;
 
 namespace CompilePalX
 {
@@ -86,8 +87,10 @@ namespace CompilePalX
                         }
                     }
                 }
+                CompilePalLogger.LogLine("Added preset {0} for processes {1}", preset,string.Join(", ",CompileProcesses));
                 CurrentPreset = preset;
                 KnownPresets.Add(preset);
+
             }
         }
 

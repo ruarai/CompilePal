@@ -20,8 +20,8 @@ namespace CompilePalX
 
             errorList.RemoveAll(string.IsNullOrWhiteSpace);
 
-            Logger.Log("Error trigger loaded: ");
-            Logger.LogLine(string.Join(Environment.NewLine + "Error trigger loaded: ",errorList));
+            CompilePalLogger.Log("Error trigger loaded: ");
+            CompilePalLogger.LogLine(string.Join(Environment.NewLine + "Error trigger loaded: ",errorList));
         }
 
         public static bool IsError(string line)

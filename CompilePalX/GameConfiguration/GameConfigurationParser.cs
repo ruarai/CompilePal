@@ -9,7 +9,7 @@ namespace CompilePalX
     {
         public static List<GameConfiguration> Parse(string filename)
         {
-            Logger.LogLine("Parsing game configuration file {0}",filename);
+            CompilePalLogger.LogLine("Parsing game configuration file {0}",filename);
 
             var lines = File.ReadAllLines(filename);
 
@@ -27,8 +27,8 @@ namespace CompilePalX
 
                 game.BinFolder = Path.GetDirectoryName(filename);
 
-                Logger.LogLine("Loading new game configuration:");
-                Logger.LogLine(GetKey(line));
+                CompilePalLogger.LogLine("Loading new game configuration:");
+                CompilePalLogger.LogLine(GetKey(line));
 
                 i++;
                 for (; i < lines.Length; i++)
@@ -40,31 +40,31 @@ namespace CompilePalX
                         {
                             case "GameDir":
                                 game.GameFolder = GetValue(line);
-                                Logger.LogLine(GetKey(line) + ":" + GetValue(line));
+                                CompilePalLogger.LogLine(GetKey(line) + ":" + GetValue(line));
                                 break;
                             case "GameExe":
                                 game.GameEXE = GetValue(line);
-                                Logger.LogLine(GetKey(line) + ":" + GetValue(line));
+                                CompilePalLogger.LogLine(GetKey(line) + ":" + GetValue(line));
                                 break;
                             case "MapDir":
                                 game.SDKMapFolder = GetValue(line);
-                                Logger.LogLine(GetKey(line) + ":" + GetValue(line));
+                                CompilePalLogger.LogLine(GetKey(line) + ":" + GetValue(line));
                                 break;
                             case "BSP":
                                 game.VBSP = GetValue(line);
-                                Logger.LogLine(GetKey(line) + ":" + GetValue(line));
+                                CompilePalLogger.LogLine(GetKey(line) + ":" + GetValue(line));
                                 break;
                             case "Vis":
                                 game.VVIS = GetValue(line);
-                                Logger.LogLine(GetKey(line) + ":" + GetValue(line));
+                                CompilePalLogger.LogLine(GetKey(line) + ":" + GetValue(line));
                                 break;
                             case "Light":
                                 game.VRAD = GetValue(line);
-                                Logger.LogLine(GetKey(line) + ":" + GetValue(line));
+                                CompilePalLogger.LogLine(GetKey(line) + ":" + GetValue(line));
                                 break;
                             case "BSPDir":
                                 game.MapFolder = GetValue(line);
-                                Logger.LogLine(GetKey(line) + ":" + GetValue(line));
+                                CompilePalLogger.LogLine(GetKey(line) + ":" + GetValue(line));
                                 break;
                         }
                     }

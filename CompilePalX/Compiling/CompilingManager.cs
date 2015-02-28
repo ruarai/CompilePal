@@ -45,7 +45,7 @@ namespace CompilePalX
 
             OnClear();
 
-            Logger.LogLine(string.Format("Starting a '{0}' compile.", ConfigurationManager.CurrentPreset));
+            CompilePalLogger.LogLine(string.Format("Starting a '{0}' compile.", ConfigurationManager.CurrentPreset));
 
             compileThread = new Thread(CompileThreaded);
             compileThread.Start();
@@ -64,7 +64,7 @@ namespace CompilePalX
 
                 foreach (string mapFile in MapFiles)
                 {
-                    Logger.LogLine(string.Format("Starting compilation of {0}", mapFile));
+                    CompilePalLogger.LogLine(string.Format("Starting compilation of {0}", mapFile));
 
                     foreach (var compileProcess in ConfigurationManager.CompileProcesses.Where(c => c.DoRun))
                     {
@@ -93,11 +93,11 @@ namespace CompilePalX
                                 if (read.Result > 0)
                                 {
                                     string text = new string(buffer, 0, read.Result);
-                                    Logger.Log(text);
+                                    CompilePalLogger.Log(text);
 
                                     if (CheckError(text))
                                     {
-                                        Logger.LogLine("An error cancelled the compile.");
+                                        CompilePalLogger.LogLine("An error cancelled the compile.");
                                         return;
                                     }
 
@@ -124,7 +124,7 @@ namespace CompilePalX
 
         private static void postCompile()
         {
-            Logger.LogLine(string.Format("'{0}' compile finished in {1}", ConfigurationManager.CurrentPreset, compileTimeStopwatch.Elapsed.ToString(@"hh\:mm\:ss")));
+            CompilePalLogger.LogLine(string.Format("'{0}' compile finished in {1}", ConfigurationManager.CurrentPreset, compileTimeStopwatch.Elapsed.ToString(@"hh\:mm\:ss")));
 
             OnFinish();
 
@@ -142,7 +142,7 @@ namespace CompilePalX
                 {
                     compileProcess.Process.Kill();
 
-                    Logger.LogLine(string.Join("Killed {0}.",compileProcess.Name));
+                    CompilePalLogger.LogLine(string.Join("Killed {0}.",compileProcess.Name));
                 }
                 catch (InvalidOperationException) { }
                 catch(Exception e) { ExceptionHandler.LogException(e);}
@@ -150,7 +150,7 @@ namespace CompilePalX
 
             ProgressManager.SetProgress(0);
 
-            Logger.LogLine("Compile forcefully ended.");
+            CompilePalLogger.LogLine("Compile forcefully ended.");
 
             postCompile();
         }

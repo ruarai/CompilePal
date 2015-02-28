@@ -26,7 +26,7 @@ namespace CompilePalX
 
             try
             {
-                Logger.LogLine("Downloading update information.");
+                CompilePalLogger.LogLine("Downloading update information.");
 
                 var c = new WebClient();
                 c.DownloadStringCompleted += c_DownloadStringCompleted;
@@ -34,8 +34,8 @@ namespace CompilePalX
             }
             catch (Exception e)
             {
-                Logger.LogLine("Failed to find update information due to following exception:");
-                Logger.LogLine(e.ToString());
+                CompilePalLogger.LogLine("Failed to find update information due to following exception:");
+                CompilePalLogger.LogLine(e.ToString());
             }
         }
 
@@ -48,25 +48,25 @@ namespace CompilePalX
                 string newVersion = e.Result;
                 LatestVersion = int.Parse(newVersion);
 
-                Logger.LogLine("Updater found latest version is:{0}, current is {1}.",LatestVersion,CurrentVersion);
+                CompilePalLogger.LogLine("Updater found latest version is:{0}, current is {1}.",LatestVersion,CurrentVersion);
 
                 if (CurrentVersion < LatestVersion)
                 {
                     MainWindow.ActiveDispatcher.Invoke(OnUpdateFound);
 
-                    Logger.LogLine("Updater found that Compile Pal is outdated.");
+                    CompilePalLogger.LogLine("Updater found that Compile Pal is outdated.");
                 }
                 else
                 {
-                    Logger.LogLine("Updater found that Compile Pal is up to date.");
+                    CompilePalLogger.LogLine("Updater found that Compile Pal is up to date.");
                 }
 
                 ProgressManager.SetProgress(ProgressManager.Progress);
             }
             else
             {
-                Logger.LogLine("Failed to find update information as an error was returned:");
-                Logger.LogLine(e.Error.ToString());
+                CompilePalLogger.LogLine("Failed to find update information as an error was returned:");
+                CompilePalLogger.LogLine(e.Error.ToString());
             }
         }
     }

@@ -26,7 +26,7 @@ namespace CompilePalX
             Order = float.Parse(lines[4], CultureInfo.InvariantCulture);
             DoRun = bool.Parse(lines[5]);
 
-            Logger.LogLine("Loaded {0} from {1} with {2} at order {3}",Name,metadataFile,ParameterFile,Order);
+            CompilePalLogger.LogLine("Loaded {0} from {1} with {2} at order {3}",Name,metadataFile,ParameterFile,Order);
 
             ParameterList = ConfigurationManager.GetParameters(ParameterFile);
 
