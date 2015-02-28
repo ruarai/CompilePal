@@ -6,7 +6,6 @@
         Title="Compile Pal X"
                       MinHeight="550" MinWidth="790"
                       Height="550" Width="790"
-                      BorderBrush="{DynamicResource AccentColorBrush}" BorderThickness="1" 
                       Closing="MetroWindow_Closing"
                       IconEdgeMode="Aliased" Icon="CompilePalIcon.ico" ShowIconOnTitleBar="False" 
                       Activated="MetroWindow_Activated">
