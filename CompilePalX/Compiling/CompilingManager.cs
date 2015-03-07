@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Media;
 using System.Windows.Threading;
 using CompilePalX.Compiling;
 
@@ -68,6 +69,7 @@ namespace CompilePalX
 
                     foreach (var compileProcess in ConfigurationManager.CompileProcesses.Where(c => c.DoRun))
                     {
+
                         compileProcess.Process = new Process { StartInfo = { RedirectStandardOutput = true, RedirectStandardInput = true, RedirectStandardError = true, UseShellExecute = false, CreateNoWindow = true } };
 
 
@@ -93,13 +95,16 @@ namespace CompilePalX
                                 if (read.Result > 0)
                                 {
                                     string text = new string(buffer, 0, read.Result);
-                                    CompilePalLogger.Log(text);
 
                                     if (CheckError(text))
                                     {
-                                        CompilePalLogger.LogLine("An error cancelled the compile.");
+                                        CompilePalLogger.LogLineColor("An error cancelled the compile.", Brushes.OrangeRed);
+                                        CompilePalLogger.LogColor(text, Brushes.OrangeRed);
+                                        ProgressManager.ErrorProgress();
                                         return;
                                     }
+                                    else
+                                        CompilePalLogger.LogColor(text, compileProcess.ColorBrush);
 
                                     read = null; // ok, this task completed so we need to create a new one
                                     continue;
@@ -124,7 +129,7 @@ namespace CompilePalX
 
         private static void postCompile()
         {
-            CompilePalLogger.LogLine(string.Format("'{0}' compile finished in {1}", ConfigurationManager.CurrentPreset, compileTimeStopwatch.Elapsed.ToString(@"hh\:mm\:ss")));
+            CompilePalLogger.LogLineColor(string.Format("'{0}' compile finished in {1}", ConfigurationManager.CurrentPreset, compileTimeStopwatch.Elapsed.ToString(@"hh\:mm\:ss")), Brushes.ForestGreen);
 
             OnFinish();
 
@@ -142,15 +147,15 @@ namespace CompilePalX
                 {
                     compileProcess.Process.Kill();
 
-                    CompilePalLogger.LogLine(string.Join("Killed {0}.",compileProcess.Name));
+                    CompilePalLogger.LogLineColor(string.Join("Killed {0}.", compileProcess.Name), Brushes.OrangeRed);
                 }
                 catch (InvalidOperationException) { }
-                catch(Exception e) { ExceptionHandler.LogException(e);}
+                catch (Exception e) { ExceptionHandler.LogException(e); }
             }
 
             ProgressManager.SetProgress(0);
 
-            CompilePalLogger.LogLine("Compile forcefully ended.");
+            CompilePalLogger.LogLineColor("Compile forcefully ended.", Brushes.OrangeRed);
 
             postCompile();
         }

@@ -8,6 +8,7 @@ using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Media;
 using System.Windows.Shapes;
 using CompilePalX.Compiling;
 
@@ -31,6 +32,15 @@ namespace CompilePalX
             ParameterList = ConfigurationManager.GetParameters(ParameterFile);
 
             MetadataFile = metadataFile;
+
+            //generate a color from the name
+            //always a tint of blue
+            int hash = Name.Sum(c => (int)c) * (Int32.MaxValue / 2); // basic hash
+            Color color = Color.FromRgb(64, 64, (byte)((hash % 255 * 255) / 4 + 128 + 64)); // convert to rg[b]  
+            ColorBrush = new SolidColorBrush(color);
+
+            ColorBrush.Freeze();
+
         }
 
         public string Name;
@@ -39,6 +49,8 @@ namespace CompilePalX
         public string ParameterFile;
         public string MetadataFile;
         public bool DoRun;
+
+        public Brush ColorBrush;
 
         public Process Process;
 

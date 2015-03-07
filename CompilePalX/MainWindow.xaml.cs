@@ -65,7 +65,7 @@ namespace CompilePalX
             CompilingManager.OnFinish += CompilingManager_OnFinish;
         }
 
-        void Logger_OnWrite(string s)
+        void Logger_OnWrite(string s, Brush b = null)
         {
             Dispatcher.Invoke(() =>
             {
@@ -74,7 +74,17 @@ namespace CompilePalX
 
                 //OutputTab.Focus();
 
-                CompileOutputTextbox.AppendText(s);
+                if (b != null)
+                {
+                    TextRange tr = new TextRange(CompileOutputTextbox.Document.ContentEnd,
+                        CompileOutputTextbox.Document.ContentEnd) { Text = s };
+                    tr.ApplyPropertyValue(TextElement.ForegroundProperty, b);
+                }
+                else
+                {
+                    CompileOutputTextbox.AppendText(s);
+                }
+
                 CompileOutputTextbox.ScrollToEnd();
 
             });
