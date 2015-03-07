@@ -4,7 +4,7 @@
         xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
         Title="Parameter Chooser" Height="424" Width="918">
     <Grid>
-        <DataGrid Name="ConfigDataGrid" Margin="10,10,10,10" AutoGenerateColumns="False" CanUserAddRows="False" ItemsSource="{Binding}" MouseUp="ConfigDataGrid_MouseUp" >
+        <DataGrid Name="ConfigDataGrid" Margin="10,10,10,10" AutoGenerateColumns="False" CanUserAddRows="False" ItemsSource="{Binding}" MouseDoubleClick="ConfigDataGrid_MouseUp" >
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Name" Binding="{ Binding Name}" IsReadOnly="True"/>
                 <DataGridTextColumn Header="Param" Binding="{ Binding Parameter}" IsReadOnly="True"/>
