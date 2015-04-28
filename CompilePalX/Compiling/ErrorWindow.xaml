@@ -1,0 +1,12 @@
+﻿<controls:MetroWindow x:Class="CompilePalX.Compiling.ErrorWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+        xmlns:dialogs="clr-namespace:MahApps.Metro.Controls.Dialogs;assembly=MahApps.Metro"
+        Title="Compile Pal X - Interlopers Error"
+                      IconEdgeMode="Aliased" Icon="../CompilePalIcon.ico" ShowIconOnTitleBar="False" Height="409" Width="587" >
+    <Grid>
+        <WebBrowser Name="ErrorBrowser" Margin="0"/>
+
+    </Grid>
+</controls:MetroWindow>

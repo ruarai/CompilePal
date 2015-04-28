@@ -70,6 +70,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Compiling\ErrorWindow.xaml.cs">
+      <DependentUpon>ErrorWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Compiling\Logger.cs" />
     <Compile Include="ExceptionHandler.cs" />
     <Compile Include="GameConfiguration\GameConfiguration.cs" />
@@ -79,6 +82,10 @@
     </Compile>
     <Compile Include="PersistenceManager.cs" />
     <Compile Include="Updating\UpdateManager.cs" />
+    <Page Include="Compiling\ErrorWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Configuration\ParameterAdder.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -131,9 +138,6 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <Content Include="version.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Compiling\errors.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Resource Include="Parameters\.help.txt">

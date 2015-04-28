@@ -96,10 +96,17 @@ namespace CompilePalX
                                 {
                                     string text = new string(buffer, 0, read.Result);
 
-                                    if (CheckError(text))
+                                    var error = GetError(text);
+
+                                    if (error != null)
                                     {
                                         CompilePalLogger.LogLineColor("An error cancelled the compile.", Brushes.OrangeRed);
-                                        CompilePalLogger.LogColor(text, Brushes.OrangeRed);
+                                        CompilePalLogger.LogColor(text, error.ErrorColor);
+
+                                        var errorWindow = new ErrorWindow(error.Message);
+
+                                        errorWindow.Show();
+
                                         ProgressManager.ErrorProgress();
                                         return;
                                     }
@@ -161,7 +168,7 @@ namespace CompilePalX
         }
 
         private static string lineBuffer = string.Empty;
-        static bool CheckError(string text)
+        static Error GetError(string text)
         {
             //The process of trying to sort the random spouts of letters back into lines. Hacky.
 
@@ -175,14 +182,16 @@ namespace CompilePalX
 
                 foreach (string line in lines)
                 {
-                    if (ErrorFinder.IsError(line))
-                        return true;
+                    var error = ErrorFinder.GetError(line);
+
+                    if (error != null)
+                        return error;
                 }
             }
             else
                 lineBuffer += text;
 
-            return false;
+            return null;
         }
 
     }
