@@ -46,6 +46,9 @@ namespace CompilePalX.Compiling
             if(url.StartsWith("about:forum"))
                 url = url.Replace("about:forum", "http://www.interlopers.net/forum");
 
+            if (url.StartsWith("about:tutorials"))
+                url = url.Replace("about:forum", "http://www.interlopers.net/tutorials");
+
             var startInfo = new ProcessStartInfo
             {
                 FileName = url

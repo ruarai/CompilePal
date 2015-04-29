@@ -18,6 +18,9 @@ namespace CompilePalX
 
         //interlopers list of errors
         private static string errorURL = "http://www.interlopers.net/includes/errorpage/errorChecker.txt";
+
+
+        private static string errorStyle = Path.Combine("Compiling", "errorstyle.html");
         public static void Init()
         {
             WebClient c = new WebClient();
@@ -33,10 +36,13 @@ namespace CompilePalX
             {
                 try
                 {
+                    string style = File.ReadAllText(errorStyle);
+
                     var lines = e.Result.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
 
                     int count = int.Parse(lines[0]);
 
+                    int id = 0;
                     for (int i = 1; i < (count * 2) + 1; i++)
                     {
                         Error error = new Error();
@@ -46,12 +52,22 @@ namespace CompilePalX
                         error.Severity = int.Parse(data[0]);
                         error.RegexTrigger = new Regex(data[1]);
                         i++;
-                        error.Message = lines[i];
+
+
+
+                        error.Message = style.Replace("%content%",lines[i]);
 
                         //CompilePalLogger.LogLineColor("Loaded trigger regex: {0}",error.ErrorColor,data[1]);
 
 
+                        error.ID = id;
                         errorList.Add(error);
+                        id++;
+
+
+                        CompilePalLogger.LogCompileError("Loaded trigger regex " + data[1], error);
+
+
                     }
                 }
                 catch (Exception x)
@@ -77,6 +93,17 @@ namespace CompilePalX
             }
             return null;
         }
+
+        public static void ShowErrorDialog(int errorID)
+        {
+            var error = errorList.FirstOrDefault(e => e.ID == errorID);
+
+            if (error != null)
+            {
+                ErrorWindow w = new ErrorWindow(error.Message);
+                w.ShowDialog();
+            }
+        }
     }
 
     class Error
@@ -84,6 +111,8 @@ namespace CompilePalX
         public Regex RegexTrigger;
         public string Message;
         public int Severity;
+
+        public int ID;
 
         public Brush ErrorColor
         {

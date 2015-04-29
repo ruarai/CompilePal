@@ -100,14 +100,14 @@ namespace CompilePalX
 
                                     if (error != null)
                                     {
-                                        CompilePalLogger.LogLineColor("An error cancelled the compile.", Brushes.OrangeRed);
-                                        CompilePalLogger.LogColor(text, error.ErrorColor);
+                                        if (error.Severity == 5)
+                                        {
+                                            CompilePalLogger.LogLineColor("An error cancelled the compile.", Brushes.Red);
+                                            ProgressManager.ErrorProgress();
+                                        }
 
-                                        var errorWindow = new ErrorWindow(error.Message);
+                                        CompilePalLogger.LogCompileError(text, error);
 
-                                        errorWindow.Show();
-
-                                        ProgressManager.ErrorProgress();
                                         return;
                                     }
                                     else

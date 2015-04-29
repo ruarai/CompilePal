@@ -38,6 +38,7 @@ namespace CompilePalX
             ActiveDispatcher = Dispatcher;
 
             CompilePalLogger.OnWrite += Logger_OnWrite;
+            CompilePalLogger.OnError += CompilePalLogger_OnError;
 
             UpdateManager.OnUpdateFound += UpdateManager_OnUpdateFound;
             UpdateManager.CheckVersion();
@@ -64,6 +65,17 @@ namespace CompilePalX
 
             CompilingManager.OnClear += CompilingManager_OnClear;
             CompilingManager.OnFinish += CompilingManager_OnFinish;
+        }
+
+        void CompilePalLogger_OnError(Hyperlink h)
+        {
+            Dispatcher.Invoke(() =>
+            {
+
+                CompileOutputTextbox.Document.Blocks.Add(new Paragraph(h));
+                CompileOutputTextbox.ScrollToEnd();
+
+            });
         }
 
         void Logger_OnWrite(string s, Brush b = null)
