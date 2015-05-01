@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Documents;
 using System.Windows.Media;
 using System.Windows.Threading;
 using CompilePalX.Compiling;
@@ -63,6 +65,8 @@ namespace CompilePalX
 
                 ProgressManager.SetProgress(0);
 
+                var compileErrors = new List<Error>();
+
                 foreach (string mapFile in MapFiles)
                 {
                     CompilePalLogger.LogLine(string.Format("Starting compilation of {0}", mapFile));
@@ -107,6 +111,8 @@ namespace CompilePalX
                                         }
 
                                         CompilePalLogger.LogCompileError(text, error);
+                                        
+                                        compileErrors.Add(error);
 
                                         return;
                                     }
@@ -129,14 +135,25 @@ namespace CompilePalX
                     }
                 }
 
-                MainWindow.ActiveDispatcher.Invoke(postCompile);
+                MainWindow.ActiveDispatcher.Invoke(()=>postCompile(compileErrors));
             }
             catch (ThreadAbortException) { }
         }
 
-        private static void postCompile()
+        private static void postCompile(List<Error> errors)
         {
             CompilePalLogger.LogLineColor(string.Format("'{0}' compile finished in {1}", ConfigurationManager.CurrentPreset, compileTimeStopwatch.Elapsed.ToString(@"hh\:mm\:ss")), Brushes.ForestGreen);
+
+            if (errors != null && errors.Any())
+            {
+                int maxSeverity = errors.Max(s => s.Severity);
+
+                var severityBrush = Error.GetSeverityBrush(maxSeverity);
+
+                CompilePalLogger.LogLineColor("{0} errors/warnings logged.", severityBrush, errors.Count);
+
+
+            }
 
             OnFinish();
 
@@ -164,7 +181,7 @@ namespace CompilePalX
 
             CompilePalLogger.LogLineColor("Compile forcefully ended.", Brushes.OrangeRed);
 
-            postCompile();
+            postCompile(null);
         }
 
         private static string lineBuffer = string.Empty;

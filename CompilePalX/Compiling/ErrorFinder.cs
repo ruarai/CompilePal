@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Markup;
 using System.Windows.Media;
@@ -21,64 +22,68 @@ namespace CompilePalX
 
 
         private static string errorStyle = Path.Combine("Compiling", "errorstyle.html");
+        private static string errorCache = Path.Combine("Compiling", "errors.txt");
         public static void Init()
         {
-            WebClient c = new WebClient();
-
-            c.DownloadStringCompleted += c_DownloadStringCompleted;
-
-            c.DownloadStringAsync(new Uri(errorURL));
+            Thread t = new Thread(AsyncInit);
+            t.Start();
         }
 
-        static void c_DownloadStringCompleted(object sender, DownloadStringCompletedEventArgs e)
+        static void AsyncInit()
         {
-            if (e.Error == null)
+            try
             {
-                try
+                if (File.Exists(errorCache) && (DateTime.Now.Subtract(File.GetLastWriteTime(errorCache)).TotalDays < 7))
                 {
-                    string style = File.ReadAllText(errorStyle);
-
-                    var lines = e.Result.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
-
-                    int count = int.Parse(lines[0]);
-
-                    int id = 0;
-                    for (int i = 1; i < (count * 2) + 1; i++)
-                    {
-                        Error error = new Error();
-
-                        var data = lines[i].Split('|');
-
-                        error.Severity = int.Parse(data[0]);
-                        error.RegexTrigger = new Regex(data[1]);
-                        i++;
-
-
-
-                        error.Message = style.Replace("%content%",lines[i]);
-
-                        //CompilePalLogger.LogLineColor("Loaded trigger regex: {0}",error.ErrorColor,data[1]);
-
-
-                        error.ID = id;
-                        errorList.Add(error);
-                        id++;
-
-
-                        CompilePalLogger.LogCompileError("Loaded trigger regex " + data[1], error);
-
-
-                    }
+                    LoadErrorData(File.ReadAllText(errorCache));
                 }
-                catch (Exception x)
+                else
                 {
-                    ExceptionHandler.LogException(x);
-                }
+                    WebClient c = new WebClient();
 
+                    string result = c.DownloadString(new Uri(errorURL));
+
+                    LoadErrorData(result);
+
+                    File.WriteAllText(errorCache, result);
+                }
             }
-            else
+            catch (Exception x)
             {
-                CompilePalLogger.LogColor("Failed to download error list from interlopers.net.", Brushes.Red);
+                //nonvital part, record but dont quit
+                ExceptionHandler.LogException(x, false);
+            }
+        }
+
+        static void LoadErrorData(string input)
+        {
+            string style = File.ReadAllText(errorStyle);
+
+            var lines = input.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
+
+            int count = int.Parse(lines[0]);
+
+            int id = 0;
+            for (int i = 1; i < (count * 2) + 1; i++)
+            {
+                Error error = new Error();
+
+                var data = lines[i].Split('|');
+
+                error.Severity = int.Parse(data[0]);
+                error.RegexTrigger = new Regex(data[1]);
+                i++;
+
+
+
+                error.Message = style.Replace("%content%", lines[i]);
+
+                //CompilePalLogger.LogLineColor("Loaded trigger regex: {0}",error.ErrorColor,data[1]);
+
+
+                error.ID = id;
+                errorList.Add(error);
+                id++;
             }
         }
 
@@ -118,19 +123,24 @@ namespace CompilePalX
         {
             get
             {
-                switch (Severity)
-                {
-                    default:
-                        return Brushes.Black;
-                    case 2:
-                        return Brushes.DimGray;
-                    case 3:
-                        return Brushes.Orange;
-                    case 4:
-                        return Brushes.DarkRed;
-                    case 5:
-                        return Brushes.Red;
-                }
+                return GetSeverityBrush(Severity);
+            }
+        }
+
+        public static Brush GetSeverityBrush(int severity)
+        {
+            switch (severity)
+            {
+                default:
+                    return Brushes.Black;
+                case 2:
+                    return Brushes.DimGray;
+                case 3:
+                    return Brushes.Orange;
+                case 4:
+                    return Brushes.DarkRed;
+                case 5:
+                    return Brushes.Red;
             }
         }
     }
