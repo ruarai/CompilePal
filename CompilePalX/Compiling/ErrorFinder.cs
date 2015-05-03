@@ -144,4 +144,11 @@ namespace CompilePalX
             }
         }
     }
+
+    class ErrorMatch : Error
+    {
+        public string Text;
+        public int Index;
+        public int Length;
+    }
 }

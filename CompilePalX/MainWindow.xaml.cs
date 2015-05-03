@@ -67,15 +67,38 @@ namespace CompilePalX
             CompilingManager.OnFinish += CompilingManager_OnFinish;
         }
 
-        void CompilePalLogger_OnError(Hyperlink h)
+        void CompilePalLogger_OnError(string errorText,Error e)
         {
             Dispatcher.Invoke(() =>
             {
 
-                CompileOutputTextbox.Document.Blocks.Add(new Paragraph(h));
+                Hyperlink errorLink = new Hyperlink();
+
+                Run text = new Run(errorText);
+
+                text.Foreground = e.ErrorColor;
+
+                errorLink.Inlines.Add(text);
+
+                errorLink.TargetName = e.ID.ToString();
+
+                errorLink.Click += errorLink_Click;
+
+                Paragraph para = new Paragraph(errorLink);
+
+                para.KeepWithNext = true;
+                CompileOutputTextbox.Document.Blocks.Add(para);
                 CompileOutputTextbox.ScrollToEnd();
 
             });
+        }
+
+        static void errorLink_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            var link = (Hyperlink)sender;
+            int errorCode = int.Parse(link.TargetName);
+
+            ErrorFinder.ShowErrorDialog(errorCode);
         }
 
         void Logger_OnWrite(string s, Brush b = null)

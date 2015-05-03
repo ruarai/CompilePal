@@ -108,16 +108,16 @@ namespace CompilePalX
                                         {
                                             CompilePalLogger.LogLineColor("An error cancelled the compile.", Brushes.Red);
                                             ProgressManager.ErrorProgress();
+                                            return;
                                         }
 
-                                        CompilePalLogger.LogCompileError(text, error);
+                                        CompilePalLogger.LogCompileError(text,error);
                                         
                                         compileErrors.Add(error);
 
-                                        return;
                                     }
                                     else
-                                        CompilePalLogger.LogColor(text, compileProcess.ColorBrush);
+                                        CompilePalLogger.Log(text);
 
                                     read = null; // ok, this task completed so we need to create a new one
                                     continue;
