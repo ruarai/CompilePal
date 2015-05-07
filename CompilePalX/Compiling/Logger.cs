@@ -36,7 +36,12 @@ namespace CompilePalX.Compiling
             if (OnWrite != null)
                 OnWrite(text,b);
 
-            File.AppendAllText(logFile, text);
+            try
+            {
+                File.AppendAllText(logFile, text);
+
+            }
+            catch { }
         }
 
 

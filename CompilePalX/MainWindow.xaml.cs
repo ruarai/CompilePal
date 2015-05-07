@@ -155,6 +155,9 @@ namespace CompilePalX
         void ProgressManager_ProgressChange(double progress)
         {
             CompileProgressBar.Value = progress;
+
+            if (progress < 0 || progress >= 100)
+                CompileStartStopButton.Content = "Compile";
         }
 
         void ProgressManager_TitleChange(string title)

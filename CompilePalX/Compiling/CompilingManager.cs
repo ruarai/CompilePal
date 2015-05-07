@@ -111,8 +111,8 @@ namespace CompilePalX
                                             return;
                                         }
 
-                                        CompilePalLogger.LogCompileError(text,error);
-                                        
+                                        CompilePalLogger.LogCompileError(text, error);
+
                                         compileErrors.Add(error);
 
                                     }
@@ -135,9 +135,9 @@ namespace CompilePalX
                     }
                 }
 
-                MainWindow.ActiveDispatcher.Invoke(()=>postCompile(compileErrors));
+                MainWindow.ActiveDispatcher.Invoke(() => postCompile(compileErrors));
             }
-            catch (ThreadAbortException) { ProgressManager.ErrorProgress();}
+            catch (ThreadAbortException) { ProgressManager.ErrorProgress(); }
         }
 
         private static void postCompile(List<Error> errors)
@@ -157,9 +157,9 @@ namespace CompilePalX
                 {
                     i++;
 
-                    string errorText = string.Format("({0}) - ({1})", i,Error.GetSeverityText(error.Severity)) + Environment.NewLine;
+                    string errorText = string.Format("({0}) - ({1})", i, Error.GetSeverityText(error.Severity)) + Environment.NewLine;
 
-                    CompilePalLogger.LogCompileError(errorText,error);
+                    CompilePalLogger.LogCompileError(errorText, error);
 
                     if (error.Severity >= 3)
                     {
@@ -186,7 +186,7 @@ namespace CompilePalX
                 {
                     compileProcess.Process.Kill();
 
-                    CompilePalLogger.LogLineColor(string.Join("Killed {0}.", compileProcess.Name), Brushes.OrangeRed);
+                    CompilePalLogger.LogLineColor("Killed {0}.", Brushes.OrangeRed, compileProcess.Name);
                 }
                 catch (InvalidOperationException) { }
                 catch (Exception e) { ExceptionHandler.LogException(e); }
