@@ -79,15 +79,20 @@ namespace CompilePalX
                 text.Foreground = e.ErrorColor;
 
                 errorLink.Inlines.Add(text);
-
                 errorLink.TargetName = e.ID.ToString();
-
                 errorLink.Click += errorLink_Click;
 
-                Paragraph para = new Paragraph(errorLink);
+                if (CompileOutputTextbox.Document.Blocks.Any())
+                {
+                    var lastPara = (Paragraph) CompileOutputTextbox.Document.Blocks.LastBlock;
+                    lastPara.Inlines.Add(errorLink);
+                }
+                else
+                {
+                    var newPara = new Paragraph(errorLink);
+                    CompileOutputTextbox.Document.Blocks.Add(newPara);
+                }
 
-                para.KeepWithNext = true;
-                CompileOutputTextbox.Document.Blocks.Add(para);
                 CompileOutputTextbox.ScrollToEnd();
 
             });

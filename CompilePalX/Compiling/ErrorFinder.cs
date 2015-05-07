@@ -143,12 +143,21 @@ namespace CompilePalX
                     return Brushes.Red;
             }
         }
-    }
-
-    class ErrorMatch : Error
-    {
-        public string Text;
-        public int Index;
-        public int Length;
+        public static string GetSeverityText(int severity)
+        {
+            switch (severity)
+            {
+                default:
+                    return "Info";
+                case 2:
+                    return "Caution";
+                case 3:
+                    return "Warning";
+                case 4:
+                    return "Error";
+                case 5:
+                    return "Fatal Error";
+            }
+        }
     }
 }

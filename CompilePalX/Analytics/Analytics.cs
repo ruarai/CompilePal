@@ -79,5 +79,12 @@ namespace CompilePalX
                 Analytics.Client.Track(anonymousUserID, "Error", userProperties);
             }
         }
+        public static void CompileError()
+        {
+            if (!System.Diagnostics.Debugger.IsAttached || debuggerCheckOverride)
+            {
+                Analytics.Client.Track(anonymousUserID, "CompileError", userProperties);
+            }
+        }
     }
 }

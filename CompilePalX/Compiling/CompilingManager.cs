@@ -137,7 +137,7 @@ namespace CompilePalX
 
                 MainWindow.ActiveDispatcher.Invoke(()=>postCompile(compileErrors));
             }
-            catch (ThreadAbortException) { }
+            catch (ThreadAbortException) { ProgressManager.ErrorProgress();}
         }
 
         private static void postCompile(List<Error> errors)
@@ -150,7 +150,22 @@ namespace CompilePalX
 
                 var severityBrush = Error.GetSeverityBrush(maxSeverity);
 
-                CompilePalLogger.LogLineColor("{0} errors/warnings logged.", severityBrush, errors.Count);
+                CompilePalLogger.LogLineColor("{0} errors/warnings logged:", severityBrush, errors.Count);
+
+                int i = 0;
+                foreach (var error in errors)
+                {
+                    i++;
+
+                    string errorText = string.Format("({0}) - ({1})", i,Error.GetSeverityText(error.Severity)) + Environment.NewLine;
+
+                    CompilePalLogger.LogCompileError(errorText,error);
+
+                    if (error.Severity >= 3)
+                    {
+                        AnalyticsManager.CompileError();
+                    }
+                }
 
 
             }
