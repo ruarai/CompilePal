@@ -323,7 +323,7 @@ namespace CompilePalX
                 dialog.InitialDirectory = GameConfigurationManager.GameConfiguration.SDKMapFolder;
 
             dialog.Multiselect = true;
-            dialog.Filter = "Map files (*.vmf)|*.vmf";
+            dialog.Filter = "Map files (*.vmf;*.vmm)|*.vmf;*.vmm";
 
             dialog.ShowDialog();
 
