@@ -5,8 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-
-namespace BSPAutoPack
+namespace BSPPack
 {
     class Program
     {
@@ -82,13 +81,19 @@ namespace BSPAutoPack
 
                     Console.WriteLine("Discovering files...");
 
-                    GenerateFileList();
+                    BSP map = new BSP(new FileInfo(bspPath));
+                    //GenerateFileList();
+                    
 
                     Console.WriteLine("Running bspzip...");
 
-                    PackBSP();
+                    //PackBSP();
 
                     Console.WriteLine("Finished packing!");
+                    
+                    
+
+
                 }
                 else
                 {
