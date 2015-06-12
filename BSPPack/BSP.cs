@@ -19,6 +19,7 @@ namespace BSPPack
         private BinaryReader reader;
         public KeyValuePair<int, int>[] offsets { get; private set; } // offset/length
 
+        private List<Dictionary<string, string>> entityList = new List<Dictionary<string,string>>();
         private List<string> textureList = new List<string>();
         private List<string> modelList = new List<string>();
 
@@ -33,8 +34,9 @@ namespace BSPPack
             {
                 bsp.Seek(8, SeekOrigin.Current);
                 offsets[i] = new KeyValuePair<int, int>(reader.ReadInt32(), reader.ReadInt32());
-                    
             }
+            getEntityList();
+            getModelList();
             getTextureList();
         }
 
@@ -52,10 +54,43 @@ namespace BSPPack
         {
             if (modelList.Count == 0)
             {
-                bsp.Seek(offsets[0].Key, SeekOrigin.Begin);
-                //modelList = todo
+                //Todo, read entity list
             }
             return modelList;
+        }
+
+        public List<Dictionary<string, string>> getEntityList()
+        {
+            if (entityList.Count == 0)
+            {
+                bsp.Seek(offsets[0].Key, SeekOrigin.Begin);
+                byte[] ent = reader.ReadBytes(offsets[0].Value);
+                List<byte> ents = new List<byte>();
+                
+                for (int i = 0; i < ent.Length; i++)
+                {
+                    if (ent[i] != 123 && ent[i] != 125)
+                        ents.Add(ent[i]);
+
+                    else if (ent[i] == 125)
+                    {
+
+                        string rawent = Encoding.ASCII.GetString(ents.ToArray());
+                        Dictionary<string, string> entity = new Dictionary<string, string>();
+                        foreach (string s in rawent.Split('\n')){   
+                            if (s.Count() != 0){
+                                string[] c = s.Split('"');
+                                entity.Add(c[1], c[2]);
+                                if (c[1] == "hammerid")
+                                    break;
+                            }
+                        }
+                        entityList.Add(entity);
+                        ents = new List<byte>();
+                    }
+                }
+            }
+            return entityList;
         }
     }
 }
