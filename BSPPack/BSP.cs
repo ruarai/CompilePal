@@ -54,7 +54,12 @@ namespace BSPPack
         {
             if (modelList.Count == 0)
             {
-                //Todo, read entity list
+                //gets models for all but prop_static
+                foreach (Dictionary<string, string> ent in entityList)
+                {
+                    if (ent["classname"].StartsWith("prop_"))
+                        modelList.Add(ent["model"]);
+                }
             }
             return modelList;
         }
@@ -80,7 +85,9 @@ namespace BSPPack
                         foreach (string s in rawent.Split('\n')){   
                             if (s.Count() != 0){
                                 string[] c = s.Split('"');
-                                entity.Add(c[1], c[2]);
+                                entity.Add(c[1], c[3]);
+
+                                //everything after the hammerid is input/outputs
                                 if (c[1] == "hammerid")
                                     break;
                             }
