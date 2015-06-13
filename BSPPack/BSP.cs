@@ -22,6 +22,7 @@ namespace BSPPack
         private List<Dictionary<string, string>> entityList = new List<Dictionary<string,string>>();
         private List<string> textureList = new List<string>();
         private List<string> modelList = new List<string>();
+        private List<int>[] modelSkinList;
         private List<string> modelListDyn = new List<string>();
 
         public BSP(FileInfo file)
@@ -37,6 +38,7 @@ namespace BSPPack
                 offsets[i] = new KeyValuePair<int, int>(reader.ReadInt32(), reader.ReadInt32());
             }
             getEntityList();
+            getModelListDyn();
             getModelList();
             getTextureList();
 
@@ -59,8 +61,8 @@ namespace BSPPack
             {
                 foreach (Dictionary<string, string> ent in entityList)
                 {
-                    if (ent["classname"].StartsWith("prop_"))
-                        modelListDyn.Add(ent["model"]);   
+                    if (ent["classname"].StartsWith("prop_") && ent["model"].Length != 0)
+                        modelListDyn.Add(ent["model"]);
                 }
                 //for these we want to add all skins
             }
@@ -73,22 +75,53 @@ namespace BSPPack
             // gets the list of models that are from prop_static
             if (modelList.Count == 0)
             {
+                // getting information on the gamelump
+                int propStaticId = 0;
                 bsp.Seek(offsets[35].Key, SeekOrigin.Begin);
                 KeyValuePair<int, int>[] GameLumpOffsets = new KeyValuePair<int,int>[reader.ReadInt32()]; // offset/length
                 for (int i = 0; i < GameLumpOffsets.Length; i++)
                 {
-                    bsp.Seek(8, SeekOrigin.Current); //skip id, flags and version
+                    if (reader.ReadInt32() == 1936749168)
+                        propStaticId = i;
+                    bsp.Seek(4, SeekOrigin.Current); //skip flags and version
                     GameLumpOffsets[i] = new KeyValuePair<int,int>(reader.ReadInt32(), reader.ReadInt32());
                 }
 
-                bsp.Seek(GameLumpOffsets[0].Key, SeekOrigin.Begin);
+                // reading model names from game lump
+                bsp.Seek(GameLumpOffsets[propStaticId].Key, SeekOrigin.Begin);
                 int modelCount = reader.ReadInt32();
                 for (int i = 0; i < modelCount; i++)
                 {
                     string model = Encoding.ASCII.GetString(reader.ReadBytes(128)).Trim('\0');
-                    modelList.Add(model);
+                    if (model.Length != 0)
+                        modelList.Add(model);
                 }
-                //for these we want to pick only used skins
+
+                // skipping leaf lump
+                int leafCount = reader.ReadInt32();
+                bsp.Seek(leafCount * 2, SeekOrigin.Current);
+
+                // reading staticprop lump
+                
+                int propCount = reader.ReadInt32();
+                long propOffset = bsp.Position;
+                int byteLength = GameLumpOffsets[1].Key - (int)propOffset;
+                int propLength = byteLength / propCount;
+
+                modelSkinList = new List<int>[modelCount];
+                for (int i = 0; i < modelCount; i++)
+                    modelSkinList[i] = new List<int>();
+
+                for (int i = 0; i < propCount; i++)
+                {
+                    bsp.Seek(i * propLength + propOffset + 24, SeekOrigin.Begin); // 24 skips origin and angles
+                    int modelId = reader.ReadUInt16();
+                    bsp.Seek(6, SeekOrigin.Current);
+                    int skin = reader.ReadInt32();
+
+                    if (modelSkinList[modelId].IndexOf(skin) == -1)
+                        modelSkinList[modelId].Add(skin);
+                }
             }
             return modelList;
         }
