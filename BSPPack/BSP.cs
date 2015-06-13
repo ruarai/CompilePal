@@ -22,6 +22,7 @@ namespace BSPPack
         private List<Dictionary<string, string>> entityList = new List<Dictionary<string,string>>();
         private List<string> textureList = new List<string>();
         private List<string> modelList = new List<string>();
+        private List<string> modelListDyn = new List<string>();
 
         public BSP(FileInfo file)
         {
@@ -32,12 +33,13 @@ namespace BSPPack
             //gathers an array of of where things are located in the bsp
             for (int i = 0; i < offsets.GetLength(0); i++)
             {
-                bsp.Seek(8, SeekOrigin.Current);
+                bsp.Seek(8, SeekOrigin.Current); //skip id and version
                 offsets[i] = new KeyValuePair<int, int>(reader.ReadInt32(), reader.ReadInt32());
             }
             getEntityList();
             getModelList();
             getTextureList();
+
         }
 
         public List<string> getTextureList()
@@ -50,16 +52,43 @@ namespace BSPPack
             return textureList;
         }
 
-        public List<string> getModelList()
+        public List<string> getModelListDyn()
         {
+            // gets the list of models that are not from prop_static
             if (modelList.Count == 0)
             {
-                //gets models for all but prop_static
                 foreach (Dictionary<string, string> ent in entityList)
                 {
                     if (ent["classname"].StartsWith("prop_"))
-                        modelList.Add(ent["model"]);
+                        modelListDyn.Add(ent["model"]);   
                 }
+                //for these we want to add all skins
+            }
+            
+            return modelListDyn;
+        }
+
+        public List<string> getModelList()
+        {
+            // gets the list of models that are from prop_static
+            if (modelList.Count == 0)
+            {
+                bsp.Seek(offsets[35].Key, SeekOrigin.Begin);
+                KeyValuePair<int, int>[] GameLumpOffsets = new KeyValuePair<int,int>[reader.ReadInt32()]; // offset/length
+                for (int i = 0; i < GameLumpOffsets.Length; i++)
+                {
+                    bsp.Seek(8, SeekOrigin.Current); //skip id, flags and version
+                    GameLumpOffsets[i] = new KeyValuePair<int,int>(reader.ReadInt32(), reader.ReadInt32());
+                }
+
+                bsp.Seek(GameLumpOffsets[0].Key, SeekOrigin.Begin);
+                int modelCount = reader.ReadInt32();
+                for (int i = 0; i < modelCount; i++)
+                {
+                    string model = Encoding.ASCII.GetString(reader.ReadBytes(128)).Trim('\0');
+                    modelList.Add(model);
+                }
+                //for these we want to pick only used skins
             }
             return modelList;
         }
