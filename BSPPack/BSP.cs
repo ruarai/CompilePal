@@ -97,6 +97,8 @@ namespace BSPPack
                         modelList.Add(model);
                 }
 
+                // from now on we have models, now we want to know what skins they use
+
                 // skipping leaf lump
                 int leafCount = reader.ReadInt32();
                 bsp.Seek(leafCount * 2, SeekOrigin.Current);
