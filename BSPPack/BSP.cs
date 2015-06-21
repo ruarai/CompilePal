@@ -110,7 +110,8 @@ namespace BSPPack
                 int byteLength = GameLumpOffsets[1].Key - (int)propOffset;
                 int propLength = byteLength / propCount;
 
-                modelSkinList = new List<int>[modelCount];
+                modelSkinList = new List<int>[modelCount]; // stores the ids of used skins
+
                 for (int i = 0; i < modelCount; i++)
                     modelSkinList[i] = new List<int>();
 
