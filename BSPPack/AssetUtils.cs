@@ -126,11 +126,23 @@ namespace BSPPack
 
         public static List<string> findVmtTextures(string path) { return new List<string>(); }
 
-        public static List<string> findManifestPcfs(string path) { return new List<string>(); }
-
         public static List<string> findSoundscapeSounds(string path) { return new List<string>(); }
 
         public static List<string> findPcfMaterials(string path) { return new List<string>(); }
+
+        public static List<string> findManifestPcfs(string fullpath) {
+            // finds pcf files from the manifest files
+
+            List<string> pcfs = new List<string>();
+            foreach (string line in File.ReadAllLines(fullpath))
+            {
+                if (line.ToLower().Contains("file")) {
+                    string[] l = line.Split('"');
+                    pcfs.Add(l[l.Count() - 2].TrimStart('!'));
+                }
+            }
+            return pcfs;
+        }
 
         public static void findBspUtilityFiles(BSP bsp, List<string> sourceDirectories)
         { 
