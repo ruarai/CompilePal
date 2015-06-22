@@ -76,7 +76,7 @@ namespace BSPPack
                 // all documentation is unreliable or incomplete so this code is 
                 // based on my own interpretation of the data.
 
-                // what needs to be know is that the skin table is larger than
+                // what needs to be known is that the skin table is larger than
                 // what actually gets used and is padded with bogus info, what
                 // follows is an attempt at filtering crap.
 
@@ -123,11 +123,72 @@ namespace BSPPack
             }
             return references;
         }
-        
 
-        public static void findMdlparticles(string path) { }
+        public static List<string> findVmtTextures(string path) { return new List<string>(); }
 
-        public static void findPcfMaterials(string path) { }
+        public static List<string> findManifestPcfs(string path) { return new List<string>(); }
 
+        public static List<string> findSoundscapeSounds(string path) { return new List<string>(); }
+
+        public static List<string> findPcfMaterials(string path) { return new List<string>(); }
+
+        public static void findBspUtilityFiles(BSP bsp, List<string> sourceDirectories)
+        { 
+            // Utility files are other files that are not assets
+            // those are manifests, soundscapes, nav and detail files
+
+            bsp.particleManifest = "";
+            bsp.soundscape = "";
+            bsp.nav = "";
+            bsp.detail = "";
+
+            // Particles manifest
+            foreach (string source in sourceDirectories)
+            {
+                string guess = source + "\\particles\\" +
+                    bsp.file.Name.Replace(".bsp", "_manifest.txt");
+                if (File.Exists(guess))
+                {
+                    bsp.particleManifest = guess;
+                    break;
+                }
+                guess = source + "\\maps\\" +
+                    bsp.file.Name.Replace(".bsp", "_particles.txt");
+                if (File.Exists(guess))
+                {
+                    bsp.particleManifest = guess;
+                    break;
+                }
+            }
+
+            // Soundscape file
+            foreach (string source in sourceDirectories)
+            {
+                string guess = source + "\\scripts\\soundscapes_" +
+                    bsp.file.Name.Replace(".bsp", ".txt");
+                if (File.Exists(guess))
+                {
+                    bsp.soundscape = guess;
+                    break;
+                }
+            }
+
+            // Nav file (.nav)
+            foreach (string source in sourceDirectories)
+            {
+                string guess = source + "\\maps\\" + bsp.file.Name.Replace(".bsp", ".nav");
+                if (File.Exists(guess))
+                {
+                    bsp.nav = guess;
+                    break;
+                }
+            }
+
+            // todo: detail file (.vbsp)
+
+            // maybe can be read form bsp directly?
+            // bsp.detail = ??
+
+        }
     }
 }

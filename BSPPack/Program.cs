@@ -76,22 +76,24 @@ namespace BSPPack
                     vmfAllKeys.AddRange(vmfModelKeys);
 
                     Console.WriteLine("Finding sources of game content...");
-
                     GetSourceDirectories(gameFolder);
 
-                    Console.WriteLine("Discovering files...");
-
+                    Console.WriteLine("Reading BSP...");
                     BSP map = new BSP(new FileInfo(bspPath));
-                    //GenerateFileList();
-                    
+
+                    Console.WriteLine("Searching complementary files...");
+                    AssetUtils.findBspUtilityFiles(map, sourceDirectories);
+
+                    Console.WriteLine("Initializing pak file...");
+                    PakFile pak = new PakFile(map , sourceDirectories);
+
+                    //GenerateFileList();                  
 
                     Console.WriteLine("Running bspzip...");
 
                     //PackBSP();
 
                     Console.WriteLine("Finished packing!");
-                    
-                    
 
 
                 }
@@ -110,7 +112,6 @@ namespace BSPPack
         static void GenerateFileList()
         {
             var fileList = new List<string>();
-
 
             var vmfContent = GetContentFromVMF();
 

@@ -17,16 +17,27 @@ namespace BSPPack
     {
         private FileStream bsp;
         private BinaryReader reader;
-        public KeyValuePair<int, int>[] offsets { get; private set; } // offset/length
+        private KeyValuePair<int, int>[] offsets; // offset/length
 
         private List<Dictionary<string, string>> entityList = new List<Dictionary<string,string>>();
-        private List<string> textureList = new List<string>();
-        private List<string> modelList = new List<string>();
+        
         private List<int>[] modelSkinList;
-        private List<string> modelListDyn = new List<string>();
+        private List<string> rawModelList = new List<string>();
+        private List<string> rawModelListDyn = new List<string>();
+        private List<string> rawTextureList = new List<string>();
+        private List<string> rawSoundList = new List<string>();
+
+        public string particleManifest { get; set; }
+        public string soundscape { get; set; }
+        public string detail {get; set; }
+        public string nav {get; set; }
+
+        public FileInfo file { get; private set; }
 
         public BSP(FileInfo file)
         {
+            this.file = file;
+
             offsets = new KeyValuePair<int, int>[64];
             bsp = new FileStream(file.FullName, FileMode.Open);
             reader = new BinaryReader(bsp);
@@ -37,43 +48,47 @@ namespace BSPPack
                 bsp.Seek(8, SeekOrigin.Current); //skip id and version
                 offsets[i] = new KeyValuePair<int, int>(reader.ReadInt32(), reader.ReadInt32());
             }
+
             getEntityList();
             getModelListDyn();
             getModelList();
             getTextureList();
-
+            getSoundList();
         }
 
         public List<string> getTextureList()
         {
-            if (textureList.Count == 0)
+            if (rawTextureList.Count == 0)
             {
                 bsp.Seek(offsets[43].Key, SeekOrigin.Begin);
-                textureList = new List<string>(Encoding.ASCII.GetString(reader.ReadBytes(offsets[43].Value)).Split('\0'));
+                rawTextureList = new List<string>(Encoding.ASCII.GetString(reader.ReadBytes(offsets[43].Value)).Split('\0'));
+                for (int i = 0; i < rawTextureList.Count; i++)
+                    rawTextureList[i] = "materials/" + rawTextureList[i];
             }
-            return textureList;
+            return rawTextureList;
         }
 
         public List<string> getModelListDyn()
         {
             // gets the list of models that are not from prop_static
-            if (modelList.Count == 0)
+            if (rawModelList.Count == 0)
             {
                 foreach (Dictionary<string, string> ent in entityList)
                 {
+                    // todo: there are more entities with custom models
                     if (ent["classname"].StartsWith("prop_") && ent["model"].Length != 0)
-                        modelListDyn.Add(ent["model"]);
+                        rawModelListDyn.Add(ent["model"]);
                 }
                 //for these we want to add all skins
             }
             
-            return modelListDyn;
+            return rawModelListDyn;
         }
 
         public List<string> getModelList()
         {
             // gets the list of models that are from prop_static
-            if (modelList.Count == 0)
+            if (rawModelList.Count == 0)
             {
                 // getting information on the gamelump
                 int propStaticId = 0;
@@ -94,7 +109,7 @@ namespace BSPPack
                 {
                     string model = Encoding.ASCII.GetString(reader.ReadBytes(128)).Trim('\0');
                     if (model.Length != 0)
-                        modelList.Add(model);
+                        rawModelList.Add(model);
                 }
 
                 // from now on we have models, now we want to know what skins they use
@@ -126,7 +141,7 @@ namespace BSPPack
                         modelSkinList[modelId].Add(skin);
                 }
             }
-            return modelList;
+            return rawModelList;
         }
 
         public List<Dictionary<string, string>> getEntityList()
@@ -144,7 +159,6 @@ namespace BSPPack
 
                     else if (ent[i] == 125)
                     {
-
                         string rawent = Encoding.ASCII.GetString(ents.ToArray());
                         Dictionary<string, string> entity = new Dictionary<string, string>();
                         foreach (string s in rawent.Split('\n')){   
@@ -163,6 +177,17 @@ namespace BSPPack
                 }
             }
             return entityList;
+        }
+
+        public List<string> getSoundList()
+        {
+            foreach (Dictionary<string, string> ent in entityList)
+            {
+                // todo: there are more entities with custom sounds
+                if (ent["classname"].Equals("ambient_generic"))
+                    rawSoundList.Add(ent["message"]);
+            }
+            return rawSoundList;
         }
     }
 }

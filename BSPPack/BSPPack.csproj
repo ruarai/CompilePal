@@ -43,6 +43,7 @@
   <ItemGroup>
     <Compile Include="BSP.cs" />
     <Compile Include="AssetUtils.cs" />
+    <Compile Include="PakFile.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
