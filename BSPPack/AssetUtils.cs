@@ -9,6 +9,8 @@ namespace BSPPack
 {
     static class AssetUtils
     {
+        private static List<string> vmtTexturekeyWords = File.ReadAllLines(Path.Combine("..//..//..//Keys//", "texturekeys.txt")).ToList();
+
         public static List<string> findMdlMaterials(string path, int[] skin = null)
         {
             List<string> materials = new List<string>();
@@ -107,6 +109,7 @@ namespace BSPPack
                         materials.Add(modelDirs[j] + modelVmts[i] + ".vmt");
                     }
                 }
+                mdl.Close();
             }
             return materials;
         }
@@ -114,7 +117,7 @@ namespace BSPPack
         public static List<string> findMdlRefs(string path) {
             var references = new List<string>();
 
-            var variations = new List<string> { ".dx80.vtx", ".dx90.vtx", ".phy", ".sw.vtx", ".sw.vtx" };
+            var variations = new List<string> { ".dx80.vtx", ".dx90.vtx", ".phy", ".sw.vtx", ".vvd" };
             foreach (string variation in variations)
             {
                 string variant = Path.ChangeExtension(path, variation);
@@ -124,14 +127,41 @@ namespace BSPPack
             return references;
         }
 
-        public static List<string> findVmtTextures(string path) { return new List<string>(); }
+        public static List<string> findVmtTextures(string fullpath) {
+            // finds vtfs files associated with vmt file
 
-        public static List<string> findSoundscapeSounds(string path) { return new List<string>(); }
+            Console.WriteLine("calle");
+            List<string> vtfList = new List<string>();
+            foreach (string line in File.ReadAllLines(fullpath))
+            {
+                if (vmtTexturekeyWords.Any(key => line.Contains(key)))
+                    vtfList.Add(line.Split(' ').Last().Replace("\"", "").Trim());
+            }
+            foreach (string s in vtfList)
+                Console.Write(s);
+
+            return vtfList;
+        }
+
+        public static List<string> findSoundscapeSounds(string fullpath) {
+            // finds audio files from soundscape file
+
+            List<string> audioFiles = new List<string>();
+            foreach (string line in File.ReadAllLines(fullpath))
+            {
+                if (line.ToLower().Contains("\"wave\""))
+                {
+                    string[] l = line.Split('"');
+                    audioFiles.Add("sounds\\" + l[l.Count() - 2]);
+                }
+            }
+            return audioFiles;
+        }
 
         public static List<string> findPcfMaterials(string path) { return new List<string>(); }
 
         public static List<string> findManifestPcfs(string fullpath) {
-            // finds pcf files from the manifest files
+            // finds pcf files from the manifest file
 
             List<string> pcfs = new List<string>();
             foreach (string line in File.ReadAllLines(fullpath))

@@ -29,15 +29,22 @@ namespace BSPPack
             if (bsp.soundscape != "")
             {
                 foreach (string sound in AssetUtils.findSoundscapeSounds(bsp.soundscape))
-                    AddFile(sound);
+                    AddFile(FindRawFile(sound));
             }
 
             if (bsp.detail != "") {} // todo parse detail files
 
-            bsp.getModelList();
-            bsp.getModelListDyn();
-            bsp.getTextureList();
-            bsp.getSoundList();
+            foreach (string model in bsp.getModelList())
+                AddModel(model);
+            foreach (string model in bsp.getModelListDyn())
+                AddModel(model);
+            foreach (string vmt in bsp.getTextureList())
+                AddTexture(vmt);
+            foreach (string sound in bsp.getSoundList())
+                AddFile(FindRawFile(sound));
+
+            foreach (string f in Files)
+                Console.WriteLine(f);
         }
 
         public void AddFile(string fullpath)
@@ -92,8 +99,8 @@ namespace BSPPack
             // returns the full path or empty string
 
             foreach (string source in sourceDirs)
-                if (File.Exists(source +"//"+ rawpath))
-                    return source +"//"+ rawpath;
+                if (File.Exists(source +"\\"+ rawpath))
+                    return source +"\\"+ rawpath;
             return "";
         }
     }

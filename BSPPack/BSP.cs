@@ -185,7 +185,7 @@ namespace BSPPack
             {
                 // todo: there are more entities with custom sounds
                 if (ent["classname"].Equals("ambient_generic"))
-                    rawSoundList.Add(ent["message"]);
+                    rawSoundList.Add("sound/" + ent["message"]);
             }
             return rawSoundList;
         }
