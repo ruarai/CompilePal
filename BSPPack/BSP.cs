@@ -27,10 +27,11 @@ namespace BSPPack
         private List<string> rawTextureList = new List<string>();
         private List<string> rawSoundList = new List<string>();
 
-        public string particleManifest { get; set; }
-        public string soundscape { get; set; }
-        public string detail {get; set; }
-        public string nav {get; set; }
+        // key/values as internalPath/externalPath
+        public KeyValuePair<string, string> particleManifest { get; set; }
+        public KeyValuePair<string, string> soundscape { get; set; }
+        public KeyValuePair<string, string> detail {get; set; }
+        public KeyValuePair<string, string> nav {get; set; }
 
         public FileInfo file { get; private set; }
 
@@ -63,7 +64,7 @@ namespace BSPPack
                 bsp.Seek(offsets[43].Key, SeekOrigin.Begin);
                 rawTextureList = new List<string>(Encoding.ASCII.GetString(reader.ReadBytes(offsets[43].Value)).Split('\0'));
                 for (int i = 0; i < rawTextureList.Count; i++)
-                    rawTextureList[i] = "materials/" + rawTextureList[i];
+                    rawTextureList[i] = "materials/" + rawTextureList[i]+ ".vmt";
             }
             return rawTextureList;
         }

@@ -106,7 +106,8 @@ namespace BSPPack
                 {
                     for (int j = 0; j < modelDirs.Count; j++)
                     {
-                        materials.Add(modelDirs[j] + modelVmts[i] + ".vmt");
+                        modelDirs[j] = modelDirs[j].TrimStart(new char[]{'/', '\\'});
+                        materials.Add("materials/" + modelDirs[j] + modelVmts[i] + ".vmt");
                     }
                 }
                 mdl.Close();
@@ -121,7 +122,6 @@ namespace BSPPack
             foreach (string variation in variations)
             {
                 string variant = Path.ChangeExtension(path, variation);
-                Console.WriteLine(variant);
                 references.Add(variant);
             }
             return references;
@@ -129,17 +129,15 @@ namespace BSPPack
 
         public static List<string> findVmtTextures(string fullpath) {
             // finds vtfs files associated with vmt file
-
-            Console.WriteLine("calle");
+            
             List<string> vtfList = new List<string>();
             foreach (string line in File.ReadAllLines(fullpath))
             {
-                if (vmtTexturekeyWords.Any(key => line.Contains(key)))
-                    vtfList.Add(line.Split(' ').Last().Replace("\"", "").Trim());
+                string vtfref = line.Replace("\"", " ").Replace("\t"," ").Trim();
+                if (vmtTexturekeyWords.Any(key => vtfref.StartsWith(key+" ")))
+                    vtfList.Add("materials/" +
+                        vtfref.Split(new char[] { ' ' }, 2)[1].Trim() +".vtf");
             }
-            foreach (string s in vtfList)
-                Console.Write(s);
-
             return vtfList;
         }
 
@@ -152,7 +150,7 @@ namespace BSPPack
                 if (line.ToLower().Contains("\"wave\""))
                 {
                     string[] l = line.Split('"');
-                    audioFiles.Add("sounds\\" + l[l.Count() - 2]);
+                    audioFiles.Add("sounds/" + l[l.Count() - 2]);
                 }
             }
             return audioFiles;
@@ -179,26 +177,24 @@ namespace BSPPack
             // Utility files are other files that are not assets
             // those are manifests, soundscapes, nav and detail files
 
-            bsp.particleManifest = "";
-            bsp.soundscape = "";
-            bsp.nav = "";
-            bsp.detail = "";
-
             // Particles manifest
             foreach (string source in sourceDirectories)
             {
-                string guess = source + "\\particles\\" +
-                    bsp.file.Name.Replace(".bsp", "_manifest.txt");
-                if (File.Exists(guess))
+                string internalPath = "particles/" + bsp.file.Name.Replace(".bsp", "_manifest.txt");
+                string externalPath = source + "/" + internalPath;
+
+                if (File.Exists(externalPath))
                 {
-                    bsp.particleManifest = guess;
+                    bsp.particleManifest = new KeyValuePair<string, string>(internalPath, externalPath);
                     break;
                 }
-                guess = source + "\\maps\\" +
-                    bsp.file.Name.Replace(".bsp", "_particles.txt");
-                if (File.Exists(guess))
+
+                internalPath = "maps/" + bsp.file.Name.Replace(".bsp", "_particles.txt");
+                externalPath = source + "/" + internalPath;
+
+                if (File.Exists(externalPath))
                 {
-                    bsp.particleManifest = guess;
+                    bsp.particleManifest = new KeyValuePair<string, string>(internalPath, externalPath);
                     break;
                 }
             }
@@ -206,11 +202,12 @@ namespace BSPPack
             // Soundscape file
             foreach (string source in sourceDirectories)
             {
-                string guess = source + "\\scripts\\soundscapes_" +
-                    bsp.file.Name.Replace(".bsp", ".txt");
-                if (File.Exists(guess))
+                string internalPath = "scripts/soundscapes_" + bsp.file.Name.Replace(".bsp", ".txt");
+                string externalPath = source +"/"+ internalPath;
+
+                if (File.Exists(externalPath))
                 {
-                    bsp.soundscape = guess;
+                    bsp.soundscape = new KeyValuePair<string, string>(internalPath, externalPath);
                     break;
                 }
             }
@@ -218,10 +215,12 @@ namespace BSPPack
             // Nav file (.nav)
             foreach (string source in sourceDirectories)
             {
-                string guess = source + "\\maps\\" + bsp.file.Name.Replace(".bsp", ".nav");
-                if (File.Exists(guess))
+                string internalPath = "maps/" + bsp.file.Name.Replace(".bsp", ".nav");
+                string externalPath = source + "/" + internalPath;
+
+                if (File.Exists(externalPath))
                 {
-                    bsp.nav = guess;
+                    bsp.nav = new KeyValuePair<string, string>(internalPath, externalPath);
                     break;
                 }
             }

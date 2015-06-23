@@ -24,6 +24,8 @@ namespace BSPPack
         private static List<string> vmtTexturekeyWords;
         private static List<string> vmtMaterialkeyWords;
 
+        private PakFile pakfile;
+
         static void Main(string[] args)
         {
             try
@@ -85,13 +87,14 @@ namespace BSPPack
                     AssetUtils.findBspUtilityFiles(map, sourceDirectories);
 
                     Console.WriteLine("Initializing pak file...");
-                    PakFile pak = new PakFile(map , sourceDirectories);
+                    PakFile pakfile = new PakFile(map , sourceDirectories);
 
-                    //GenerateFileList();                  
+                    Console.WriteLine("Writing file list...");
+                    pakfile.OutputToFile();
 
                     Console.WriteLine("Running bspzip...");
 
-                    //PackBSP();
+                    PackBSP();
 
                     Console.WriteLine("Finished packing!");
 
@@ -107,61 +110,6 @@ namespace BSPPack
                 Console.WriteLine("Something broke:");
                 Console.WriteLine(exception.ToString());
             }
-        }
-
-        static void GenerateFileList()
-        {
-            var fileList = new List<string>();
-
-            var vmfContent = GetContentFromVMF();
-
-            fileList.AddRange(vmfContent);
-
-
-            Console.WriteLine("Searching through materials...");
-            foreach (var content in vmfContent)
-            {
-                if (Path.GetExtension(content) == ".vmt")
-                {
-                    fileList.AddRange(GetMaterialReferences(content));
-                }
-
-                if (Path.GetExtension(content) == ".mdl")
-                {
-                    fileList.AddRange(GetModelReferences(content));
-                }
-            }
-
-            fileList = fileList.Distinct().ToList();
-
-            Console.WriteLine("Writing file list...");
-
-            var outputLines = new List<string>();
-            foreach (var f in fileList)
-            {
-                string file = f.Replace("/", "\\");
-
-                string trimmedPath = file;
-
-                //remove all stuff we dont want, very hacky
-                foreach (string directory in sourceDirectories.OrderByDescending(dir=>dir.Length))
-                {
-                    trimmedPath = trimmedPath.Replace(directory, "");
-                }
-                trimmedPath = trimmedPath.Replace(gameFolder, "").TrimStart('\\');
-
-                outputLines.Add(trimmedPath);
-                outputLines.Add(file);
-
-                Console.WriteLine(file.Replace(gameFolder, ""));
-            }
-            if (File.Exists("files.txt"))
-                File.Delete("files.txt");
-            File.WriteAllLines("files.txt", outputLines);
-
-
-
-            Console.WriteLine("BSP packed.");
         }
 
         static void PackBSP()
@@ -184,78 +132,6 @@ namespace BSPPack
         static void p_OutputDataReceived(object sender, DataReceivedEventArgs e)
         {
             Console.WriteLine(e.Data);
-        }
-
-        static IEnumerable<string> GetModelReferences(string mdlPath)
-        {
-            var references = new List<string>();
-
-            var variations = new List<string> { ".dx80.vtx", ".dx90.vtx", ".phy", ".sw.vtx", ".sw.vtx" };
-            foreach (string variation in variations)
-            {
-                string variant = Path.ChangeExtension(mdlPath, variation);
-                if (SourceFileExists(gameFolder, variant))
-                    references.Add(GetSourceFile(gameFolder, variant));
-            }
-
-            string materialFile = mdlPath.Replace(@"\models", @"\materials\models").Replace(".mdl", ".vmt");
-            if (SourceFileExists(gameFolder, materialFile))
-            {
-                references.Add(GetSourceFile(gameFolder, materialFile));
-                references.AddRange(GetMaterialReferences(materialFile));
-            }
-
-            return references;
-        }
-
-
-        static IEnumerable<string> GetMaterialReferences(string vmtpath)
-        {
-            try
-            {
-                var vmtLines = File.ReadAllLines(GetSourceFile(gameFolder, vmtpath));
-
-                var textureLines = vmtLines.Where(l => vmtTexturekeyWords.Any(t => l.ToLower().Contains(t.ToLower())));
-
-
-                var contentFiles = new List<string>();
-
-                foreach (string line in textureLines)
-                {
-                    if (IsValidFilename(GetValue(line)))
-                    {
-                        string path;
-                        if (GetValue(line).EndsWith(".vtf"))
-                        {
-                            path = (Path.Combine("materials", GetValue(line))).Replace("/", "\\");
-                        }
-                        else
-                        {
-                            path = (Path.Combine("materials", GetValue(line)) + ".vtf").Replace("/", "\\");
-                        }
-                        if (SourceFileExists(gameFolder, path))
-                            contentFiles.Add(GetSourceFile(gameFolder, path));
-                    }
-                }
-
-                var materialLines = vmtLines.Where(l => vmtMaterialkeyWords.Any(l.Contains));
-
-
-                foreach (string line in materialLines)
-                {
-                    string path = DeterminePath(GetKey(line), GetValue(line));
-
-                    if (IsValidFilename(path))
-                        if (SourceFileExists(gameFolder, path))
-                            contentFiles.AddRange(GetMaterialReferences(path));
-                }
-                return contentFiles.Distinct().ToList();
-
-            }
-            catch
-            {
-                return new List<string>(0);
-            }
         }
 
         static string GetSourceFile(string gamePath, string filePath)

@@ -9,30 +9,42 @@ namespace BSPPack
 {
     class PakFile
     {
-        private List<string> Files;
-        List<string> sourceDirs;
+        // This class is the class responsible for building the list of files to include
+        // The list can be saved to a text file for use with bspzip
+
+        // the dictionary is formated as <internalPath, externalPath>
+        // matching the bspzip specification https://developer.valvesoftware.com/wiki/BSPZIP
+        private IDictionary<string, string> Files;
+
+        private List<string> sourceDirs;
 
         public PakFile(BSP bsp, List<string> sourceDirectories)
         {
-            Files = new List<string>();
+            Files = new Dictionary<string, string>();
             sourceDirs = sourceDirectories;
 
-            if (bsp.nav != "")
-                AddFile(bsp.nav);
+            if (bsp.nav.Key != default(string))
+                Files.Add(bsp.nav);
 
-            if (bsp.particleManifest != "")
+            if (bsp.particleManifest.Key != default(string))
             {
-                foreach (string particle in AssetUtils.findManifestPcfs(bsp.particleManifest))
+                Files.Add(bsp.particleManifest);
+                foreach (string particle in AssetUtils.findManifestPcfs(bsp.particleManifest.Value))
                     AddParticle(particle);
             }
             
-            if (bsp.soundscape != "")
+            if (bsp.soundscape.Key != default(string))
             {
-                foreach (string sound in AssetUtils.findSoundscapeSounds(bsp.soundscape))
-                    AddFile(FindRawFile(sound));
+                Files.Add(bsp.soundscape);
+                foreach (string sound in AssetUtils.findSoundscapeSounds(bsp.soundscape.Value))
+                    AddFile(sound, FindExternalFile(sound));
             }
 
-            if (bsp.detail != "") {} // todo parse detail files
+            if (bsp.detail.Key != default(string))
+            {
+                Files.Add(bsp.detail);
+                // todo parse detail files
+            }
 
             foreach (string model in bsp.getModelList())
                 AddModel(model);
@@ -41,66 +53,83 @@ namespace BSPPack
             foreach (string vmt in bsp.getTextureList())
                 AddTexture(vmt);
             foreach (string sound in bsp.getSoundList())
-                AddFile(FindRawFile(sound));
-
-            foreach (string f in Files)
-                Console.WriteLine(f);
+                AddFile(sound, FindExternalFile(sound));
         }
 
-        public void AddFile(string fullpath)
+        public void OutputToFile()
         {
-            // adds file to the pakfile list, path must be complete
-            if (fullpath != "" && File.Exists(fullpath) && !Files.Contains(fullpath))
-                Files.Add(fullpath);
+            var outputLines = new List<string>();
+
+            foreach (KeyValuePair<string, string> entry in Files)
+            {
+                outputLines.Add(entry.Key);
+                outputLines.Add(entry.Value);
+            }
+
+            if (File.Exists("files.txt"))
+                File.Delete("files.txt");
+            File.WriteAllLines("files.txt", outputLines);
         }
 
-        public void AddModel(string rawpath)
+        public bool AddFile(string internalPath, string externalPath)
+        {
+            // adds file to the pakfile list
+            if (externalPath != "" && File.Exists(externalPath))
+            {
+                internalPath = internalPath.Replace("\\", "/");
+                if (!Files.ContainsKey(internalPath))
+                {
+                    Files.Add(internalPath, externalPath);
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public void AddModel(string internalPath)
         {
             // adds mdl files and finds its dependencies
-            string fullpath = FindRawFile(rawpath);
-            if (fullpath != "")
+            string externalPath = FindExternalFile(internalPath);
+            if (AddFile(internalPath, externalPath))
             {
-                AddFile(fullpath);
-                foreach (string reference in AssetUtils.findMdlRefs(fullpath))
-                    AddFile(FindRawFile(reference));
+                foreach (string reference in AssetUtils.findMdlRefs(externalPath))
+                    AddFile(internalPath, FindExternalFile(reference));
                     
-                foreach (string mat in AssetUtils.findMdlMaterials(fullpath))
+                foreach (string mat in AssetUtils.findMdlMaterials(externalPath))
                     AddTexture(mat);
             }
         }
 
-        public void AddTexture(string rawpath)
+        public void AddTexture(string internalPath)
         {
             // adds vmt files and finds its dependencies
-            String fullpath = FindRawFile(rawpath);
-            if (fullpath != "")
+            string externalPath = FindExternalFile(internalPath);
+            if (AddFile(internalPath, externalPath))
             {
-                AddFile(fullpath);
-                foreach (string vtf in AssetUtils.findVmtTextures(fullpath))
-                    AddFile(FindRawFile(vtf));
+                foreach (string vtf in AssetUtils.findVmtTextures(externalPath))
+                    AddFile(vtf, FindExternalFile(vtf));
             }
         }
 
-        public void AddParticle(string rawpath)
+        public void AddParticle(string internalPath)
         {
             // adds pcf files and finds its dependencies
-            String fullpath = FindRawFile(rawpath);
-            if (fullpath != "")
+            string externalPath = FindExternalFile(internalPath);
+            if (AddFile(internalPath, externalPath))
             {
-                AddFile(fullpath);
-                foreach (string mat in AssetUtils.findPcfMaterials(fullpath))
+                foreach (string mat in AssetUtils.findPcfMaterials(externalPath))
                     AddTexture(mat);
             }
         }
 
-        private string FindRawFile(string rawpath)
+        private string FindExternalFile(string internalPath)
         {
-            // Attempts to find the file from it's raw/incomplete path
-            // returns the full path or empty string
+            // Attempts to find the file from the internalPath
+            // returns the externalPath or an empty string
 
             foreach (string source in sourceDirs)
-                if (File.Exists(source +"\\"+ rawpath))
-                    return source +"\\"+ rawpath;
+                if (File.Exists(source +"/"+ internalPath))
+                    return source + "/" + internalPath.Replace("\\", "/");
             return "";
         }
     }
