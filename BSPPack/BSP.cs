@@ -15,6 +15,8 @@ namespace BSPPack
 
     class BSP
     {
+        static List<string> vmfSoundkeys = File.ReadAllLines(Path.Combine("..//..//..//Keys//", "vmfsoundkeys.txt")).ToList();
+        
         private FileStream bsp;
         private BinaryReader reader;
         private KeyValuePair<int, int>[] offsets; // offset/length
@@ -184,9 +186,10 @@ namespace BSPPack
         {
             foreach (Dictionary<string, string> ent in entityList)
             {
-                // todo: there are more entities with custom sounds
-                if (ent["classname"].Equals("ambient_generic"))
-                    rawSoundList.Add("sound/" + ent["message"]);
+                foreach (KeyValuePair<string, string> k in ent){
+                    if (vmfSoundkeys.Contains(k.Key))
+                        rawSoundList.Add("sound/"+ k.Value);
+                }
             }
             return rawSoundList;
         }
