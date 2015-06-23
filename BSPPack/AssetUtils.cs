@@ -9,8 +9,6 @@ namespace BSPPack
 {
     static class AssetUtils
     {
-        private static List<string> vmtTexturekeyWords = File.ReadAllLines(Path.Combine("..//..//..//Keys//", "texturekeys.txt")).ToList();
-
         public static List<string> findMdlMaterials(string path, int[] skin = null)
         {
             List<string> materials = new List<string>();
@@ -133,12 +131,28 @@ namespace BSPPack
             List<string> vtfList = new List<string>();
             foreach (string line in File.ReadAllLines(fullpath))
             {
-                string vtfref = line.Replace("\"", " ").Replace("\t"," ").Trim();
-                if (vmtTexturekeyWords.Any(key => vtfref.StartsWith(key+" ")))
+                string param = line.Replace("\"", " ").Replace("\t"," ").Trim();
+
+                if (Keys.vmtTextureKeyWords.Any(key => param.StartsWith(key+" ")))
                     vtfList.Add("materials/" +
-                        vtfref.Split(new char[] { ' ' }, 2)[1].Trim() +".vtf");
+                        param.Split(new char[] { ' ' }, 2)[1].Trim() +".vtf");
             }
             return vtfList;
+        }
+
+        public static List<string> findVmtMaterials(string fullpath)
+        {
+            // finds vtfs files associated with vmt file
+
+            List<string> vmtList = new List<string>();
+            foreach (string line in File.ReadAllLines(fullpath))
+            {
+                string param = line.Replace("\"", " ").Replace("\t", " ").Trim();
+                if (Keys.vmtMaterialKeyWords.Any(key => param.StartsWith(key + " ")))
+                    vmtList.Add("materials/" +
+                        param.Split(new char[] { ' ' }, 2)[1].Trim() + ".vmt");
+            }
+            return vmtList;
         }
 
         public static List<string> findSoundscapeSounds(string fullpath) {

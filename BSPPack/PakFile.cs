@@ -46,13 +46,15 @@ namespace BSPPack
                 // todo parse detail files
             }
 
-            foreach (string model in bsp.getModelList())
+            foreach (string model in bsp.ModelList)
                 AddModel(model);
-            foreach (string model in bsp.getModelListDyn())
+            foreach (string model in bsp.EntModelList)
                 AddModel(model);
-            foreach (string vmt in bsp.getTextureList())
+            foreach (string vmt in bsp.TextureList)
                 AddTexture(vmt);
-            foreach (string sound in bsp.getSoundList())
+            foreach (string vmt in bsp.EntTextureList)
+                AddTexture(vmt);
+            foreach (string sound in bsp.EntSoundList)
                 AddFile(sound, FindExternalFile(sound));
         }
 
@@ -108,6 +110,8 @@ namespace BSPPack
             {
                 foreach (string vtf in AssetUtils.findVmtTextures(externalPath))
                     AddFile(vtf, FindExternalFile(vtf));
+                foreach (string vmt in AssetUtils.findVmtMaterials(externalPath))
+                    AddTexture(vmt);
             }
         }
 

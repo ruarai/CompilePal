@@ -15,8 +15,6 @@ namespace BSPPack
 
     class BSP
     {
-        static List<string> vmfSoundkeys = File.ReadAllLines(Path.Combine("..//..//..//Keys//", "vmfsoundkeys.txt")).ToList();
-        
         private FileStream bsp;
         private BinaryReader reader;
         private KeyValuePair<int, int>[] offsets; // offset/length
@@ -24,10 +22,14 @@ namespace BSPPack
         private List<Dictionary<string, string>> entityList = new List<Dictionary<string,string>>();
         
         private List<int>[] modelSkinList;
-        private List<string> rawModelList = new List<string>();
-        private List<string> rawModelListDyn = new List<string>();
-        private List<string> rawTextureList = new List<string>();
-        private List<string> rawSoundList = new List<string>();
+
+        public List<string> ModelList { get; private set; }
+        public List<string> EntModelList { get; private set; }
+
+        public List<string> TextureList { get; private set; }
+        public List<string> EntTextureList { get; private set; }
+
+        public List<string> EntSoundList { get; private set; }
 
         // key/values as internalPath/externalPath
         public KeyValuePair<string, string> particleManifest { get; set; }
@@ -52,109 +54,25 @@ namespace BSPPack
                 offsets[i] = new KeyValuePair<int, int>(reader.ReadInt32(), reader.ReadInt32());
             }
 
-            getEntityList();
-            getModelListDyn();
-            getModelList();
-            getTextureList();
-            getSoundList();
+            buildEntityList();
+
+            buildEntModelList();
+            buildModelList();
+
+            buildEntTextureList();
+            buildTextureList();
+
+            buildEntSoundList();
         }
 
-        public List<string> getTextureList()
-        {
-            if (rawTextureList.Count == 0)
-            {
-                bsp.Seek(offsets[43].Key, SeekOrigin.Begin);
-                rawTextureList = new List<string>(Encoding.ASCII.GetString(reader.ReadBytes(offsets[43].Value)).Split('\0'));
-                for (int i = 0; i < rawTextureList.Count; i++)
-                    rawTextureList[i] = "materials/" + rawTextureList[i]+ ".vmt";
-            }
-            return rawTextureList;
-        }
-
-        public List<string> getModelListDyn()
-        {
-            // gets the list of models that are not from prop_static
-            if (rawModelList.Count == 0)
-            {
-                foreach (Dictionary<string, string> ent in entityList)
-                {
-                    // todo: there are more entities with custom models
-                    if (ent["classname"].StartsWith("prop_") && ent["model"].Length != 0)
-                        rawModelListDyn.Add(ent["model"]);
-                }
-                //for these we want to add all skins
-            }
-            
-            return rawModelListDyn;
-        }
-
-        public List<string> getModelList()
-        {
-            // gets the list of models that are from prop_static
-            if (rawModelList.Count == 0)
-            {
-                // getting information on the gamelump
-                int propStaticId = 0;
-                bsp.Seek(offsets[35].Key, SeekOrigin.Begin);
-                KeyValuePair<int, int>[] GameLumpOffsets = new KeyValuePair<int,int>[reader.ReadInt32()]; // offset/length
-                for (int i = 0; i < GameLumpOffsets.Length; i++)
-                {
-                    if (reader.ReadInt32() == 1936749168)
-                        propStaticId = i;
-                    bsp.Seek(4, SeekOrigin.Current); //skip flags and version
-                    GameLumpOffsets[i] = new KeyValuePair<int,int>(reader.ReadInt32(), reader.ReadInt32());
-                }
-
-                // reading model names from game lump
-                bsp.Seek(GameLumpOffsets[propStaticId].Key, SeekOrigin.Begin);
-                int modelCount = reader.ReadInt32();
-                for (int i = 0; i < modelCount; i++)
-                {
-                    string model = Encoding.ASCII.GetString(reader.ReadBytes(128)).Trim('\0');
-                    if (model.Length != 0)
-                        rawModelList.Add(model);
-                }
-
-                // from now on we have models, now we want to know what skins they use
-
-                // skipping leaf lump
-                int leafCount = reader.ReadInt32();
-                bsp.Seek(leafCount * 2, SeekOrigin.Current);
-
-                // reading staticprop lump
-                
-                int propCount = reader.ReadInt32();
-                long propOffset = bsp.Position;
-                int byteLength = GameLumpOffsets[1].Key - (int)propOffset;
-                int propLength = byteLength / propCount;
-
-                modelSkinList = new List<int>[modelCount]; // stores the ids of used skins
-
-                for (int i = 0; i < modelCount; i++)
-                    modelSkinList[i] = new List<int>();
-
-                for (int i = 0; i < propCount; i++)
-                {
-                    bsp.Seek(i * propLength + propOffset + 24, SeekOrigin.Begin); // 24 skips origin and angles
-                    int modelId = reader.ReadUInt16();
-                    bsp.Seek(6, SeekOrigin.Current);
-                    int skin = reader.ReadInt32();
-
-                    if (modelSkinList[modelId].IndexOf(skin) == -1)
-                        modelSkinList[modelId].Add(skin);
-                }
-            }
-            return rawModelList;
-        }
-
-        public List<Dictionary<string, string>> getEntityList()
+        public void buildEntityList()
         {
             if (entityList.Count == 0)
             {
                 bsp.Seek(offsets[0].Key, SeekOrigin.Begin);
                 byte[] ent = reader.ReadBytes(offsets[0].Value);
                 List<byte> ents = new List<byte>();
-                
+
                 for (int i = 0; i < ent.Length; i++)
                 {
                     if (ent[i] != 123 && ent[i] != 125)
@@ -164,8 +82,10 @@ namespace BSPPack
                     {
                         string rawent = Encoding.ASCII.GetString(ents.ToArray());
                         Dictionary<string, string> entity = new Dictionary<string, string>();
-                        foreach (string s in rawent.Split('\n')){   
-                            if (s.Count() != 0){
+                        foreach (string s in rawent.Split('\n'))
+                        {
+                            if (s.Count() != 0)
+                            {
                                 string[] c = s.Split('"');
                                 entity.Add(c[1], c[3]);
 
@@ -179,19 +99,125 @@ namespace BSPPack
                     }
                 }
             }
-            return entityList;
         }
 
-        public List<string> getSoundList()
+        public void buildTextureList()
         {
-            foreach (Dictionary<string, string> ent in entityList)
+            // builds the list of textures applied to brushes
+
+            string mapname = bsp.Name.Split('\\').Last().Split('.')[0];
+
+            TextureList = new List<string>();
+            bsp.Seek(offsets[43].Key, SeekOrigin.Begin);
+            TextureList = new List<string>(Encoding.ASCII.GetString(reader.ReadBytes(offsets[43].Value)).Split('\0'));
+            for (int i = 0; i < TextureList.Count; i++)
             {
-                foreach (KeyValuePair<string, string> k in ent){
-                    if (vmfSoundkeys.Contains(k.Key))
-                        rawSoundList.Add("sound/"+ k.Value);
+                TextureList[i] = "materials/" + TextureList[i] + ".vmt";
+
+                // in the special case where we are dealing with water materials
+                if (TextureList[i].StartsWith("materials/maps/"+mapname+"/water/")){
+                    string[] nameparts = TextureList[i].Split('/').Last().Split('_');
+                    string filename = "";
+                    for (int j = 0; j < nameparts.Count() - 3; j++)
+                    {
+                        filename += nameparts[j] + "_";
+                    }
+                    TextureList.Add("water/" + filename.TrimEnd('_'));
                 }
             }
-            return rawSoundList;
+        }
+
+        public void buildEntTextureList()
+        {
+            // builds the list of textures referenced in entities
+
+            EntTextureList = new List<string>();
+            foreach (Dictionary<string, string> ent in entityList)
+                foreach (KeyValuePair<string, string> prop in ent)
+                    if (Keys.vmfMaterialKeys.Contains(prop.Key))
+                        EntTextureList.Add(prop.Value);
+        }
+
+        public void buildModelList()
+        {
+            // builds the list of models that are from prop_static
+
+            ModelList = new List<string>();
+            // getting information on the gamelump
+            int propStaticId = 0;
+            bsp.Seek(offsets[35].Key, SeekOrigin.Begin);
+            KeyValuePair<int, int>[] GameLumpOffsets = new KeyValuePair<int,int>[reader.ReadInt32()]; // offset/length
+            for (int i = 0; i < GameLumpOffsets.Length; i++)
+            {
+                if (reader.ReadInt32() == 1936749168)
+                    propStaticId = i;
+                bsp.Seek(4, SeekOrigin.Current); //skip flags and version
+                GameLumpOffsets[i] = new KeyValuePair<int,int>(reader.ReadInt32(), reader.ReadInt32());
+            }
+
+            // reading model names from game lump
+            bsp.Seek(GameLumpOffsets[propStaticId].Key, SeekOrigin.Begin);
+            int modelCount = reader.ReadInt32();
+            for (int i = 0; i < modelCount; i++)
+            {
+                string model = Encoding.ASCII.GetString(reader.ReadBytes(128)).Trim('\0');
+                if (model.Length != 0)
+                    ModelList.Add(model);
+            }
+
+            // from now on we have models, now we want to know what skins they use
+
+            // skipping leaf lump
+            int leafCount = reader.ReadInt32();
+            bsp.Seek(leafCount * 2, SeekOrigin.Current);
+
+            // reading staticprop lump
+                
+            int propCount = reader.ReadInt32();
+            long propOffset = bsp.Position;
+            int byteLength = GameLumpOffsets[1].Key - (int)propOffset;
+            int propLength = byteLength / propCount;
+
+            modelSkinList = new List<int>[modelCount]; // stores the ids of used skins
+
+            for (int i = 0; i < modelCount; i++)
+                modelSkinList[i] = new List<int>();
+
+            for (int i = 0; i < propCount; i++)
+            {
+                bsp.Seek(i * propLength + propOffset + 24, SeekOrigin.Begin); // 24 skips origin and angles
+                int modelId = reader.ReadUInt16();
+                bsp.Seek(6, SeekOrigin.Current);
+                int skin = reader.ReadInt32();
+
+                if (modelSkinList[modelId].IndexOf(skin) == -1)
+                    modelSkinList[modelId].Add(skin);
+            }
+            
+        }
+
+        public void buildEntModelList()
+        {
+            // builds the list of models referenced in entities
+
+            EntModelList = new List<string>();
+            foreach (Dictionary<string, string> ent in entityList)
+                foreach (KeyValuePair<string, string> prop in ent)
+                    if (!ent["classname"].StartsWith("func") &&
+                        !ent["classname"].StartsWith("trigger") &&
+                        Keys.vmfModelKeys.Contains(prop.Key))
+                            EntModelList.Add(prop.Value);
+        }
+
+        public void buildEntSoundList()
+        {
+            // builds the list of sounds referenced in entities
+
+            EntSoundList = new List<string>();
+            foreach (Dictionary<string, string> ent in entityList)
+                foreach (KeyValuePair<string, string> prop in ent)
+                    if (Keys.vmfSoundKeys.Contains(prop.Key))
+                        EntSoundList.Add("sound/"+ prop.Value);
         }
     }
 }

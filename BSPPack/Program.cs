@@ -7,6 +7,15 @@ using System.Text.RegularExpressions;
 
 namespace BSPPack
 {
+    static class Keys
+    {
+        public static List<string> vmfSoundKeys;// = File.ReadAllLines(Path.Combine("..//..//..//Keys//", "vmfsoundkeys.txt")).ToList();
+        public static List<string> vmfModelKeys;// = File.ReadAllLines(Path.Combine("..//..//..//Keys//", "vmfmodelkeys.txt")).ToList();
+        public static List<string> vmfMaterialKeys;// = File.ReadAllLines(Path.Combine("..//..//..//Keys//", "vmfmaterialkeys.txt")).ToList();
+        public static List<string> vmtTextureKeyWords;// = File.ReadAllLines(Path.Combine("..//..//..//Keys//", "texturekeys.txt")).ToList();
+        public static List<string> vmtMaterialKeyWords;// = File.ReadAllLines(Path.Combine("..//..//..//Keys//", "materialkeys.txt")).ToList();
+    }
+
     class Program
     {
         private static string bspZip;
@@ -14,15 +23,6 @@ namespace BSPPack
         private static string bspPath;
         private static string vmfPath;
         private static string keysFolder;
-
-        private static List<string> vmfSoundKeys;
-        private static List<string> vmfMaterialKeys;
-        private static List<string> vmfModelKeys;
-
-        private static List<string> vmfAllKeys = new List<string>();
-
-        private static List<string> vmtTexturekeyWords;
-        private static List<string> vmtMaterialkeyWords;
 
         private PakFile pakfile;
 
@@ -66,16 +66,11 @@ namespace BSPPack
                 if (gameFolder != null && bspPath != null && vmfPath != null && bspZip != null && keysFolder != null)
                 {
 
-                    vmtTexturekeyWords = File.ReadAllLines(Path.Combine(keysFolder, "texturekeys.txt")).ToList();
-                    vmtMaterialkeyWords = File.ReadAllLines(Path.Combine(keysFolder, "materialkeys.txt")).ToList();
-
-                    vmfSoundKeys = File.ReadAllLines(Path.Combine(keysFolder, "vmfsoundkeys.txt")).ToList();
-                    vmfMaterialKeys = File.ReadAllLines(Path.Combine(keysFolder, "vmfmaterialkeys.txt")).ToList();
-                    vmfModelKeys = File.ReadAllLines(Path.Combine(keysFolder, "vmfmodelkeys.txt")).ToList();
-
-                    vmfAllKeys.AddRange(vmfSoundKeys);
-                    vmfAllKeys.AddRange(vmfMaterialKeys);
-                    vmfAllKeys.AddRange(vmfModelKeys);
+                    Keys.vmtTextureKeyWords = File.ReadAllLines(Path.Combine(keysFolder, "texturekeys.txt")).ToList();
+                    Keys.vmtMaterialKeyWords = File.ReadAllLines(Path.Combine(keysFolder, "materialkeys.txt")).ToList();
+                    Keys.vmfSoundKeys = File.ReadAllLines(Path.Combine(keysFolder, "vmfsoundkeys.txt")).ToList();
+                    Keys.vmfMaterialKeys = File.ReadAllLines(Path.Combine(keysFolder, "vmfmaterialkeys.txt")).ToList();
+                    Keys.vmfModelKeys = File.ReadAllLines(Path.Combine(keysFolder, "vmfmodelkeys.txt")).ToList();
 
                     Console.WriteLine("Finding sources of game content...");
                     GetSourceDirectories(gameFolder);
@@ -120,8 +115,6 @@ namespace BSPPack
             arguments = arguments.Replace("$list", "files.txt");
             arguments = arguments.Replace("$game", gameFolder);
 
-            Console.WriteLine("Running");
-
             var p = new Process { StartInfo = { Arguments = arguments, FileName = bspZip, UseShellExecute = false, RedirectStandardOutput = true } };
 
             p.OutputDataReceived += p_OutputDataReceived;
@@ -132,39 +125,6 @@ namespace BSPPack
         static void p_OutputDataReceived(object sender, DataReceivedEventArgs e)
         {
             Console.WriteLine(e.Data);
-        }
-
-        static string GetSourceFile(string gamePath, string filePath)
-        {
-            string naive = Path.Combine(gamePath, filePath);
-            if (File.Exists(naive))
-                return naive;
-
-            var subDirs = sourceDirectories;
-            foreach (string subDir in subDirs)
-            {
-                string guess = Path.Combine(subDir, filePath);
-                if (File.Exists(guess))
-                    return guess;
-            }
-
-            return "";
-        }
-
-        static bool SourceFileExists(string gamePath, string filePath)
-        {
-
-            if (File.Exists(Path.Combine(gamePath, filePath)))
-                return true;
-
-            var subDirs = sourceDirectories;
-            foreach (string subDir in subDirs)
-            {
-                if (File.Exists(Path.Combine(subDir, filePath)))
-                    return true;
-            }
-
-            return false;
         }
 
         private static List<string> sourceDirectories = new List<string>();
@@ -241,63 +201,5 @@ namespace BSPPack
         }
 
 
-        static List<string> GetContentFromVMF()
-        {
-            var vmfLines = File.ReadAllLines(vmfPath);
-
-            var contentLines = vmfLines.Where(l => vmfAllKeys.Any(l.Contains));
-
-
-            var contentFiles = new List<string>();
-
-            foreach (string line in contentLines)
-            {
-                string path = DeterminePath(GetKey(line), GetValue(line));
-                if (SourceFileExists(gameFolder, path))
-                    contentFiles.Add(GetSourceFile(gameFolder, path));
-            }
-
-            return contentFiles.Distinct().ToList();
-
-        }
-
-        static string DeterminePath(string key, string value)
-        {
-            string contentPath = "";
-
-            if (vmfModelKeys.Contains(key))
-                contentPath = value;
-
-            if (vmfMaterialKeys.Contains(key))
-                contentPath = Path.Combine("materials", value) + ".vmt";
-
-            if (vmfSoundKeys.Contains(key))
-                contentPath = Path.Combine("sound", value);
-
-
-            return contentPath;
-        }
-
-
-        static string GetValue(string line)
-        {
-            return line.Split(' ').Last().Replace("\"", "").Trim();
-        }
-
-        static string GetKey(string line)
-        {
-            return line.Split(' ').First().Replace("\"", "").Trim();
-        }
-
-        static bool IsValidFilename(string testName)
-        {
-            Regex containsABadCharacter = new Regex("["
-                  + Regex.Escape(new string(System.IO.Path.GetInvalidPathChars())) + "]");
-            if (containsABadCharacter.IsMatch(testName)) { return false; };
-
-            // other checks for UNC, drive-path format, etc
-
-            return true;
-        }
     }
 }
