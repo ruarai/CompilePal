@@ -143,9 +143,14 @@ namespace BSPPack
 
             EntTextureList = new List<string>();
             foreach (Dictionary<string, string> ent in entityList)
+            {
                 foreach (KeyValuePair<string, string> prop in ent)
                     if (Keys.vmfMaterialKeys.Contains(prop.Key))
                         EntTextureList.Add(prop.Value);
+
+                if (ent["classname"].Contains("sprite") && ent.ContainsKey("model"))
+                    EntTextureList.Add("materials/" + ent["model"]);
+            }
         }
 
         public void buildModelList()
@@ -215,6 +220,7 @@ namespace BSPPack
                 foreach (KeyValuePair<string, string> prop in ent)
                     if (!ent["classname"].StartsWith("func") &&
                         !ent["classname"].StartsWith("trigger") &&
+                        !ent["classname"].Contains("sprite") &&
                         Keys.vmfModelKeys.Contains(prop.Key))
                             EntModelList.Add(prop.Value);
         }
