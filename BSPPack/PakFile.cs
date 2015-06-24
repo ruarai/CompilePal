@@ -18,10 +18,17 @@ namespace BSPPack
 
         private List<string> sourceDirs;
 
+        public int mdlcount { get; private set; }
+        public int vmtcount { get; private set; }
+        public int pcfcount { get; private set; }
+        public int sndcount { get; private set; }
+
         public PakFile(BSP bsp, List<string> sourceDirectories)
         {
-            Files = new Dictionary<string, string>();
+            mdlcount = vmtcount = pcfcount = sndcount = 0;
             sourceDirs = sourceDirectories;
+            
+            Files = new Dictionary<string, string>();
 
             if (bsp.nav.Key != default(string))
                 Files.Add(bsp.nav);
@@ -40,14 +47,16 @@ namespace BSPPack
             {
                 Files.Add(bsp.soundscape);
                 foreach (string sound in AssetUtils.findSoundscapeSounds(bsp.soundscape.Value))
-                    AddFile(sound, FindExternalFile(sound));
+                    if (AddFile(sound, FindExternalFile(sound)))
+                        sndcount++;
             }
             
             if (bsp.soundscript.Key != default(string))
             {
                 Files.Add(bsp.soundscape);
                 foreach (string sound in AssetUtils.findSoundscapeSounds(bsp.soundscript.Value))
-                    AddFile(sound, FindExternalFile(sound));
+                    if (AddFile(sound, FindExternalFile(sound)))
+                        sndcount++;
             }
 
             // find color correction files
@@ -64,7 +73,8 @@ namespace BSPPack
             foreach (string vmt in bsp.EntTextureList)
                 AddTexture(vmt);
             foreach (string sound in bsp.EntSoundList)
-                AddFile(sound, FindExternalFile(sound));
+                if (AddFile(sound, FindExternalFile(sound)))
+                    sndcount++;
         }
 
         public void OutputToFile()
@@ -103,6 +113,7 @@ namespace BSPPack
             string externalPath = FindExternalFile(internalPath);
             if (AddFile(internalPath, externalPath))
             {
+                mdlcount++;
                 foreach (string reference in AssetUtils.findMdlRefs(externalPath))
                     AddFile(internalPath, FindExternalFile(reference));
                     
@@ -117,6 +128,7 @@ namespace BSPPack
             string externalPath = FindExternalFile(internalPath);
             if (AddFile(internalPath, externalPath))
             {
+                vmtcount++;
                 foreach (string vtf in AssetUtils.findVmtTextures(externalPath))
                     AddFile(vtf, FindExternalFile(vtf));
                 foreach (string vmt in AssetUtils.findVmtMaterials(externalPath))
@@ -130,6 +142,7 @@ namespace BSPPack
             string externalPath = FindExternalFile(internalPath);
             if (AddFile(internalPath, externalPath))
             {
+                pcfcount++;
                 foreach (string mat in AssetUtils.findPcfMaterials(externalPath))
                     AddTexture(mat);
             }

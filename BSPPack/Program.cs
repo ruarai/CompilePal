@@ -9,11 +9,11 @@ namespace BSPPack
 {
     static class Keys
     {
-        public static List<string> vmfSoundKeys;// = File.ReadAllLines(Path.Combine("..//..//..//Keys//", "vmfsoundkeys.txt")).ToList();
-        public static List<string> vmfModelKeys;// = File.ReadAllLines(Path.Combine("..//..//..//Keys//", "vmfmodelkeys.txt")).ToList();
-        public static List<string> vmfMaterialKeys;// = File.ReadAllLines(Path.Combine("..//..//..//Keys//", "vmfmaterialkeys.txt")).ToList();
-        public static List<string> vmtTextureKeyWords;// = File.ReadAllLines(Path.Combine("..//..//..//Keys//", "texturekeys.txt")).ToList();
-        public static List<string> vmtMaterialKeyWords;// = File.ReadAllLines(Path.Combine("..//..//..//Keys//", "materialkeys.txt")).ToList();
+        public static List<string> vmfSoundKeys;
+        public static List<string> vmfModelKeys;
+        public static List<string> vmfMaterialKeys;
+        public static List<string> vmtTextureKeyWords;
+        public static List<string> vmtMaterialKeyWords;
     }
 
     class Program
@@ -23,8 +23,6 @@ namespace BSPPack
         private static string bspPath;
         private static string vmfPath;
         private static string keysFolder;
-
-        private PakFile pakfile;
 
         static void Main(string[] args)
         {
@@ -77,8 +75,6 @@ namespace BSPPack
 
                     Console.WriteLine("Reading BSP...");
                     BSP map = new BSP(new FileInfo(bspPath));
-
-                    Console.WriteLine("Searching complementary files...");
                     AssetUtils.findBspUtilityFiles(map, sourceDirectories);
 
                     Console.WriteLine("Initializing pak file...");
@@ -88,11 +84,21 @@ namespace BSPPack
                     pakfile.OutputToFile();
 
                     Console.WriteLine("Running bspzip...");
-
                     PackBSP();
 
                     Console.WriteLine("Finished packing!");
 
+                    Console.WriteLine("---------------------");
+                    Console.WriteLine(pakfile.vmtcount + " materials added");
+                    Console.WriteLine(pakfile.mdlcount + " models added");
+                    Console.WriteLine(pakfile.pcfcount + " particle files added");
+                    Console.WriteLine(pakfile.sndcount + " sounds added");
+                    Console.WriteLine("Nav file: " + (map.nav.Key != default(string) ? "yes" : "no"));
+                    Console.WriteLine("Soundscape: " + (map.soundscape.Key != default(string) ? "yes" : "no"));
+                    Console.WriteLine("Soundscript: " + (map.soundscript.Key != default(string) ? "yes" : "no"));
+                    Console.WriteLine("Detail File: " + (map.detail.Key != default(string) ? "yes" : "no"));
+                    Console.WriteLine("Particle Manifest: " + (map.particleManifest.Key != default(string) ? "yes" : "no"));
+                    Console.WriteLine("---------------------");
 
                 }
                 else
