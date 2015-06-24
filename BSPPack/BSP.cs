@@ -125,6 +125,11 @@ namespace BSPPack
                     TextureList.Add("water/" + filename.TrimEnd('_'));
                 }
             }
+
+            // find skybox materials
+            Dictionary<string, string> worldspawn = entityList.First(item => item["classname"] == "worldspawn");
+            foreach (string s in new string[]{"bk","dn","ft","lf","rt","up"})
+                TextureList.Add("materials/skybox/" + worldspawn["skyname"] + s + ".vmt");
         }
 
         public void buildEntTextureList()
