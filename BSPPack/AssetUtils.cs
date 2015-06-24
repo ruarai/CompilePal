@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System    ;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -170,7 +170,95 @@ namespace BSPPack
             return audioFiles;
         }
 
-        public static List<string> findPcfMaterials(string path) { return new List<string>(); }
+        public static List<string> findPcfMaterials(string path)
+        {
+            // holy mess batman
+
+            List<string> materials = new List<string>();
+
+            if (File.Exists(path))
+            {
+
+                FileStream pcf = new FileStream(path, FileMode.Open);
+                BinaryReader reader = new BinaryReader(pcf);
+
+                // read pcf strings
+                pcf.Seek(45, SeekOrigin.Begin);
+
+                uint nbstring = reader.ReadUInt16();
+                string[] pcfStrings = new string[nbstring];
+                for (int i = 0; i < nbstring; i++)
+                {
+                    List<byte> byteString = new List<byte>();
+                    byte b;
+                    do
+                    {
+                        b = reader.ReadByte();
+                        if (b != '\0')
+                            byteString.Add(b);
+                    } while (b != '\0');
+                    pcfStrings[i] = Encoding.ASCII.GetString(byteString.ToArray());
+                }
+
+                // skipping over pcf elements
+                int nbElements = reader.ReadInt32();
+                for (int i = 0; i < nbElements; i++)
+                {
+                    pcf.Seek(2, SeekOrigin.Current);
+                    byte b;
+                    do { b = reader.ReadByte(); } while (b != '\0');
+                    pcf.Seek(16, SeekOrigin.Current);
+                }
+
+                // read element data
+                for (int e = 0; e < nbElements; e++)
+                {
+                    int nbElemAtribs = reader.ReadInt32();
+                    for (int p = 0; p < nbElemAtribs; p++)
+                    {
+                        int typeid = reader.ReadInt16();
+                        int attributeType = reader.ReadByte();
+                        int count = (attributeType > 14) ? reader.ReadInt32() : 1;
+                        attributeType = (attributeType > 14) ? attributeType - 14 : attributeType;
+
+                        int[] typelength = { 0, 4, 4, 4, 1, 1, 4, 4, 4, 8, 12, 16, 12, 16, 64 };
+                        
+                        switch (attributeType)
+                        {
+                            case 5:
+                                List<byte> byteString = new List<byte>();
+                                byte b;
+                                do
+                                {
+                                    b = reader.ReadByte();
+                                    byteString.Add(b);
+                                } while (b != '\0');
+                                string attributeValue = Encoding.ASCII.GetString(byteString.ToArray()).Trim('\0');
+
+                                if (pcfStrings[typeid] == "material")
+                                    materials.Add("materials/" + attributeValue);
+                                break;
+
+                            case 6:
+                                for (int i = 0; i < count; i++)
+                                {
+                                    uint len = reader.ReadUInt32();
+                                    pcf.Seek(len, SeekOrigin.Current);
+                                }
+                                break;
+
+                            default:
+                                pcf.Seek(typelength[attributeType] * count, SeekOrigin.Current);
+                                break;
+                        }
+
+                    }
+
+                }
+                pcf.Close();
+            }
+            return materials;
+        }
 
         public static List<string> findManifestPcfs(string fullpath) {
             // finds pcf files from the manifest file

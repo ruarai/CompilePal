@@ -130,7 +130,7 @@ namespace BSPPack
             foreach (string s in new string[]{"bk","dn","ft","lf","rt","up"})
                 TextureList.Add("materials/skybox/" + worldspawn["skyname"] + s + ".vmt");
 
-            // find detail files
+            // find detail materials
             TextureList.Add("materials/" + worldspawn["detailmaterial"] + ".vmt");
 
             // find menu photos
