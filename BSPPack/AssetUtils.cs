@@ -192,9 +192,9 @@ namespace BSPPack
             // those are manifests, soundscapes, nav and detail files
 
             // Particles manifest
+            string internalPath = "particles/" + bsp.file.Name.Replace(".bsp", "_manifest.txt");
             foreach (string source in sourceDirectories)
             {
-                string internalPath = "particles/" + bsp.file.Name.Replace(".bsp", "_manifest.txt");
                 string externalPath = source + "/" + internalPath;
 
                 if (File.Exists(externalPath))
@@ -214,9 +214,9 @@ namespace BSPPack
             }
 
             // Soundscape file
+            internalPath = "scripts/soundscapes_" + bsp.file.Name.Replace(".bsp", ".txt");
             foreach (string source in sourceDirectories)
             {
-                string internalPath = "scripts/soundscapes_" + bsp.file.Name.Replace(".bsp", ".txt");
                 string externalPath = source +"/"+ internalPath;
 
                 if (File.Exists(externalPath))
@@ -227,9 +227,9 @@ namespace BSPPack
             }
 
             // Nav file (.nav)
+            internalPath = "maps/" + bsp.file.Name.Replace(".bsp", ".nav");
             foreach (string source in sourceDirectories)
             {
-                string internalPath = "maps/" + bsp.file.Name.Replace(".bsp", ".nav");
                 string externalPath = source + "/" + internalPath;
 
                 if (File.Exists(externalPath))
@@ -239,11 +239,18 @@ namespace BSPPack
                 }
             }
 
-            // todo: detail file (.vbsp)
+            // detail file (.vbsp)
+            internalPath = bsp.entityList.First(item => item["classname"] == "worldspawn")["detailvbsp"];
+            foreach (string source in sourceDirectories)
+            {
+                string externalPath = source + "/" + internalPath;
 
-            // maybe can be read form bsp directly?
-            // bsp.detail = ??
-
+                if (File.Exists(externalPath))
+                {
+                    bsp.detail = new KeyValuePair<string, string>(internalPath, externalPath);
+                    break;
+                }
+            }
         }
     }
 }

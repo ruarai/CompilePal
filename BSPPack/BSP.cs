@@ -19,7 +19,7 @@ namespace BSPPack
         private BinaryReader reader;
         private KeyValuePair<int, int>[] offsets; // offset/length
 
-        private List<Dictionary<string, string>> entityList = new List<Dictionary<string,string>>();
+        public List<Dictionary<string, string>> entityList { get; private set; }
         
         private List<int>[] modelSkinList;
 
@@ -67,36 +67,35 @@ namespace BSPPack
 
         public void buildEntityList()
         {
-            if (entityList.Count == 0)
+            entityList = new List<Dictionary<string, string>>();
+            
+            bsp.Seek(offsets[0].Key, SeekOrigin.Begin);
+            byte[] ent = reader.ReadBytes(offsets[0].Value);
+            List<byte> ents = new List<byte>();
+
+            for (int i = 0; i < ent.Length; i++)
             {
-                bsp.Seek(offsets[0].Key, SeekOrigin.Begin);
-                byte[] ent = reader.ReadBytes(offsets[0].Value);
-                List<byte> ents = new List<byte>();
+                if (ent[i] != 123 && ent[i] != 125)
+                    ents.Add(ent[i]);
 
-                for (int i = 0; i < ent.Length; i++)
+                else if (ent[i] == 125)
                 {
-                    if (ent[i] != 123 && ent[i] != 125)
-                        ents.Add(ent[i]);
-
-                    else if (ent[i] == 125)
+                    string rawent = Encoding.ASCII.GetString(ents.ToArray());
+                    Dictionary<string, string> entity = new Dictionary<string, string>();
+                    foreach (string s in rawent.Split('\n'))
                     {
-                        string rawent = Encoding.ASCII.GetString(ents.ToArray());
-                        Dictionary<string, string> entity = new Dictionary<string, string>();
-                        foreach (string s in rawent.Split('\n'))
+                        if (s.Count() != 0)
                         {
-                            if (s.Count() != 0)
-                            {
-                                string[] c = s.Split('"');
-                                entity.Add(c[1], c[3]);
+                            string[] c = s.Split('"');
+                            entity.Add(c[1], c[3]);
 
-                                //everything after the hammerid is input/outputs
-                                if (c[1] == "hammerid")
-                                    break;
-                            }
+                            //everything after the hammerid is input/outputs
+                            if (c[1] == "hammerid")
+                                break;
                         }
-                        entityList.Add(entity);
-                        ents = new List<byte>();
                     }
+                    entityList.Add(entity);
+                    ents = new List<byte>();
                 }
             }
         }
@@ -130,6 +129,12 @@ namespace BSPPack
             Dictionary<string, string> worldspawn = entityList.First(item => item["classname"] == "worldspawn");
             foreach (string s in new string[]{"bk","dn","ft","lf","rt","up"})
                 TextureList.Add("materials/skybox/" + worldspawn["skyname"] + s + ".vmt");
+
+            // find detail files
+            TextureList.Add("materials/" + worldspawn["detailmaterial"] + ".vmt");
+
+            // find menu photos
+            TextureList.Add("materials/vgui/maps/menu_photos_" + mapname + ".vmt");
         }
 
         public void buildEntTextureList()

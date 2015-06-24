@@ -26,6 +26,9 @@ namespace BSPPack
             if (bsp.nav.Key != default(string))
                 Files.Add(bsp.nav);
 
+            if (bsp.detail.Key != default(string))
+                Files.Add(bsp.detail);
+
             if (bsp.particleManifest.Key != default(string))
             {
                 Files.Add(bsp.particleManifest);
@@ -40,11 +43,10 @@ namespace BSPPack
                     AddFile(sound, FindExternalFile(sound));
             }
 
-            if (bsp.detail.Key != default(string))
-            {
-                Files.Add(bsp.detail);
-                // todo parse detail files
-            }
+            // find color correction files
+            foreach (Dictionary<string, string> cc in bsp.entityList.Where(item => item["classname"] == "color_correction"))
+                AddFile(cc["filename"], FindExternalFile(cc["filename"]));
+
 
             foreach (string model in bsp.ModelList)
                 AddModel(model);
