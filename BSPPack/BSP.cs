@@ -33,6 +33,7 @@ namespace BSPPack
 
         // key/values as internalPath/externalPath
         public KeyValuePair<string, string> particleManifest { get; set; }
+        public KeyValuePair<string, string> soundscript { get; set; }
         public KeyValuePair<string, string> soundscape { get; set; }
         public KeyValuePair<string, string> detail {get; set; }
         public KeyValuePair<string, string> nav {get; set; }

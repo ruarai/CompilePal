@@ -161,11 +161,9 @@ namespace BSPPack
             List<string> audioFiles = new List<string>();
             foreach (string line in File.ReadAllLines(fullpath))
             {
-                if (line.ToLower().Contains("\"wave\""))
-                {
-                    string[] l = line.Split('"');
-                    audioFiles.Add("sounds/" + l[l.Count() - 2]);
-                }
+                string param = line.Replace("\"", " ").Replace("\t", " ").Trim();
+                if (param.ToLower().Contains("\"wave\""))
+                    audioFiles.Add(param.Split(new char[] { ' ' }, 2)[1].Trim(' ', ')', '('));
             }
             return audioFiles;
         }
@@ -310,6 +308,19 @@ namespace BSPPack
                 if (File.Exists(externalPath))
                 {
                     bsp.soundscape = new KeyValuePair<string, string>(internalPath, externalPath);
+                    break;
+                }
+            }
+
+            // Soundscript file
+            internalPath = "maps/" + bsp.file.Name.Replace(".bsp", "") + "_level_sounds.txt";
+            foreach (string source in sourceDirectories)
+            {
+                string externalPath = source + "/" + internalPath;
+
+                if (File.Exists(externalPath))
+                {
+                    bsp.soundscript = new KeyValuePair<string, string>(internalPath, externalPath);
                     break;
                 }
             }

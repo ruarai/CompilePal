@@ -42,6 +42,13 @@ namespace BSPPack
                 foreach (string sound in AssetUtils.findSoundscapeSounds(bsp.soundscape.Value))
                     AddFile(sound, FindExternalFile(sound));
             }
+            
+            if (bsp.soundscript.Key != default(string))
+            {
+                Files.Add(bsp.soundscape);
+                foreach (string sound in AssetUtils.findSoundscapeSounds(bsp.soundscript.Value))
+                    AddFile(sound, FindExternalFile(sound));
+            }
 
             // find color correction files
             foreach (Dictionary<string, string> cc in bsp.entityList.Where(item => item["classname"] == "color_correction"))
