@@ -45,14 +45,7 @@ namespace BSPPack
                     int textureNameOffset = reader.ReadInt32();
 
                     mdl.Seek(textureOffset + (i * 64) + textureNameOffset, SeekOrigin.Begin);
-                    List<byte> byteString= new List<byte>();
-                    byte b;
-                    do
-                    {
-                        b = reader.ReadByte();
-                        byteString.Add(b);
-                    } while (b != '\0');
-                    modelVmts.Add(Encoding.ASCII.GetString(byteString.ToArray()).Trim('\0'));
+                    modelVmts.Add(readNullTerminatedString(mdl, reader));
                 }
 
                 // find model dirs
@@ -62,14 +55,7 @@ namespace BSPPack
                     mdl.Seek(textureDirOffset + (4 * i), SeekOrigin.Begin);
                     int offset = reader.ReadInt32();
                     mdl.Seek(offset, SeekOrigin.Begin);
-                    List<byte> byteString = new List<byte>();
-                    byte b;
-                    do
-                    {
-                        b = reader.ReadByte();
-                        byteString.Add(b);
-                    } while (b != '\0');
-                    modelDirs.Add(Encoding.ASCII.GetString(byteString.ToArray()).Trim('\0'));
+                    modelDirs.Add(readNullTerminatedString(mdl, reader));
                 }
 
                 // warning: reading the skin table in mdl is really freaking dodgy.
@@ -170,15 +156,21 @@ namespace BSPPack
 
         public static List<string> findPcfMaterials(string path)
         {
-            // holy mess batman
-
             List<string> materials = new List<string>();
 
             if (File.Exists(path))
             {
-
                 FileStream pcf = new FileStream(path, FileMode.Open);
                 BinaryReader reader = new BinaryReader(pcf);
+
+                string ver = readNullTerminatedString(pcf, reader);
+
+                if (!ver.Equals("<!-- dmx encoding binary 2 format pcf 1 -->\n"))
+                {
+                    Console.WriteLine("Warning: Pcf File not supported,\n" + 
+                    "\t custom materials will not be added if used");
+                    return materials;
+                }
 
                 // read pcf strings
                 pcf.Seek(45, SeekOrigin.Begin);
@@ -186,25 +178,14 @@ namespace BSPPack
                 uint nbstring = reader.ReadUInt16();
                 string[] pcfStrings = new string[nbstring];
                 for (int i = 0; i < nbstring; i++)
-                {
-                    List<byte> byteString = new List<byte>();
-                    byte b;
-                    do
-                    {
-                        b = reader.ReadByte();
-                        if (b != '\0')
-                            byteString.Add(b);
-                    } while (b != '\0');
-                    pcfStrings[i] = Encoding.ASCII.GetString(byteString.ToArray());
-                }
+                    pcfStrings[i] = readNullTerminatedString(pcf, reader);
 
                 // skipping over pcf elements
                 int nbElements = reader.ReadInt32();
                 for (int i = 0; i < nbElements; i++)
                 {
                     pcf.Seek(2, SeekOrigin.Current);
-                    byte b;
-                    do { b = reader.ReadByte(); } while (b != '\0');
+                    readNullTerminatedString(pcf, reader);
                     pcf.Seek(16, SeekOrigin.Current);
                 }
 
@@ -224,15 +205,7 @@ namespace BSPPack
                         switch (attributeType)
                         {
                             case 5:
-                                List<byte> byteString = new List<byte>();
-                                byte b;
-                                do
-                                {
-                                    b = reader.ReadByte();
-                                    byteString.Add(b);
-                                } while (b != '\0');
-                                string attributeValue = Encoding.ASCII.GetString(byteString.ToArray()).Trim('\0');
-
+                                string attributeValue = readNullTerminatedString(pcf, reader);
                                 if (pcfStrings[typeid] == "material")
                                     materials.Add("materials/" + attributeValue);
                                 break;
@@ -350,6 +323,18 @@ namespace BSPPack
                     break;
                 }
             }
+        }
+
+        private static string readNullTerminatedString(FileStream fs, BinaryReader reader){
+            List<byte> verString = new List<byte>();
+            byte v;
+            do
+            {
+                v = reader.ReadByte();
+                verString.Add(v);
+            } while (v != '\0');
+
+            return Encoding.ASCII.GetString(verString.ToArray()).Trim('\0');
         }
     }
 }
