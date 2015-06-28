@@ -3,7 +3,7 @@ Download
 
 https://github.com/ruarai/CompilePal/releases/latest
 
-![CompilePal](http://i.imgur.com/jPEig83.png)
+![CompilePal](http://i.imgur.com/D3usvmP.png)
 
 Compile Pal X is the official rewrite of Compile Pal - the amazing wrapper for the source map compiling tools that makes compiling a breeze.
 
