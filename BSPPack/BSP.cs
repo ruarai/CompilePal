@@ -20,7 +20,7 @@ namespace BSPPack
         private KeyValuePair<int, int>[] offsets; // offset/length
 
         public List<Dictionary<string, string>> entityList { get; private set; }
-        
+
         private List<int>[] modelSkinList;
 
         public List<string> ModelList { get; private set; }
@@ -35,8 +35,8 @@ namespace BSPPack
         public KeyValuePair<string, string> particleManifest { get; set; }
         public KeyValuePair<string, string> soundscript { get; set; }
         public KeyValuePair<string, string> soundscape { get; set; }
-        public KeyValuePair<string, string> detail {get; set; }
-        public KeyValuePair<string, string> nav {get; set; }
+        public KeyValuePair<string, string> detail { get; set; }
+        public KeyValuePair<string, string> nav { get; set; }
 
         public FileInfo file { get; private set; }
 
@@ -69,7 +69,7 @@ namespace BSPPack
         public void buildEntityList()
         {
             entityList = new List<Dictionary<string, string>>();
-            
+
             bsp.Seek(offsets[0].Key, SeekOrigin.Begin);
             byte[] ent = reader.ReadBytes(offsets[0].Value);
             List<byte> ents = new List<byte>();
@@ -115,7 +115,8 @@ namespace BSPPack
                 TextureList[i] = "materials/" + TextureList[i] + ".vmt";
 
                 // in the special case where we are dealing with water materials
-                if (TextureList[i].StartsWith("materials/maps/"+mapname+"/water/")){
+                if (TextureList[i].StartsWith("materials/maps/" + mapname + "/water/"))
+                {
                     string[] nameparts = TextureList[i].Split('/').Last().Split('_');
                     string filename = "";
                     for (int j = 0; j < nameparts.Count() - 3; j++)
@@ -128,7 +129,7 @@ namespace BSPPack
 
             // find skybox materials
             Dictionary<string, string> worldspawn = entityList.First(item => item["classname"] == "worldspawn");
-            foreach (string s in new string[]{"bk","dn","ft","lf","rt","up"})
+            foreach (string s in new string[] { "bk", "dn", "ft", "lf", "rt", "up" })
                 TextureList.Add("materials/skybox/" + worldspawn["skyname"] + s + ".vmt");
 
             // find detail materials
@@ -190,6 +191,11 @@ namespace BSPPack
             // reading staticprop lump
                 
             int propCount = reader.ReadInt32();
+
+            //dont bother if there's no props, avoid a dividebyzero exception.
+            if (propCount <= 0)
+                return;
+
             long propOffset = bsp.Position;
             int byteLength = GameLumpOffsets[1].Key - (int)propOffset;
             int propLength = byteLength / propCount;
@@ -223,7 +229,7 @@ namespace BSPPack
                         !ent["classname"].StartsWith("trigger") &&
                         !ent["classname"].Contains("sprite") &&
                         Keys.vmfModelKeys.Contains(prop.Key))
-                            EntModelList.Add(prop.Value);
+                        EntModelList.Add(prop.Value);
         }
 
         public void buildEntSoundList()
@@ -234,7 +240,7 @@ namespace BSPPack
             foreach (Dictionary<string, string> ent in entityList)
                 foreach (KeyValuePair<string, string> prop in ent)
                     if (Keys.vmfSoundKeys.Contains(prop.Key))
-                        EntSoundList.Add("sound/"+ prop.Value);
+                        EntSoundList.Add("sound/" + prop.Value);
         }
     }
 }
