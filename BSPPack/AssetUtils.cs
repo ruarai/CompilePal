@@ -1,8 +1,9 @@
-﻿using System    ;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace BSPPack
@@ -154,9 +155,12 @@ namespace BSPPack
             List<string> audioFiles = new List<string>();
             foreach (string line in File.ReadAllLines(fullpath))
             {
-                string param = line.Replace("\"", " ").Replace("\t", " ").Trim();
-                if (param.ToLower().Contains("\"wave\""))
-                    audioFiles.Add(param.Split(new char[] { ' ' }, 2)[1].Trim(' ', ')', '('));
+                string param = Regex.Replace(line, "[\t|\"]", " ").Trim();
+                if (param.ToLower().StartsWith("wave"))
+                {
+                    string clip = param.Split(new char[]{' '}, 2)[1].Trim(' ', ')', '(');
+                    audioFiles.Add("sound/" + clip);
+                }
             }
             return audioFiles;
         }
