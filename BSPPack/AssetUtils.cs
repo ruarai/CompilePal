@@ -261,30 +261,8 @@ namespace BSPPack
             // Utility files are other files that are not assets
             // those are manifests, soundscapes, nav and detail files
 
-            // Particles manifest
-            string internalPath = "particles/" + bsp.file.Name.Replace(".bsp", "_manifest.txt");
-            foreach (string source in sourceDirectories)
-            {
-                string externalPath = source + "/" + internalPath;
-
-                if (File.Exists(externalPath))
-                {
-                    bsp.particleManifest = new KeyValuePair<string, string>(internalPath, externalPath);
-                    break;
-                }
-
-                internalPath = "maps/" + bsp.file.Name.Replace(".bsp", "_particles.txt");
-                externalPath = source + "/" + internalPath;
-
-                if (File.Exists(externalPath))
-                {
-                    bsp.particleManifest = new KeyValuePair<string, string>(internalPath, externalPath);
-                    break;
-                }
-            }
-
             // Soundscape file
-            internalPath = "scripts/soundscapes_" + bsp.file.Name.Replace(".bsp", ".txt");
+            string internalPath = "scripts/soundscapes_" + bsp.file.Name.Replace(".bsp", ".txt");
             foreach (string source in sourceDirectories)
             {
                 string externalPath = source +"/"+ internalPath;
@@ -334,6 +312,32 @@ namespace BSPPack
                     break;
                 }
             }
+
+            // language files, particle manifests and soundscript file
+            // (these language files are localized text files for tf2 mission briefings)
+            string internalDir = "maps/";
+            string name = bsp.file.Name.Replace(".bsp", "");
+            string searchPattern = name + "*.txt";
+            List<KeyValuePair<string, string>> langfiles = new List<KeyValuePair<string,string>>();
+            
+            foreach (string source in sourceDirectories)
+            {
+                string externalDir = source + "/" + internalDir;
+                DirectoryInfo dir = new DirectoryInfo(externalDir);
+                
+                if (dir.Exists)
+                    foreach (FileInfo f in dir.GetFiles(searchPattern))
+                        // particle files
+                        if (f.Name.StartsWith(name + "_particles") || f.Name.StartsWith(name + "_manifest"))
+                            bsp.particleManifest = new KeyValuePair<string, string>(internalDir + f.Name, externalDir + f.Name);
+                        // soundscript
+                        else if (f.Name.StartsWith(name + "_level_sounds"))
+                            bsp.soundscript = new KeyValuePair<string, string>(internalDir + f.Name, externalDir + f.Name);
+                        // presumably language files
+                        else
+                            langfiles.Add(new KeyValuePair<string, string>(internalDir + f.Name, externalDir + f.Name));
+            }
+            bsp.languages = langfiles;
         }
 
         private static string readNullTerminatedString(FileStream fs, BinaryReader reader){

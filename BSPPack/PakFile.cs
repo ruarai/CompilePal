@@ -63,7 +63,8 @@ namespace BSPPack
             foreach (Dictionary<string, string> cc in bsp.entityList.Where(item => item["classname"] == "color_correction"))
                 AddFile(cc["filename"], FindExternalFile(cc["filename"]));
 
-
+            foreach (KeyValuePair<string, string> lang in bsp.languages)
+                AddFile(lang.Key, lang.Value);
             foreach (string model in bsp.ModelList)
                 AddModel(model);
             foreach (string model in bsp.EntModelList)
