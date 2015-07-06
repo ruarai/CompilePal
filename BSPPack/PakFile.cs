@@ -53,7 +53,7 @@ namespace BSPPack
             
             if (bsp.soundscript.Key != default(string))
             {
-                Files.Add(bsp.soundscape);
+                Files.Add(bsp.soundscript);
                 foreach (string sound in AssetUtils.findSoundscapeSounds(bsp.soundscript.Value))
                     if (AddFile(sound, FindExternalFile(sound)))
                         sndcount++;
