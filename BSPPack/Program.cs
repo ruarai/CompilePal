@@ -21,7 +21,6 @@ namespace BSPPack
         private static string bspZip;
         private static string gameFolder;
         private static string bspPath;
-        private static string vmfPath;
         private static string keysFolder;
 
         static void Main(string[] args)
@@ -43,12 +42,6 @@ namespace BSPPack
                         bspPath = args[i];
                     }
 
-                    if (args[i] == "-vmf")
-                    {
-                        i++;
-                        vmfPath = args[i];
-                    }
-
                     if (args[i] == "-bspZip")
                     {
                         i++;
@@ -61,7 +54,7 @@ namespace BSPPack
                         keysFolder = args[i];
                     }
                 }
-                if (gameFolder != null && bspPath != null && vmfPath != null && bspZip != null && keysFolder != null)
+                if (gameFolder != null && bspPath != null && bspZip != null && keysFolder != null)
                 {
 
                     Keys.vmtTextureKeyWords = File.ReadAllLines(Path.Combine(keysFolder, "texturekeys.txt")).ToList();
