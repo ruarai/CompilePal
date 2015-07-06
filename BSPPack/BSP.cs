@@ -147,7 +147,7 @@ namespace BSPPack
             foreach (Dictionary<string, string> ent in entityList)
             {
                 foreach (KeyValuePair<string, string> prop in ent)
-                    if (Keys.vmfMaterialKeys.Contains(prop.Key))
+                    if (Keys.vmfMaterialKeys.Contains(prop.Key.ToLower()))
                         EntTextureList.Add(prop.Value);
 
                 if (ent["classname"].Contains("sprite") && ent.ContainsKey("model"))
