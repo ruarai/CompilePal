@@ -65,10 +65,10 @@ namespace BSPPack
 
             foreach (KeyValuePair<string, string> lang in bsp.languages)
                 AddFile(lang.Key, lang.Value);
-            foreach (string model in bsp.ModelList)
-                AddModel(model);
             foreach (string model in bsp.EntModelList)
                 AddModel(model);
+            for (int i = 0; i < bsp.ModelList.Count; i++)
+                AddModel(bsp.ModelList[i], bsp.modelSkinList[i]);
             foreach (string vmt in bsp.TextureList)
                 AddTexture(vmt);
             foreach (string vmt in bsp.EntTextureList)
@@ -108,17 +108,17 @@ namespace BSPPack
             return false;
         }
 
-        public void AddModel(string internalPath)
+        public void AddModel(string internalPath, List<int> skins = null)
         {
             // adds mdl files and finds its dependencies
             string externalPath = FindExternalFile(internalPath);
             if (AddFile(internalPath, externalPath))
             {
                 mdlcount++;
-                foreach (string reference in AssetUtils.findMdlRefs(externalPath))
-                    AddFile(internalPath, FindExternalFile(reference));
+                foreach (string reference in AssetUtils.findMdlRefs(internalPath))
+                    AddFile(reference, FindExternalFile(reference));
                     
-                foreach (string mat in AssetUtils.findMdlMaterials(externalPath))
+                foreach (string mat in AssetUtils.findMdlMaterials(externalPath, skins))
                     AddTexture(mat);
             }
         }

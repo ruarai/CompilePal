@@ -10,7 +10,8 @@ namespace BSPPack
 {
     static class AssetUtils
     {
-        public static List<string> findMdlMaterials(string path, int[] skin = null)
+
+        public static List<string> findMdlMaterials(string path, List<int> skins = null)
         {
             List<string> materials = new List<string>();
 
@@ -40,11 +41,12 @@ namespace BSPPack
                 int textureDirCount = reader.ReadInt32();
                 int textureDirOffset = reader.ReadInt32();
 
-                int	skinreferenceCount = reader.ReadInt32();
-	            int	skinrfamilyCount = reader.ReadInt32();
-	            int skinreferenceIndex = reader.ReadInt32();
+                int skinreferenceCount = reader.ReadInt32();
+                int skinrfamilyCount = reader.ReadInt32();
+                int skinreferenceIndex = reader.ReadInt32();
 
                 int bodypart_count = reader.ReadInt32();
+                int bodypart_index = reader.ReadInt32();
 
                 // find model names
                 for (int i = 0; i < textureCount; i++)
@@ -63,45 +65,78 @@ namespace BSPPack
                     mdl.Seek(textureDirOffset + (4 * i), SeekOrigin.Begin);
                     int offset = reader.ReadInt32();
                     mdl.Seek(offset, SeekOrigin.Begin);
-                    modelDirs.Add(readNullTerminatedString(mdl, reader));
+
+                    string model = readNullTerminatedString(mdl, reader);
+                    model = model.TrimStart(new char[] { '/', '\\' });
+                    modelDirs.Add(model);
                 }
 
-                // warning: reading the skin table in mdl is really freaking dodgy.
-                // all documentation is unreliable or incomplete so this code is 
-                // based on my own interpretation of the data.
-
-                // what needs to be known is that the skin table is larger than
-                // what actually gets used and is padded with bogus info, what
-                // follows is an attempt at filtering crap.
-
-                /*
-                Console.WriteLine("refcount " + skinreferenceCount); //width of which we only take an undefined amount?
-                Console.WriteLine("famcount " + skinrfamilyCount); //height 
-                Console.WriteLine("skinoffs " + skinreferenceIndex);
-                Console.WriteLine("bodyparts " + bodypart_count);
-
-                mdl.Seek(skinreferenceIndex, SeekOrigin.Begin);
-                int skintablesize = skinreferenceCount * skinrfamilyCount;
-                //variantMap
-                short[,] skintable = new short[skinrfamilyCount,skinreferenceCount];
-                for (int i = 0; i < skinrfamilyCount; i++)
-                    for (int j = 0; j < skinreferenceCount; j++)
-                        skintable[i, j] = reader.ReadInt16();
-
-                for (int i = 0; i < skinrfamilyCount; i++)
-                    for (int j = 0; j < skinreferenceCount; j++)
-                        Console.WriteLine(skintable[i, j]);
-                */
-
-                // build vmt paths
-                for (int i = 0; i < modelVmts.Count; i++)
+                if (skins != null)
                 {
-                    for (int j = 0; j < modelDirs.Count; j++)
+                    // load specific skins
+                    List<int> material_ids = new List<int>();
+
+                    for (int i = 0; i < bodypart_count; i++)
+                    // we are reading an array of mstudiobodyparts_t
                     {
-                        modelDirs[j] = modelDirs[j].TrimStart(new char[]{'/', '\\'});
-                        materials.Add("materials/" + modelDirs[j] + modelVmts[i] + ".vmt");
+                        mdl.Seek(bodypart_index + i * 32, SeekOrigin.Begin);
+
+                        mdl.Seek(4, SeekOrigin.Current);
+                        int nummodels = reader.ReadInt32();
+                        mdl.Seek(4, SeekOrigin.Current);
+                        int modelindex = reader.ReadInt32();
+
+                        for (int j = 0; j < nummodels; j++)
+                        // we are reading an array of mstudiomodel_t
+                        {
+                            mdl.Seek(bodypart_index + modelindex + j * 140, SeekOrigin.Begin);
+
+                            mdl.Seek(72, SeekOrigin.Current);
+                            int nummeshes = reader.ReadInt32();
+                            int meshindex = reader.ReadInt32();
+
+                            for (int k = 0; k < nummeshes; k++)
+                            // we are reading an array of mstudiomesh_t
+                            {
+                                mdl.Seek(bodypart_index + modelindex + meshindex + (k * 116), SeekOrigin.Begin);
+                                int mat_index = reader.ReadInt32();
+
+                                if (!material_ids.Contains(mat_index))
+                                    material_ids.Add(mat_index);
+                            }
+                        }
                     }
+
+                    // read the skintable
+                    mdl.Seek(skinreferenceIndex, SeekOrigin.Begin);
+                    short[,] skintable = new short[skinrfamilyCount, skinreferenceCount];
+                    for (int i = 0; i < skinrfamilyCount; i++)
+                    {
+                        for (int j = 0; j < skinreferenceCount; j++)
+                        {
+                            skintable[i, j] = reader.ReadInt16();
+                        }
+                    }
+
+                    // trim the larger than required skintable
+                    short[,] trimmedtable = new short[skinrfamilyCount, material_ids.Count];
+                    for (int i = 0; i < skinrfamilyCount; i++)
+                        for (int j = 0; j < material_ids.Count; j++)
+                            trimmedtable[i, j] = skintable[i, material_ids[j]];
+
+                    // used to trimmed table to fetch used vmts
+                    foreach (int skin in skins)
+                        for (int j = 0; j < trimmedtable.GetLength(1); j++)
+                        {
+                            short id = trimmedtable[skin, j];
+                            materials.Add("materials/" + modelDirs[j] + modelVmts[id] + ".vmt");
+                        }
                 }
+                else
+                    // load all vmts
+                    for (int i = 0; i < modelVmts.Count; i++)
+                        for (int j = 0; j < modelDirs.Count; j++)
+                            materials.Add("materials/" + modelDirs[j] + modelVmts[i] + ".vmt");
                 mdl.Close();
             }
             return materials;
@@ -114,6 +149,7 @@ namespace BSPPack
             foreach (string variation in variations)
             {
                 string variant = Path.ChangeExtension(path, variation);
+                //variant = variant.Replace('/', '\\');
                 references.Add(variant);
             }
             return references;
@@ -127,7 +163,7 @@ namespace BSPPack
             {
                 string param = line.Replace("\"", " ").Replace("\t"," ").Trim();
 
-                if (Keys.vmtTextureKeyWords.Any(key => param.StartsWith(key+" ")))
+                if (Keys.vmtTextureKeyWords.Any(key => param.ToLower().StartsWith(key+" ")))
                     vtfList.Add("materials/" +
                         param.Split(new char[] { ' ' }, 2)[1].Trim() +".vtf");
             }

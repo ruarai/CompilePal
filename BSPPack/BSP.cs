@@ -21,7 +21,7 @@ namespace BSPPack
 
         public List<Dictionary<string, string>> entityList { get; private set; }
 
-        private List<int>[] modelSkinList;
+        public List<int>[] modelSkinList { get; private set; }
 
         public List<string> ModelList { get; private set; }
         public List<string> EntModelList { get; private set; }
