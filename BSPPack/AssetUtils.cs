@@ -126,11 +126,12 @@ namespace BSPPack
 
                     // used to trimmed table to fetch used vmts
                     foreach (int skin in skins)
-                        for (int j = 0; j < trimmedtable.GetLength(1); j++)
-                        {
-                            short id = trimmedtable[skin, j];
-                            materials.Add("materials/" + modelDirs[j] + modelVmts[id] + ".vmt");
-                        }
+                        for (int j = 0; j < material_ids.Count; j++)
+                            for (int k = 0; k < modelDirs.Count; k++)
+                            {
+                                short id = trimmedtable[skin, j];
+                                materials.Add("materials/" + modelDirs[k] + modelVmts[id] + ".vmt");
+                            }
                 }
                 else
                     // load all vmts
