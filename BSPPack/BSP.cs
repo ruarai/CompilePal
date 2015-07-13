@@ -21,7 +21,7 @@ namespace BSPPack
 
         public List<Dictionary<string, string>> entityList { get; private set; }
 
-        private List<int>[] modelSkinList;
+        public List<int>[] modelSkinList { get; private set; }
 
         public List<string> ModelList { get; private set; }
         public List<string> EntModelList { get; private set; }
@@ -37,6 +37,7 @@ namespace BSPPack
         public KeyValuePair<string, string> soundscape { get; set; }
         public KeyValuePair<string, string> detail { get; set; }
         public KeyValuePair<string, string> nav { get; set; }
+        public List<KeyValuePair<string, string>> languages { get; set; }
 
         public FileInfo file { get; private set; }
 
@@ -147,7 +148,7 @@ namespace BSPPack
             foreach (Dictionary<string, string> ent in entityList)
             {
                 foreach (KeyValuePair<string, string> prop in ent)
-                    if (Keys.vmfMaterialKeys.Contains(prop.Key))
+                    if (Keys.vmfMaterialKeys.Contains(prop.Key.ToLower()))
                         EntTextureList.Add(prop.Value);
 
                 if (ent["classname"].Contains("sprite") && ent.ContainsKey("model"))

@@ -1,15 +1,17 @@
-﻿using System    ;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace BSPPack
 {
     static class AssetUtils
     {
-        public static List<string> findMdlMaterials(string path, int[] skin = null)
+
+        public static List<string> findMdlMaterials(string path, List<int> skins = null)
         {
             List<string> materials = new List<string>();
 
@@ -39,11 +41,12 @@ namespace BSPPack
                 int textureDirCount = reader.ReadInt32();
                 int textureDirOffset = reader.ReadInt32();
 
-                int	skinreferenceCount = reader.ReadInt32();
-	            int	skinrfamilyCount = reader.ReadInt32();
-	            int skinreferenceIndex = reader.ReadInt32();
+                int skinreferenceCount = reader.ReadInt32();
+                int skinrfamilyCount = reader.ReadInt32();
+                int skinreferenceIndex = reader.ReadInt32();
 
                 int bodypart_count = reader.ReadInt32();
+                int bodypart_index = reader.ReadInt32();
 
                 // find model names
                 for (int i = 0; i < textureCount; i++)
@@ -62,45 +65,79 @@ namespace BSPPack
                     mdl.Seek(textureDirOffset + (4 * i), SeekOrigin.Begin);
                     int offset = reader.ReadInt32();
                     mdl.Seek(offset, SeekOrigin.Begin);
-                    modelDirs.Add(readNullTerminatedString(mdl, reader));
+
+                    string model = readNullTerminatedString(mdl, reader);
+                    model = model.TrimStart(new char[] { '/', '\\' });
+                    modelDirs.Add(model);
                 }
 
-                // warning: reading the skin table in mdl is really freaking dodgy.
-                // all documentation is unreliable or incomplete so this code is 
-                // based on my own interpretation of the data.
-
-                // what needs to be known is that the skin table is larger than
-                // what actually gets used and is padded with bogus info, what
-                // follows is an attempt at filtering crap.
-
-                /*
-                Console.WriteLine("refcount " + skinreferenceCount); //width of which we only take an undefined amount?
-                Console.WriteLine("famcount " + skinrfamilyCount); //height 
-                Console.WriteLine("skinoffs " + skinreferenceIndex);
-                Console.WriteLine("bodyparts " + bodypart_count);
-
-                mdl.Seek(skinreferenceIndex, SeekOrigin.Begin);
-                int skintablesize = skinreferenceCount * skinrfamilyCount;
-                //variantMap
-                short[,] skintable = new short[skinrfamilyCount,skinreferenceCount];
-                for (int i = 0; i < skinrfamilyCount; i++)
-                    for (int j = 0; j < skinreferenceCount; j++)
-                        skintable[i, j] = reader.ReadInt16();
-
-                for (int i = 0; i < skinrfamilyCount; i++)
-                    for (int j = 0; j < skinreferenceCount; j++)
-                        Console.WriteLine(skintable[i, j]);
-                */
-
-                // build vmt paths
-                for (int i = 0; i < modelVmts.Count; i++)
+                if (skins != null)
                 {
-                    for (int j = 0; j < modelDirs.Count; j++)
+                    // load specific skins
+                    List<int> material_ids = new List<int>();
+
+                    for (int i = 0; i < bodypart_count; i++)
+                    // we are reading an array of mstudiobodyparts_t
                     {
-                        modelDirs[j] = modelDirs[j].TrimStart(new char[]{'/', '\\'});
-                        materials.Add("materials/" + modelDirs[j] + modelVmts[i] + ".vmt");
+                        mdl.Seek(bodypart_index + i * 32, SeekOrigin.Begin);
+
+                        mdl.Seek(4, SeekOrigin.Current);
+                        int nummodels = reader.ReadInt32();
+                        mdl.Seek(4, SeekOrigin.Current);
+                        int modelindex = reader.ReadInt32();
+
+                        for (int j = 0; j < nummodels; j++)
+                        // we are reading an array of mstudiomodel_t
+                        {
+                            mdl.Seek(bodypart_index + modelindex + j * 140, SeekOrigin.Begin);
+
+                            mdl.Seek(72, SeekOrigin.Current);
+                            int nummeshes = reader.ReadInt32();
+                            int meshindex = reader.ReadInt32();
+
+                            for (int k = 0; k < nummeshes; k++)
+                            // we are reading an array of mstudiomesh_t
+                            {
+                                mdl.Seek(bodypart_index + modelindex + meshindex + (k * 116), SeekOrigin.Begin);
+                                int mat_index = reader.ReadInt32();
+
+                                if (!material_ids.Contains(mat_index))
+                                    material_ids.Add(mat_index);
+                            }
+                        }
                     }
+
+                    // read the skintable
+                    mdl.Seek(skinreferenceIndex, SeekOrigin.Begin);
+                    short[,] skintable = new short[skinrfamilyCount, skinreferenceCount];
+                    for (int i = 0; i < skinrfamilyCount; i++)
+                    {
+                        for (int j = 0; j < skinreferenceCount; j++)
+                        {
+                            skintable[i, j] = reader.ReadInt16();
+                        }
+                    }
+
+                    // trim the larger than required skintable
+                    short[,] trimmedtable = new short[skinrfamilyCount, material_ids.Count];
+                    for (int i = 0; i < skinrfamilyCount; i++)
+                        for (int j = 0; j < material_ids.Count; j++)
+                            trimmedtable[i, j] = skintable[i, material_ids[j]];
+
+                    // used to trimmed table to fetch used vmts
+                    foreach (int skin in skins)
+                        for (int j = 0; j < material_ids.Count; j++)
+                            for (int k = 0; k < modelDirs.Count; k++)
+                            {
+                                short id = trimmedtable[skin, j];
+                                materials.Add("materials/" + modelDirs[k] + modelVmts[id] + ".vmt");
+                            }
                 }
+                else
+                    // load all vmts
+                    for (int i = 0; i < modelVmts.Count; i++)
+                        for (int j = 0; j < modelDirs.Count; j++)
+                            materials.Add("materials/" + modelDirs[j] + modelVmts[i] + ".vmt");
                 mdl.Close();
             }
             return materials;
@@ -113,6 +150,7 @@ namespace BSPPack
             foreach (string variation in variations)
             {
                 string variant = Path.ChangeExtension(path, variation);
+                //variant = variant.Replace('/', '\\');
                 references.Add(variant);
             }
             return references;
@@ -126,7 +164,7 @@ namespace BSPPack
             {
                 string param = line.Replace("\"", " ").Replace("\t"," ").Trim();
 
-                if (Keys.vmtTextureKeyWords.Any(key => param.StartsWith(key+" ")))
+                if (Keys.vmtTextureKeyWords.Any(key => param.ToLower().StartsWith(key+" ")))
                     vtfList.Add("materials/" +
                         param.Split(new char[] { ' ' }, 2)[1].Trim() +".vtf");
             }
@@ -154,9 +192,12 @@ namespace BSPPack
             List<string> audioFiles = new List<string>();
             foreach (string line in File.ReadAllLines(fullpath))
             {
-                string param = line.Replace("\"", " ").Replace("\t", " ").Trim();
-                if (param.ToLower().Contains("\"wave\""))
-                    audioFiles.Add(param.Split(new char[] { ' ' }, 2)[1].Trim(' ', ')', '('));
+                string param = Regex.Replace(line, "[\t|\"]", " ").Trim();
+                if (param.ToLower().StartsWith("wave"))
+                {
+                    string clip = param.Split(new char[]{' '}, 2)[1].Trim(' ', ')', '(');
+                    audioFiles.Add("sound/" + clip);
+                }
             }
             return audioFiles;
         }
@@ -257,30 +298,8 @@ namespace BSPPack
             // Utility files are other files that are not assets
             // those are manifests, soundscapes, nav and detail files
 
-            // Particles manifest
-            string internalPath = "particles/" + bsp.file.Name.Replace(".bsp", "_manifest.txt");
-            foreach (string source in sourceDirectories)
-            {
-                string externalPath = source + "/" + internalPath;
-
-                if (File.Exists(externalPath))
-                {
-                    bsp.particleManifest = new KeyValuePair<string, string>(internalPath, externalPath);
-                    break;
-                }
-
-                internalPath = "maps/" + bsp.file.Name.Replace(".bsp", "_particles.txt");
-                externalPath = source + "/" + internalPath;
-
-                if (File.Exists(externalPath))
-                {
-                    bsp.particleManifest = new KeyValuePair<string, string>(internalPath, externalPath);
-                    break;
-                }
-            }
-
             // Soundscape file
-            internalPath = "scripts/soundscapes_" + bsp.file.Name.Replace(".bsp", ".txt");
+            string internalPath = "scripts/soundscapes_" + bsp.file.Name.Replace(".bsp", ".txt");
             foreach (string source in sourceDirectories)
             {
                 string externalPath = source +"/"+ internalPath;
@@ -330,6 +349,32 @@ namespace BSPPack
                     break;
                 }
             }
+
+            // language files, particle manifests and soundscript file
+            // (these language files are localized text files for tf2 mission briefings)
+            string internalDir = "maps/";
+            string name = bsp.file.Name.Replace(".bsp", "");
+            string searchPattern = name + "*.txt";
+            List<KeyValuePair<string, string>> langfiles = new List<KeyValuePair<string,string>>();
+            
+            foreach (string source in sourceDirectories)
+            {
+                string externalDir = source + "/" + internalDir;
+                DirectoryInfo dir = new DirectoryInfo(externalDir);
+                
+                if (dir.Exists)
+                    foreach (FileInfo f in dir.GetFiles(searchPattern))
+                        // particle files
+                        if (f.Name.StartsWith(name + "_particles") || f.Name.StartsWith(name + "_manifest"))
+                            bsp.particleManifest = new KeyValuePair<string, string>(internalDir + f.Name, externalDir + f.Name);
+                        // soundscript
+                        else if (f.Name.StartsWith(name + "_level_sounds"))
+                            bsp.soundscript = new KeyValuePair<string, string>(internalDir + f.Name, externalDir + f.Name);
+                        // presumably language files
+                        else
+                            langfiles.Add(new KeyValuePair<string, string>(internalDir + f.Name, externalDir + f.Name));
+            }
+            bsp.languages = langfiles;
         }
 
         private static string readNullTerminatedString(FileStream fs, BinaryReader reader){
