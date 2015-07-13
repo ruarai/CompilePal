@@ -350,10 +350,5 @@ namespace CompilePalX
 
             OutputTab.Focus();
         }
-
-        private void Hyperlink_OnClick(object sender, RoutedEventArgs e)
-        {
-            Process.Start("https://github.com/ruarai/CompilePal/wiki/Donation");
-        }
     }
 }
