@@ -41,6 +41,8 @@ Compile Pal can detect and provide information relating to errors using the Inte
 ### Developers
 - Ruarai
 - Maxdup
+
+
 ### Bug Testing
 - wareya
 - Gangleider 
