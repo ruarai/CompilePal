@@ -221,11 +221,12 @@ namespace CompilePalX
 
         private async void AddPresetButton_Click(object sender, RoutedEventArgs e)
         {
-            var input = await this.ShowInputAsync("New Preset", "Preset name:");
+            var dialog = new InputDialog("Preset Name");
+            dialog.ShowDialog();
 
-            if (input != null)
+            if (dialog.Result)
             {
-                string presetName = input;
+                string presetName = dialog.Text;
 
                 ConfigurationManager.NewPreset(presetName);
 
@@ -238,11 +239,12 @@ namespace CompilePalX
         }
         private async void ClonePresetButton_OnClick(object sender, RoutedEventArgs e)
         {
-            var input = await this.ShowInputAsync("Clone Preset", "Cloned preset name:");
+            var dialog = new InputDialog("Preset Name");
+            dialog.ShowDialog();
 
-            if (input != null)
+            if (dialog.Result)
             {
-                string presetName = input;
+                string presetName = dialog.Text;
 
                 ConfigurationManager.ClonePreset(presetName);
 
