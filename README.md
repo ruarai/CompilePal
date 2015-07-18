@@ -35,6 +35,7 @@ PACK is a feature that allows for the automatic packing of custom content into a
 Compile Pal can detect and provide information relating to errors using the Interlopers error listings.
 
 ![errors](http://i.imgur.com/JA3gH3x.png)
+![errors](http://i.imgur.com/Ckz5XyA.png)
 
 ## Contributors
 
