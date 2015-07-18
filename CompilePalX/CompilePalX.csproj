@@ -152,21 +152,6 @@
     </EmbeddedResource>
     <Resource Include="FodyWeavers.xml" />
     <Resource Include="CompilePalIcon.ico" />
-    <Content Include="Keys\materialkeys.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Keys\texturekeys.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Keys\vmfmaterialkeys.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Keys\vmfmodelkeys.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Keys\vmfsoundkeys.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <None Include="packages.config" />
     <Content Include="Parameters\game.csv">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
