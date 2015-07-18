@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Net;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using CompilePalX.Compiling;
 
@@ -24,31 +26,20 @@ namespace CompilePalX
             string currentVersion = File.ReadAllText("version.txt");
             CurrentVersion = int.Parse(currentVersion);
 
-            try
-            {
-                CompilePalLogger.LogLine("Downloading update information.");
-
-                var c = new WebClient();
-                c.DownloadStringCompleted += c_DownloadStringCompleted;
-                c.DownloadStringAsync(new Uri(UpdateURL));
-            }
-            catch (Exception e)
-            {
-                CompilePalLogger.LogLine("Failed to find update information due to following exception:");
-                CompilePalLogger.LogLine(e.ToString());
-            }
+            Thread updaterThread = new Thread(ThreadedCheck);
+            updaterThread.Start();
         }
 
-        static void c_DownloadStringCompleted(object sender, DownloadStringCompletedEventArgs e)
+        static void ThreadedCheck()
         {
-
-            if (e.Error == null)
+            try
             {
+                CompilePalLogger.LogLine("Fetching update information...");
 
-                string newVersion = e.Result;
+                var c = new WebClient();
+                string newVersion = c.DownloadString(new Uri(UpdateURL));
+
                 LatestVersion = int.Parse(newVersion);
-
-                CompilePalLogger.LogLine("Updater found latest version is:{0}, current is {1}.",LatestVersion,CurrentVersion);
 
                 if (CurrentVersion < LatestVersion)
                 {
@@ -63,10 +54,10 @@ namespace CompilePalX
 
                 ProgressManager.SetProgress(ProgressManager.Progress);
             }
-            else
+            catch (WebException e)
             {
                 CompilePalLogger.LogLine("Failed to find update information as an error was returned:");
-                CompilePalLogger.LogLine(e.Error.ToString());
+                CompilePalLogger.LogLine(e.ToString());
             }
         }
     }

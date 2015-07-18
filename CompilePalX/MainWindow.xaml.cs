@@ -67,7 +67,7 @@ namespace CompilePalX
             CompilingManager.OnFinish += CompilingManager_OnFinish;
         }
 
-        void CompilePalLogger_OnError(string errorText,Error e)
+        void CompilePalLogger_OnError(string errorText, Error e)
         {
             Dispatcher.Invoke(() =>
             {
@@ -84,7 +84,7 @@ namespace CompilePalX
 
                 if (CompileOutputTextbox.Document.Blocks.Any())
                 {
-                    var lastPara = (Paragraph) CompileOutputTextbox.Document.Blocks.LastBlock;
+                    var lastPara = (Paragraph)CompileOutputTextbox.Document.Blocks.LastBlock;
                     lastPara.Inlines.Add(errorLink);
                 }
                 else
@@ -133,7 +133,8 @@ namespace CompilePalX
 
         async void UpdateManager_OnUpdateFound()
         {
-            await this.ShowMessageAsync("Update Found", "An update has been found for Compile Pal. For the latest download, see https://github.com/ruarai/CompilePal.");
+            UpdateHyperLink.Inlines.Add(string.Format("An update is available. Current version is {0}, latest version is {1}.", UpdateManager.CurrentVersion, UpdateManager.LatestVersion));
+            UpdateLabel.Visibility = Visibility.Visible;
         }
 
 
@@ -350,5 +351,12 @@ namespace CompilePalX
 
             OutputTab.Focus();
         }
+
+        private void UpdateLabel_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+
+            Process.Start("http://www.github.com/ruarai/CompilePal/releases/latest");
+        }
+
     }
 }
