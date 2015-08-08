@@ -108,7 +108,7 @@ namespace BSPPack
 
         static void PackBSP()
         {
-            string arguments = "-addlist \"$bspnew\"  \"$list\" \"$bspold\" -game \"$game\"";
+            string arguments = "-game \"$game\" -addlist \"$bspnew\"  \"$list\" \"$bspold\"";
             arguments = arguments.Replace("$bspnew", bspPath);
             arguments = arguments.Replace("$bspold", bspPath);
             arguments = arguments.Replace("$list", "files.txt");
