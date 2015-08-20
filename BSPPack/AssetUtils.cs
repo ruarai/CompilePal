@@ -24,10 +24,6 @@ namespace BSPPack
                 mdl.Seek(4, SeekOrigin.Begin);
                 int ver = reader.ReadInt32();
 
-                if (ver > 48)
-                    // mdl version is more recent and not supported
-                    return materials;
-
                 List<string> modelVmts = new List<string>();
                 List<string> modelDirs = new List<string>();
 
