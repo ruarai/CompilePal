@@ -108,14 +108,17 @@ namespace BSPPack
 
         static void PackBSP()
         {
-            string arguments = "-game \"$game\" -addlist \"$bspnew\"  \"$list\" \"$bspold\"";
+            string arguments = "-addlist \"$bspnew\"  \"$list\" \"$bspold\"";
             arguments = arguments.Replace("$bspnew", bspPath);
             arguments = arguments.Replace("$bspold", bspPath);
             arguments = arguments.Replace("$list", "files.txt");
-            arguments = arguments.Replace("$game", gameFolder);
 
-            var p = new Process { StartInfo = { Arguments = arguments, FileName = bspZip, UseShellExecute = false, RedirectStandardOutput = true } };
+            var startInfo = new ProcessStartInfo(bspZip, arguments);
+            startInfo.UseShellExecute = false;
+            startInfo.RedirectStandardOutput = true;
+            startInfo.EnvironmentVariables["ENV_VPROJECT"] = gameFolder;
 
+            var p = new Process { StartInfo = startInfo };
             p.OutputDataReceived += p_OutputDataReceived;
 
             p.Start();
