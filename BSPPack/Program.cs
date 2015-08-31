@@ -116,7 +116,7 @@ namespace BSPPack
             var startInfo = new ProcessStartInfo(bspZip, arguments);
             startInfo.UseShellExecute = false;
             startInfo.RedirectStandardOutput = true;
-            startInfo.EnvironmentVariables["ENV_VPROJECT"] = gameFolder;
+            startInfo.EnvironmentVariables["VPROJECT"] = gameFolder;
 
             var p = new Process { StartInfo = startInfo };
             p.OutputDataReceived += p_OutputDataReceived;
