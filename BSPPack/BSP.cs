@@ -112,22 +112,8 @@ namespace BSPPack
             bsp.Seek(offsets[43].Key, SeekOrigin.Begin);
             TextureList = new List<string>(Encoding.ASCII.GetString(reader.ReadBytes(offsets[43].Value)).Split('\0'));
             for (int i = 0; i < TextureList.Count; i++)
-            {
                 TextureList[i] = "materials/" + TextureList[i] + ".vmt";
-
-                // in the special case where we are dealing with water materials
-                if (TextureList[i].StartsWith("materials/maps/" + mapname + "/water/"))
-                {
-                    string[] nameparts = TextureList[i].Split('/').Last().Split('_');
-                    string filename = "";
-                    for (int j = 0; j < nameparts.Count() - 3; j++)
-                    {
-                        filename += nameparts[j] + "_";
-                    }
-                    TextureList.Add("water/" + filename.TrimEnd('_'));
-                }
-            }
-
+            
             // find skybox materials
             Dictionary<string, string> worldspawn = entityList.First(item => item["classname"] == "worldspawn");
             foreach (string s in new string[] { "bk", "dn", "ft", "lf", "rt", "up" })

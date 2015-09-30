@@ -69,7 +69,8 @@ namespace BSPPack
                     Console.WriteLine("Reading BSP...");
                     BSP map = new BSP(new FileInfo(bspPath));
                     AssetUtils.findBspUtilityFiles(map, sourceDirectories);
-
+                    UnpackBSP();
+                    AssetUtils.findBspPakDependencies(map, "tmp");
                     Console.WriteLine("Initializing pak file...");
                     PakFile pakfile = new PakFile(map , sourceDirectories);
 
@@ -104,6 +105,28 @@ namespace BSPPack
                 Console.WriteLine("Something broke:");
                 Console.WriteLine(exception.ToString());
             }
+        }
+
+        static void UnpackBSP()
+        {
+            // unpacks the pak file and extracts it to a temp location
+
+            /* info: vbsp.exe creates files in the pak file that may have 
+             * dependencies that are not listed anywhere else, as is the
+             * case for water materials. We use this method to extract the
+             * pak file to a temp folder and read the dependencies of its files. */
+
+            string arguments = "-extractfiles \"$bspold\" \"$dir\"";
+            arguments = arguments.Replace("$bspold", bspPath);
+            arguments = arguments.Replace("$dir", "tmp");
+
+            var startInfo = new ProcessStartInfo(bspZip, arguments);
+            startInfo.UseShellExecute = false;
+            startInfo.RedirectStandardOutput = true;
+            startInfo.EnvironmentVariables["VPROJECT"] = gameFolder;
+
+            var p = new Process { StartInfo = startInfo };
+            p.Start();
         }
 
         static void PackBSP()
