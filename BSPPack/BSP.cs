@@ -133,12 +133,22 @@ namespace BSPPack
             EntTextureList = new List<string>();
             foreach (Dictionary<string, string> ent in entityList)
             {
+                string toAdd = "";
                 foreach (KeyValuePair<string, string> prop in ent)
                     if (Keys.vmfMaterialKeys.Contains(prop.Key.ToLower()))
-                        EntTextureList.Add(prop.Value);
+                        toAdd = prop.Value;
 
                 if (ent["classname"].Contains("sprite") && ent.ContainsKey("model"))
-                    EntTextureList.Add("materials/" + ent["model"]);
+                    toAdd = ent["model"];
+
+                if (toAdd != string.Empty)
+                {
+                    toAdd = "materials/" + toAdd;
+                    if (!toAdd.EndsWith(".vmt"))
+                        toAdd += ".vmt";
+                    Console.WriteLine(toAdd);
+                    EntTextureList.Add(toAdd);
+                }        
             }
         }
 
