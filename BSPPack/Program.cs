@@ -83,8 +83,6 @@ namespace BSPPack
                     Console.WriteLine("Running bspzip...");
                     PackBSP();
 
-                    //todo: clear pak temp folder
-
                     Console.WriteLine("Finished packing!");
 
                     Console.WriteLine("---------------------");
