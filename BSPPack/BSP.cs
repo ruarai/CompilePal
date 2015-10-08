@@ -146,7 +146,6 @@ namespace BSPPack
                     toAdd = "materials/" + toAdd;
                     if (!toAdd.EndsWith(".vmt"))
                         toAdd += ".vmt";
-                    Console.WriteLine(toAdd);
                     EntTextureList.Add(toAdd);
                 }        
             }

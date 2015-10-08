@@ -69,8 +69,11 @@ namespace BSPPack
                     Console.WriteLine("Reading BSP...");
                     BSP map = new BSP(new FileInfo(bspPath));
                     AssetUtils.findBspUtilityFiles(map, sourceDirectories);
-                    UnpackBSP();
-                    AssetUtils.findBspPakDependencies(map, "tmp");
+
+                    string unpackDir = Path.GetTempPath() + Guid.NewGuid();
+                    UnpackBSP(unpackDir);
+                    AssetUtils.findBspPakDependencies(map, unpackDir);
+
                     Console.WriteLine("Initializing pak file...");
                     PakFile pakfile = new PakFile(map , sourceDirectories);
 
@@ -79,6 +82,8 @@ namespace BSPPack
 
                     Console.WriteLine("Running bspzip...");
                     PackBSP();
+
+                    //todo: clear pak temp folder
 
                     Console.WriteLine("Finished packing!");
 
@@ -107,7 +112,7 @@ namespace BSPPack
             }
         }
 
-        static void UnpackBSP()
+        static void UnpackBSP(string unpackDir)
         {
             // unpacks the pak file and extracts it to a temp location
 
@@ -118,7 +123,7 @@ namespace BSPPack
 
             string arguments = "-extractfiles \"$bspold\" \"$dir\"";
             arguments = arguments.Replace("$bspold", bspPath);
-            arguments = arguments.Replace("$dir", "tmp");
+            arguments = arguments.Replace("$dir",  unpackDir);
 
             var startInfo = new ProcessStartInfo(bspZip, arguments);
             startInfo.UseShellExecute = false;
