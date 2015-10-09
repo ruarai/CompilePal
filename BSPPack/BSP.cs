@@ -112,22 +112,8 @@ namespace BSPPack
             bsp.Seek(offsets[43].Key, SeekOrigin.Begin);
             TextureList = new List<string>(Encoding.ASCII.GetString(reader.ReadBytes(offsets[43].Value)).Split('\0'));
             for (int i = 0; i < TextureList.Count; i++)
-            {
                 TextureList[i] = "materials/" + TextureList[i] + ".vmt";
-
-                // in the special case where we are dealing with water materials
-                if (TextureList[i].StartsWith("materials/maps/" + mapname + "/water/"))
-                {
-                    string[] nameparts = TextureList[i].Split('/').Last().Split('_');
-                    string filename = "";
-                    for (int j = 0; j < nameparts.Count() - 3; j++)
-                    {
-                        filename += nameparts[j] + "_";
-                    }
-                    TextureList.Add("water/" + filename.TrimEnd('_'));
-                }
-            }
-
+            
             // find skybox materials
             Dictionary<string, string> worldspawn = entityList.First(item => item["classname"] == "worldspawn");
             foreach (string s in new string[] { "bk", "dn", "ft", "lf", "rt", "up" })
@@ -147,12 +133,21 @@ namespace BSPPack
             EntTextureList = new List<string>();
             foreach (Dictionary<string, string> ent in entityList)
             {
+                string toAdd = "";
                 foreach (KeyValuePair<string, string> prop in ent)
                     if (Keys.vmfMaterialKeys.Contains(prop.Key.ToLower()))
-                        EntTextureList.Add(prop.Value);
+                        toAdd = prop.Value;
 
                 if (ent["classname"].Contains("sprite") && ent.ContainsKey("model"))
-                    EntTextureList.Add("materials/" + ent["model"]);
+                    toAdd = ent["model"];
+
+                if (toAdd != string.Empty)
+                {
+                    toAdd = "materials/" + toAdd;
+                    if (!toAdd.EndsWith(".vmt"))
+                        toAdd += ".vmt";
+                    EntTextureList.Add(toAdd);
+                }        
             }
         }
 

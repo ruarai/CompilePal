@@ -24,10 +24,6 @@ namespace BSPPack
                 mdl.Seek(4, SeekOrigin.Begin);
                 int ver = reader.ReadInt32();
 
-                if (ver > 48)
-                    // mdl version is more recent and not supported
-                    return materials;
-
                 List<string> modelVmts = new List<string>();
                 List<string> modelDirs = new List<string>();
 
@@ -173,15 +169,18 @@ namespace BSPPack
 
         public static List<string> findVmtMaterials(string fullpath)
         {
-            // finds vtfs files associated with vmt file
+            // finds vmt files associated with vmt file
 
             List<string> vmtList = new List<string>();
             foreach (string line in File.ReadAllLines(fullpath))
             {
                 string param = line.Replace("\"", " ").Replace("\t", " ").Trim();
                 if (Keys.vmtMaterialKeyWords.Any(key => param.StartsWith(key + " ")))
-                    vmtList.Add("materials/" +
-                        param.Split(new char[] { ' ' }, 2)[1].Trim() + ".vmt");
+                {
+                    vmtList.Add("materials/" + param.Split(new char[] { ' ' }, 2)[1].Trim());
+                    if (!vmtList.Last().EndsWith(".vmt"))
+                        vmtList[vmtList.Count-1] += ".vmt";
+                }
             }
             return vmtList;
         }
@@ -291,6 +290,15 @@ namespace BSPPack
                 }
             }
             return pcfs;
+        }
+
+        public static void findBspPakDependencies(BSP bsp, string tempdir)
+        {
+            // Search the temp folder to find dependencies of files extracted from the pak file
+
+            foreach (String file in Directory.EnumerateFiles("tmp", "*.vmt", SearchOption.AllDirectories))
+                foreach (string material in AssetUtils.findVmtMaterials(new FileInfo(file).FullName))
+                    bsp.TextureList.Add(material);
         }
 
         public static void findBspUtilityFiles(BSP bsp, List<string> sourceDirectories)
