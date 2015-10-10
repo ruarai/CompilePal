@@ -1,113 +1,66 @@
-<!DOCTYPE html>
-<html>
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title></title>
+    <link href="style.css" rel="stylesheet"/>
+    <link href='https://fonts.googleapis.com/css?family=Roboto:400,500,700,100,300' rel='stylesheet' type='text/css'>
+</head>
+<body>
+    <div id="column">
+        <img id="header" src="Header.png"/>
 
-  <head>
-    <meta charset='utf-8'>
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <meta name="description" content="Compile Pal : A tool to assist in the compiling of Source maps">
+        <div id="content">
 
-    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
-
-    <title>Compile Pal</title>
-  </head>
-
-  <body>
-
-    <!-- HEADER -->
-    <div id="header_wrap" class="outer">
-        <header class="inner">
-          <a id="forkme_banner" href="https://github.com/ruarai/CompilePal">View on GitHub</a>
-
-          <h1 id="project_title">Compile Pal</h1>
-          <h2 id="project_tagline">A tool to assist in the compiling of Source maps</h2>
-
-            <section id="downloads" style="width: 105px;">
-              <a class="zip_download_link" href="https://github.com/ruarai/CompilePal/releases/latest">Compile Pal Releases</a>
-            </section>
-        </header>
+            <div id="releases">
+                <a href="http://www.github.com/ruarai/CompilePal/releases/latest">Download Latest Version</a><a href="http://www.github.com/ruarai/CompilePal/issues">Report Issues</a><a href="http://www.github.com/ruarai/CompilePal/">View Source</a>
+            </div>
+            <hr/>
+            <p>Compile Pal is the amazing wrapper for the source map compiling tools that makes compiling a breeze.</p>
+            <h1><a></a>Configuration
+            </h1>
+            <p>Compile Pal should automatically find any game configurations - as long as the game’s SDK was run last. Game Configurations are cached between sessions, and you can choose between them at launch.</p>
+            <img class="screenshot" src="Configuration.png" />
+            <h1><a></a>Packing
+            </h1>
+            <p>PACK is a feature that allows for the automatic packing of custom content into a map BSP. Thanks to the work of Maxdup, this feature is now ready to be used in production.</p>
+            <h3><a></a>Packable Content
+            </h3>
+            <ul>
+                <li>Materials</li>
+                <li>Models</li>
+                <li>Model Skins</li>
+                <li>Skybox Textures</li>
+                <li>Sprites</li>
+                <li>Water Materials</li>
+                <li>Color Correction</li>
+                <li>Detail Files</li>
+                <li>Menu Photos</li>
+                <li>Soundscapes</li>
+                <li>Soundscripts</li>
+                <li>Particle Manifests</li>
+                <li>Much more…</li>
+            </ul>
+            <h2><a></a>Error Checking
+            </h2>
+            <p>Compile Pal can detect and provide information relating to errors using the Interlopers error listings.</p>
+            <img class="screenshot" src="Errors.png"/>
+            <h2><a></a>Contributors
+            </h2>
+            <h3><a></a>Developers
+            </h3>
+            <ul>
+                <li>Ruarai</li>
+                <li>Maxdup (Maxime Dupuis)</li>
+            </ul>
+            <h3><a></a>Bug Testing
+            </h3>
+            <ul>
+                <li>wareya</li>
+                <li>Gangleider</li>
+                <li>Matt2468rv</li>
+                <li>Sevin7</li>
+            </ul>
+        </div>
     </div>
-
-    <!-- MAIN CONTENT -->
-    <div id="main_content_wrap" class="outer">
-      <section id="main_content" class="inner">
-        <p>Compile Pal X is the official rewrite of Compile Pal - the amazing wrapper for the source map compiling tools that makes compiling a breeze.</p>
-
-<h1>
-<a id="configuration" class="anchor" href="#configuration" aria-hidden="true"><span class="octicon octicon-link"></span></a>Configuration</h1>
-
-<p>Compile Pal should automatically find any game configurations - as long as the game's SDK was run last. Game Configurations are cached between sessions, and you can choose between them at launch.</p>
-
-<p><img src="http://i.imgur.com/D3usvmP.png" alt="ui"></p>
-
-<h1>
-<a id="packing" class="anchor" href="#packing" aria-hidden="true"><span class="octicon octicon-link"></span></a>Packing</h1>
-
-<p>PACK is a feature that allows for the automatic packing of custom content into a map BSP. Thanks to the work of Maxdup, this feature is now ready to be used in production.</p>
-
-<h3>
-<a id="packable-content" class="anchor" href="#packable-content" aria-hidden="true"><span class="octicon octicon-link"></span></a>Packable Content</h3>
-
-<ul>
-<li>Materials</li>
-<li>Models</li>
-<li>Model Skins</li>
-<li>Skybox Textures</li>
-<li>Sprites</li>
-<li>Water Materials</li>
-<li>Color Correction</li>
-<li>Detail Files</li>
-<li>Menu Photos</li>
-<li>Soundscapes</li>
-<li>Soundscripts</li>
-<li>Particle Manifests</li>
-<li>Much more...</li>
-</ul>
-
-<h2>
-<a id="error-checking" class="anchor" href="#error-checking" aria-hidden="true"><span class="octicon octicon-link"></span></a>Error Checking</h2>
-
-<p>Compile Pal can detect and provide information relating to errors using the Interlopers error listings.</p>
-
-<p><img src="http://i.imgur.com/JA3gH3x.png" alt="errors">
-<img src="http://i.imgur.com/Ckz5XyA.png" alt="errors"></p>
-
-<h2>
-<a id="contributors" class="anchor" href="#contributors" aria-hidden="true"><span class="octicon octicon-link"></span></a>Contributors</h2>
-
-<h3>
-<a id="developers" class="anchor" href="#developers" aria-hidden="true"><span class="octicon octicon-link"></span></a>Developers</h3>
-
-<ul>
-<li>Ruarai</li>
-<li>Maxdup</li>
-</ul>
-
-<h3>
-<a id="bug-testing" class="anchor" href="#bug-testing" aria-hidden="true"><span class="octicon octicon-link"></span></a>Bug Testing</h3>
-
-<ul>
-<li>wareya</li>
-<li>Gangleider </li>
-<li>Matt2468rv </li>
-<li>Sevin7 </li>
-</ul>
-
-<h3>
-<a id="download" class="anchor" href="#download" aria-hidden="true"><span class="octicon octicon-link"></span></a>Download</h3>
-
-<p><a href="https://github.com/ruarai/CompilePal/releases/latest">https://github.com/ruarai/CompilePal/releases/latest</a></p>
-      </section>
-    </div>
-
-    <!-- FOOTER  -->
-    <div id="footer_wrap" class="outer">
-      <footer class="inner">
-        <p class="copyright">Compile Pal maintained by <a href="https://github.com/ruarai">ruarai</a></p>
-        <p>Published with <a href="https://pages.github.com">GitHub Pages</a></p>
-      </footer>
-    </div>
-
-    
-
-  </body>
+</body>
 </html>

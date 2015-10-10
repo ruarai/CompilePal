@@ -1,0 +1,50 @@
+﻿body {
+    background-color: #5C5B59;
+    padding: 0;
+    margin: 0;
+    font-family: 'Roboto', sans-serif;
+}
+#column {
+    background-color: #ffffff;
+    max-width: 750px;
+    margin: 0 auto;
+}
+
+#content {
+    padding:20px;
+}
+
+#header {
+    width: 100%;
+}
+
+#releases {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-bottom: 15px;
+}
+
+#releases a {
+    margin: 0 15px;
+    font-size: 1.4em;
+    font-weight: 400;
+    color:#000;
+    text-decoration: none;
+}
+
+hr {
+    margin-left: -30px;
+    width: 200%;
+    height: 13px;
+    border: 0;
+    background-color:  #5C5B59;
+}
+
+h1, h2,h3,h4 {
+    font-weight: 300;
+}
+
+.screenshot {
+    width: 100%;
+}
