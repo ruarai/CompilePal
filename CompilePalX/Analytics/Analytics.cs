@@ -16,6 +16,8 @@ namespace CompilePalX
         private static Options options;
 
         private const bool debuggerCheckOverride = false;
+
+        public static bool Enabled = true;
         static AnalyticsManager()
         {
             //anonymise the machine name so it's not too stalkery
@@ -91,7 +93,7 @@ namespace CompilePalX
 
         private static bool enabled
         {
-            get { return (!System.Diagnostics.Debugger.IsAttached || debuggerCheckOverride); }
+            get { return (!System.Diagnostics.Debugger.IsAttached || debuggerCheckOverride) && Enabled; }
         }
     }
 }
