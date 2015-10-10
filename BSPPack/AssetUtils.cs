@@ -139,7 +139,8 @@ namespace BSPPack
             return materials;
         }
 
-        public static List<string> findMdlRefs(string path) {
+        public static List<string> findMdlRefs(string path)
+        {
             var references = new List<string>();
 
             var variations = new List<string> { ".dx80.vtx", ".dx90.vtx", ".phy", ".sw.vtx", ".vvd" };
@@ -152,17 +153,18 @@ namespace BSPPack
             return references;
         }
 
-        public static List<string> findVmtTextures(string fullpath) {
+        public static List<string> findVmtTextures(string fullpath)
+        {
             // finds vtfs files associated with vmt file
-            
+
             List<string> vtfList = new List<string>();
             foreach (string line in File.ReadAllLines(fullpath))
             {
-                string param = line.Replace("\"", " ").Replace("\t"," ").Trim();
+                string param = line.Replace("\"", " ").Replace("\t", " ").Trim();
 
-                if (Keys.vmtTextureKeyWords.Any(key => param.ToLower().StartsWith(key+" ")))
+                if (Keys.vmtTextureKeyWords.Any(key => param.ToLower().StartsWith(key + " ")))
                     vtfList.Add("materials/" +
-                        param.Split(new char[] { ' ' }, 2)[1].Trim() +".vtf");
+                        param.Split(new char[] { ' ' }, 2)[1].Trim() + ".vtf");
             }
             return vtfList;
         }
@@ -179,13 +181,14 @@ namespace BSPPack
                 {
                     vmtList.Add("materials/" + param.Split(new char[] { ' ' }, 2)[1].Trim());
                     if (!vmtList.Last().EndsWith(".vmt"))
-                        vmtList[vmtList.Count-1] += ".vmt";
+                        vmtList[vmtList.Count - 1] += ".vmt";
                 }
             }
             return vmtList;
         }
 
-        public static List<string> findSoundscapeSounds(string fullpath) {
+        public static List<string> findSoundscapeSounds(string fullpath)
+        {
             // finds audio files from soundscape file
 
             List<string> audioFiles = new List<string>();
@@ -194,7 +197,7 @@ namespace BSPPack
                 string param = Regex.Replace(line, "[\t|\"]", " ").Trim();
                 if (param.ToLower().StartsWith("wave"))
                 {
-                    string clip = param.Split(new char[]{' '}, 2)[1].Trim(' ', ')', '(');
+                    string clip = param.Split(new char[] { ' ' }, 2)[1].Trim(' ', ')', '(');
                     audioFiles.Add("sound/" + clip);
                 }
             }
@@ -214,7 +217,7 @@ namespace BSPPack
 
                 if (!ver.Equals("<!-- dmx encoding binary 2 format pcf 1 -->\n"))
                 {
-                    Console.WriteLine("Warning: Pcf File not supported,\n" + 
+                    Console.WriteLine("Warning: Pcf File not supported,\n" +
                     "\t custom materials will not be added if used");
                     return materials;
                 }
@@ -248,7 +251,7 @@ namespace BSPPack
                         attributeType = (attributeType > 14) ? attributeType - 14 : attributeType;
 
                         int[] typelength = { 0, 4, 4, 4, 1, 1, 4, 4, 4, 8, 12, 16, 12, 16, 64 };
-                        
+
                         switch (attributeType)
                         {
                             case 5:
@@ -278,13 +281,15 @@ namespace BSPPack
             return materials;
         }
 
-        public static List<string> findManifestPcfs(string fullpath) {
+        public static List<string> findManifestPcfs(string fullpath)
+        {
             // finds pcf files from the manifest file
 
             List<string> pcfs = new List<string>();
             foreach (string line in File.ReadAllLines(fullpath))
             {
-                if (line.ToLower().Contains("file")) {
+                if (line.ToLower().Contains("file"))
+                {
                     string[] l = line.Split('"');
                     pcfs.Add(l[l.Count() - 2].TrimStart('!'));
                 }
@@ -295,14 +300,14 @@ namespace BSPPack
         public static void findBspPakDependencies(BSP bsp, string tempdir)
         {
             // Search the temp folder to find dependencies of files extracted from the pak file
-
-            foreach (String file in Directory.EnumerateFiles("tmp", "*.vmt", SearchOption.AllDirectories))
-                foreach (string material in AssetUtils.findVmtMaterials(new FileInfo(file).FullName))
-                    bsp.TextureList.Add(material);
+            if (Directory.Exists("tmp"))
+                foreach (String file in Directory.EnumerateFiles("tmp", "*.vmt", SearchOption.AllDirectories))
+                    foreach (string material in AssetUtils.findVmtMaterials(new FileInfo(file).FullName))
+                        bsp.TextureList.Add(material);
         }
 
         public static void findBspUtilityFiles(BSP bsp, List<string> sourceDirectories)
-        { 
+        {
             // Utility files are other files that are not assets
             // those are manifests, soundscapes, nav and detail files
 
@@ -310,7 +315,7 @@ namespace BSPPack
             string internalPath = "scripts/soundscapes_" + bsp.file.Name.Replace(".bsp", ".txt");
             foreach (string source in sourceDirectories)
             {
-                string externalPath = source +"/"+ internalPath;
+                string externalPath = source + "/" + internalPath;
 
                 if (File.Exists(externalPath))
                 {
@@ -363,13 +368,13 @@ namespace BSPPack
             string internalDir = "maps/";
             string name = bsp.file.Name.Replace(".bsp", "");
             string searchPattern = name + "*.txt";
-            List<KeyValuePair<string, string>> langfiles = new List<KeyValuePair<string,string>>();
-            
+            List<KeyValuePair<string, string>> langfiles = new List<KeyValuePair<string, string>>();
+
             foreach (string source in sourceDirectories)
             {
                 string externalDir = source + "/" + internalDir;
                 DirectoryInfo dir = new DirectoryInfo(externalDir);
-                
+
                 if (dir.Exists)
                     foreach (FileInfo f in dir.GetFiles(searchPattern))
                         // particle files
@@ -385,7 +390,8 @@ namespace BSPPack
             bsp.languages = langfiles;
         }
 
-        private static string readNullTerminatedString(FileStream fs, BinaryReader reader){
+        private static string readNullTerminatedString(FileStream fs, BinaryReader reader)
+        {
             List<byte> verString = new List<byte>();
             byte v;
             do
