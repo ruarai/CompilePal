@@ -26,6 +26,7 @@ namespace CompilePalX
             baseParameters = lines[3];
             Order = float.Parse(lines[4], CultureInfo.InvariantCulture);
             DoRun = bool.Parse(lines[5]);
+            ReadOutput = bool.Parse(lines[6]);
 
             CompilePalLogger.LogLine("Loaded {0} from {1} with {2} at order {3}", Name, metadataFile, ParameterFile, Order);
 
@@ -41,6 +42,7 @@ namespace CompilePalX
         public string ParameterFile;
         public string MetadataFile;
         public bool DoRun;
+        public bool ReadOutput;
 
 
         public Process Process;

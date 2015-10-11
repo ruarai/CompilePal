@@ -27,19 +27,21 @@ namespace CompilePalX.Compilers
         public override void Run(CompileContext c)
         {
             CompileErrors = new List<Error>();
-            Process = new Process
-            {
-                StartInfo =
-                {
-                    RedirectStandardOutput = true,
-                    RedirectStandardInput = true,
-                    RedirectStandardError = true,
-                    UseShellExecute = false,
-                    CreateNoWindow = true
-                }
-            };
+            Process = new Process();
 
-            var args = GameConfigurationManager.SubstituteValues(GetParameterString(), c.MapFile);;
+            if (ReadOutput)
+            {
+                Process.StartInfo = new ProcessStartInfo
+                    {
+                        RedirectStandardOutput = true,
+                        RedirectStandardInput = true,
+                        RedirectStandardError = true,
+                        UseShellExecute = false,
+                        CreateNoWindow = true
+                    };
+            }
+
+            var args = GameConfigurationManager.SubstituteValues(GetParameterString(), c.MapFile); ;
 
             Process.StartInfo.FileName = Path;
             Process.StartInfo.Arguments = string.Join(" ", args);
@@ -48,9 +50,16 @@ namespace CompilePalX.Compilers
             Process.Start();
             Process.PriorityClass = ProcessPriorityClass.BelowNormal;
 
+            if (ReadOutput)
+                readOutput();
+
+
+        }
+
+        private void readOutput()
+        {
             char[] buffer = new char[256];
             Task<int> read = null;
-
             while (true)
             {
                 if (read == null)
@@ -90,7 +99,6 @@ namespace CompilePalX.Compilers
                     break;
                 }
             }
-
             Process.WaitForExit();
         }
 

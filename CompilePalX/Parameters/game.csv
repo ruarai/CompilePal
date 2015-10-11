@@ -7,3 +7,4 @@ Console; -console;FALSE;Starts the game with the console enabled.;
 Windowed; -windowed;FALSE;Loads game in windowed mode.; 
 Window Width; -width;TRUE;Sets window resolution width.; 
 Window Height; -height;TRUE;Sets window resolution height.;
+Hijack; -hijack;FALSE;Hijacks the current game process rather than launching a second one.;
