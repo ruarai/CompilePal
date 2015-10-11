@@ -183,7 +183,7 @@ namespace CompilePalX
             string logName = DateTime.Now.ToString("s").Replace(":", "-") + ".txt";
             string textLog = new TextRange(CompileOutputTextbox.Document.ContentStart, CompileOutputTextbox.Document.ContentEnd).Text;
 
-            if (Directory.Exists("CompileLogs"))
+            if (!Directory.Exists("CompileLogs"))
                 Directory.CreateDirectory("CompileLogs");
 
             File.WriteAllText(System.IO.Path.Combine("CompileLogs", logName), textLog);

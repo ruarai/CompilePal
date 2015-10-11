@@ -27,7 +27,7 @@ namespace CompilePalX
             Order = float.Parse(lines[4], CultureInfo.InvariantCulture);
             DoRun = bool.Parse(lines[5]);
 
-            CompilePalLogger.LogLine("Loaded {0} from {1} with {2} at order {3}",Name,metadataFile,ParameterFile,Order);
+            CompilePalLogger.LogLine("Loaded {0} from {1} with {2} at order {3}", Name, metadataFile, ParameterFile, Order);
 
             ParameterList = ConfigurationManager.GetParameters(ParameterFile);
 
@@ -48,6 +48,11 @@ namespace CompilePalX
         public string PresetFile
         {
             get { return System.IO.Path.ChangeExtension(ParameterFile, "csv"); }
+        }
+
+        public virtual void Run(CompileContext context)
+        {
+            
         }
 
         private string baseParameters;
@@ -84,5 +89,13 @@ namespace CompilePalX
         {
             return Name;
         }
+    }
+
+    class CompileContext
+    {
+        public string MapFile;
+        public GameConfiguration Configuration;
+        public string BSPFile;
+        public string CopyLocation;
     }
 }
