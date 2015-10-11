@@ -189,6 +189,8 @@ namespace CompilePalX
             File.WriteAllText(System.IO.Path.Combine("CompileLogs", logName), textLog);
 
             CompileStartStopButton.Content = "Compile";
+
+            ProgressManager.SetProgress(1);
         }
 
         private void OnConfigChanged(object sender, RoutedEventArgs e)
