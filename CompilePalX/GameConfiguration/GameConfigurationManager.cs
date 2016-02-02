@@ -38,5 +38,16 @@ namespace CompilePalX
 
             return text;
         }
+
+        public static CompileContext BuildContext(string mapFile)
+        {
+            return new CompileContext
+            {
+                Configuration = GameConfiguration,
+                MapFile = mapFile,
+                BSPFile = Path.ChangeExtension(mapFile, "bsp"),
+                CopyLocation = Path.Combine(GameConfiguration.MapFolder, Path.ChangeExtension(Path.GetFileName(mapFile), "bsp"))
+            };
+        }
     }
 }

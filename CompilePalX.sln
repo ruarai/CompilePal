@@ -1,13 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30501.0
+VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CompilePalX", "CompilePalX\CompilePalX.csproj", "{03C40819-A7CD-41F6-889F-6D4EB2B5AD07}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CopyTool", "CopyTool\CopyTool.csproj", "{025D1F55-B90B-4CEE-A62A-EABAABC44195}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BSPPack", "BSPPack\BSPPack.csproj", "{7B4C1E60-4FAC-45BA-916A-96F3075F64EC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -19,14 +15,6 @@ Global
 		{03C40819-A7CD-41F6-889F-6D4EB2B5AD07}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{03C40819-A7CD-41F6-889F-6D4EB2B5AD07}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{03C40819-A7CD-41F6-889F-6D4EB2B5AD07}.Release|Any CPU.Build.0 = Release|Any CPU
-		{025D1F55-B90B-4CEE-A62A-EABAABC44195}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{025D1F55-B90B-4CEE-A62A-EABAABC44195}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{025D1F55-B90B-4CEE-A62A-EABAABC44195}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{025D1F55-B90B-4CEE-A62A-EABAABC44195}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7B4C1E60-4FAC-45BA-916A-96F3075F64EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7B4C1E60-4FAC-45BA-916A-96F3075F64EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7B4C1E60-4FAC-45BA-916A-96F3075F64EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7B4C1E60-4FAC-45BA-916A-96F3075F64EC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

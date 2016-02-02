@@ -70,6 +70,12 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Compilers\BSPPack\AssetUtils.cs" />
+    <Compile Include="Compilers\BSPPack\BSP.cs" />
+    <Compile Include="Compilers\BSPPack\PakFile.cs" />
+    <Compile Include="Compilers\BSPPack\Pack.cs" />
+    <Compile Include="Compilers\CompileCopy.cs" />
+    <Compile Include="Compilers\CompileExecutable.cs" />
     <Compile Include="Compiling\ErrorWindow.xaml.cs">
       <DependentUpon>ErrorWindow.xaml</DependentUpon>
     </Compile>
@@ -79,6 +85,9 @@
     <Compile Include="GameConfiguration\GameConfigurationParser.cs" />
     <Compile Include="GameConfiguration\LaunchWindow.xaml.cs">
       <DependentUpon>LaunchWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="InputDialog.xaml.cs">
+      <DependentUpon>InputDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="PersistenceManager.cs" />
     <Compile Include="Updating\UpdateManager.cs" />
@@ -91,6 +100,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="GameConfiguration\LaunchWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="InputDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -140,6 +153,21 @@
     <Content Include="Compiling\errorstyle.html">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Resource Include="Keys\materialkeys.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Keys\texturekeys.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Keys\vmfmaterialkeys.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Keys\vmfmodelkeys.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Keys\vmfsoundkeys.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
     <Content Include="version.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -152,21 +180,6 @@
     </EmbeddedResource>
     <Resource Include="FodyWeavers.xml" />
     <Resource Include="CompilePalIcon.ico" />
-    <Content Include="Keys\materialkeys.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Keys\texturekeys.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Keys\vmfmaterialkeys.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Keys\vmfmodelkeys.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Keys\vmfsoundkeys.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <None Include="packages.config" />
     <Content Include="Parameters\game.csv">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -180,13 +193,13 @@
     <Content Include="Parameters\vvis.csv">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Parameters\copy.meta">
+    <Content Include="Parameters\BuiltIn\copy.meta">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Parameters\copy.csv">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Parameters\pack.meta">
+    <Content Include="Parameters\BuiltIn\pack.meta">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Parameters\pack.csv">
@@ -304,16 +317,6 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup />
-  <ItemGroup>
-    <ProjectReference Include="..\BSPPack\BSPPack.csproj">
-      <Project>{7b4c1e60-4fac-45ba-916a-96f3075f64ec}</Project>
-      <Name>BSPPack</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\CopyTool\CopyTool.csproj">
-      <Project>{025d1f55-b90b-4cee-a62a-eabaabc44195}</Project>
-      <Name>CopyTool</Name>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Fody.1.26.1\build\Fody.targets" Condition="Exists('..\packages\Fody.1.26.1\build\Fody.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

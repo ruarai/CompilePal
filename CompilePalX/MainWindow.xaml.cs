@@ -67,7 +67,7 @@ namespace CompilePalX
             CompilingManager.OnFinish += CompilingManager_OnFinish;
         }
 
-        void CompilePalLogger_OnError(string errorText,Error e)
+        void CompilePalLogger_OnError(string errorText, Error e)
         {
             Dispatcher.Invoke(() =>
             {
@@ -84,7 +84,7 @@ namespace CompilePalX
 
                 if (CompileOutputTextbox.Document.Blocks.Any())
                 {
-                    var lastPara = (Paragraph) CompileOutputTextbox.Document.Blocks.LastBlock;
+                    var lastPara = (Paragraph)CompileOutputTextbox.Document.Blocks.LastBlock;
                     lastPara.Inlines.Add(errorLink);
                 }
                 else
@@ -133,7 +133,8 @@ namespace CompilePalX
 
         async void UpdateManager_OnUpdateFound()
         {
-            await this.ShowMessageAsync("Update Found", "An update has been found for Compile Pal. For the latest download, see https://github.com/ruarai/CompilePal.");
+            UpdateHyperLink.Inlines.Add(string.Format("An update is available. Current version is {0}, latest version is {1}.", UpdateManager.CurrentVersion, UpdateManager.LatestVersion));
+            UpdateLabel.Visibility = Visibility.Visible;
         }
 
 
@@ -182,12 +183,14 @@ namespace CompilePalX
             string logName = DateTime.Now.ToString("s").Replace(":", "-") + ".txt";
             string textLog = new TextRange(CompileOutputTextbox.Document.ContentStart, CompileOutputTextbox.Document.ContentEnd).Text;
 
-            if (Directory.Exists("CompileLogs"))
+            if (!Directory.Exists("CompileLogs"))
                 Directory.CreateDirectory("CompileLogs");
 
             File.WriteAllText(System.IO.Path.Combine("CompileLogs", logName), textLog);
 
             CompileStartStopButton.Content = "Compile";
+
+            ProgressManager.SetProgress(1);
         }
 
         private void OnConfigChanged(object sender, RoutedEventArgs e)
@@ -220,11 +223,12 @@ namespace CompilePalX
 
         private async void AddPresetButton_Click(object sender, RoutedEventArgs e)
         {
-            var input = await this.ShowInputAsync("New Preset", "Preset name:");
+            var dialog = new InputDialog("Preset Name");
+            dialog.ShowDialog();
 
-            if (input != null)
+            if (dialog.Result)
             {
-                string presetName = input;
+                string presetName = dialog.Text;
 
                 ConfigurationManager.NewPreset(presetName);
 
@@ -237,11 +241,12 @@ namespace CompilePalX
         }
         private async void ClonePresetButton_OnClick(object sender, RoutedEventArgs e)
         {
-            var input = await this.ShowInputAsync("Clone Preset", "Cloned preset name:");
+            var dialog = new InputDialog("Preset Name");
+            dialog.ShowDialog();
 
-            if (input != null)
+            if (dialog.Result)
             {
-                string presetName = input;
+                string presetName = dialog.Text;
 
                 ConfigurationManager.ClonePreset(presetName);
 
@@ -351,9 +356,11 @@ namespace CompilePalX
             OutputTab.Focus();
         }
 
-        private void Hyperlink_OnClick(object sender, RoutedEventArgs e)
+        private void UpdateLabel_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            Process.Start("https://github.com/ruarai/CompilePal/wiki/Donation");
+
+            Process.Start("http://www.github.com/ruarai/CompilePal/releases/latest");
         }
+
     }
 }

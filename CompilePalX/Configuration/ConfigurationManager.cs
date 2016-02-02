@@ -7,6 +7,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Documents;
+using CompilePalX.Compilers;
+using CompilePalX.Compilers.BSPPack;
 using CompilePalX.Compiling;
 
 namespace CompilePalX
@@ -30,10 +32,13 @@ namespace CompilePalX
 
             foreach (var metadata in metadatas)
             {
-                var compileProcess = new CompileProcess(metadata);
+                var compileProcess = new CompileExecutable(metadata);
 
                 CompileProcesses.Add(compileProcess);
             }
+
+            CompileProcesses.Add(new BSPPack());
+            CompileProcesses.Add(new CompileCopy());
 
 
 

@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.IO;
 
 namespace CompilePalX
@@ -11,13 +12,8 @@ namespace CompilePalX
             if (File.Exists(mapFiles))
                 CompilingManager.MapFiles = new ObservableCollection<string>(File.ReadAllLines(mapFiles));
 
-
-            CompilingManager.MapFiles.CollectionChanged += MapFiles_CollectionChanged;
-        }
-
-        static void MapFiles_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
-        {
-            File.WriteAllLines(mapFiles, CompilingManager.MapFiles);
+            CompilingManager.MapFiles.CollectionChanged +=
+                delegate { File.WriteAllLines(mapFiles, CompilingManager.MapFiles); };
         }
     }
 }

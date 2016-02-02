@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Windows.Documents;
 using System.Windows.Media;
 using System.Windows.Threading;
+using CompilePalX.Compilers;
 using CompilePalX.Compiling;
 
 namespace CompilePalX
@@ -54,15 +55,10 @@ namespace CompilePalX
             compileThread.Start();
         }
 
-        private static string runningDirectory = "CompileLogs";
-
         private static void CompileThreaded()
         {
             try
             {
-                if (!Directory.Exists(runningDirectory))
-                    Directory.CreateDirectory(runningDirectory);
-
                 ProgressManager.SetProgress(0);
 
                 var compileErrors = new List<Error>();
@@ -73,63 +69,14 @@ namespace CompilePalX
 
                     foreach (var compileProcess in ConfigurationManager.CompileProcesses.Where(c => c.DoRun))
                     {
+                        compileProcess.Run(GameConfigurationManager.BuildContext(mapFile));
 
-                        compileProcess.Process = new Process { StartInfo = { RedirectStandardOutput = true, RedirectStandardInput = true, RedirectStandardError = true, UseShellExecute = false, CreateNoWindow = true } };
-
-
-                        compileProcess.Process.StartInfo.FileName = compileProcess.Path;
-                        compileProcess.Process.StartInfo.Arguments = GameConfigurationManager.SubstituteValues(compileProcess.GetParameterString(), mapFile);
-                        compileProcess.Process.StartInfo.WorkingDirectory = runningDirectory;
-
-                        compileProcess.Process.Start();
-                        compileProcess.Process.PriorityClass = ProcessPriorityClass.BelowNormal;
-
-                        char[] buffer = new char[256];
-                        Task<int> read = null;
-
-                        while (true)
+                        if (compileProcess is CompileExecutable)
                         {
-                            if (read == null)
-                                read = compileProcess.Process.StandardOutput.ReadAsync(buffer, 0, buffer.Length);
+                            var executable = compileProcess as CompileExecutable;
 
-                            read.Wait(100); // an arbitray timeout
-
-                            if (read.IsCompleted)
-                            {
-                                if (read.Result > 0)
-                                {
-                                    string text = new string(buffer, 0, read.Result);
-
-                                    var error = GetError(text);
-
-                                    if (error != null)
-                                    {
-                                        if (error.Severity == 5)
-                                        {
-                                            CompilePalLogger.LogLineColor("An error cancelled the compile.", Brushes.Red);
-                                            ProgressManager.ErrorProgress();
-                                            return;
-                                        }
-
-                                        CompilePalLogger.LogCompileError(text, error);
-
-                                        compileErrors.Add(error);
-
-                                    }
-                                    else
-                                        CompilePalLogger.Log(text);
-
-                                    read = null; // ok, this task completed so we need to create a new one
-                                    continue;
-                                }
-
-                                // got -1, process ended
-                                break;
-                            }
+                            compileErrors.AddRange(executable.CompileErrors);
                         }
-
-                        compileProcess.Process.WaitForExit();
-
 
                         ProgressManager.Progress += (1d / ConfigurationManager.CompileProcesses.Count(c => c.DoRun)) / MapFiles.Count;
                     }
@@ -198,33 +145,5 @@ namespace CompilePalX
 
             postCompile(null);
         }
-
-        private static string lineBuffer = string.Empty;
-        static Error GetError(string text)
-        {
-            //The process of trying to sort the random spouts of letters back into lines. Hacky.
-
-            if (text.Contains("\n"))
-            {
-                lineBuffer += text;
-
-                List<string> lines = lineBuffer.Split('\n').ToList();
-
-                lineBuffer = lines.Last();
-
-                foreach (string line in lines)
-                {
-                    var error = ErrorFinder.GetError(line);
-
-                    if (error != null)
-                        return error;
-                }
-            }
-            else
-                lineBuffer += text;
-
-            return null;
-        }
-
     }
 }
