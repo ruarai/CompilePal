@@ -28,7 +28,7 @@ namespace CompilePalX.Compilers.BSPPack
         private static string gameFolder;
         private static string bspPath;
 
-        private const string keysFolder = "Keys";
+        private const string keysFolder = "../../Keys";
 
         public override void Run(CompileContext context)
         {

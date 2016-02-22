@@ -119,8 +119,12 @@ namespace CompilePalX.Compilers.BSPPack
                         for (int j = 0; j < material_ids.Count; j++)
                             trimmedtable[i, j] = skintable[i, material_ids[j]];
 
-                    // used to trimmed table to fetch used vmts
-                    foreach (int skin in skins)
+                    // add default skin 0 in case of non-existing skin indexes
+                    if (skins.IndexOf(0) == -1 && skins.Where(s => s >= trimmedtable.GetLength(0)).Count() != 0)
+                        skins.Add(0);
+
+                    // use the trimmed table to fetch used vmts
+                    foreach (int skin in skins.Where(skin => skin < trimmedtable.GetLength(0)))
                         for (int j = 0; j < material_ids.Count; j++)
                             for (int k = 0; k < modelDirs.Count; k++)
                             {
