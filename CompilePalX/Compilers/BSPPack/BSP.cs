@@ -112,11 +112,13 @@ namespace CompilePalX.Compilers.BSPPack
             
             // find skybox materials
             Dictionary<string, string> worldspawn = entityList.First(item => item["classname"] == "worldspawn");
-            foreach (string s in new string[] { "bk", "dn", "ft", "lf", "rt", "up" })
-                TextureList.Add("materials/skybox/" + worldspawn["skyname"] + s + ".vmt");
+            if (worldspawn.ContainsKey("skyname"))
+                foreach (string s in new string[] { "bk", "dn", "ft", "lf", "rt", "up" })
+                    TextureList.Add("materials/skybox/" + worldspawn["skyname"] + s + ".vmt");
 
             // find detail materials
-            TextureList.Add("materials/" + worldspawn["detailmaterial"] + ".vmt");
+            if (worldspawn.ContainsKey("detailmaterial"))
+                TextureList.Add("materials/" + worldspawn["detailmaterial"] + ".vmt");
 
             // find menu photos
             TextureList.Add("materials/vgui/maps/menu_photos_" + mapname + ".vmt");

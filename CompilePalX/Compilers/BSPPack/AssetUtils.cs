@@ -354,15 +354,21 @@ namespace CompilePalX.Compilers.BSPPack
             }
 
             // detail file (.vbsp)
-            internalPath = bsp.entityList.First(item => item["classname"] == "worldspawn")["detailvbsp"];
-            foreach (string source in sourceDirectories)
-            {
-                string externalPath = source + "/" + internalPath;
 
-                if (File.Exists(externalPath))
+            Dictionary<string, string> worldspawn = bsp.entityList.First(item => item["classname"] == "worldspawn");
+            if (worldspawn.ContainsKey("detailvbsp"))
+            {
+                internalPath = worldspawn["detailvbsp"];
+
+                foreach (string source in sourceDirectories)
                 {
-                    bsp.detail = new KeyValuePair<string, string>(internalPath, externalPath);
-                    break;
+                    string externalPath = source + "/" + internalPath;
+
+                    if (File.Exists(externalPath))
+                    {
+                        bsp.detail = new KeyValuePair<string, string>(internalPath, externalPath);
+                        break;
+                    }
                 }
             }
 
