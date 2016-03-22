@@ -11,6 +11,7 @@ Lights File; -lights;true;Load a custom lights file in addition to lights.rad an
 Smooth; -smooth;true;Set the threshold for smoothing groups, in degrees.;
 Luxel Density; -density;true;Scale down luxels. Maximum value is 1.;Too low a value can cause lighting errors.
 Static Prop Lighting; -StaticPropLighting;false;Generate per-vertex prop_static lighting; always enabled for light_spot entities.;
+Static Prop Sample Scale; -StaticPropSampleScale;true;To get proper lighting on static props 16 = slow, high quality, 4 = default and 0.25 = fast, low quality;Note that adding -final is the same as having -StaticPropLightingScale 16.
 Static Prop Polys; -StaticPropPolys;false;Generate lighting on props at polygon precision.;
 Texture Shadows; -TextureShadows;false;Generates lightmap shadows from $translucent surfaces of models. (Not brushes);
 Threads; -threads;true;Override the number of CPU threads used.;
