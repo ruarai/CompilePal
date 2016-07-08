@@ -61,6 +61,8 @@ namespace CompilePalX.Compilers.BSPPack
             buildTextureList();
 
             buildEntSoundList();
+
+            reader.Close();
             bsp.Close();
         }
 
@@ -132,20 +134,25 @@ namespace CompilePalX.Compilers.BSPPack
             EntTextureList = new List<string>();
             foreach (Dictionary<string, string> ent in entityList)
             {
-                string toAdd = "";
+                List<string> materials = new List<string>();
                 foreach (KeyValuePair<string, string> prop in ent)
                     if (Keys.vmfMaterialKeys.Contains(prop.Key.ToLower()))
-                        toAdd = prop.Value;
+                    {
+                        materials.Add(prop.Value);
+                        if (prop.Key.ToLower().StartsWith("team_icon"))
+                            materials.Add(prop.Value + "_locked");
+                    }
 
                 if (ent["classname"].Contains("sprite") && ent.ContainsKey("model"))
-                    toAdd = ent["model"];
+                    materials.Add(ent["model"]);
 
-                if (toAdd != string.Empty)
+                foreach(string material in materials)
                 {
-                    toAdd = "materials/" + toAdd;
-                    if (!toAdd.EndsWith(".vmt"))
-                        toAdd += ".vmt";
-                    EntTextureList.Add(toAdd);
+                    string materialpath = material;
+                    if (!material.EndsWith(".vmt"))
+                        materialpath += ".vmt";
+
+                    EntTextureList.Add("materials/" + materialpath);
                 }        
             }
         }
