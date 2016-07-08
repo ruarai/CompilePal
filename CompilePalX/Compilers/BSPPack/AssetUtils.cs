@@ -167,7 +167,7 @@ namespace CompilePalX.Compilers.BSPPack
 
                 if (Keys.vmtTextureKeyWords.Any(key => param.ToLower().StartsWith(key + " ")))
                     vtfList.Add("materials/" +
-                        param.Split(new char[] { ' ' }, 2)[1].Trim() + ".vtf");
+                        param.Split(new char[] { ' ' }, 2)[1].Trim(new char[] { ' ', '/', '\\' }) + ".vtf");
             }
             return vtfList;
         }
@@ -182,7 +182,7 @@ namespace CompilePalX.Compilers.BSPPack
                 string param = line.Replace("\"", " ").Replace("\t", " ").Trim();
                 if (Keys.vmtMaterialKeyWords.Any(key => param.StartsWith(key + " ")))
                 {
-                    vmtList.Add("materials/" + param.Split(new char[] { ' ' }, 2)[1].Trim());
+                    vmtList.Add("materials/" + param.Split(new char[] { ' ' }, 2)[1].Trim(new char[] { ' ', '/', '\\' }));
                     if (!vmtList.Last().EndsWith(".vmt"))
                         vmtList[vmtList.Count - 1] += ".vmt";
                 }

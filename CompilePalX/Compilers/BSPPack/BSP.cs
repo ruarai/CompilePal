@@ -61,6 +61,7 @@ namespace CompilePalX.Compilers.BSPPack
             buildTextureList();
 
             buildEntSoundList();
+            bsp.Close();
         }
 
         public void buildEntityList()
