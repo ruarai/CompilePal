@@ -71,11 +71,17 @@ namespace CompilePalX.Compilers.BSPPack
                 CompilePalLogger.LogLine(pakfile.mdlcount + " models added");
                 CompilePalLogger.LogLine(pakfile.pcfcount + " particle files added");
                 CompilePalLogger.LogLine(pakfile.sndcount + " sounds added");
-                CompilePalLogger.LogLine("Nav file: " + (map.nav.Key != default(string) ? "yes" : "no"));
-                CompilePalLogger.LogLine("Soundscape: " + (map.soundscape.Key != default(string) ? "yes" : "no"));
-                CompilePalLogger.LogLine("Soundscript: " + (map.soundscript.Key != default(string) ? "yes" : "no"));
-                CompilePalLogger.LogLine("Detail File: " + (map.detail.Key != default(string) ? "yes" : "no"));
-                CompilePalLogger.LogLine("Particle Manifest: " + (map.particleManifest.Key != default(string) ? "yes" : "no"));
+                string additionalFiles =
+                    (map.nav.Key != default(string) ? "\n-nav file" : "") +
+                    (map.soundscape.Key != default(string) ? "\n-soundscape" : "") +
+                    (map.soundscript.Key != default(string) ? "\n-soundscript" : "") +
+                    (map.detail.Key != default(string) ? "\n-detail file" : "") +
+                    (map.particleManifest.Key != default(string) ? "\n-particle manifest" : "") +
+                    (map.radartxt.Key != default(string) ? "\n-radar files" : "") +
+                    (map.txt.Key != default(string) ? "\n-loading screen text" : "") +
+                    (map.kv.Key != default(string) ? "\n-kv file" : "");
+                CompilePalLogger.LogLine(additionalFiles != default(string) ?
+                    "additional files: " + additionalFiles : "none");
                 CompilePalLogger.LogLine("---------------------");
 
             }
