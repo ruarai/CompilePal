@@ -454,6 +454,17 @@ namespace CompilePalX.Compilers.BSPPack
                 }
             }
 
+            // csgo loading screen image (.jpg)
+            internalPath = "maps/" + bsp.file.Name.Replace(".bsp", "");
+            foreach (string source in sourceDirectories)
+            {
+                string externalPath = source + "/" + internalPath;
+
+                foreach (string extension in new String[] {".jpg", ".jpeg"})
+                    if (File.Exists(externalPath + extension))
+                        bsp.jpg = new KeyValuePair<string, string>(internalPath + ".jpg", externalPath + extension);
+            }
+
             // language files, particle manifests and soundscript file
             // (these language files are localized text files for tf2 mission briefings)
             string internalDir = "maps/";

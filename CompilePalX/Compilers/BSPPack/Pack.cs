@@ -79,6 +79,7 @@ namespace CompilePalX.Compilers.BSPPack
                     (map.particleManifest.Key != default(string) ? "\n-particle manifest" : "") +
                     (map.radartxt.Key != default(string) ? "\n-radar files" : "") +
                     (map.txt.Key != default(string) ? "\n-loading screen text" : "") +
+                    (map.jpg.Key != default(string) ? "\n-loading screen image" : "") +
                     (map.kv.Key != default(string) ? "\n-kv file" : "");
                 CompilePalLogger.LogLine(additionalFiles != default(string) ?
                     "additional files: " + additionalFiles : "none");

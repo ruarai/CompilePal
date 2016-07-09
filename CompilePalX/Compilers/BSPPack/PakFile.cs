@@ -39,6 +39,9 @@ namespace CompilePalX.Compilers.BSPPack
             if (bsp.txt.Key != default(string))
                 Files.Add(bsp.txt);
 
+            if (bsp.jpg.Key != default(string))
+                Files.Add(bsp.jpg);
+
             if (bsp.radartxt.Key != default(string))
                 Files.Add(bsp.radartxt);
 
