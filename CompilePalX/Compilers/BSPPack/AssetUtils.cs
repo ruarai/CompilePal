@@ -428,7 +428,7 @@ namespace CompilePalX.Compilers.BSPPack
                 }
             }
 
-            // kv file (.kv)
+            // csgo kv file (.kv)
             internalPath = "maps/" + bsp.file.Name.Replace(".bsp", ".kv");
             foreach (string source in sourceDirectories)
             {
@@ -437,6 +437,19 @@ namespace CompilePalX.Compilers.BSPPack
                 if (File.Exists(externalPath))
                 {
                     bsp.kv = new KeyValuePair<string, string>(internalPath, externalPath);
+                    break;
+                }
+            }
+
+            // csgo loading screen text file (.txt)
+            internalPath = "maps/" + bsp.file.Name.Replace(".bsp", ".txt");
+            foreach (string source in sourceDirectories)
+            {
+                string externalPath = source + "/" + internalPath;
+
+                if (File.Exists(externalPath))
+                {
+                    bsp.txt = new KeyValuePair<string, string>(internalPath, externalPath);
                     break;
                 }
             }
