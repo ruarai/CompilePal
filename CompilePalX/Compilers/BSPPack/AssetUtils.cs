@@ -208,8 +208,9 @@ namespace CompilePalX.Compilers.BSPPack
         public static string vmtPathParser(string vmtline)
         {
             vmtline = vmtline.Split(new char[] { ' ' }, 2)[1]; // removes the parameter name
-            vmtline = vmtline.Split(new string[] { "//", "\\" }, StringSplitOptions.None)[0]; // removes endline parameter
+            vmtline = vmtline.Split(new string[] { "//", "\\\\" }, StringSplitOptions.None)[0]; // removes endline parameter
             vmtline = vmtline.Trim(new char[] { ' ', '/', '\\' }); // removes leading slashes
+            vmtline = vmtline.Split(new string[] { "materials/" }, StringSplitOptions.RemoveEmptyEntries)[0];// removes materials/ for consistency
             if (vmtline.EndsWith(".vmt") || vmtline.EndsWith(".vtf")) // removes extentions if present for consistency
                 vmtline = vmtline.Substring(0, vmtline.Length - 4);
             return vmtline;
@@ -328,8 +329,8 @@ namespace CompilePalX.Compilers.BSPPack
         public static void findBspPakDependencies(BSP bsp, string tempdir)
         {
             // Search the temp folder to find dependencies of files extracted from the pak file
-            if (Directory.Exists("tmp"))
-                foreach (String file in Directory.EnumerateFiles("tmp", "*.vmt", SearchOption.AllDirectories))
+            if (Directory.Exists(tempdir))
+                foreach (String file in Directory.EnumerateFiles(tempdir, "*.vmt", SearchOption.AllDirectories))
                     foreach (string material in AssetUtils.findVmtMaterials(new FileInfo(file).FullName))
                         bsp.TextureList.Add(material);
         }
@@ -398,6 +399,7 @@ namespace CompilePalX.Compilers.BSPPack
 
             // Radar file
             internalPath = "resource/overviews/" + bsp.file.Name.Replace(".bsp", ".txt");
+            List<KeyValuePair<string, string>> ddsfiles = new List<KeyValuePair<string, string>>();
             foreach (string source in sourceDirectories)
             {
                 string externalPath = source + "/" + internalPath;
@@ -408,7 +410,6 @@ namespace CompilePalX.Compilers.BSPPack
                     bsp.TextureList.AddRange(findVmtMaterials(externalPath));
 
                     List<string> ddsInternalPaths = findRadarDdsFiles(externalPath);
-                    List<KeyValuePair<string, string>> ddsfiles = new List<KeyValuePair<string, string>>();
                     //find out if they exists or not
                     foreach (string ddsInternalPath in ddsInternalPaths)
                     {
@@ -422,11 +423,10 @@ namespace CompilePalX.Compilers.BSPPack
                             }
                         }
                     }
-                    bsp.radardds = ddsfiles;
                     break;
-                    
                 }
             }
+            bsp.radardds = ddsfiles;
 
             // csgo kv file (.kv)
             internalPath = "maps/" + bsp.file.Name.Replace(".bsp", ".kv");

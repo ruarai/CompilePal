@@ -30,6 +30,8 @@ namespace CompilePalX.Compilers.BSPPack
 
         private const string keysFolder = "../../Keys";
 
+        private static bool verbose = false;
+
         public override void Run(CompileContext context)
         {
             try
@@ -114,6 +116,12 @@ namespace CompilePalX.Compilers.BSPPack
 
             var p = new Process { StartInfo = startInfo };
             p.Start();
+            string output = p.StandardOutput.ReadToEnd();
+
+            if (verbose)
+                CompilePalLogger.Log(output);
+            p.WaitForExit();
+            
         }
 
         static void PackBSP()
@@ -130,9 +138,12 @@ namespace CompilePalX.Compilers.BSPPack
             startInfo.EnvironmentVariables["VPROJECT"] = gameFolder;
 
             var p = new Process { StartInfo = startInfo };
-            p.OutputDataReceived += p_OutputDataReceived;
 
             p.Start();
+            string output = p.StandardOutput.ReadToEnd();
+            if (verbose)
+                CompilePalLogger.Log(output);
+            p.WaitForExit();
         }
 
         static void p_OutputDataReceived(object sender, DataReceivedEventArgs e)
