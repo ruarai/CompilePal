@@ -33,12 +33,11 @@ namespace CompilePalX.Compilers.BSPPack
             if (bsp.detail.Key != default(string))
                 Files.Add(bsp.detail);
 
+            if (bsp.kv.Key != default(string))
+                Files.Add(bsp.kv);
+
             if (bsp.radartxt.Key != default(string))
-            {
                 Files.Add(bsp.radartxt);
-                foreach (string material in AssetUtils.findVmtMaterials(bsp.radartxt.Value))
-                    AddTexture(material);
-            }
 
             if (bsp.particleManifest.Key != default(string))
             {

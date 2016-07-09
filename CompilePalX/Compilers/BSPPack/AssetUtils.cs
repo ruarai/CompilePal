@@ -379,7 +379,6 @@ namespace CompilePalX.Compilers.BSPPack
             }
 
             // detail file (.vbsp)
-
             Dictionary<string, string> worldspawn = bsp.entityList.First(item => item["classname"] == "worldspawn");
             if (worldspawn.ContainsKey("detailvbsp"))
             {
@@ -426,6 +425,19 @@ namespace CompilePalX.Compilers.BSPPack
                     bsp.radardds = ddsfiles;
                     break;
                     
+                }
+            }
+
+            // kv file (.kv)
+            internalPath = "maps/" + bsp.file.Name.Replace(".bsp", ".kv");
+            foreach (string source in sourceDirectories)
+            {
+                string externalPath = source + "/" + internalPath;
+
+                if (File.Exists(externalPath))
+                {
+                    bsp.kv = new KeyValuePair<string, string>(internalPath, externalPath);
+                    break;
                 }
             }
 
