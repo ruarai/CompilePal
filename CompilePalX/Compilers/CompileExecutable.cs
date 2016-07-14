@@ -77,6 +77,10 @@ namespace CompilePalX.Compilers
 
                         if (error != null)
                         {
+                            CompilePalLogger.LogCompileError(text, error);
+
+                            CompileErrors.Add(error);
+
                             if (error.Severity == 5)
                             {
                                 CompilePalLogger.LogLineColor("An error cancelled the compile.", Brushes.Red);
@@ -84,9 +88,6 @@ namespace CompilePalX.Compilers
                                 return;
                             }
 
-                            CompilePalLogger.LogCompileError(text, error);
-
-                            CompileErrors.Add(error);
                         }
                         else
                             CompilePalLogger.Log(text);
