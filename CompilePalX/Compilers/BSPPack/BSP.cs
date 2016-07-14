@@ -33,6 +33,11 @@ namespace CompilePalX.Compilers.BSPPack
         public KeyValuePair<string, string> soundscape { get; set; }
         public KeyValuePair<string, string> detail { get; set; }
         public KeyValuePair<string, string> nav { get; set; }
+        public KeyValuePair<string, string> kv { get; set; }
+        public KeyValuePair<string, string> txt { get; set; }
+        public KeyValuePair<string, string> jpg { get; set; }
+        public KeyValuePair<string, string> radartxt { get; set; }
+        public List<KeyValuePair<string, string>> radardds { get; set; }
         public List<KeyValuePair<string, string>> languages { get; set; }
 
         public FileInfo file { get; private set; }
@@ -61,6 +66,9 @@ namespace CompilePalX.Compilers.BSPPack
             buildTextureList();
 
             buildEntSoundList();
+
+            reader.Close();
+            bsp.Close();
         }
 
         public void buildEntityList()
@@ -112,11 +120,13 @@ namespace CompilePalX.Compilers.BSPPack
             
             // find skybox materials
             Dictionary<string, string> worldspawn = entityList.First(item => item["classname"] == "worldspawn");
-            foreach (string s in new string[] { "bk", "dn", "ft", "lf", "rt", "up" })
-                TextureList.Add("materials/skybox/" + worldspawn["skyname"] + s + ".vmt");
+            if (worldspawn.ContainsKey("skyname"))
+                foreach (string s in new string[] { "bk", "dn", "ft", "lf", "rt", "up" })
+                    TextureList.Add("materials/skybox/" + worldspawn["skyname"] + s + ".vmt");
 
             // find detail materials
-            TextureList.Add("materials/" + worldspawn["detailmaterial"] + ".vmt");
+            if (worldspawn.ContainsKey("detailmaterial"))
+                TextureList.Add("materials/" + worldspawn["detailmaterial"] + ".vmt");
 
             // find menu photos
             TextureList.Add("materials/vgui/maps/menu_photos_" + mapname + ".vmt");
@@ -129,20 +139,25 @@ namespace CompilePalX.Compilers.BSPPack
             EntTextureList = new List<string>();
             foreach (Dictionary<string, string> ent in entityList)
             {
-                string toAdd = "";
+                List<string> materials = new List<string>();
                 foreach (KeyValuePair<string, string> prop in ent)
                     if (Keys.vmfMaterialKeys.Contains(prop.Key.ToLower()))
-                        toAdd = prop.Value;
+                    {
+                        materials.Add(prop.Value);
+                        if (prop.Key.ToLower().StartsWith("team_icon"))
+                            materials.Add(prop.Value + "_locked");
+                    }
 
                 if (ent["classname"].Contains("sprite") && ent.ContainsKey("model"))
-                    toAdd = ent["model"];
+                    materials.Add(ent["model"]);
 
-                if (toAdd != string.Empty)
+                foreach(string material in materials)
                 {
-                    toAdd = "materials/" + toAdd;
-                    if (!toAdd.EndsWith(".vmt"))
-                        toAdd += ".vmt";
-                    EntTextureList.Add(toAdd);
+                    string materialpath = material;
+                    if (!material.EndsWith(".vmt"))
+                        materialpath += ".vmt";
+
+                    EntTextureList.Add("materials/" + materialpath);
                 }        
             }
         }

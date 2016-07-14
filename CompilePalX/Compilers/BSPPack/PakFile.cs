@@ -33,6 +33,18 @@ namespace CompilePalX.Compilers.BSPPack
             if (bsp.detail.Key != default(string))
                 Files.Add(bsp.detail);
 
+            if (bsp.kv.Key != default(string))
+                Files.Add(bsp.kv);
+
+            if (bsp.txt.Key != default(string))
+                Files.Add(bsp.txt);
+
+            if (bsp.jpg.Key != default(string))
+                Files.Add(bsp.jpg);
+
+            if (bsp.radartxt.Key != default(string))
+                Files.Add(bsp.radartxt);
+
             if (bsp.particleManifest.Key != default(string))
             {
                 Files.Add(bsp.particleManifest);
@@ -60,6 +72,8 @@ namespace CompilePalX.Compilers.BSPPack
             foreach (Dictionary<string, string> cc in bsp.entityList.Where(item => item["classname"] == "color_correction"))
                 AddFile(cc["filename"], FindExternalFile(cc["filename"]));
 
+            foreach (KeyValuePair<string, string> dds in bsp.radardds)
+                AddFile(dds.Key, dds.Value);
             foreach (KeyValuePair<string, string> lang in bsp.languages)
                 AddFile(lang.Key, lang.Value);
             foreach (string model in bsp.EntModelList)
