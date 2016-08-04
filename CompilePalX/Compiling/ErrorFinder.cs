@@ -20,6 +20,7 @@ namespace CompilePalX
         //interlopers list of errors
         private static string errorURL = "http://www.interlopers.net/includes/errorpage/errorChecker.txt";
 
+        private static Regex errorDescriptionPattern = new Regex("<h4>(.*?)</h4>");
 
         private static string errorStyle = Path.Combine("Compiling", "errorstyle.html");
         private static string errorCache = Path.Combine("Compiling", "errors.txt");
@@ -74,7 +75,8 @@ namespace CompilePalX
                 error.RegexTrigger = new Regex(data[1]);
                 i++;
 
-
+                var shortDesc = errorDescriptionPattern.Match(lines[i]);
+                error.ShortDescription = shortDesc.Success ? shortDesc.Groups[1].Value : "unknown error";
 
                 error.Message = style.Replace("%content%", lines[i]);
 
@@ -115,6 +117,7 @@ namespace CompilePalX
     {
         public Regex RegexTrigger;
         public string Message;
+        public string ShortDescription;
         public int Severity;
 
         public int ID;

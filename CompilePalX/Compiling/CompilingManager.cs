@@ -104,7 +104,7 @@ namespace CompilePalX
                 {
                     i++;
 
-                    string errorText = string.Format("({0}) - ({1})", i, Error.GetSeverityText(error.Severity)) + Environment.NewLine;
+                    string errorText = string.Format("({0}) - {1} ({2})", i, error.ShortDescription, Error.GetSeverityText(error.Severity)) + Environment.NewLine;
 
                     CompilePalLogger.LogCompileError(errorText, error);
 
