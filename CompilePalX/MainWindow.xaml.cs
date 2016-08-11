@@ -300,19 +300,12 @@ namespace CompilePalX
                 ConfigDataGrid.ItemsSource = selectedProcess.PresetDictionary[ConfigurationManager.CurrentPreset];
 
                 UpdateParameterTextBox();
-
-                DoRunCheckBox.IsChecked = selectedProcess.DoRun;
             }
         }
         void UpdateParameterTextBox()
         {
             if (selectedProcess != null)
                 ParametersTextBox.Text = selectedProcess.GetParameterString();
-        }
-
-        private void DoRunCheckBox_Checked(object sender, RoutedEventArgs e)
-        {
-            selectedProcess.DoRun = DoRunCheckBox.IsChecked.GetValueOrDefault(false);
         }
 
         private void MetroWindow_Activated(object sender, EventArgs e)

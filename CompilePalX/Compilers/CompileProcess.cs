@@ -41,7 +41,7 @@ namespace CompilePalX
         public float Order { get; set; }
         public string ParameterFile;
         public string MetadataFile;
-        public bool DoRun;
+        public bool DoRun { get; set; }
         public bool ReadOutput;
 
 
