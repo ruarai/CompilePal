@@ -6,8 +6,7 @@
                       BorderBrush="{DynamicResource AccentColorBrush}" BorderThickness="1" 
                       IconEdgeMode="Aliased" Icon="..\CompilePalIcon.ico" ShowIconOnTitleBar="False" >
     <Grid>
-
-        <DataGrid x:Name="GameGrid" Margin="10,10,10,40"  AutoGenerateColumns="False" CanUserAddRows="False" ItemsSource="{Binding}" >
+        <DataGrid x:Name="GameGrid" Margin="10,10,10,40"  AutoGenerateColumns="False" CanUserAddRows="False" ItemsSource="{Binding}" MouseDoubleClick="Button_Click">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Name" Binding="{ Binding Name}" IsReadOnly="True"/>
                 <DataGridTextColumn Header="Path" Binding="{ Binding GameFolder}" IsReadOnly="True"/>
