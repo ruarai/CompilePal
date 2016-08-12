@@ -37,11 +37,16 @@ Compile Pal can detect and provide information relating to errors using the Inte
 ![errors](http://i.imgur.com/JA3gH3x.png)
 ![errors](http://i.imgur.com/Ckz5XyA.png)
 
-## Contributors
+## Contributing
+
+###
+
+Whilst Compile Pal is not under active development, we are accepting pull requests. Those who are knowledgeable are encouraged to work on the project! New features or bugfixes are always welcome. We also make good use of any issues [reported to us](https://github.com/ruarai/CompilePal/issues).
 
 ### Developers
 - Ruarai
 - Maxdup
+- iMilo
 
 
 ### Bug Testing

@@ -153,21 +153,21 @@
     <Content Include="Compiling\errorstyle.html">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Resource Include="Keys\materialkeys.txt">
+    <Content Include="Keys\materialkeys.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="Keys\texturekeys.txt">
+    </Content>
+    <Content Include="Keys\texturekeys.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="Keys\vmfmaterialkeys.txt">
+    </Content>
+    <Content Include="Keys\vmfmaterialkeys.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="Keys\vmfmodelkeys.txt">
+    </Content>
+    <Content Include="Keys\vmfmodelkeys.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="Keys\vmfsoundkeys.txt">
+    </Content>
+    <Content Include="Keys\vmfsoundkeys.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Resource>
+    </Content>
     <Content Include="version.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
