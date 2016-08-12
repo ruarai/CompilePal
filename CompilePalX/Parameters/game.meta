@@ -1,7 +1,7 @@
 GAME
 $gameEXE$
 game.csv
- +map $map$
+ -game $game$ +map $map$
 6.0
 false
 false
