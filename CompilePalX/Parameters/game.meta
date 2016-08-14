@@ -2,6 +2,6 @@ GAME
 $gameEXE$
 game.csv
  -game $game$ +map $map$
-6.0
+12
 false
 false

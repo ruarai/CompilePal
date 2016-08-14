@@ -1,5 +1,5 @@
 PACK
-BSPPack.exe
+builtin
 pack.csv
  -game $game$ -bsp $bsp$ -bspZip $bspZip$ -keys $keys$
 4.0

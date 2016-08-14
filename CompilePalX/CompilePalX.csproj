@@ -75,6 +75,7 @@
     <Compile Include="Compilers\BSPPack\PakFile.cs" />
     <Compile Include="Compilers\BSPPack\Pack.cs" />
     <Compile Include="Compilers\CompileExecutable.cs" />
+    <Compile Include="Compilers\CubemapProcess.cs" />
     <Compile Include="Compiling\ErrorWindow.xaml.cs">
       <DependentUpon>ErrorWindow.xaml</DependentUpon>
     </Compile>
@@ -220,6 +221,12 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Parameters\repack.meta">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Parameters\BuiltIn\cubemaps.meta">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Parameters\cubemaps.csv">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <None Include="Presets\Fast\copy.csv">

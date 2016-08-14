@@ -32,8 +32,7 @@ namespace CompilePalX
 
 
             text = text.Replace("$bspZip$", string.Format("\"{0}\"", GameConfiguration.BSPZip));
-
-            text = text.Replace("$keys$", string.Format("\"{0}\"", Path.Combine(Environment.CurrentDirectory, "Keys")));
+            text = text.Replace("$bspZip$", string.Format("\"{0}\"", GameConfiguration.VBSPInfo));
 
 
             return text;
