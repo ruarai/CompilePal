@@ -1,0 +1,7 @@
+COPY
+xcopy
+copy.csv
+ /y /f $bsp$ $mapFolder$
+5.0
+true
+true
