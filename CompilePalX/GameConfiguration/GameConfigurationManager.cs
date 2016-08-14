@@ -32,7 +32,7 @@ namespace CompilePalX
 
 
             text = text.Replace("$bspZip$", string.Format("\"{0}\"", GameConfiguration.BSPZip));
-            text = text.Replace("$bspZip$", string.Format("\"{0}\"", GameConfiguration.VBSPInfo));
+            text = text.Replace("$vbspInfo$", string.Format("\"{0}\"", GameConfiguration.VBSPInfo));
 
 
             return text;
