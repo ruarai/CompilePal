@@ -1,5 +1,4 @@
-### Download
-https://github.com/ruarai/CompilePal/releases/latest
+[![Download](http://i.imgur.com/UjPs7Sr.png)](https://github.com/ruarai/CompilePal/releases/latest)
 
 ![CompilePal](http://i.imgur.com/jPEig83.png)
 
