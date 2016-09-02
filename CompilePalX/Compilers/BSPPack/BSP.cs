@@ -122,7 +122,10 @@ namespace CompilePalX.Compilers.BSPPack
             Dictionary<string, string> worldspawn = entityList.First(item => item["classname"] == "worldspawn");
             if (worldspawn.ContainsKey("skyname"))
                 foreach (string s in new string[] { "bk", "dn", "ft", "lf", "rt", "up" })
+                {
                     TextureList.Add("materials/skybox/" + worldspawn["skyname"] + s + ".vmt");
+                    TextureList.Add("materials/skybox/" + worldspawn["skyname"] + "_hdr" + s + ".vmt");
+                }
 
             // find detail materials
             if (worldspawn.ContainsKey("detailmaterial"))
