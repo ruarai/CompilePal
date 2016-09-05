@@ -31,10 +31,12 @@ namespace CompilePalX.Compilers.BSPPack
         private const string keysFolder = "Keys";
 
         private static bool verbose;
+        private static bool dryrun;
 
         public override void Run(CompileContext context)
         {
             verbose = GetParameterString().Contains("-verbose");
+            dryrun = GetParameterString().Contains("-dryrun");
             try
             {
 
@@ -66,16 +68,23 @@ namespace CompilePalX.Compilers.BSPPack
                 CompilePalLogger.LogLine("Writing file list...");
                 pakfile.OutputToFile();
 
-                CompilePalLogger.LogLine("Running bspzip...");
-                PackBSP();
-
-                CompilePalLogger.LogLine("Finished packing!");
+                if (dryrun)
+                {
+                    CompilePalLogger.LogLine("File list saved as " + Environment.CurrentDirectory + "\\files.txt");
+                }
+                else
+                {
+                    CompilePalLogger.LogLine("Running bspzip...");
+                    PackBSP();
+                }
+                
+                CompilePalLogger.LogLine("Finished!");
 
                 CompilePalLogger.LogLine("---------------------");
-                CompilePalLogger.LogLine(pakfile.vmtcount + " materials added");
-                CompilePalLogger.LogLine(pakfile.mdlcount + " models added");
-                CompilePalLogger.LogLine(pakfile.pcfcount + " particle files added");
-                CompilePalLogger.LogLine(pakfile.sndcount + " sounds added");
+                CompilePalLogger.LogLine(pakfile.vmtcount + " materials found");
+                CompilePalLogger.LogLine(pakfile.mdlcount + " models found");
+                CompilePalLogger.LogLine(pakfile.pcfcount + " particle files found");
+                CompilePalLogger.LogLine(pakfile.sndcount + " sounds found");
                 string additionalFiles =
                     (map.nav.Key != default(string) ? "\n-nav file" : "") +
                     (map.soundscape.Key != default(string) ? "\n-soundscape" : "") +

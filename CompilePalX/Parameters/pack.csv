@@ -1,3 +1,4 @@
 sep=;
 Name;Parameter;ValueValid;Description;Issues
 Verbose; -verbose;FALSE;Outputs a complete listing of added assets;
+Dryrun; -dryrun;FALSE;Creates a txt file for bspzip usage but does not pak;
