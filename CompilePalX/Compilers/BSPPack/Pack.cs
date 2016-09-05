@@ -32,11 +32,14 @@ namespace CompilePalX.Compilers.BSPPack
 
         private static bool verbose;
         private static bool dryrun;
+        private static bool renamenav;
 
         public override void Run(CompileContext context)
         {
             verbose = GetParameterString().Contains("-verbose");
             dryrun = GetParameterString().Contains("-dryrun");
+            renamenav = GetParameterString().Contains("-renamenav");
+
             try
             {
 
@@ -56,7 +59,7 @@ namespace CompilePalX.Compilers.BSPPack
 
                 CompilePalLogger.LogLine("Reading BSP...");
                 BSP map = new BSP(new FileInfo(bspPath));
-                AssetUtils.findBspUtilityFiles(map, sourceDirectories);
+                AssetUtils.findBspUtilityFiles(map, sourceDirectories, renamenav);
 
                 string unpackDir = System.IO.Path.GetTempPath() + Guid.NewGuid();
                 UnpackBSP(unpackDir);
