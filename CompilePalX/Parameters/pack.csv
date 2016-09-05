@@ -1,2 +1,3 @@
 sep=;
 Name;Parameter;ValueValid;Description;Issues
+Verbose; -verbose;FALSE;Outputs a complete listing of added assets;

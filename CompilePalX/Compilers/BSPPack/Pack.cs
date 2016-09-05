@@ -30,12 +30,15 @@ namespace CompilePalX.Compilers.BSPPack
 
         private const string keysFolder = "Keys";
 
-        private static bool verbose = false;
+        private static bool verbose;
 
         public override void Run(CompileContext context)
         {
+            verbose = GetParameterString().Contains("-verbose");
             try
             {
+
+                CompilePalLogger.LogLine();
                 bspZip = context.Configuration.BSPZip;
                 gameFolder = context.Configuration.GameFolder;
                 bspPath = context.BSPFile;
@@ -118,8 +121,6 @@ namespace CompilePalX.Compilers.BSPPack
             p.Start();
             string output = p.StandardOutput.ReadToEnd();
 
-            if (verbose)
-                CompilePalLogger.Log(output);
             p.WaitForExit();
             
         }
