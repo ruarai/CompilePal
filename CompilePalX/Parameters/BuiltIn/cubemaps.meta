@@ -5,3 +5,5 @@ cubemaps.csv
 9.0
 false
 true
+Game client must be closed in order to work.
+Builds cubemaps automatically.

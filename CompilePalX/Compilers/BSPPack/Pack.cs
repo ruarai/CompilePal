@@ -46,7 +46,7 @@ namespace CompilePalX.Compilers.BSPPack
                 CompilePalLogger.LogLine();
                 bspZip = context.Configuration.BSPZip;
                 gameFolder = context.Configuration.GameFolder;
-                bspPath = context.BSPFile;
+                bspPath = context.CopyLocation;
 
                 Keys.vmtTextureKeyWords = File.ReadAllLines(System.IO.Path.Combine(keysFolder, "texturekeys.txt")).ToList();
                 Keys.vmtMaterialKeyWords = File.ReadAllLines(System.IO.Path.Combine(keysFolder, "materialkeys.txt")).ToList();

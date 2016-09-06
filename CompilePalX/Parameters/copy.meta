@@ -2,6 +2,8 @@ COPY
 xcopy
 copy.csv
  /y /f $bsp$ $mapFolder$
-5.0
+4.0
 true
 true
+
+Copies the .bsp from the mapsrc folder to maps folder.
