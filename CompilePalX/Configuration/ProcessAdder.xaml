@@ -1,0 +1,15 @@
+﻿<controls:MetroWindow x:Class="CompilePalX.ProcessAdder"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+        Title="Process Chooser" Height="424" Width="918">
+    <Grid>
+        <DataGrid Name="ProcessDataGrid" Margin="10,10,10,10" AutoGenerateColumns="False" CanUserAddRows="False" ItemsSource="{Binding}" MouseDoubleClick="ConfigDataGrid_MouseUp" >
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Name" Binding="{ Binding Name}" IsReadOnly="True"/>
+                <DataGridTextColumn Header="Description" Binding="{ Binding Description}" IsReadOnly="True"/>
+                <DataGridTextColumn Header="Warning" Binding="{ Binding Warning}" IsReadOnly="True"/>
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</controls:MetroWindow>

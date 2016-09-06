@@ -36,13 +36,15 @@ namespace CompilePalX
 
         }
 
-        public string Name;
+        public string Name { get; set; }
         public string Path;
         public float Order { get; set; }
         public string ParameterFile;
         public string MetadataFile;
         public bool DoRun { get; set; }
         public bool ReadOutput;
+        public string Description { get; set; }
+        public string warning { get; set; }
 
 
         public Process Process;

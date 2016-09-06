@@ -24,21 +24,29 @@
                 <Grid Background="#FFE5E5E5">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="100"/>
-                        <ColumnDefinition Width="100"/>
+                        <ColumnDefinition Width="110"/>
                         <ColumnDefinition/>
                     </Grid.ColumnDefinitions>
-                    <ListBox Grid.Column="0" Name ="PresetConfigListBox" Margin="10,10,0,100" SelectionChanged="PresetConfigListBox_SelectionChanged" />
-                    <ListBox Grid.Column="1" Name ="CompileProcessesListBox" Margin="10,10,0,10" SelectionChanged="CompileProcessesListBox_SelectionChanged">
-                        <ListBox.ItemTemplate>
-                            <DataTemplate>
-                                <DockPanel HorizontalAlignment="Stretch">
-                                    <Label Content="{Binding}"/>
-                                    <CheckBox Content="{Binding Name}" IsChecked="{Binding DoRun ,Mode=TwoWay}" HorizontalAlignment="Right">
-                                    </CheckBox>
-                                </DockPanel>
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
+                    <DockPanel Grid.Column="0" Margin="10,10,0,10" Background="White">
+                        <Button x:Name="RemovePresetButton" Content="Remove" Margin="5,0,5,5" VerticalAlignment="Bottom" Click="RemovePresetButton_Click" DockPanel.Dock="Bottom"/>
+                        <Button x:Name="ClonePresetButton" Content="Clone..." Margin="5,0,5,5" VerticalAlignment="Bottom" Click="ClonePresetButton_OnClick" DockPanel.Dock="Bottom"/>
+                        <Button x:Name="AddPresetButton" Content="Add..." Margin="5,0,5,5" VerticalAlignment="Bottom"  Click="AddPresetButton_Click" DockPanel.Dock="Bottom"/>
+                        <ListBox Name ="PresetConfigListBox" Margin="0,0,0,5" SelectionChanged="PresetConfigListBox_SelectionChanged" />
+                    </DockPanel>
+                    <DockPanel Grid.Column="1" Margin="10,10,0,10" Background="White">
+                        <Button x:Name="RemoveProcessesButton" Content="Remove" Margin="5,0,5,5" VerticalAlignment="Bottom" DockPanel.Dock="Bottom" Click="RemoveProcessButton_Click"/>
+                        <Button x:Name="AddProcessesButton" Content="Add..." Margin="5,0,5,5" VerticalAlignment="Bottom" DockPanel.Dock="Bottom" Click="AddProcessButton_Click"/>
+                        <ListBox x:Name ="CompileProcessesListBox" Margin="0,0,0,5" SelectionChanged="CompileProcessesListBox_SelectionChanged">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <DockPanel HorizontalAlignment="Stretch">
+                                        <Label Content="{Binding}"/>
+                                        <CheckBox IsChecked="{Binding DoRun, Mode=TwoWay}" HorizontalAlignment="Right"/>
+                                    </DockPanel>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </DockPanel>
                     <Grid Grid.Column="2">
                         <Grid.RowDefinitions>
                             <RowDefinition/>
@@ -73,10 +81,6 @@
                             <Button Content="Remove" Margin="0,0,95,0" Grid.Row="1" Width="80" HorizontalAlignment="Right" VerticalAlignment="Top" Name="RemoveParameterButton" Click="RemoveParameterButton_OnClickParameterButton_Click"/>
                         </Grid>
                     </Grid>
-                    <Button x:Name="AddPresetButton" Content="Add..." HorizontalAlignment="Left" Margin="10,0,0,70" VerticalAlignment="Bottom" Width="90" Click="AddPresetButton_Click"/>
-                    <Button x:Name="ClonePresetButton" Content="Clone..." HorizontalAlignment="Left" Margin="10,0,0,40" VerticalAlignment="Bottom" Width="90" Click="ClonePresetButton_OnClick"/>
-                    <Button x:Name="RemovePresetButton" Content="Remove" HorizontalAlignment="Left" Margin="10,0,0,10" VerticalAlignment="Bottom" Width="90" Click="RemovePresetButton_Click"/>
-
                 </Grid>
             </TabItem>
             <TabItem Name="OutputTab" Header="OUTPUT">
