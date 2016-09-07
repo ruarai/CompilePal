@@ -135,6 +135,7 @@ namespace CompilePalX
 
         public static void NewPreset(string name)
         {
+            string[] defaultProcesses = new string[]{"VBSP", "VVIS", "VRAD", "COPY", "GAME"};
             string folder = Path.Combine(PresetsFolder, name);
             if (!Directory.Exists(folder))
             {
@@ -142,8 +143,11 @@ namespace CompilePalX
 
                 foreach (var process in CompileProcesses)
                 {
-                    string path = Path.ChangeExtension(Path.Combine(folder, process.ParameterFile), "csv");
-                    File.Create(path).Close();
+                    if (defaultProcesses.Contains(process.Name))
+                    {
+                        string path = Path.ChangeExtension(Path.Combine(folder, process.ParameterFile), "csv");
+                        File.Create(path).Close();
+                    }
                 }
             }
 
