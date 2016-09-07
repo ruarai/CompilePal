@@ -78,7 +78,8 @@ namespace CompilePalX
                             compileErrors.AddRange(executable.CompileErrors);
                         }
 
-                        ProgressManager.Progress += (1d / ConfigurationManager.CompileProcesses.Count(c => c.DoRun)) / MapFiles.Count;
+                        ProgressManager.Progress += (1d / ConfigurationManager.CompileProcesses.Count(c => c.DoRun && 
+                            c.PresetDictionary.ContainsKey(ConfigurationManager.CurrentPreset))) / MapFiles.Count;
                     }
                 }
 
