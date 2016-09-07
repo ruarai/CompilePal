@@ -42,8 +42,7 @@ namespace CompilePalX.Compilers.BSPPack
 
             try
             {
-
-                CompilePalLogger.LogLine();
+                CompilePalLogger.LogLine("\nCompilePal - Automated Packaging");
                 bspZip = context.Configuration.BSPZip;
                 gameFolder = context.Configuration.GameFolder;
                 bspPath = context.CopyLocation;

@@ -25,11 +25,13 @@ namespace CompilePalX.Compilers
             vbspInfo = context.Configuration.VBSPInfo;
             bspFile = context.BSPFile;
 
+            CompilePalLogger.LogLine("\nCompilePal - Cubemap Generator");
+
             FetchHDRLevels();
 
             string mapname = System.IO.Path.GetFileName(context.BSPFile).Replace(".bsp", "");
 
-            string args = "-game \"" + context.Configuration.GameFolder +"\" -windowed -novid -disconnect +mat_specular 0 -w 1024 -h 1024";
+            string args = "-game \"" + context.Configuration.GameFolder +"\" -windowed -novid +mat_specular 0 -w 1024 -h 1024 %HDRevel% +map " + mapname + " -buildcubemaps";
             string argsldr = " +mat_hdr_level 0 +map " + mapname + " -buildcubemaps";
             string argshdr = " +mat_hdr_level 2 +map " + mapname + " -buildcubemaps";
             string argssingle = " +map " + mapname + " -buildcubemaps";
@@ -39,39 +41,31 @@ namespace CompilePalX.Compilers
                 CompilePalLogger.LogLine("Map requires two sets of cubemaps");
 
                 CompilePalLogger.LogLine("Compiling LDR cubemaps...");
-                var startInfo = new ProcessStartInfo(context.Configuration.GameEXE, args + argsldr);
-                startInfo.UseShellExecute = false;
-                startInfo.CreateNoWindow = false;
-
-                var p = new Process { StartInfo = startInfo };
-                p.Start();
-                p.WaitForExit();
+                RunCubemaps(context.Configuration.GameEXE, args.Replace("%HDRevel%", "+mat_hdr_level 0"));
 
                 CompilePalLogger.LogLine("Compiling HDR cubemaps...");
-                startInfo = new ProcessStartInfo(context.Configuration.GameEXE, args + argshdr);
-                startInfo.UseShellExecute = false;
-                startInfo.CreateNoWindow = false;
-
-                p = new Process { StartInfo = startInfo };
-                p.Start();
-                p.WaitForExit();
+                RunCubemaps(context.Configuration.GameEXE, args.Replace("%HDRevel%", "+mat_hdr_level 2"));
             }
             else
             {
                 CompilePalLogger.LogLine("Map requires one set of cubemaps");
                 CompilePalLogger.LogLine("Compiling cubemaps...");
-                var startInfo = new ProcessStartInfo(context.Configuration.GameEXE, args + argssingle);
-                startInfo.UseShellExecute = false;
-                startInfo.CreateNoWindow = false;
-
-                var p = new Process { StartInfo = startInfo };
-                p.Start();
-                p.WaitForExit();
+                RunCubemaps(context.Configuration.GameEXE, args + argssingle);
             }
             CompilePalLogger.LogLine("Cubemaps compiled");
 
         }
 
+        public void RunCubemaps(string gameEXE, string args)
+        {
+            var startInfo = new ProcessStartInfo(gameEXE, args);
+            startInfo.UseShellExecute = false;
+            startInfo.CreateNoWindow = false;
+
+            var p = new Process { StartInfo = startInfo };
+            p.Start();
+            p.WaitForExit();
+        }
 
         public void FetchHDRLevels()
         {
@@ -86,12 +80,12 @@ namespace CompilePalX.Compilers
             p.Start();
             string output = p.StandardOutput.ReadToEnd();
 
-            Regex re = new Regex(@"^faces\s+.*", RegexOptions.IgnoreCase | RegexOptions.Multiline);
+            Regex re = new Regex(@"^LDR worldlights\s+.*", RegexOptions.IgnoreCase | RegexOptions.Multiline);
             string LDRStats = re.Match(output).Value.Trim();
-            re = new Regex(@"^faces\s+.*", RegexOptions.IgnoreCase | RegexOptions.Multiline);
+            re = new Regex(@"^HDR worldlights\s+.*", RegexOptions.IgnoreCase | RegexOptions.Multiline);
             string HDRStats = re.Match(output).Value.Trim();
-            LDR = !LDRStats.EndsWith("( 0.0%)");
-            HDR = !HDRStats.EndsWith("( 0.0%)");
+            LDR = !LDRStats.Contains(" 0/");
+            HDR = !HDRStats.Contains(" 0/");
 
             
         }
