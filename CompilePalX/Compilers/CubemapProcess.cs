@@ -32,9 +32,6 @@ namespace CompilePalX.Compilers
             string mapname = System.IO.Path.GetFileName(context.BSPFile).Replace(".bsp", "");
 
             string args = "-game \"" + context.Configuration.GameFolder +"\" -windowed -novid +mat_specular 0 -w 1024 -h 1024 %HDRevel% +map " + mapname + " -buildcubemaps";
-            string argsldr = " +mat_hdr_level 0 +map " + mapname + " -buildcubemaps";
-            string argshdr = " +mat_hdr_level 2 +map " + mapname + " -buildcubemaps";
-            string argssingle = " +map " + mapname + " -buildcubemaps";
 
             if (HDR && LDR)
             {
@@ -50,7 +47,7 @@ namespace CompilePalX.Compilers
             {
                 CompilePalLogger.LogLine("Map requires one set of cubemaps");
                 CompilePalLogger.LogLine("Compiling cubemaps...");
-                RunCubemaps(context.Configuration.GameEXE, args + argssingle);
+                RunCubemaps(context.Configuration.GameEXE, args.Replace("%HDRevel%", ""));
             }
             CompilePalLogger.LogLine("Cubemaps compiled");
 

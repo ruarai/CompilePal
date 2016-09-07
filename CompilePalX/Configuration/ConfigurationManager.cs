@@ -39,6 +39,7 @@ namespace CompilePalX
 
             CompileProcesses.Add(new BSPPack());
             CompileProcesses.Add(new CubemapProcess());
+            CompileProcesses.Add(new NavProcess());
 
 
             CompileProcesses = new ObservableCollection<CompileProcess>(CompileProcesses.OrderBy(c => c.Order));
