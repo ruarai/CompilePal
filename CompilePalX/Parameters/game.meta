@@ -1,7 +1,9 @@
 GAME
 $gameEXE$
 game.csv
- +map $map$
-6.0
+ -game $game$ +map $map$
+12
 false
 false
+
+Launch the game with your map.

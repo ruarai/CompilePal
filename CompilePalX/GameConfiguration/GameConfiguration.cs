@@ -13,6 +13,9 @@ namespace CompilePalX
         public string BSPZip {
             get { return Path.Combine(BinFolder, "bspzip.exe"); }
         }
+        public string VBSPInfo {
+            get { return Path.Combine(BinFolder, "vbspinfo.exe"); }
+        }
 
         public string GameEXE { get; set; }
 

@@ -335,11 +335,11 @@ namespace CompilePalX.Compilers.BSPPack
                         bsp.TextureList.Add(material);
         }
 
-        public static void findBspUtilityFiles(BSP bsp, List<string> sourceDirectories)
+        public static void findBspUtilityFiles(BSP bsp, List<string> sourceDirectories, bool renamenav)
         {
             // Utility files are other files that are not assets and are sometimes not referenced in the bsp
             // those are manifests, soundscapes, nav, radar and detail files
-
+            
             // Soundscape file
             string internalPath = "scripts/soundscapes_" + bsp.file.Name.Replace(".bsp", ".txt");
             foreach (string source in sourceDirectories)
@@ -374,6 +374,8 @@ namespace CompilePalX.Compilers.BSPPack
 
                 if (File.Exists(externalPath))
                 {
+                    if (renamenav)
+                        internalPath = "maps/embed.nav";
                     bsp.nav = new KeyValuePair<string, string>(internalPath, externalPath);
                     break;
                 }

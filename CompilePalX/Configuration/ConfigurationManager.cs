@@ -38,8 +38,8 @@ namespace CompilePalX
             }
 
             CompileProcesses.Add(new BSPPack());
-            CompileProcesses.Add(new CompileCopy());
-
+            CompileProcesses.Add(new CubemapProcess());
+            CompileProcesses.Add(new NavProcess());
 
 
             CompileProcesses = new ObservableCollection<CompileProcess>(CompileProcesses.OrderBy(c => c.Order));
@@ -68,11 +68,12 @@ namespace CompilePalX
                 string preset = Path.GetFileName(presetPath);
                 foreach (var process in CompileProcesses)
                 {
-                    process.PresetDictionary.Add(preset, new ObservableCollection<ConfigItem>());
+                    
 
                     string file = Path.Combine(presetPath, process.PresetFile);
                     if (File.Exists(file))
                     {
+                        process.PresetDictionary.Add(preset, new ObservableCollection<ConfigItem>());
                         //read the list of preset parameters
                         var lines = File.ReadAllLines(file);
 
@@ -107,16 +108,19 @@ namespace CompilePalX
 
                 foreach (var compileProcess in CompileProcesses)
                 {
-                    var lines = new List<string>();
-                    foreach (var item in compileProcess.PresetDictionary[knownPreset])
+                    if (compileProcess.PresetDictionary.ContainsKey(knownPreset))
                     {
-                        string line = WritePresetLine(item);
-                        lines.Add(line);
+                        var lines = new List<string>();
+                        foreach (var item in compileProcess.PresetDictionary[knownPreset])
+                        {
+                            string line = WritePresetLine(item);
+                            lines.Add(line);
+                        }
+
+                        string presetPath = Path.Combine(presetFolder, compileProcess.PresetFile);
+
+                        File.WriteAllLines(presetPath, lines);
                     }
-
-                    string presetPath = Path.Combine(presetFolder, compileProcess.PresetFile);
-
-                    File.WriteAllLines(presetPath, lines);
                 }
             }
         }
@@ -131,6 +135,7 @@ namespace CompilePalX
 
         public static void NewPreset(string name)
         {
+            string[] defaultProcesses = new string[]{"VBSP", "VVIS", "VRAD", "COPY", "GAME"};
             string folder = Path.Combine(PresetsFolder, name);
             if (!Directory.Exists(folder))
             {
@@ -138,8 +143,11 @@ namespace CompilePalX
 
                 foreach (var process in CompileProcesses)
                 {
-                    string path = Path.ChangeExtension(Path.Combine(folder, process.ParameterFile), "csv");
-                    File.Create(path).Close();
+                    if (defaultProcesses.Contains(process.Name))
+                    {
+                        string path = Path.ChangeExtension(Path.Combine(folder, process.ParameterFile), "csv");
+                        File.Create(path).Close();
+                    }
                 }
             }
 
@@ -172,6 +180,14 @@ namespace CompilePalX
 
 
             AssembleParameters();
+        }
+        public static void RemoveProcess(string name)
+        {
+            string presetPath = Path.Combine(PresetsFolder, CurrentPreset, name.ToLower() + ".csv");
+            if (File.Exists(presetPath))
+            {
+                File.Delete(presetPath);
+            }
         }
 
 

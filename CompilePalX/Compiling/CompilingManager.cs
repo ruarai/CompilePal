@@ -67,7 +67,7 @@ namespace CompilePalX
                 {
                     CompilePalLogger.LogLine(string.Format("Starting compilation of {0}", mapFile));
 
-                    foreach (var compileProcess in ConfigurationManager.CompileProcesses.Where(c => c.DoRun))
+                    foreach (var compileProcess in ConfigurationManager.CompileProcesses.Where(c => c.DoRun && c.PresetDictionary.ContainsKey(ConfigurationManager.CurrentPreset)))
                     {
                         compileProcess.Run(GameConfigurationManager.BuildContext(mapFile));
 
@@ -78,7 +78,8 @@ namespace CompilePalX
                             compileErrors.AddRange(executable.CompileErrors);
                         }
 
-                        ProgressManager.Progress += (1d / ConfigurationManager.CompileProcesses.Count(c => c.DoRun)) / MapFiles.Count;
+                        ProgressManager.Progress += (1d / ConfigurationManager.CompileProcesses.Count(c => c.DoRun && 
+                            c.PresetDictionary.ContainsKey(ConfigurationManager.CurrentPreset))) / MapFiles.Count;
                     }
                 }
 

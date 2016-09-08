@@ -1,7 +1,9 @@
 PACK
-BSPPack.exe
+builtin
 pack.csv
  -game $game$ -bsp $bsp$ -bspZip $bspZip$ -keys $keys$
-4.0
+10.0
 false
 true
+
+Finds map dependencies and includes them in the .bsp.

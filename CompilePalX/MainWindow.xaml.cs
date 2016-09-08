@@ -20,6 +20,7 @@ using System.Windows.Threading;
 using CompilePalX.Compiling;
 using MahApps.Metro.Controls.Dialogs;
 using Microsoft.Win32;
+using System.Collections.ObjectModel;
 
 namespace CompilePalX
 {
@@ -29,6 +30,8 @@ namespace CompilePalX
     public partial class MainWindow
     {
         public static Dispatcher ActiveDispatcher;
+        private ObservableCollection<CompileProcess> CompileProcessesSubList = new ObservableCollection<CompileProcess>();
+
         public MainWindow()
         {
             Application.Current.DispatcherUnhandledException += Current_DispatcherUnhandledException;
@@ -146,7 +149,7 @@ namespace CompilePalX
 
         void SetSources()
         {
-            CompileProcessesListBox.ItemsSource = ConfigurationManager.CompileProcesses;
+            CompileProcessesListBox.ItemsSource = CompileProcessesSubList;
 
             PresetConfigListBox.ItemsSource = ConfigurationManager.KnownPresets;
 
@@ -221,6 +224,40 @@ namespace CompilePalX
             UpdateParameterTextBox();
         }
 
+        private void AddProcessButton_Click(object sender, RoutedEventArgs e)
+        {
+            ProcessAdder c = new ProcessAdder();
+            c.ShowDialog();
+
+            if (c.ProcessDataGrid.SelectedItem != null)
+            {
+                CompileProcess ChosenProcess = (CompileProcess)c.ProcessDataGrid.SelectedItem;
+                ChosenProcess.DoRun = true;
+                if (!ChosenProcess.PresetDictionary.ContainsKey(ConfigurationManager.CurrentPreset))
+                {
+                    ChosenProcess.PresetDictionary.Add(ConfigurationManager.CurrentPreset, new ObservableCollection<ConfigItem>());
+                }
+            }
+
+            AnalyticsManager.ModifyPreset();
+
+            UpdateParameterTextBox();
+            UpdateProcessList();
+
+        }
+
+        private void RemoveProcessButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (CompileProcessesListBox.SelectedItem != null)
+            {
+                CompileProcess removed = (CompileProcess)CompileProcessesListBox.SelectedItem;
+                removed.PresetDictionary.Remove(ConfigurationManager.CurrentPreset);
+                ConfigurationManager.RemoveProcess(CompileProcessesListBox.SelectedItem.ToString());
+            }
+            UpdateProcessList();
+            CompileProcessesListBox.SelectedIndex = 0;
+        }
+
         private async void AddPresetButton_Click(object sender, RoutedEventArgs e)
         {
             var dialog = new InputDialog("Preset Name");
@@ -281,6 +318,7 @@ namespace CompilePalX
         private void PresetConfigListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             UpdateConfigGrid();
+            UpdateProcessList();
         }
         private void CompileProcessesListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -300,19 +338,24 @@ namespace CompilePalX
                 ConfigDataGrid.ItemsSource = selectedProcess.PresetDictionary[ConfigurationManager.CurrentPreset];
 
                 UpdateParameterTextBox();
-
-                DoRunCheckBox.IsChecked = selectedProcess.DoRun;
             }
         }
+
+        private void UpdateProcessList()
+        {
+            CompileProcessesSubList.Clear();
+            foreach (CompileProcess p in ConfigurationManager.CompileProcesses)
+            {
+                if (ConfigurationManager.CurrentPreset != null)
+                    if (p.PresetDictionary.ContainsKey(ConfigurationManager.CurrentPreset))
+                        CompileProcessesSubList.Add(p);
+            }
+        }
+
         void UpdateParameterTextBox()
         {
             if (selectedProcess != null)
                 ParametersTextBox.Text = selectedProcess.GetParameterString();
-        }
-
-        private void DoRunCheckBox_Checked(object sender, RoutedEventArgs e)
-        {
-            selectedProcess.DoRun = DoRunCheckBox.IsChecked.GetValueOrDefault(false);
         }
 
         private void MetroWindow_Activated(object sender, EventArgs e)

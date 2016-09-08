@@ -30,15 +30,22 @@ namespace CompilePalX.Compilers.BSPPack
 
         private const string keysFolder = "Keys";
 
-        private static bool verbose = false;
+        private static bool verbose;
+        private static bool dryrun;
+        private static bool renamenav;
 
         public override void Run(CompileContext context)
         {
+            verbose = GetParameterString().Contains("-verbose");
+            dryrun = GetParameterString().Contains("-dryrun");
+            renamenav = GetParameterString().Contains("-renamenav");
+
             try
             {
+                CompilePalLogger.LogLine("\nCompilePal - Automated Packaging");
                 bspZip = context.Configuration.BSPZip;
                 gameFolder = context.Configuration.GameFolder;
-                bspPath = context.BSPFile;
+                bspPath = context.CopyLocation;
 
                 Keys.vmtTextureKeyWords = File.ReadAllLines(System.IO.Path.Combine(keysFolder, "texturekeys.txt")).ToList();
                 Keys.vmtMaterialKeyWords = File.ReadAllLines(System.IO.Path.Combine(keysFolder, "materialkeys.txt")).ToList();
@@ -51,7 +58,7 @@ namespace CompilePalX.Compilers.BSPPack
 
                 CompilePalLogger.LogLine("Reading BSP...");
                 BSP map = new BSP(new FileInfo(bspPath));
-                AssetUtils.findBspUtilityFiles(map, sourceDirectories);
+                AssetUtils.findBspUtilityFiles(map, sourceDirectories, renamenav);
 
                 string unpackDir = System.IO.Path.GetTempPath() + Guid.NewGuid();
                 UnpackBSP(unpackDir);
@@ -63,16 +70,23 @@ namespace CompilePalX.Compilers.BSPPack
                 CompilePalLogger.LogLine("Writing file list...");
                 pakfile.OutputToFile();
 
-                CompilePalLogger.LogLine("Running bspzip...");
-                PackBSP();
-
-                CompilePalLogger.LogLine("Finished packing!");
+                if (dryrun)
+                {
+                    CompilePalLogger.LogLine("File list saved as " + Environment.CurrentDirectory + "\\files.txt");
+                }
+                else
+                {
+                    CompilePalLogger.LogLine("Running bspzip...");
+                    PackBSP();
+                }
+                
+                CompilePalLogger.LogLine("Finished!");
 
                 CompilePalLogger.LogLine("---------------------");
-                CompilePalLogger.LogLine(pakfile.vmtcount + " materials added");
-                CompilePalLogger.LogLine(pakfile.mdlcount + " models added");
-                CompilePalLogger.LogLine(pakfile.pcfcount + " particle files added");
-                CompilePalLogger.LogLine(pakfile.sndcount + " sounds added");
+                CompilePalLogger.LogLine(pakfile.vmtcount + " materials found");
+                CompilePalLogger.LogLine(pakfile.mdlcount + " models found");
+                CompilePalLogger.LogLine(pakfile.pcfcount + " particle files found");
+                CompilePalLogger.LogLine(pakfile.sndcount + " sounds found");
                 string additionalFiles =
                     (map.nav.Key != default(string) ? "\n-nav file" : "") +
                     (map.soundscape.Key != default(string) ? "\n-soundscape" : "") +
@@ -118,8 +132,6 @@ namespace CompilePalX.Compilers.BSPPack
             p.Start();
             string output = p.StandardOutput.ReadToEnd();
 
-            if (verbose)
-                CompilePalLogger.Log(output);
             p.WaitForExit();
             
         }
