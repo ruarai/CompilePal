@@ -23,7 +23,7 @@ namespace CompilePalX.Compilers
         public override void Run(CompileContext context)
         {
             vbspInfo = context.Configuration.VBSPInfo;
-            bspFile = context.BSPFile;
+            bspFile = context.CopyLocation;
 
             CompilePalLogger.LogLine("\nCompilePal - Cubemap Generator");
 
@@ -67,8 +67,7 @@ namespace CompilePalX.Compilers
         public void FetchHDRLevels()
         {
             CompilePalLogger.LogLine("Detecting HDR levels...");
-            string arguments = "-treeinfo " + bspFile;
-            var startInfo = new ProcessStartInfo(vbspInfo, arguments);
+            var startInfo = new ProcessStartInfo(vbspInfo, "\"" + bspFile + "\"");
             startInfo.UseShellExecute = false;
             startInfo.CreateNoWindow = true;
             startInfo.RedirectStandardOutput = true;
@@ -77,16 +76,16 @@ namespace CompilePalX.Compilers
             p.Start();
             string output = p.StandardOutput.ReadToEnd();
 
-            Regex re = new Regex(@"^LDR worldlights\s+.*", RegexOptions.IgnoreCase | RegexOptions.Multiline);
-            string LDRStats = re.Match(output).Value.Trim();
-            re = new Regex(@"^HDR worldlights\s+.*", RegexOptions.IgnoreCase | RegexOptions.Multiline);
-            string HDRStats = re.Match(output).Value.Trim();
-            LDR = !LDRStats.Contains(" 0/");
-            HDR = !HDRStats.Contains(" 0/");
-
-            
+            if (p.ExitCode != 0)
+                CompilePalLogger.LogLine("Could not read HDR levels, defaulting to one.");
+            else{
+                Regex re = new Regex(@"^LDR\sworldlights\s+.*", RegexOptions.IgnoreCase | RegexOptions.Multiline);
+                string LDRStats = re.Match(output).Value.Trim();
+                re = new Regex(@"^HDR\sworldlights\s+.*", RegexOptions.IgnoreCase | RegexOptions.Multiline);
+                string HDRStats = re.Match(output).Value.Trim();
+                LDR = !LDRStats.Contains(" 0/");
+                HDR = !HDRStats.Contains(" 0/");
+            }
         }
-
-
     }
 }
