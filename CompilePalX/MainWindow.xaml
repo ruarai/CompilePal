@@ -23,9 +23,9 @@
             <TabItem Header="CONFIG">
                 <Grid Background="#FFE5E5E5">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="100"/>
-                        <ColumnDefinition Width="110"/>
-                        <ColumnDefinition/>
+                        <ColumnDefinition Width="Auto" MinWidth="100"/>
+                        <ColumnDefinition Width="Auto" MinWidth="100"/>
+                        <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <DockPanel Grid.Column="0" Margin="10,10,0,10" Background="White">
                         <Button x:Name="RemovePresetButton" Content="Remove" Margin="5,0,5,5" VerticalAlignment="Bottom" Click="RemovePresetButton_Click" DockPanel.Dock="Bottom"/>
@@ -34,9 +34,9 @@
                         <ListBox Name ="PresetConfigListBox" Margin="0,0,0,5" SelectionChanged="PresetConfigListBox_SelectionChanged" />
                     </DockPanel>
                     <DockPanel Grid.Column="1" Margin="10,10,0,10" Background="White">
-                        <Button x:Name="RemoveProcessesButton" Content="Remove" Margin="5,0,5,5" VerticalAlignment="Bottom" DockPanel.Dock="Bottom" Click="RemoveProcessButton_Click"/>
-                        <Button x:Name="AddProcessesButton" Content="Add..." Margin="5,0,5,5" VerticalAlignment="Bottom" DockPanel.Dock="Bottom" Click="AddProcessButton_Click"/>
-                        <ListBox x:Name ="CompileProcessesListBox" Margin="0,0,0,5" SelectionChanged="CompileProcessesListBox_SelectionChanged">
+                        <Button x:Name="RemoveProcessesButton" Content="Remove" DockPanel.Dock="Bottom" Margin="5,0,5,5" Grid.Row="1" Click="RemoveProcessButton_Click"/>
+                        <Button x:Name="AddProcessesButton" Content="Add..." DockPanel.Dock="Bottom" Margin="5,0,5,5" Grid.Row="2" Click="AddProcessButton_Click"/>
+                        <ListBox x:Name ="CompileProcessesListBox" Margin="0,0,0,5" Grid.Row="0" SelectionChanged="CompileProcessesListBox_SelectionChanged">
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
                                     <DockPanel HorizontalAlignment="Stretch">
