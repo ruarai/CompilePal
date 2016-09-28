@@ -18,6 +18,8 @@ namespace CompilePalX.Compilers
 
         string vbspInfo;
         string bspFile;
+
+        bool hidden;
         
 
         public override void Run(CompileContext context)
@@ -27,11 +29,15 @@ namespace CompilePalX.Compilers
 
             CompilePalLogger.LogLine("\nCompilePal - Cubemap Generator");
 
+            hidden = GetParameterString().Contains("-hidden");
             FetchHDRLevels();
 
             string mapname = System.IO.Path.GetFileName(context.BSPFile).Replace(".bsp", "");
 
-            string args = "-game \"" + context.Configuration.GameFolder +"\" -windowed -novid +mat_specular 0 %HDRevel% +map " + mapname + " -buildcubemaps";
+            string args = "-game \"" + context.Configuration.GameFolder +"\" -windowed -novid -nosound +mat_specular 0 %HDRevel% +map " + mapname + " -buildcubemaps";
+
+            if (hidden)
+                args += " -noborder -x 4000 -y 2000";
 
             if (HDR && LDR)
             {

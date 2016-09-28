@@ -1,2 +1,3 @@
 sep=;
 Name;Parameter;ValueValid;Description;Issues
+Hidden; -hidden;false;Runs the game client off-screen during compile.;

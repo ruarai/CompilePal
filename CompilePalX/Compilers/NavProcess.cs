@@ -20,6 +20,8 @@ namespace CompilePalX.Compilers
         static string mapcfg;
         static string mapCFGBackup;
 
+        bool hidden;
+
         public override void Run(CompileContext context)
         {
 
@@ -29,7 +31,13 @@ namespace CompilePalX.Compilers
             mapcfg = context.Configuration.GameFolder + "/cfg/" + mapname + ".cfg";
             mapCFGBackup = context.Configuration.GameFolder + "/cfg/" + mapname + "_cpalbackup.cfg";
 
-            string args = "-game \"" + context.Configuration.GameFolder + "\" -windowed -novid +sv_cheats 1 +map " + mapname;
+            hidden = GetParameterString().Contains("-hidden");
+
+            string args = "-game \"" + context.Configuration.GameFolder + "\" -windowed -novid -nosound +sv_cheats 1 +map " + mapname;
+
+            if (hidden)
+                args += " -noborder -x 4000 -y 2000";
+
             var startInfo = new ProcessStartInfo(context.Configuration.GameEXE, args);
             startInfo.UseShellExecute = false;
             startInfo.CreateNoWindow = false;
