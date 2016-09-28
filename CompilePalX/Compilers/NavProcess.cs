@@ -29,7 +29,7 @@ namespace CompilePalX.Compilers
             mapcfg = context.Configuration.GameFolder + "/cfg/" + mapname + ".cfg";
             mapCFGBackup = context.Configuration.GameFolder + "/cfg/" + mapname + "_cpalbackup.cfg";
 
-            string args = "-game \"" + context.Configuration.GameFolder + "\" -windowed -novid -w 1024 -h 1024 +sv_cheats 1 +map " + mapname;
+            string args = "-game \"" + context.Configuration.GameFolder + "\" -windowed -novid +sv_cheats 1 +map " + mapname;
             var startInfo = new ProcessStartInfo(context.Configuration.GameEXE, args);
             startInfo.UseShellExecute = false;
             startInfo.CreateNoWindow = false;

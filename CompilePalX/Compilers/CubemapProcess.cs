@@ -31,7 +31,7 @@ namespace CompilePalX.Compilers
 
             string mapname = System.IO.Path.GetFileName(context.BSPFile).Replace(".bsp", "");
 
-            string args = "-game \"" + context.Configuration.GameFolder +"\" -windowed -novid +mat_specular 0 -w 1024 -h 1024 %HDRevel% +map " + mapname + " -buildcubemaps";
+            string args = "-game \"" + context.Configuration.GameFolder +"\" -windowed -novid +mat_specular 0 %HDRevel% +map " + mapname + " -buildcubemaps";
 
             if (HDR && LDR)
             {
