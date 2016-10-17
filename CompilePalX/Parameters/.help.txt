@@ -7,6 +7,8 @@ This folder contains the files that both which compiling tools are present and h
 4:The default, unremovable parameters.
 5:A number that dictates when the tool will be run.
 6:If the tool is to be run at all. Can be modified at run time.
+7:A warning message for the tool.
+8:A description of the tool.
 
 To add or modify base parameters:
 Excel doesn't work because of stupid reasons, so open in a text editor such as notepad. Ensure that you maintain the format of Name;Parameter;ValueValid;Description;Issues
