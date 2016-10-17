@@ -1,0 +1,9 @@
+SHUTDOWN
+shutdown
+shutdown.csv
+ -s
+20.0
+True
+true
+
+Runs the Windows shutdown command.
