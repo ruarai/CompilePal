@@ -203,16 +203,18 @@ namespace CompilePalX
 
         private void AddParameterButton_Click(object sender, RoutedEventArgs e)
         {
-            ParameterAdder c = new ParameterAdder(selectedProcess.ParameterList);
-            c.ShowDialog();
+            if (selectedProcess != null)
+            {
+                ParameterAdder c = new ParameterAdder(selectedProcess.ParameterList);
+                c.ShowDialog();
 
-            if (c.ChosenItem != null && !selectedProcess.PresetDictionary[ConfigurationManager.CurrentPreset].Contains(c.ChosenItem))
-                selectedProcess.PresetDictionary[ConfigurationManager.CurrentPreset].Add(c.ChosenItem);
+                if (c.ChosenItem != null && !selectedProcess.PresetDictionary[ConfigurationManager.CurrentPreset].Contains(c.ChosenItem))
+                    selectedProcess.PresetDictionary[ConfigurationManager.CurrentPreset].Add(c.ChosenItem);
 
-            AnalyticsManager.ModifyPreset();
+                AnalyticsManager.ModifyPreset();
 
-            UpdateParameterTextBox();
-
+                UpdateParameterTextBox();
+            }
         }
 
         private void RemoveParameterButton_OnClickParameterButton_Click(object sender, RoutedEventArgs e)
@@ -278,20 +280,23 @@ namespace CompilePalX
         }
         private async void ClonePresetButton_OnClick(object sender, RoutedEventArgs e)
         {
-            var dialog = new InputDialog("Preset Name");
-            dialog.ShowDialog();
-
-            if (dialog.Result)
+            if (ConfigurationManager.CurrentPreset != null)
             {
-                string presetName = dialog.Text;
+                var dialog = new InputDialog("Preset Name");
+                dialog.ShowDialog();
 
-                ConfigurationManager.ClonePreset(presetName);
+                if (dialog.Result)
+                {
+                    string presetName = dialog.Text;
 
-                AnalyticsManager.NewPreset();
+                    ConfigurationManager.ClonePreset(presetName);
 
-                SetSources();
-                CompileProcessesListBox.SelectedIndex = 0;
-                PresetConfigListBox.SelectedItem = presetName;
+                    AnalyticsManager.NewPreset();
+
+                    SetSources();
+                    CompileProcessesListBox.SelectedIndex = 0;
+                    PresetConfigListBox.SelectedItem = presetName;
+                }
             }
         }
 
