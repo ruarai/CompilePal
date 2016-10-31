@@ -64,6 +64,10 @@ namespace CompilePalX
         {
             
         }
+        public virtual void Cancel()
+        {
+
+        }
 
         private string baseParameters;
 

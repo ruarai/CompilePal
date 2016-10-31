@@ -132,6 +132,7 @@ namespace CompilePalX
             {
                 try
                 {
+                    compileProcess.Cancel();
                     compileProcess.Process.Kill();
 
                     CompilePalLogger.LogLineColor("Killed {0}.", Brushes.OrangeRed, compileProcess.Name);

@@ -42,8 +42,8 @@ namespace CompilePalX.Compilers
             startInfo.UseShellExecute = false;
             startInfo.CreateNoWindow = false;
 
-            var p = new Process { StartInfo = startInfo };
-            p.Start();
+            Process = new Process { StartInfo = startInfo };
+            Process.Start();
             CompilePalLogger.LogLine("Generating...");
             if (File.Exists(mapcfg))
             {
@@ -65,14 +65,24 @@ namespace CompilePalX.Compilers
             fw.Created += new FileSystemEventHandler(fileSystemWatcher_NavCreated);
             fw.EnableRaisingEvents = true;
 
-            p.WaitForExit();
+            Process.WaitForExit();
             fw.Dispose();
 
+            cleanUp();
+            CompilePalLogger.LogLine("nav file complete!");
+        }
+        
+        private void cleanUp()
+        {
             if (File.Exists(mapcfg))
                 File.Delete(mapcfg);
             if (File.Exists(mapCFGBackup))
                 System.IO.File.Move(mapCFGBackup, mapcfg);
-            CompilePalLogger.LogLine("nav file complete!");
+        }
+
+        public override void Cancel()
+        {
+            cleanUp();
         }
 
         static void fileSystemWatcher_NavCreated(object sender, FileSystemEventArgs e)
