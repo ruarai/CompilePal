@@ -1,6 +1,7 @@
 ﻿using CompilePalX.Compiling;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -42,8 +43,6 @@ namespace CompilePalX.Compilers
             startInfo.UseShellExecute = false;
             startInfo.CreateNoWindow = false;
 
-            Process = new Process { StartInfo = startInfo };
-            Process.Start();
             CompilePalLogger.LogLine("Generating...");
             if (File.Exists(mapcfg))
             {
@@ -56,6 +55,9 @@ namespace CompilePalX.Compilers
             TextWriter tw = new StreamWriter(mapcfg);
             tw.WriteLine("nav_generate");
             tw.Close();
+
+            Process = new Process { StartInfo = startInfo };
+            Process.Start();
 
             FileSystemWatcher fw = new FileSystemWatcher();
             fw.Path = System.IO.Path.GetDirectoryName(mapnav);
@@ -71,7 +73,16 @@ namespace CompilePalX.Compilers
             cleanUp();
             CompilePalLogger.LogLine("nav file complete!");
         }
-        
+
+        private void exitClient()
+        {
+            if (Process != null)
+                try
+                {
+                    this.Process.Kill();
+                }
+                catch (Win32Exception) { }
+        }
         private void cleanUp()
         {
             if (File.Exists(mapcfg))
@@ -85,9 +96,9 @@ namespace CompilePalX.Compilers
             cleanUp();
         }
 
-        static void fileSystemWatcher_NavCreated(object sender, FileSystemEventArgs e)
+        void fileSystemWatcher_NavCreated(object sender, FileSystemEventArgs e)
         {
-            File.WriteAllText(mapcfg, "exit");
+            exitClient();
         }
     }
 }
