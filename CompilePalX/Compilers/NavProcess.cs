@@ -8,7 +8,6 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Media;
 
 namespace CompilePalX.Compilers
 {
@@ -25,14 +24,8 @@ namespace CompilePalX.Compilers
 
         public override void Run(CompileContext context)
         {
+
             CompilePalLogger.LogLine("\nCompilePal - Nav Generator");
-
-            if (context.Configuration.GameEXE.Contains("csgo.exe"))
-            {
-                CompilePalLogger.LogLineColor("Nav Generator is incompatible with CSGO. Will not run. \n",Brushes.OrangeRed);
-                return;
-            }
-
             mapname = System.IO.Path.GetFileName(context.BSPFile).Replace(".bsp", "");
             mapnav = context.CopyLocation.Replace(".bsp", ".nav");
             mapcfg = context.Configuration.GameFolder + "/cfg/" + mapname + ".cfg";
@@ -78,7 +71,7 @@ namespace CompilePalX.Compilers
             cleanUp();
             CompilePalLogger.LogLine("nav file complete!");
         }
-
+        
         private void cleanUp()
         {
             if (File.Exists(mapcfg))
