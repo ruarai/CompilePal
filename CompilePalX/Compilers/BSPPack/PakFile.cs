@@ -45,6 +45,11 @@ namespace CompilePalX.Compilers.BSPPack
             if (bsp.radartxt.Key != default(string))
                 Files.Add(bsp.radartxt);
 
+            if (bsp.res.Key != default(string))
+            {
+                Files.Add(bsp.res);
+            }
+
             if (bsp.particleManifest.Key != default(string))
             {
                 Files.Add(bsp.particleManifest);
