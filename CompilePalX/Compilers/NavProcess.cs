@@ -32,6 +32,8 @@ namespace CompilePalX.Compilers
             mapcfg = context.Configuration.GameFolder + "/cfg/" + mapname + ".cfg";
             mapCFGBackup = context.Configuration.GameFolder + "/cfg/" + mapname + "_cpalbackup.cfg";
 
+            deleteNav(mapname, context.Configuration.GameFolder);
+
             hidden = GetParameterString().Contains("-hidden");
 
             string args = "-game \"" + context.Configuration.GameFolder + "\" -windowed -novid -nosound +sv_cheats 1 +map " + mapname;
@@ -72,6 +74,21 @@ namespace CompilePalX.Compilers
 
             cleanUp();
             CompilePalLogger.LogLine("nav file complete!");
+        }
+
+        private void deleteNav(string mapname, string gamefolder)
+        {
+            List<string> navdirs = BSPPack.BSPPack.GetSourceDirectories(gamefolder, false);
+            foreach (string source in navdirs)
+            {
+                string externalPath = source + "/maps/" + mapname + ".nav";
+
+                if (File.Exists(externalPath))
+                {
+                    CompilePalLogger.LogLine("Deleting existing nav file.");
+                    File.Delete(externalPath);
+                }
+            }
         }
 
         private void exitClient()
