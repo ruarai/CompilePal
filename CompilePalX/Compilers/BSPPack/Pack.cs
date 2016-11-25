@@ -49,6 +49,11 @@ namespace CompilePalX.Compilers.BSPPack
                 gameFolder = context.Configuration.GameFolder;
                 bspPath = context.CopyLocation;
 
+                if (!File.Exists(bspPath))
+                {
+                    throw new FileNotFoundException();
+                }
+
                 Keys.vmtTextureKeyWords = File.ReadAllLines(System.IO.Path.Combine(keysFolder, "texturekeys.txt")).ToList();
                 Keys.vmtMaterialKeyWords = File.ReadAllLines(System.IO.Path.Combine(keysFolder, "materialkeys.txt")).ToList();
                 Keys.vmfSoundKeys = File.ReadAllLines(System.IO.Path.Combine(keysFolder, "vmfsoundkeys.txt")).ToList();
@@ -103,6 +108,10 @@ namespace CompilePalX.Compilers.BSPPack
                     "additional files: " + additionalFiles : "none");
                 CompilePalLogger.LogLine("---------------------");
 
+            }
+            catch (FileNotFoundException)
+            {
+                CompilePalLogger.LogLine("FAILED - Could not find " + bspPath);
             }
             catch (Exception exception)
             {
