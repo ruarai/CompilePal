@@ -48,6 +48,8 @@ namespace CompilePalX.Compilers.BSPPack
             if (bsp.res.Key != default(string))
             {
                 Files.Add(bsp.res);
+                foreach (string material in AssetUtils.findResMaterials(bsp.res.Value))
+                    AddTexture(material);
             }
 
             if (bsp.particleManifest.Key != default(string))

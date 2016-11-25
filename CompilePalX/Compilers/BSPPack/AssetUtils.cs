@@ -187,6 +187,24 @@ namespace CompilePalX.Compilers.BSPPack
             return vmtList;
         }
 
+        public static List<string> findResMaterials(string fullpath)
+        {
+            // finds vmt files associated with res file
+
+            List<string> vmtList = new List<string>();
+            foreach (string line in File.ReadAllLines(fullpath))
+            {
+                string param = line.Replace("\"", " ").Replace("\t", " ").Trim();
+                if (param.StartsWith("image ", StringComparison.CurrentCultureIgnoreCase))
+                {
+                    string path = "materials/vgui/" + vmtPathParser(param) + ".vmt";
+                    path = path.Replace("/vgui/..", "");
+                    vmtList.Add(path);
+                }
+            }
+            return vmtList;
+        }
+
         public static List<string> findRadarDdsFiles(string fullpath)
         {
             // finds vmt files associated with vmt file
