@@ -93,7 +93,8 @@ namespace CompilePalX.Compilers.BSPPack
                         if (s.Count() != 0)
                         {
                             string[] c = s.Split('"');
-                            entity.Add(c[1], c[3]);
+                            if (!entity.ContainsKey(c[1]))
+                                entity.Add(c[1], c[3]);
 
                             //everything after the hammerid is input/outputs
                             if (c[1] == "hammerid")
@@ -117,7 +118,7 @@ namespace CompilePalX.Compilers.BSPPack
             TextureList = new List<string>(Encoding.ASCII.GetString(reader.ReadBytes(offsets[43].Value)).Split('\0'));
             for (int i = 0; i < TextureList.Count; i++)
                 TextureList[i] = "materials/" + TextureList[i] + ".vmt";
-            
+
             // find skybox materials
             Dictionary<string, string> worldspawn = entityList.First(item => item["classname"] == "worldspawn");
             if (worldspawn.ContainsKey("skyname"))
@@ -154,14 +155,14 @@ namespace CompilePalX.Compilers.BSPPack
                 if (ent["classname"].Contains("sprite") && ent.ContainsKey("model"))
                     materials.Add(ent["model"]);
 
-                foreach(string material in materials)
+                foreach (string material in materials)
                 {
                     string materialpath = material;
                     if (!material.EndsWith(".vmt"))
                         materialpath += ".vmt";
 
                     EntTextureList.Add("materials/" + materialpath);
-                }        
+                }
             }
         }
 
@@ -173,13 +174,13 @@ namespace CompilePalX.Compilers.BSPPack
             // getting information on the gamelump
             int propStaticId = 0;
             bsp.Seek(offsets[35].Key, SeekOrigin.Begin);
-            KeyValuePair<int, int>[] GameLumpOffsets = new KeyValuePair<int,int>[reader.ReadInt32()]; // offset/length
+            KeyValuePair<int, int>[] GameLumpOffsets = new KeyValuePair<int, int>[reader.ReadInt32()]; // offset/length
             for (int i = 0; i < GameLumpOffsets.Length; i++)
             {
                 if (reader.ReadInt32() == 1936749168)
                     propStaticId = i;
                 bsp.Seek(4, SeekOrigin.Current); //skip flags and version
-                GameLumpOffsets[i] = new KeyValuePair<int,int>(reader.ReadInt32(), reader.ReadInt32());
+                GameLumpOffsets[i] = new KeyValuePair<int, int>(reader.ReadInt32(), reader.ReadInt32());
             }
 
             // reading model names from game lump
@@ -199,7 +200,7 @@ namespace CompilePalX.Compilers.BSPPack
             bsp.Seek(leafCount * 2, SeekOrigin.Current);
 
             // reading staticprop lump
-                
+
             int propCount = reader.ReadInt32();
 
             //dont bother if there's no props, avoid a dividebyzero exception.
@@ -225,7 +226,7 @@ namespace CompilePalX.Compilers.BSPPack
                 if (modelSkinList[modelId].IndexOf(skin) == -1)
                     modelSkinList[modelId].Add(skin);
             }
-            
+
         }
 
         public void buildEntModelList()
