@@ -1,0 +1,11 @@
+{
+  "Name": "VVIS",
+  "Path": "\"E:\\SteamLibrary\\steamapps\\common\\Counter-Strike Global Offensive\\bin\\vvis.exe\"",
+  "Order": 2.0,
+  "DoRun": true,
+  "ReadOutput": true,
+  "Description": "Performs visibility tests for optimization.",
+  "Warning": "",
+  "PresetDefault": false,
+  "BasisString": " -game $game$ $vmfFile$"
+}

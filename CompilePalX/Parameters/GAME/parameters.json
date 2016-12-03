@@ -1,0 +1,90 @@
+[
+  {
+    "Name": "Tools",
+    "Parameter": " -tools",
+    "Description": "Enables engine tools.",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": "Can cause lighting errors in game."
+  },
+  {
+    "Name": "No Video",
+    "Parameter": " -novid",
+    "Description": "Disables the intro video when launching.",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": " "
+  },
+  {
+    "Name": "Developer Mode",
+    "Parameter": " -dev",
+    "Description": "Disables the automatic loading of menu background maps and stops the quit dialog from appearing on exit.",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": " "
+  },
+  {
+    "Name": "Console",
+    "Parameter": " -console",
+    "Description": "Starts the game with the console enabled.",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": " "
+  },
+  {
+    "Name": "Windowed",
+    "Parameter": " -windowed",
+    "Description": "Loads game in windowed mode.",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": " "
+  },
+  {
+    "Name": "Window Width",
+    "Parameter": " -width",
+    "Description": "Sets window resolution width.",
+    "Value": null,
+    "CanHaveValue": true,
+    "Warning": " "
+  },
+  {
+    "Name": "Window Height",
+    "Parameter": " -height",
+    "Description": "Sets window resolution height.",
+    "Value": null,
+    "CanHaveValue": true,
+    "Warning": ""
+  },
+  {
+    "Name": "No border",
+    "Parameter": " -noborder",
+    "Description": "Removes the window border in windowed mode.",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": ""
+  },
+  {
+    "Name": "Hijack",
+    "Parameter": " -hijack",
+    "Description": "Hijacks the current game process rather than launching a second one.",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": ""
+  },
+  {
+    "Name": "Insecure",
+    "Parameter": " -insecure",
+    "Description": "Runs the game in insecure mode.",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": "May cause issues with multiplayer servers."
+  },
+  {
+    "Name": "Make Dev Shots",
+    "Parameter": " -makedevshots",
+    "Description": "Takes point_devshot_camera screenshots automatically.",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": "-dev recommended to be off."
+  }
+]

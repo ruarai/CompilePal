@@ -1,9 +1,0 @@
-GAME
-$gameEXE$
-game.csv
- -game $game$ +map $map$
-12
-false
-false
-
-Launch the game with your map.

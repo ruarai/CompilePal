@@ -14,7 +14,7 @@ namespace CompilePalX.Compilers
 {
     class NavProcess : CompileProcess
     {
-        public NavProcess() : base("Parameters\\BuiltIn\\nav.meta") { }
+        public NavProcess() : base("NAV") { }
 
         static string mapname;
         static string mapnav;
@@ -27,7 +27,7 @@ namespace CompilePalX.Compilers
         {
 
             CompilePalLogger.LogLine("\nCompilePal - Nav Generator");
-            mapname = System.IO.Path.GetFileName(context.BSPFile).Replace(".bsp", "");
+            mapname = Path.GetFileName(context.BSPFile).Replace(".bsp", "");
             mapnav = context.CopyLocation.Replace(".bsp", ".nav");
             mapcfg = context.Configuration.GameFolder + "/cfg/" + mapname + ".cfg";
             mapCFGBackup = context.Configuration.GameFolder + "/cfg/" + mapname + "_cpalbackup.cfg";

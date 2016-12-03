@@ -10,6 +10,7 @@ using System.Windows.Documents;
 using CompilePalX.Compilers;
 using CompilePalX.Compilers.BSPPack;
 using CompilePalX.Compiling;
+using Newtonsoft.Json;
 
 namespace CompilePalX
 {
@@ -28,21 +29,44 @@ namespace CompilePalX
         {
             CompileProcesses.Clear();
 
-            var metadatas = Directory.GetFiles(ParametersFolder + "\\", "*.meta");
-
-            foreach (var metadata in metadatas)
-            {
-                var compileProcess = new CompileExecutable(metadata);
-
-                CompileProcesses.Add(compileProcess);
-            }
-
             CompileProcesses.Add(new BSPPack());
             CompileProcesses.Add(new CubemapProcess());
             CompileProcesses.Add(new NavProcess());
 
+            //collect new metadatas
 
-            CompileProcesses = new ObservableCollection<CompileProcess>(CompileProcesses.OrderBy(c => c.Order));
+            var metadatas = Directory.GetDirectories(ParametersFolder);
+
+            foreach (var metadata in metadatas)
+            {
+                string folderName = Path.GetFileName(metadata);
+
+                if (CompileProcesses.Any(c => String.Equals(c.Metadata.Name, folderName, StringComparison.CurrentCultureIgnoreCase)))
+                    continue;
+
+                var compileProcess = new CompileExecutable(folderName);
+
+                CompileProcesses.Add(compileProcess);
+            }
+
+            //collect legacy metadatas
+            var csvMetaDatas = Directory.GetFiles(ParametersFolder + "\\", "*.meta");
+
+            foreach (var metadata in csvMetaDatas)
+            {
+                string name = Path.GetFileName(metadata).Replace(".meta", "");
+
+                if (CompileProcesses.Any(c => String.Equals(c.Metadata.Name, name, StringComparison.CurrentCultureIgnoreCase)))
+                    continue;
+
+                var compileProcess = new CompileExecutable(name);
+
+                CompileProcesses.Add(compileProcess);
+            }
+
+
+
+            CompileProcesses = new ObservableCollection<CompileProcess>(CompileProcesses.OrderBy(c => c.Metadata.Order));
 
             AssemblePresets();
         }
@@ -68,7 +92,7 @@ namespace CompilePalX
                 string preset = Path.GetFileName(presetPath);
                 foreach (var process in CompileProcesses)
                 {
-                    
+
 
                     string file = Path.Combine(presetPath, process.PresetFile);
                     if (File.Exists(file))
@@ -93,7 +117,7 @@ namespace CompilePalX
                         }
                     }
                 }
-                CompilePalLogger.LogLine("Added preset {0} for processes {1}", preset,string.Join(", ",CompileProcesses));
+                CompilePalLogger.LogLine("Added preset {0} for processes {1}", preset, string.Join(", ", CompileProcesses));
                 CurrentPreset = preset;
                 KnownPresets.Add(preset);
 
@@ -129,13 +153,15 @@ namespace CompilePalX
         {
             foreach (var process in CompileProcesses)
             {
-                process.SaveMetadata();
+                string jsonMetadata = Path.Combine("Parameters", process.Metadata.Name, "meta.json");
+
+                File.WriteAllText(jsonMetadata, JsonConvert.SerializeObject(process.Metadata, Formatting.Indented));
             }
         }
 
         public static void NewPreset(string name)
         {
-            string[] defaultProcesses = new string[]{"VBSP", "VVIS", "VRAD", "COPY", "GAME"};
+            string[] defaultProcesses = new string[] { "VBSP", "VVIS", "VRAD", "COPY", "GAME" };
             string folder = Path.Combine(PresetsFolder, name);
             if (!Directory.Exists(folder))
             {
@@ -143,9 +169,9 @@ namespace CompilePalX
 
                 foreach (var process in CompileProcesses)
                 {
-                    if (defaultProcesses.Contains(process.Name))
+                    if (defaultProcesses.Contains(process.Metadata.Name))
                     {
-                        string path = Path.ChangeExtension(Path.Combine(folder, process.ParameterFile), "csv");
+                        string path = Path.ChangeExtension(Path.Combine(folder, process.Metadata.Name), "csv");
                         File.Create(path).Close();
                     }
                 }
@@ -191,22 +217,47 @@ namespace CompilePalX
         }
 
 
-        public static ObservableCollection<ConfigItem> GetParameters(string parameterlist)
+        public static ObservableCollection<ConfigItem> GetParameters(string processName)
         {
             var list = new ObservableCollection<ConfigItem>();
 
-            string basePath = Path.Combine(ParametersFolder, parameterlist);
+            string jsonParameters = Path.Combine(ParametersFolder, processName, "parameters.json");
 
-            var baselines = File.ReadAllLines(basePath);
-
-            for (int i = 2; i < baselines.Length; i++)
+            if (File.Exists(jsonParameters))
             {
-                string baseline = baselines[i];
-
-                var item = ParseBaseLine(baseline);
-
-                list.Add(item);
+                ConfigItem[] items = JsonConvert.DeserializeObject<ConfigItem[]>(File.ReadAllText(jsonParameters));
+                foreach (var configItem in items)
+                {
+                    list.Add(configItem);
+                }
             }
+            else
+            {
+                string csvParameters = Path.Combine(ParametersFolder, processName + ".csv");
+
+                if (File.Exists(csvParameters))
+                {
+                    var baselines = File.ReadAllLines(csvParameters);
+
+                    for (int i = 2; i < baselines.Length; i++)
+                    {
+                        string baseline = baselines[i];
+
+                        var item = ParseBaseLine(baseline);
+
+                        list.Add(item);
+                    }
+
+                    ConfigItem[] items = list.ToArray();
+
+                    File.WriteAllText(jsonParameters, JsonConvert.SerializeObject(items, Formatting.Indented));
+                }
+                else
+                {
+                    throw new FileNotFoundException("Parameter files could not be found for " + processName);
+                }
+            }
+
 
             return list;
         }
@@ -220,7 +271,7 @@ namespace CompilePalX
             if (pieces.Any())
             {
                 item.Parameter = pieces[0];
-                if(pieces.Count() >= 2)
+                if (pieces.Count() >= 2)
                     item.Value = pieces[1];
             }
             return item;
@@ -241,14 +292,14 @@ namespace CompilePalX
             if (pieces.Any())
             {
                 item.Name = pieces[0];
-                if(pieces.Count() >= 2)
+                if (pieces.Count() >= 2)
                     item.Parameter = pieces[1];
                 if (pieces.Count() >= 3)
                     item.CanHaveValue = bool.Parse(pieces[2]);
                 if (pieces.Count() >= 4)
                     item.Description = pieces[3];
                 if (pieces.Count() >= 5)
-                item.Warning = pieces[4];
+                    item.Warning = pieces[4];
             }
             return item;
         }

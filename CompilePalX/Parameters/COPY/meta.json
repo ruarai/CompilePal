@@ -1,0 +1,11 @@
+{
+  "Name": "COPY",
+  "Path": "xcopy",
+  "Order": 4.0,
+  "DoRun": true,
+  "ReadOutput": true,
+  "Description": "Copies the .bsp from the mapsrc folder to maps folder.",
+  "Warning": "",
+  "PresetDefault": false,
+  "BasisString": " /y /f $bsp$ $mapFolder$"
+}

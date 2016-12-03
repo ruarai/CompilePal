@@ -1,0 +1,66 @@
+[
+  {
+    "Name": "Only Entities",
+    "Parameter": " -onlyents",
+    "Description": "Only import the entities from the VMF. Brushes and internal entities are not modified. Conserves existing lighting data.",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": ""
+  },
+  {
+    "Name": "Only Props",
+    "Parameter": " -onlyprops",
+    "Description": "Only update static and detail props (i.e. the internal entities).",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": "Does not generate a .prt file, making VVIS fail!"
+  },
+  {
+    "Name": "No Detail",
+    "Parameter": " -nodetail",
+    "Description": "Compiles without func_detail brushes.",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": ""
+  },
+  {
+    "Name": "No T-Junc",
+    "Parameter": " -notjunc",
+    "Description": "Don't fix t-junctions.",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": ""
+  },
+  {
+    "Name": "No Water",
+    "Parameter": " -nowater",
+    "Description": "Compiles without water brushes.",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": ""
+  },
+  {
+    "Name": "Leak Test",
+    "Parameter": " -leaktest",
+    "Description": "Stop compiling if a leak is detected.",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": "Not supported on newer Source."
+  },
+  {
+    "Name": "All Detail",
+    "Parameter": " -alldetail",
+    "Description": "Make all geometry func_detail to improve VVIS times. Use with a radius override of 2500 in VVIS.",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": "Support varies between versions of source."
+  },
+  {
+    "Name": "Verbose",
+    "Parameter": " -verbose",
+    "Description": "Turn on verbose output for debug purposes.",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": ""
+  }
+]

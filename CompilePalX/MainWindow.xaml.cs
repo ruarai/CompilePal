@@ -21,6 +21,8 @@ using CompilePalX.Compiling;
 using MahApps.Metro.Controls.Dialogs;
 using Microsoft.Win32;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Windows.Media.Animation;
 
 namespace CompilePalX
 {
@@ -234,7 +236,7 @@ namespace CompilePalX
             if (c.ProcessDataGrid.SelectedItem != null)
             {
                 CompileProcess ChosenProcess = (CompileProcess)c.ProcessDataGrid.SelectedItem;
-                ChosenProcess.DoRun = true;
+                ChosenProcess.Metadata.DoRun = true;
                 if (!ChosenProcess.PresetDictionary.ContainsKey(ConfigurationManager.CurrentPreset))
                 {
                     ChosenProcess.PresetDictionary.Add(ConfigurationManager.CurrentPreset, new ObservableCollection<ConfigItem>());
@@ -335,6 +337,8 @@ namespace CompilePalX
 
         private void UpdateConfigGrid()
         {
+            ConfigDataGrid.BeginAnimation(OpacityProperty, new DoubleAnimation(0,1,new Duration(TimeSpan.FromMilliseconds(100))));
+
             ConfigurationManager.CurrentPreset = (string)PresetConfigListBox.SelectedItem;
 
             selectedProcess = (CompileProcess)CompileProcessesListBox.SelectedItem;
@@ -348,13 +352,21 @@ namespace CompilePalX
 
         private void UpdateProcessList()
         {
+            int currentIndex = CompileProcessesListBox.SelectedIndex;
+
             CompileProcessesSubList.Clear();
+
+            CompileProcessesListBox.Items.SortDescriptions.Add(new SortDescription("Ordering", ListSortDirection.Ascending));
+
             foreach (CompileProcess p in ConfigurationManager.CompileProcesses)
             {
                 if (ConfigurationManager.CurrentPreset != null)
                     if (p.PresetDictionary.ContainsKey(ConfigurationManager.CurrentPreset))
                         CompileProcessesSubList.Add(p);
             }
+
+            if (currentIndex < CompileProcessesListBox.Items.Count && currentIndex >= 0)
+                CompileProcessesListBox.SelectedIndex = currentIndex;
         }
 
         void UpdateParameterTextBox()

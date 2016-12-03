@@ -1,9 +1,0 @@
-VBSP
-$vbsp$
-vbsp.csv
- -game $game$ $vmfFile$
-1.0
-true
-true
-
-Generates a BSP.

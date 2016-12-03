@@ -1,9 +1,0 @@
-STATS
-$vbspInfo$
-stats.csv
- -treeinfo $mapCopyLocation$
-13.0
-true
-true
-
-Outputs statistics similar to those of VRAD.

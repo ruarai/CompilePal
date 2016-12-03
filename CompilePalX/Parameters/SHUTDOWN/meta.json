@@ -1,0 +1,11 @@
+{
+  "Name": "SHUTDOWN",
+  "Path": "shutdown",
+  "Order": 20.0,
+  "DoRun": true,
+  "ReadOutput": true,
+  "Description": "Runs the Windows shutdown command.",
+  "Warning": "",
+  "PresetDefault": false,
+  "BasisString": " -s"
+}

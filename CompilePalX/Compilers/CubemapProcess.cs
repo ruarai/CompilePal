@@ -11,7 +11,7 @@ namespace CompilePalX.Compilers
 {
     class CubemapProcess : CompileProcess
     {
-        public CubemapProcess() : base("Parameters\\BuiltIn\\cubemaps.meta") { }
+        public CubemapProcess() : base("CUBEMAPS") { }
 
         bool HDR = false;
         bool LDR = false;

@@ -1,0 +1,11 @@
+{
+  "Name": "PACK",
+  "Path": "builtin",
+  "Order": 10.0,
+  "DoRun": false,
+  "ReadOutput": true,
+  "Description": "Finds map dependencies and includes them in the .bsp.",
+  "Warning": "",
+  "PresetDefault": false,
+  "BasisString": " -game $game$ -bsp $bsp$ -bspZip $bspZip$ -keys $keys$"
+}

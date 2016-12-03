@@ -67,7 +67,7 @@ namespace CompilePalX
                 {
                     CompilePalLogger.LogLine(string.Format("Starting compilation of {0}", mapFile));
 
-                    foreach (var compileProcess in ConfigurationManager.CompileProcesses.Where(c => c.DoRun && c.PresetDictionary.ContainsKey(ConfigurationManager.CurrentPreset)))
+                    foreach (var compileProcess in ConfigurationManager.CompileProcesses.Where(c => c.Metadata.DoRun && c.PresetDictionary.ContainsKey(ConfigurationManager.CurrentPreset)))
                     {
                         compileProcess.Run(GameConfigurationManager.BuildContext(mapFile));
 
@@ -78,7 +78,7 @@ namespace CompilePalX
                             compileErrors.AddRange(executable.CompileErrors);
                         }
 
-                        ProgressManager.Progress += (1d / ConfigurationManager.CompileProcesses.Count(c => c.DoRun && 
+                        ProgressManager.Progress += (1d / ConfigurationManager.CompileProcesses.Count(c => c.Metadata.DoRun && 
                             c.PresetDictionary.ContainsKey(ConfigurationManager.CurrentPreset))) / MapFiles.Count;
                     }
                 }
@@ -135,7 +135,7 @@ namespace CompilePalX
                     compileProcess.Cancel();
                     compileProcess.Process.Kill();
 
-                    CompilePalLogger.LogLineColor("Killed {0}.", Brushes.OrangeRed, compileProcess.Name);
+                    CompilePalLogger.LogLineColor("Killed {0}.", Brushes.OrangeRed, compileProcess.Metadata.Name);
                 }
                 catch (InvalidOperationException) { }
                 catch (Exception e) { ExceptionHandler.LogException(e); }

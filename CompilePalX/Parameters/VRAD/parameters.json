@@ -1,0 +1,138 @@
+[
+  {
+    "Name": "Bounces",
+    "Parameter": " -bounce",
+    "Description": "Set the maximum number of light ray bounces",
+    "Value": null,
+    "CanHaveValue": true,
+    "Warning": ""
+  },
+  {
+    "Name": "LDR",
+    "Parameter": " -ldr",
+    "Description": "Compile with LDR",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": ""
+  },
+  {
+    "Name": "HDR",
+    "Parameter": " -hdr",
+    "Description": "Compile with HDR",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": ""
+  },
+  {
+    "Name": "Both",
+    "Parameter": " -both",
+    "Description": "Compile with HDR and LDR.",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": "Known to have issues with some versions of Source."
+  },
+  {
+    "Name": "Fast",
+    "Parameter": " -fast",
+    "Description": "Fast lighting",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": " "
+  },
+  {
+    "Name": "Final",
+    "Parameter": " -final",
+    "Description": "Increases the quality of light_environment and indirect lighting by spending more time firing rays.",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": " "
+  },
+  {
+    "Name": "Extra Sky",
+    "Parameter": " -extrasky",
+    "Description": "Trace N times as many rays for indirect light and sky ambient.",
+    "Value": null,
+    "CanHaveValue": true,
+    "Warning": ""
+  },
+  {
+    "Name": "Lights File",
+    "Parameter": " -lights",
+    "Description": "Load a custom lights file in addition to lights.rad and map-specific lights file.",
+    "Value": null,
+    "CanHaveValue": true,
+    "Warning": ""
+  },
+  {
+    "Name": "Smooth",
+    "Parameter": " -smooth",
+    "Description": "Set the threshold for smoothing groups, in degrees.",
+    "Value": null,
+    "CanHaveValue": true,
+    "Warning": ""
+  },
+  {
+    "Name": "Luxel Density",
+    "Parameter": " -density",
+    "Description": "Scale down luxels. Maximum value is 1.",
+    "Value": null,
+    "CanHaveValue": true,
+    "Warning": "Too low a value can cause lighting errors."
+  },
+  {
+    "Name": "Static Prop Lighting",
+    "Parameter": " -StaticPropLighting",
+    "Description": "Generate per-vertex prop_static lighting",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": " always enabled for light_spot entities."
+  },
+  {
+    "Name": "Static Prop Sample Scale",
+    "Parameter": " -StaticPropSampleScale",
+    "Description": "To get proper lighting on static props 16 = slow, high quality, 4 = default and 0.25 = fast, low quality",
+    "Value": null,
+    "CanHaveValue": true,
+    "Warning": "Note that adding -final is the same as having -StaticPropLightingScale 16."
+  },
+  {
+    "Name": "Static Prop Polys",
+    "Parameter": " -StaticPropPolys",
+    "Description": "Generate lighting on props at polygon precision.",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": ""
+  },
+  {
+    "Name": "Texture Shadows",
+    "Parameter": " -TextureShadows",
+    "Description": "Generates lightmap shadows from $translucent surfaces of models. (Not brushes)",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": ""
+  },
+  {
+    "Name": "Threads",
+    "Parameter": " -threads",
+    "Description": "Override the number of CPU threads used.",
+    "Value": null,
+    "CanHaveValue": true,
+    "Warning": ""
+  },
+  {
+    "Name": "Disable Skybox Recursion",
+    "Parameter": " -noskyboxrecurse",
+    "Description": "Turn off recursion into 3d skybox (skybox shadows on world).",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": ""
+  },
+  {
+    "Name": "Verbose",
+    "Parameter": " -verbose",
+    "Description": "Turn on verbose output for debug purposes.",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": ""
+  }
+]

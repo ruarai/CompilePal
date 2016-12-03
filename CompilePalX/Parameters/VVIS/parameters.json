@@ -1,0 +1,58 @@
+[
+  {
+    "Name": "Fast",
+    "Parameter": " -fast",
+    "Description": "Only do a quick first pass. Does not actually test visibility.",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": ""
+  },
+  {
+    "Name": "Radius Override",
+    "Parameter": " -radius_override",
+    "Description": "Force a maximum vis radius, in units, regardless of whether an env_fog_controller specifies one.",
+    "Value": null,
+    "CanHaveValue": true,
+    "Warning": ""
+  },
+  {
+    "Name": "No Sort",
+    "Parameter": " -nosort",
+    "Description": "Don't sort portals.",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": ""
+  },
+  {
+    "Name": "Temp In",
+    "Parameter": " -tmpin",
+    "Description": "Read portals from \\\\tmp\\\\<mapname>.",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": ""
+  },
+  {
+    "Name": "Temp Out",
+    "Parameter": " -tmpout",
+    "Description": "Write portals to \\\\tmp\\\\<mapname>.",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": ""
+  },
+  {
+    "Name": "Threads",
+    "Parameter": " -threads",
+    "Description": "Override the number of CPU threads used.",
+    "Value": null,
+    "CanHaveValue": true,
+    "Warning": ""
+  },
+  {
+    "Name": "Verbose",
+    "Parameter": " -verbose",
+    "Description": "Turn on verbose output for debug purposes.",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": ""
+  }
+]

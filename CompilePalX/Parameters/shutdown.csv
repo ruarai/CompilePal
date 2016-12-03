@@ -1,3 +1,0 @@
-sep=;
-Name;Parameter;ValueValid;Description;Issues
-Timer; -t;TRUE;Adds a delay to the shutdown (in seconds).

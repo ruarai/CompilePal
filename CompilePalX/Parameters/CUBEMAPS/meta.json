@@ -1,0 +1,11 @@
+{
+  "Name": "CUBEMAPS",
+  "Path": "builtin",
+  "Order": 9.0,
+  "DoRun": false,
+  "ReadOutput": true,
+  "Description": "Builds cubemaps automatically.",
+  "Warning": "Game client must be closed in order to work.",
+  "PresetDefault": false,
+  "BasisString": " "
+}

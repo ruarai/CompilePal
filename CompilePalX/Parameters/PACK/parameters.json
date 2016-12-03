@@ -1,0 +1,26 @@
+[
+  {
+    "Name": "Verbose",
+    "Parameter": " -verbose",
+    "Description": "Outputs a complete listing of added assets",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": ""
+  },
+  {
+    "Name": "Dryrun",
+    "Parameter": " -dryrun",
+    "Description": "Creates a txt file for bspzip usage but does not pak",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": ""
+  },
+  {
+    "Name": "Rename Nav File",
+    "Parameter": " -renamenav",
+    "Description": "Renames the nav file to embed.nav",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": "For TF2 only"
+  }
+]

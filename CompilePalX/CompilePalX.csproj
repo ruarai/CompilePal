@@ -179,9 +179,6 @@
     <Content Include="version.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Resource Include="Parameters\.help.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Resource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -189,70 +186,70 @@
     <Resource Include="FodyWeavers.xml" />
     <Resource Include="CompilePalIcon.ico" />
     <None Include="packages.config" />
-    <Content Include="Parameters\game.csv">
+    <Content Include="Parameters\COPY\meta.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Parameters\vbsp.csv">
+    <Content Include="Parameters\COPY\parameters.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Parameters\vrad.csv">
+    <Content Include="Parameters\CUBEMAPS\meta.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Parameters\vvis.csv">
+    <Content Include="Parameters\CUBEMAPS\parameters.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Parameters\copy.meta">
+    <Content Include="Parameters\GAME\meta.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Parameters\copy.csv">
+    <Content Include="Parameters\GAME\parameters.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Parameters\BuiltIn\pack.meta">
+    <Content Include="Parameters\NAV\meta.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Parameters\pack.csv">
+    <Content Include="Parameters\NAV\parameters.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Parameters\game.meta">
+    <Content Include="Parameters\PACK\meta.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Parameters\vbsp.meta">
+    <Content Include="Parameters\PACK\parameters.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Parameters\vrad.meta">
+    <Content Include="Parameters\REPACK\meta.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Parameters\vvis.meta">
+    <Content Include="Parameters\REPACK\parameters.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Parameters\repack.csv">
+    <Content Include="Parameters\SHUTDOWN\meta.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Parameters\repack.meta">
+    <Content Include="Parameters\SHUTDOWN\parameters.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Parameters\BuiltIn\cubemaps.meta">
+    <Content Include="Parameters\STATS\meta.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Parameters\cubemaps.csv">
+    <Content Include="Parameters\STATS\parameters.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Parameters\stats.csv">
+    <Content Include="Parameters\VBSP\meta.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Parameters\stats.meta">
+    <Content Include="Parameters\VBSP\parameters.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Parameters\BuiltIn\nav.meta">
+    <Content Include="Parameters\VRAD\meta.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Parameters\nav.csv">
+    <Content Include="Parameters\VRAD\parameters.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Parameters\shutdown.csv">
+    <Content Include="Parameters\VVIS\meta.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Parameters\shutdown.meta">
+    <Content Include="Parameters\VVIS\parameters.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <None Include="Presets\Fast\copy.csv">
@@ -330,6 +327,30 @@
     <None Include="Presets\Normal\vvis.csv">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <Content Include="Presets\Publish\copy.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Presets\Publish\CUBEMAPS.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Presets\Publish\game.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Presets\Publish\NAV.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Presets\Publish\PACK.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Presets\Publish\vbsp.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Presets\Publish\vrad.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Presets\Publish\vvis.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

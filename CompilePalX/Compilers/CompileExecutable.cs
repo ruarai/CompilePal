@@ -29,7 +29,7 @@ namespace CompilePalX.Compilers
             CompileErrors = new List<Error>();
             Process = new Process();
 
-            if (ReadOutput)
+            if (Metadata.ReadOutput)
             {
                 Process.StartInfo = new ProcessStartInfo
                     {
@@ -43,14 +43,14 @@ namespace CompilePalX.Compilers
 
             var args = GameConfigurationManager.SubstituteValues(GetParameterString(), c.MapFile); ;
 
-            Process.StartInfo.FileName = Path;
+            Process.StartInfo.FileName = Metadata.Path;
             Process.StartInfo.Arguments = string.Join(" ", args);
             Process.StartInfo.WorkingDirectory = runningDirectory;
 
             Process.Start();
             Process.PriorityClass = ProcessPriorityClass.BelowNormal;
 
-            if (ReadOutput)
+            if (Metadata.ReadOutput)
                 readOutput();
 
 

@@ -19,7 +19,7 @@ namespace CompilePalX.Compilers.BSPPack
     class BSPPack : CompileProcess
     {
         public BSPPack()
-            : base("Parameters\\BuiltIn\\pack.meta")
+            : base("PACK")
         {
 
         }

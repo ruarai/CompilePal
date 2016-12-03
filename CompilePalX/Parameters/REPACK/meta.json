@@ -1,0 +1,11 @@
+{
+  "Name": "REPACK",
+  "Path": "\"E:\\SteamLibrary\\steamapps\\common\\Counter-Strike Global Offensive\\bin\\bspzip.exe\"",
+  "Order": 11.0,
+  "DoRun": false,
+  "ReadOutput": true,
+  "Description": "BSPzip.exe's BSP Compression.",
+  "Warning": "Only supported in TF2.",
+  "PresetDefault": false,
+  "BasisString": " -repack -compress $mapCopyLocation$"
+}

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
@@ -8,68 +9,91 @@ using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Media;
-using System.Windows.Shapes;
 using CompilePalX.Compiling;
+using Newtonsoft.Json;
 
 namespace CompilePalX
 {
     class CompileProcess
     {
-        public CompileProcess(string metadataFile)
+        public string ParameterFolder = "Parameters";
+        public CompileProcess(string name)
         {
-            var lines = File.ReadAllLines(metadataFile);
+            string jsonMetadata = Path.Combine(ParameterFolder, name, "meta.json");
 
-            Name = lines[0];
-            Path = GameConfigurationManager.SubstituteValues(lines[1]);
-            ParameterFile = lines[2];
-            baseParameters = lines[3];
-            Order = float.Parse(lines[4], CultureInfo.InvariantCulture);
-            DoRun = bool.Parse(lines[5]);
-            ReadOutput = bool.Parse(lines[6]);
-            if (lines.Count() > 7)
-                Warning = lines[7];
-            if (lines.Count() > 8)
-                Description = lines[8];
+            if (File.Exists(jsonMetadata))
+            {
+                Metadata = JsonConvert.DeserializeObject<CompileMetadata>(File.ReadAllText(jsonMetadata));
+
+                CompilePalLogger.LogLine("Loaded JSON metadata {0} from {1} at order {2}", Metadata.Name, jsonMetadata, Metadata.Order);
+            }
+            else
+            {
+                string legacyMetadata = Path.Combine(ParameterFolder, name + ".meta");
+
+                if (File.Exists(legacyMetadata))
+                {
+                    Metadata = LoadLegacyData(legacyMetadata);
+
+                    Directory.CreateDirectory(Path.Combine(ParameterFolder, name));
+
+                    File.WriteAllText(jsonMetadata, JsonConvert.SerializeObject(Metadata, Formatting.Indented));
+
+                    CompilePalLogger.LogLine("Loaded CSV metadata {0} from {1} at order {2}, converted to JSON successfully.", Metadata.Name, legacyMetadata, Metadata.Order);
+                }
+                else
+                {
+                    throw new FileNotFoundException("The metadata file for " + name + " could not be found.");
+                }
+
+            }
 
 
-            CompilePalLogger.LogLine("Loaded {0} from {1} with {2} at order {3}", Name, metadataFile, ParameterFile, Order);
 
-            ParameterList = ConfigurationManager.GetParameters(ParameterFile);
-
-            MetadataFile = metadataFile;
+            ParameterList = ConfigurationManager.GetParameters(Metadata.Name);
 
         }
 
-        public string Name { get; set; }
-        public string Path;
-        public float Order { get; set; }
-        public string ParameterFile;
-        public string MetadataFile;
-        public bool DoRun { get; set; }
-        public bool ReadOutput;
-        public string Description { get; set; }
-        public string Warning { get; set; }
-        public bool PresetDefault { get; set; }
+        public static CompileMetadata LoadLegacyData(string csvFile)
+        {
+            CompileMetadata metadata = new CompileMetadata();
 
+            var lines = File.ReadAllLines(csvFile);
+
+            metadata.Name = lines[0];
+            metadata.Path = GameConfigurationManager.SubstituteValues(lines[1]);
+            metadata.BasisString = lines[3];
+            metadata.Order = float.Parse(lines[4], CultureInfo.InvariantCulture);
+            metadata.DoRun = bool.Parse(lines[5]);
+            metadata.ReadOutput = bool.Parse(lines[6]);
+            if (lines.Count() > 7)
+                metadata.Warning = lines[7];
+            if (lines.Count() > 8)
+                metadata.Description = lines[8];
+
+            return metadata;
+        }
+
+        public CompileMetadata Metadata;
+
+        public string PresetFile { get { return Metadata.Name + ".csv"; } }
+
+        public double Ordering { get { return Metadata.Order; } }
+        public bool DoRun { get { return Metadata.DoRun; } set { Metadata.DoRun = value; } }
+        public string Name { get { return Metadata.Name; } }
+        public string Description { get { return Metadata.Description; } }
+        public string Warning { get { return Metadata.Warning; } }
 
         public Process Process;
 
-        public string PresetFile
-        {
-            get { return System.IO.Path.ChangeExtension(ParameterFile, "csv"); }
-        }
-
         public virtual void Run(CompileContext context)
         {
-            
+
         }
         public virtual void Cancel()
         {
 
         }
-
-        private string baseParameters;
 
         public ObservableCollection<ConfigItem> ParameterList = new ObservableCollection<ConfigItem>();
         public ObservableDictionary<string, ObservableCollection<ConfigItem>> PresetDictionary = new ObservableDictionary<string, ObservableCollection<ConfigItem>>();
@@ -85,24 +109,33 @@ namespace CompilePalX
                     parameters += " " + parameter.Value;
             }
 
-            parameters += baseParameters;
+            parameters += Metadata.BasisString;
 
             return parameters;
         }
 
-        public void SaveMetadata()
-        {
-            var lines = File.ReadAllLines(MetadataFile);
-
-            lines[5] = DoRun.ToString();
-
-            File.WriteAllLines(MetadataFile, lines);
-        }
-
         public override string ToString()
         {
-            return Name;
+            return Metadata.Name;
         }
+    }
+
+    class CompileMetadata
+    {
+        public string Name { get; set; }
+        public string Path { get; set; }
+
+        public float Order { get; set; }
+
+        public bool DoRun { get; set; }
+        public bool ReadOutput { get; set; }
+
+        public string Description { get; set; }
+        public string Warning { get; set; }
+
+        public bool PresetDefault { get; set; }
+
+        public string BasisString { get; set; }
     }
 
     class CompileContext

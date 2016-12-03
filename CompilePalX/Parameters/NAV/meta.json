@@ -1,0 +1,11 @@
+{
+  "Name": "NAV",
+  "Path": "builtin",
+  "Order": 8.0,
+  "DoRun": false,
+  "ReadOutput": true,
+  "Description": "Basic Generation of a nav mesh.",
+  "Warning": "Game client must be closed in order to work.",
+  "PresetDefault": false,
+  "BasisString": ""
+}

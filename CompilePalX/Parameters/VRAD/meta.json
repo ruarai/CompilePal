@@ -1,0 +1,11 @@
+{
+  "Name": "VRAD",
+  "Path": "\"E:\\SteamLibrary\\steamapps\\common\\Counter-Strike Global Offensive\\bin\\vrad.exe\"",
+  "Order": 3.0,
+  "DoRun": true,
+  "ReadOutput": true,
+  "Description": "Generates static lighting.",
+  "Warning": "",
+  "PresetDefault": false,
+  "BasisString": " -game $game$ $vmfFile$"
+}

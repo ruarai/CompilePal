@@ -1,9 +1,0 @@
-VRAD
-$vrad$
-vrad.csv
- -game $game$ $vmfFile$
-3.0
-true
-true
-
-Generates static lighting.

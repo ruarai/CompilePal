@@ -1,0 +1,10 @@
+[
+  {
+    "Name": "Timer",
+    "Parameter": " -t",
+    "Description": "Adds a delay to the shutdown (in seconds).",
+    "Value": null,
+    "CanHaveValue": true,
+    "Warning": null
+  }
+]

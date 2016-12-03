@@ -1,0 +1,11 @@
+{
+  "Name": "STATS",
+  "Path": "\"E:\\SteamLibrary\\steamapps\\common\\Counter-Strike Global Offensive\\bin\\vbspinfo.exe\"",
+  "Order": 13.0,
+  "DoRun": true,
+  "ReadOutput": true,
+  "Description": "Outputs statistics similar to those of VRAD.",
+  "Warning": "",
+  "PresetDefault": false,
+  "BasisString": " -treeinfo $mapCopyLocation$"
+}

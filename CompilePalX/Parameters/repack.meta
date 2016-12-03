@@ -1,9 +1,0 @@
-REPACK
-$bspZip$
-repack.csv
- -repack -compress $mapCopyLocation$
-11.0
-False
-true
-Only supported in TF2.
-BSPzip.exe's BSP Compression.
