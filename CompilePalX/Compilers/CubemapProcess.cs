@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -27,35 +28,52 @@ namespace CompilePalX.Compilers
             vbspInfo = context.Configuration.VBSPInfo;
             bspFile = context.CopyLocation;
 
-            CompilePalLogger.LogLine("\nCompilePal - Cubemap Generator");
-
-            hidden = GetParameterString().Contains("-hidden");
-            FetchHDRLevels();
-
-            string mapname = System.IO.Path.GetFileName(context.BSPFile).Replace(".bsp", "");
-
-            string args = "-game \"" + context.Configuration.GameFolder +"\" -windowed -novid -nosound +mat_specular 0 %HDRevel% +map " + mapname + " -buildcubemaps";
-
-            if (hidden)
-                args += " -noborder -x 4000 -y 2000";
-
-            if (HDR && LDR)
+            try
             {
-                CompilePalLogger.LogLine("Map requires two sets of cubemaps");
+                CompilePalLogger.LogLine("\nCompilePal - Cubemap Generator");
 
-                CompilePalLogger.LogLine("Compiling LDR cubemaps...");
-                RunCubemaps(context.Configuration.GameEXE, args.Replace("%HDRevel%", "+mat_hdr_level 0"));
+                if (!File.Exists(context.CopyLocation))
+                {
+                    throw new FileNotFoundException();
+                }
 
-                CompilePalLogger.LogLine("Compiling HDR cubemaps...");
-                RunCubemaps(context.Configuration.GameEXE, args.Replace("%HDRevel%", "+mat_hdr_level 2"));
+                hidden = GetParameterString().Contains("-hidden");
+                FetchHDRLevels();
+
+                string mapname = System.IO.Path.GetFileName(context.CopyLocation).Replace(".bsp", "");
+
+                string args = "-game \"" + context.Configuration.GameFolder + "\" -windowed -novid -nosound +mat_specular 0 %HDRevel% +map " + mapname + " -buildcubemaps";
+
+                if (hidden)
+                    args += " -noborder -x 4000 -y 2000";
+
+                if (HDR && LDR)
+                {
+                    CompilePalLogger.LogLine("Map requires two sets of cubemaps");
+
+                    CompilePalLogger.LogLine("Compiling LDR cubemaps...");
+                    RunCubemaps(context.Configuration.GameEXE, args.Replace("%HDRevel%", "+mat_hdr_level 0"));
+
+                    CompilePalLogger.LogLine("Compiling HDR cubemaps...");
+                    RunCubemaps(context.Configuration.GameEXE, args.Replace("%HDRevel%", "+mat_hdr_level 2"));
+                }
+                else
+                {
+                    CompilePalLogger.LogLine("Map requires one set of cubemaps");
+                    CompilePalLogger.LogLine("Compiling cubemaps...");
+                    RunCubemaps(context.Configuration.GameEXE, args.Replace("%HDRevel%", ""));
+                }
+                CompilePalLogger.LogLine("Cubemaps compiled");
             }
-            else
+            catch (FileNotFoundException)
             {
-                CompilePalLogger.LogLine("Map requires one set of cubemaps");
-                CompilePalLogger.LogLine("Compiling cubemaps...");
-                RunCubemaps(context.Configuration.GameEXE, args.Replace("%HDRevel%", ""));
+                CompilePalLogger.LogLine("FAILED - Could not find " + context.CopyLocation);
             }
-            CompilePalLogger.LogLine("Cubemaps compiled");
+            catch (Exception exception)
+            {
+                CompilePalLogger.LogLine("Something broke:");
+                CompilePalLogger.LogLine(exception.ToString());
+            }
 
         }
 

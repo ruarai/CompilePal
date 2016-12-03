@@ -34,6 +34,8 @@ namespace CompilePalX.Compilers.BSPPack
         private static bool dryrun;
         private static bool renamenav;
 
+        private List<string> sourceDirectories = new List<string>();
+
         public override void Run(CompileContext context)
         {
             verbose = GetParameterString().Contains("-verbose");
@@ -47,6 +49,11 @@ namespace CompilePalX.Compilers.BSPPack
                 gameFolder = context.Configuration.GameFolder;
                 bspPath = context.CopyLocation;
 
+                if (!File.Exists(bspPath))
+                {
+                    throw new FileNotFoundException();
+                }
+
                 Keys.vmtTextureKeyWords = File.ReadAllLines(System.IO.Path.Combine(keysFolder, "texturekeys.txt")).ToList();
                 Keys.vmtMaterialKeyWords = File.ReadAllLines(System.IO.Path.Combine(keysFolder, "materialkeys.txt")).ToList();
                 Keys.vmfSoundKeys = File.ReadAllLines(System.IO.Path.Combine(keysFolder, "vmfsoundkeys.txt")).ToList();
@@ -54,7 +61,7 @@ namespace CompilePalX.Compilers.BSPPack
                 Keys.vmfModelKeys = File.ReadAllLines(System.IO.Path.Combine(keysFolder, "vmfmodelkeys.txt")).ToList();
 
                 CompilePalLogger.LogLine("Finding sources of game content...");
-                GetSourceDirectories(gameFolder);
+                sourceDirectories = GetSourceDirectories(gameFolder);
 
                 CompilePalLogger.LogLine("Reading BSP...");
                 BSP map = new BSP(new FileInfo(bspPath));
@@ -101,6 +108,10 @@ namespace CompilePalX.Compilers.BSPPack
                     "additional files: " + additionalFiles : "none");
                 CompilePalLogger.LogLine("---------------------");
 
+            }
+            catch (FileNotFoundException)
+            {
+                CompilePalLogger.LogLine("FAILED - Could not find " + bspPath);
             }
             catch (Exception exception)
             {
@@ -163,10 +174,9 @@ namespace CompilePalX.Compilers.BSPPack
             CompilePalLogger.LogLine(e.Data);
         }
 
-        private static List<string> sourceDirectories = new List<string>();
-
-        static void GetSourceDirectories(string gamePath)
+        public static List<string> GetSourceDirectories(string gamePath, bool verbose = true)
         {
+            List<string> sourceDirectories = new List<string>();
             string gameInfo = System.IO.Path.Combine(gamePath, "gameinfo.txt");
 
             string rootPath = Directory.GetParent(gamePath).ToString();
@@ -198,7 +208,8 @@ namespace CompilePalX.Compilers.BSPPack
 
                                 string fullPath = System.IO.Path.GetFullPath(rootPath + "\\" + newPath.TrimEnd('\\'));
 
-                                CompilePalLogger.LogLine("Found wildcard path: {0}", fullPath);
+                                if (verbose)
+                                    CompilePalLogger.LogLine("Found wildcard path: {0}", fullPath);
 
                                 var directories = Directory.GetDirectories(fullPath);
 
@@ -209,7 +220,8 @@ namespace CompilePalX.Compilers.BSPPack
                             {
                                 string fullPath = System.IO.Path.GetFullPath(rootPath + "\\" + path.TrimEnd('\\'));
 
-                                CompilePalLogger.LogLine("Found search path: {0}", fullPath);
+                                if (verbose)
+                                    CompilePalLogger.LogLine("Found search path: {0}", fullPath);
 
                                 sourceDirectories.Add(fullPath);
                             }
@@ -219,7 +231,8 @@ namespace CompilePalX.Compilers.BSPPack
                     {
                         if (line.Contains("SearchPaths"))
                         {
-                            CompilePalLogger.LogLine("Found search paths...");
+                            if (verbose)
+                                CompilePalLogger.LogLine("Found search paths...");
                             foundSearchPaths = true;
                             i++;
                         }
@@ -230,6 +243,7 @@ namespace CompilePalX.Compilers.BSPPack
             {
                 CompilePalLogger.LogLine("Couldn't find gameinfo.txt at {0}", gameInfo);
             }
+            return sourceDirectories;
         }
         static private string GetInfoValue(string line)
         {

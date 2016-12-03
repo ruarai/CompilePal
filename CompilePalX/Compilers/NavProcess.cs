@@ -25,12 +25,22 @@ namespace CompilePalX.Compilers
 
         public override void Run(CompileContext context)
         {
+            try
+            {
 
             CompilePalLogger.LogLine("\nCompilePal - Nav Generator");
-            mapname = Path.GetFileName(context.BSPFile).Replace(".bsp", "");
+
+                if (!File.Exists(context.CopyLocation))
+                {
+                    throw new FileNotFoundException();
+                }
+
+                mapname = System.IO.Path.GetFileName(context.CopyLocation).Replace(".bsp", "");
             mapnav = context.CopyLocation.Replace(".bsp", ".nav");
             mapcfg = context.Configuration.GameFolder + "/cfg/" + mapname + ".cfg";
             mapCFGBackup = context.Configuration.GameFolder + "/cfg/" + mapname + "_cpalbackup.cfg";
+
+                deleteNav(mapname, context.Configuration.GameFolder);
 
             hidden = GetParameterString().Contains("-hidden");
 
@@ -72,6 +82,31 @@ namespace CompilePalX.Compilers
 
             cleanUp();
             CompilePalLogger.LogLine("nav file complete!");
+        }
+            catch (FileNotFoundException)
+            {
+                CompilePalLogger.LogLine("FAILED - Could not find " + context.CopyLocation);
+            }
+            catch (Exception exception)
+            {
+                CompilePalLogger.LogLine("Something broke:");
+                CompilePalLogger.LogLine(exception.ToString());
+            }
+        }
+
+        private void deleteNav(string mapname, string gamefolder)
+        {
+            List<string> navdirs = BSPPack.BSPPack.GetSourceDirectories(gamefolder, false);
+            foreach (string source in navdirs)
+            {
+                string externalPath = source + "/maps/" + mapname + ".nav";
+
+                if (File.Exists(externalPath))
+                {
+                    CompilePalLogger.LogLine("Deleting existing nav file.");
+                    File.Delete(externalPath);
+                }
+            }
         }
 
         private void exitClient()
