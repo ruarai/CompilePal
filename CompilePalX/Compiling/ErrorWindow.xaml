@@ -7,7 +7,8 @@
                       IconEdgeMode="Aliased" Icon="../CompilePalIcon.ico" ShowIconOnTitleBar="False" 
                       Height="500" Width="800"
                       MinHeight="500" MinWidth="800"
-                      MaxHeight="500" MaxWidth="800">
+                      MaxHeight="500" MaxWidth="800" 
+                      BorderBrush="{DynamicResource AccentColorBrush}" BorderThickness="1" >
     <Grid>
         <WebBrowser Name="ErrorBrowser" Margin="0"/>
 
