@@ -86,5 +86,21 @@
     "Value": null,
     "CanHaveValue": false,
     "Warning": "-dev recommended to be off."
+  },
+  {
+    "Name": "Cheats",
+    "Parameter": " +sv_cheats 1",
+    "Description": "Enables game cheats.",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": "Dangerous to use in multiplayer games."
+  },
+  {
+    "Name": "Disable Freeze Time",
+    "Parameter": " +mp_enableroundwaittime 0",
+    "Description": "Disables the freeze time at the start of rounds.",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": ""
   }
 ]
