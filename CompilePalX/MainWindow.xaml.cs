@@ -337,7 +337,7 @@ namespace CompilePalX
 
         private void UpdateConfigGrid()
         {
-            ConfigDataGrid.BeginAnimation(OpacityProperty, new DoubleAnimation(0,1,new Duration(TimeSpan.FromMilliseconds(100))));
+            ConfigDataGrid.BeginAnimation(OpacityProperty, new DoubleAnimation(0, 1, new Duration(TimeSpan.FromMilliseconds(50))));
 
             ConfigurationManager.CurrentPreset = (string)PresetConfigListBox.SelectedItem;
 
@@ -352,6 +352,9 @@ namespace CompilePalX
 
         private void UpdateProcessList()
         {
+            CompileProcessesListBox.BeginAnimation(OpacityProperty, new DoubleAnimation(0, 1, new Duration(TimeSpan.FromMilliseconds(50))));
+
+
             int currentIndex = CompileProcessesListBox.SelectedIndex;
 
             CompileProcessesSubList.Clear();
