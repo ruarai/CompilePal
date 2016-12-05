@@ -8,7 +8,7 @@
                       Height="550" Width="790"
                       Closing="MetroWindow_Closing"
                       IconEdgeMode="Aliased" Icon="CompilePalIcon.ico" ShowIconOnTitleBar="False" 
-                      Activated="MetroWindow_Activated">
+                      Activated="MetroWindow_Activated" BorderThickness="1" BorderBrush="{DynamicResource AccentColorBrush}" >
 
 
     <Grid>
