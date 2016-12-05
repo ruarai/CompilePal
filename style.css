@@ -1,17 +1,27 @@
 ﻿body {
-    background-color: #5C5B59;
+    background-color: #ffffff;
     padding: 0;
     margin: 0;
     font-family: 'Roboto', sans-serif;
 }
 #column {
     background-color: #ffffff;
-    max-width: 750px;
+    border-left: #5c5b59 solid 10px;
+    border-right: #E41F27 solid 10px;
+}
+
+#columnwrapper {
+    border-right: #5c5b59 solid 10px;
+    border-left: #E41F27 solid 10px;
+    max-width: 770px;
     margin: 0 auto;
+
+    
 }
 
 #content {
     padding:20px;
+    padding-top: 5px;
 }
 
 #header {
@@ -22,23 +32,28 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding-bottom: 15px;
+    padding-bottom: 0;
 }
 
 #releases a {
-    margin: 0 15px;
+    margin: 0 10px 0 0;
     font-size: 1.4em;
-    font-weight: 400;
-    color:#000;
+    font-weight: 300;
+    color:#fff;
     text-decoration: none;
+    background-color: #E41F27;
+    padding: 5px 10px 5px 10px;
 }
 
-hr {
-    margin-left: -30px;
-    width: 200%;
-    height: 13px;
+.horizontal {
+    max-width: 750px;
+    margin-left: -20px;
+    margin-right: -20px;
+    margin-top: 10px;
+    height: 10px;
     border: 0;
-    background-color:  #5C5B59;
+    background-color:  #E41F27;
+    border-bottom: #5c5b59 solid 10px;
 }
 
 h1, h2,h3,h4 {

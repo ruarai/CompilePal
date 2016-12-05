@@ -2,66 +2,79 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <title>Compile Pal</title>
-    <link href="style.css" rel="stylesheet"/>
+    <link href="style.css" rel="stylesheet" />
     <link href='https://fonts.googleapis.com/css?family=Roboto:400,500,700,100,300' rel='stylesheet' type='text/css'>
     <link rel="shortcut icon" type="image/png" href="/CompilePalIcon.png" />
 </head>
 <body>
-    <div id="column">
-        <img id="header" src="Header.png"/>
+    <div id="columnwrapper">
+        <div id="column">
+            <img id="header" src="Header.png" />
 
-        <div id="content">
+            <div id="content">
 
-            <div id="releases">
-                <a href="http://www.github.com/ruarai/CompilePal/releases/latest">Download Latest Version</a><a href="http://www.github.com/ruarai/CompilePal/issues">Report Issues</a><a href="http://www.github.com/ruarai/CompilePal/">View Source</a>
+                <div id="releases">
+                    <a href="http://www.github.com/ruarai/CompilePal/releases/latest">Download Latest Version</a>
+                    <a href="http://www.github.com/ruarai/CompilePal/issues">Report Issues</a>
+                    <a href="http://www.github.com/ruarai/CompilePal/">View Source</a>
+                </div>
+                <hr class="horizontal" />
+                <p>Compile Pal is the amazing wrapper for the source map compiling tools that makes compiling a breeze.</p>
+                <h1>
+                    <a></a>Configuration
+                </h1>
+                <p>Compile Pal should automatically find any game configurations - as long as the game’s SDK was run last. Game Configurations are cached between sessions, and you can choose between them at launch.</p>
+                <img class="screenshot" src="Configuration.png" />
+                <h1>
+                    <a></a>Packing
+                </h1>
+                <p>PACK is a feature that allows for the automatic packing of custom content into a map BSP. Thanks to the work of Maxdup, this feature is now ready to be used in production.</p>
+                <h3>
+                    <a></a>Packable Content
+                </h3>
+                <ul>
+                    <li>Materials</li>
+                    <li>Models</li>
+                    <li>Model Skins</li>
+                    <li>Skybox Textures</li>
+                    <li>Sprites</li>
+                    <li>Water Materials</li>
+                    <li>Color Correction</li>
+                    <li>Detail Files</li>
+                    <li>Menu Photos</li>
+                    <li>Soundscapes</li>
+                    <li>Soundscripts</li>
+                    <li>Particle Manifests</li>
+                    <li>Much more…</li>
+                </ul>
+                <h2>
+                    <a></a>Error Checking
+                </h2>
+                <p>Compile Pal can detect and provide information relating to errors using the Interlopers error listings.</p>
+                <img class="screenshot" src="Errors.png" />
+                <h2>
+                    <a></a>Contributors
+                </h2>
+                <h3>
+                    <a></a>Developers
+                </h3>
+                <ul>
+                    <li>Ruarai</li>
+                    <li>Maxdup (Maxime Dupuis)</li>
+                </ul>
+                <h3>
+                    <a></a>Bug Testing
+                </h3>
+                <ul>
+                    <li>wareya</li>
+                    <li>Gangleider</li>
+                    <li>Matt2468rv</li>
+                    <li>Sevin7</li>
+                </ul>
             </div>
-            <hr/>
-            <p>Compile Pal is the amazing wrapper for the source map compiling tools that makes compiling a breeze.</p>
-            <h1><a></a>Configuration
-            </h1>
-            <p>Compile Pal should automatically find any game configurations - as long as the game’s SDK was run last. Game Configurations are cached between sessions, and you can choose between them at launch.</p>
-            <img class="screenshot" src="Configuration.png" />
-            <h1><a></a>Packing
-            </h1>
-            <p>PACK is a feature that allows for the automatic packing of custom content into a map BSP. Thanks to the work of Maxdup, this feature is now ready to be used in production.</p>
-            <h3><a></a>Packable Content
-            </h3>
-            <ul>
-                <li>Materials</li>
-                <li>Models</li>
-                <li>Model Skins</li>
-                <li>Skybox Textures</li>
-                <li>Sprites</li>
-                <li>Water Materials</li>
-                <li>Color Correction</li>
-                <li>Detail Files</li>
-                <li>Menu Photos</li>
-                <li>Soundscapes</li>
-                <li>Soundscripts</li>
-                <li>Particle Manifests</li>
-                <li>Much more…</li>
-            </ul>
-            <h2><a></a>Error Checking
-            </h2>
-            <p>Compile Pal can detect and provide information relating to errors using the Interlopers error listings.</p>
-            <img class="screenshot" src="Errors.png"/>
-            <h2><a></a>Contributors
-            </h2>
-            <h3><a></a>Developers
-            </h3>
-            <ul>
-                <li>Ruarai</li>
-                <li>Maxdup (Maxime Dupuis)</li>
-            </ul>
-            <h3><a></a>Bug Testing
-            </h3>
-            <ul>
-                <li>wareya</li>
-                <li>Gangleider</li>
-                <li>Matt2468rv</li>
-                <li>Sevin7</li>
-            </ul>
         </div>
+
     </div>
+
 </body>
 </html>
