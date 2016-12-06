@@ -1,6 +1,6 @@
 {
   "Name": "GAME",
-  "Path": "\"E:\\SteamLibrary\\steamapps\\common\\Counter-Strike Global Offensive\\csgo.exe\"",
+  "Path": "$gameEXE$",
   "Order": 12.0,
   "DoRun": false,
   "ReadOutput": false,

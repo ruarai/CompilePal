@@ -1,6 +1,6 @@
 {
   "Name": "VBSP",
-  "Path": "\"E:\\SteamLibrary\\steamapps\\common\\Counter-Strike Global Offensive\\bin\\vbsp.exe\"",
+  "Path": "$vbsp$",
   "Order": 1.0,
   "DoRun": true,
   "ReadOutput": true,

@@ -1,6 +1,6 @@
 {
   "Name": "STATS",
-  "Path": "\"E:\\SteamLibrary\\steamapps\\common\\Counter-Strike Global Offensive\\bin\\vbspinfo.exe\"",
+  "Path": "$vbspInfo$",
   "Order": 13.0,
   "DoRun": true,
   "ReadOutput": true,

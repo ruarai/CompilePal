@@ -1,6 +1,6 @@
 {
   "Name": "VRAD",
-  "Path": "\"E:\\SteamLibrary\\steamapps\\common\\Counter-Strike Global Offensive\\bin\\vrad.exe\"",
+  "Path": "$vrad$",
   "Order": 3.0,
   "DoRun": true,
   "ReadOutput": true,

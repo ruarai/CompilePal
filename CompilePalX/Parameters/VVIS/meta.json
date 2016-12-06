@@ -1,6 +1,6 @@
 {
   "Name": "VVIS",
-  "Path": "\"E:\\SteamLibrary\\steamapps\\common\\Counter-Strike Global Offensive\\bin\\vvis.exe\"",
+  "Path": "$vvis$",
   "Order": 2.0,
   "DoRun": true,
   "ReadOutput": true,
