@@ -418,8 +418,8 @@ namespace CompilePalX.Compilers.BSPPack
             }
 
             // Res file (for tf2's pd gamemode)
-            Dictionary<string, string>  pd_ent = bsp.entityList.First(item => item["classname"] == "tf_logic_player_destruction");
-            if (pd_ent.ContainsKey("res_file"))
+            Dictionary<string, string>  pd_ent = bsp.entityList.FirstOrDefault(item => item["classname"] == "tf_logic_player_destruction");
+            if (pd_ent != null && pd_ent.ContainsKey("res_file"))
             {
                 foreach (string source in sourceDirectories)
                 {
