@@ -13,6 +13,7 @@ using System.Windows.Media;
 using System.Windows.Threading;
 using CompilePalX.Compilers;
 using CompilePalX.Compiling;
+using System.Runtime.InteropServices;
 
 namespace CompilePalX
 {
@@ -41,6 +42,9 @@ namespace CompilePalX
 
         public static void StartCompile()
         {
+            // Tells windows to not go to sleep during compile
+            NativeMethods.SetThreadExecutionState(NativeMethods.ES_CONTINUOUS | NativeMethods.ES_SYSTEM_REQUIRED);
+
             AnalyticsManager.Compile();
 
             IsCompiling = true;
@@ -123,6 +127,9 @@ namespace CompilePalX
             compileTimeStopwatch.Reset();
 
             IsCompiling = false;
+
+            // Tells windows it's now okay to enter sleep
+            NativeMethods.SetThreadExecutionState(NativeMethods.ES_CONTINUOUS);
         }
 
         public static void CancelCompile()
@@ -146,6 +153,15 @@ namespace CompilePalX
             CompilePalLogger.LogLineColor("Compile forcefully ended.", Brushes.OrangeRed);
 
             postCompile(null);
+        }
+
+        internal static class NativeMethods
+        {
+            // Import SetThreadExecutionState Win32 API and necessary flags
+            [DllImport("kernel32.dll")]
+            public static extern uint SetThreadExecutionState(uint esFlags);
+            public const uint ES_CONTINUOUS = 0x80000000;
+            public const uint ES_SYSTEM_REQUIRED = 0x00000001;
         }
     }
 }
