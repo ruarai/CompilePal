@@ -32,6 +32,7 @@ namespace CompilePalX
             CompileProcesses.Add(new BSPPack());
             CompileProcesses.Add(new CubemapProcess());
             CompileProcesses.Add(new NavProcess());
+            CompileProcesses.Add(new ShutdownProcess());
 
             //collect new metadatas
 

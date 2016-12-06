@@ -1,6 +1,6 @@
 {
   "Name": "REPACK",
-  "Path": "\"E:\\SteamLibrary\\steamapps\\common\\Counter-Strike Global Offensive\\bin\\bspzip.exe\"",
+  "Path": "$bspZip$",
   "Order": 11.0,
   "DoRun": false,
   "ReadOutput": true,

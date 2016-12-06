@@ -75,6 +75,7 @@
     <Compile Include="Compilers\BSPPack\PakFile.cs" />
     <Compile Include="Compilers\BSPPack\Pack.cs" />
     <Compile Include="Compilers\CompileExecutable.cs" />
+    <Compile Include="Compilers\ShutdownProcess.cs" />
     <Compile Include="Compilers\NavProcess.cs" />
     <Compile Include="Compilers\CubemapProcess.cs" />
     <Compile Include="Compiling\ErrorWindow.xaml.cs">
