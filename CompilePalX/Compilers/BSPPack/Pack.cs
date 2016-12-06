@@ -103,7 +103,8 @@ namespace CompilePalX.Compilers.BSPPack
                     (map.radartxt.Key != default(string) ? "\n-radar files" : "") +
                     (map.txt.Key != default(string) ? "\n-loading screen text" : "") +
                     (map.jpg.Key != default(string) ? "\n-loading screen image" : "") +
-                    (map.kv.Key != default(string) ? "\n-kv file" : "");
+                    (map.kv.Key != default(string) ? "\n-kv file" : "") +
+                    (map.res.Key != default(string) ? "\n-res file" : "");
                 CompilePalLogger.LogLine(additionalFiles != default(string) ?
                     "additional files: " + additionalFiles : "none");
                 CompilePalLogger.LogLine("---------------------");

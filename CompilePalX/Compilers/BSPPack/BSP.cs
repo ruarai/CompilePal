@@ -33,6 +33,7 @@ namespace CompilePalX.Compilers.BSPPack
         public KeyValuePair<string, string> soundscape { get; set; }
         public KeyValuePair<string, string> detail { get; set; }
         public KeyValuePair<string, string> nav { get; set; }
+        public KeyValuePair<string, string> res { get; set; }
         public KeyValuePair<string, string> kv { get; set; }
         public KeyValuePair<string, string> txt { get; set; }
         public KeyValuePair<string, string> jpg { get; set; }

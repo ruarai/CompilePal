@@ -187,6 +187,24 @@ namespace CompilePalX.Compilers.BSPPack
             return vmtList;
         }
 
+        public static List<string> findResMaterials(string fullpath)
+        {
+            // finds vmt files associated with res file
+
+            List<string> vmtList = new List<string>();
+            foreach (string line in File.ReadAllLines(fullpath))
+            {
+                string param = line.Replace("\"", " ").Replace("\t", " ").Trim();
+                if (param.StartsWith("image ", StringComparison.CurrentCultureIgnoreCase))
+                {
+                    string path = "materials/vgui/" + vmtPathParser(param) + ".vmt";
+                    path = path.Replace("/vgui/..", "");
+                    vmtList.Add(path);
+                }
+            }
+            return vmtList;
+        }
+
         public static List<string> findRadarDdsFiles(string fullpath)
         {
             // finds vmt files associated with vmt file
@@ -394,6 +412,21 @@ namespace CompilePalX.Compilers.BSPPack
                     if (File.Exists(externalPath))
                     {
                         bsp.detail = new KeyValuePair<string, string>(internalPath, externalPath);
+                        break;
+                    }
+                }
+            }
+
+            // Res file (for tf2's pd gamemode)
+            Dictionary<string, string>  pd_ent = bsp.entityList.First(item => item["classname"] == "tf_logic_player_destruction");
+            if (pd_ent.ContainsKey("res_file"))
+            {
+                foreach (string source in sourceDirectories)
+                {
+                    string externalPath = source + "/" + pd_ent["res_file"];
+                    if (File.Exists(externalPath))
+                    {
+                        bsp.res = new KeyValuePair<string, string>(pd_ent["res_file"], externalPath);
                         break;
                     }
                 }
