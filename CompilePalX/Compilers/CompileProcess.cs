@@ -61,7 +61,7 @@ namespace CompilePalX
             var lines = File.ReadAllLines(csvFile);
 
             metadata.Name = lines[0];
-            metadata.Path = GameConfigurationManager.SubstituteValues(lines[1]);
+            metadata.Path = lines[1];
             metadata.BasisString = lines[3];
             metadata.Order = float.Parse(lines[4], CultureInfo.InvariantCulture);
             metadata.DoRun = bool.Parse(lines[5]);
