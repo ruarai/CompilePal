@@ -77,7 +77,8 @@ namespace CompilePalX.Compilers.BSPPack
 
             // find color correction files
             foreach (Dictionary<string, string> cc in bsp.entityList.Where(item => item["classname"] == "color_correction"))
-                AddFile(cc["filename"], FindExternalFile(cc["filename"]));
+                if (cc.ContainsKey("filename"))
+                    AddFile(cc["filename"], FindExternalFile(cc["filename"]));
 
             foreach (KeyValuePair<string, string> dds in bsp.radardds)
                 AddFile(dds.Key, dds.Value);
