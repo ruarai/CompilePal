@@ -153,9 +153,28 @@ namespace CompilePalX.Compilers.BSPPack
                             materials.Add(prop.Value + "_locked");
                     }
 
+                // special condition for sprites
                 if (ent["classname"].Contains("sprite") && ent.ContainsKey("model"))
                     materials.Add(ent["model"]);
 
+                // special condition for item_teamflag
+                if (ent["classname"].Contains("item_teamflag"))
+                {
+                    if (ent.ContainsKey("flag_trail"))
+                    {
+                        materials.Add("effects/" + ent["flag_trail"]);
+                        materials.Add("effects/" + ent["flag_trail"] + "_red");
+                        materials.Add("effects/" + ent["flag_trail"] + "_blu");
+                    }
+                    if (ent.ContainsKey("flag_icon"))
+                    {
+                        materials.Add("vgui/" + ent["flag_icon"]);
+                        materials.Add("vgui/" + ent["flag_icon"] + "_red");
+                        materials.Add("vgui/" + ent["flag_icon"] + "_blu");
+                    }
+                }
+
+                // format and add materials
                 foreach (string material in materials)
                 {
                     string materialpath = material;
