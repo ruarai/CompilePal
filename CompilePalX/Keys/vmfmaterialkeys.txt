@@ -1,4 +1,5 @@
 material
+texture
 ropematerial
 point_hud_icon_neutral
 point_hud_icon_axis
