@@ -142,8 +142,45 @@ namespace CompilePalX.Compilers.BSPPack
             return materials;
         }
 
+        public static List<string> findPhyGibs(string path)
+        {
+            // finds gibs and ragdolls found in .phy files
+
+            List<string> models = new List<string>();
+
+            if (File.Exists(path))
+            {
+                FileStream phy = new FileStream(path, FileMode.Open);
+                BinaryReader reader = new BinaryReader(phy);
+                int header_size = reader.ReadInt32();
+                phy.Seek(4, SeekOrigin.Current);
+                int solidCount = reader.ReadInt32();
+
+                phy.Seek(header_size, SeekOrigin.Begin);
+                int solid_size = reader.ReadInt32();
+                
+                phy.Seek(solid_size, SeekOrigin.Current);
+                string something = readNullTerminatedString(phy, reader);
+                
+                string[] entries = something.Split(new char [] { '{','}' });
+                for (int i = 0; i < entries.Count(); i++ )
+                {
+                    if (entries[i].Trim().Equals("break")){
+                        string[] entry = entries[i + 1].Split(new char[]{' '}, StringSplitOptions.RemoveEmptyEntries);
+
+                        for (int j = 0; j < entry.Count(); j++)
+                            if (entry[j].Equals("\"model\"") || entry[j].Equals("\"ragdoll\""))
+                                models.Add("models\\" + entry[j + 1].Trim('"')+".mdl");
+                    }
+                }
+            }
+            return models;
+        }
+
         public static List<string> findMdlRefs(string path)
         {
+            // finds files associated with .mdl
+
             var references = new List<string>();
 
             var variations = new List<string> { ".dx80.vtx", ".dx90.vtx", ".phy", ".sw.vtx", ".vtx", ".xbox.vtx", ".vvd" };
@@ -535,7 +572,7 @@ namespace CompilePalX.Compilers.BSPPack
             {
                 v = reader.ReadByte();
                 verString.Add(v);
-            } while (v != '\0');
+            } while (v != '\0' && fs.Position != fs.Length);
 
             return Encoding.ASCII.GetString(verString.ToArray()).Trim('\0');
         }

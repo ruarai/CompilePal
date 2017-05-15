@@ -135,7 +135,13 @@ namespace CompilePalX.Compilers.BSPPack
             {
                 mdlcount++;
                 foreach (string reference in AssetUtils.findMdlRefs(internalPath))
+                {
+                    string ext_path = FindExternalFile(reference);
                     AddFile(reference, FindExternalFile(reference));
+                    if (reference.EndsWith(".phy"))
+                        foreach (string gib in AssetUtils.findPhyGibs(ext_path))
+                            AddModel(gib);
+                }
                     
                 foreach (string mat in AssetUtils.findMdlMaterials(externalPath, skins))
                     AddTexture(mat);
