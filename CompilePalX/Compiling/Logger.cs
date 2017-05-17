@@ -31,8 +31,12 @@ namespace CompilePalX.Compiling
 
         public static void LogColor(string s, Brush b, params object[] formatStrings)
         {
-            string text = string.Format(s, formatStrings);
-
+            string text = s;
+            if (formatStrings.Length != 0)
+            {
+                text = string.Format(s, formatStrings);
+            }
+            
             if (OnWrite != null)
                 OnWrite(text,b);
 
