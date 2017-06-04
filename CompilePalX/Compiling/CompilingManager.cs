@@ -65,11 +65,15 @@ namespace CompilePalX
             {
                 ProgressManager.SetProgress(0);
 
-                var compileErrors = new List<Error>();
+                var mapErrors = new List<Tuple<string, List<Error>>>();
+
 
                 foreach (string mapFile in MapFiles)
                 {
-                    CompilePalLogger.LogLine(string.Format("Starting compilation of {0}", mapFile));
+                    string cleanMapName = Path.GetFileNameWithoutExtension(mapFile);
+
+                    var compileErrors = new List<Error>();
+                    CompilePalLogger.LogLine(string.Format("Starting compilation of {0}", cleanMapName));
 
                     foreach (var compileProcess in ConfigurationManager.CompileProcesses.Where(c => c.Metadata.DoRun && c.PresetDictionary.ContainsKey(ConfigurationManager.CurrentPreset)))
                     {
@@ -82,44 +86,51 @@ namespace CompilePalX
                             compileErrors.AddRange(executable.CompileErrors);
                         }
 
-                        ProgressManager.Progress += (1d / ConfigurationManager.CompileProcesses.Count(c => c.Metadata.DoRun && 
+                        ProgressManager.Progress += (1d / ConfigurationManager.CompileProcesses.Count(c => c.Metadata.DoRun &&
                             c.PresetDictionary.ContainsKey(ConfigurationManager.CurrentPreset))) / MapFiles.Count;
                     }
+
+                    mapErrors.Add(new Tuple<string, List<Error>>(cleanMapName, compileErrors));
                 }
 
-                MainWindow.ActiveDispatcher.Invoke(() => postCompile(compileErrors));
+                MainWindow.ActiveDispatcher.Invoke(() => postCompile(mapErrors));
             }
             catch (ThreadAbortException) { ProgressManager.ErrorProgress(); }
         }
 
-        private static void postCompile(List<Error> errors)
+        private static void postCompile(List<Tuple<string, List<Error>>> errors)
         {
             CompilePalLogger.LogLineColor(string.Format("'{0}' compile finished in {1}", ConfigurationManager.CurrentPreset, compileTimeStopwatch.Elapsed.ToString(@"hh\:mm\:ss")), Brushes.ForestGreen);
 
             if (errors != null && errors.Any())
             {
-                int maxSeverity = errors.Max(s => s.Severity);
+                CompilePalLogger.LogLineColor("{0} errors/warnings logged:", Error.GetSeverityBrush(errors.Max(e => e.Item2.Max(e2 => e2.Severity))), errors.Sum(e=>e.Item2.Count));
 
-                var severityBrush = Error.GetSeverityBrush(maxSeverity);
-
-                CompilePalLogger.LogLineColor("{0} errors/warnings logged:", severityBrush, errors.Count);
-
-                int i = 0;
-                foreach (var error in errors)
+                foreach (var mapTuple in errors)
                 {
-                    i++;
+                    string mapName = mapTuple.Item1;
+                    var mapErrors = mapTuple.Item2;
 
-                    string errorText = string.Format("({0}) - {1} ({2})", i, error.ShortDescription, Error.GetSeverityText(error.Severity)) + Environment.NewLine;
+                    CompilePalLogger.Log("  ");
+                    CompilePalLogger.LogLineColor("{0} errors/warnings logged for {1}:", Error.GetSeverityBrush(mapErrors.Max(s => s.Severity)), mapErrors.Count(), mapName);
 
-                    CompilePalLogger.LogCompileError(errorText, error);
+                    var distinctErrors = mapErrors.GroupBy(e => e.ID);
 
-                    if (error.Severity >= 3)
+                    foreach (var errorList in distinctErrors)
                     {
-                        AnalyticsManager.CompileError();
+                        var error = errorList.First();
+
+                        string errorText = string.Format("{0}x: {1} ({2})", errorList.Count(), error.ShortDescription, Error.GetSeverityText(error.Severity)) + Environment.NewLine;
+
+                        CompilePalLogger.Log("    ● ");
+                        CompilePalLogger.LogCompileError(errorText, error);
+
+                        if (error.Severity >= 3)
+                        {
+                            AnalyticsManager.CompileError();
+                        }
                     }
                 }
-
-
             }
 
             OnFinish();

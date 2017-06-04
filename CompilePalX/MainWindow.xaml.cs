@@ -98,6 +98,13 @@ namespace CompilePalX
                     CompileOutputTextbox.Document.Blocks.Add(newPara);
                 }
 
+                var underline = new TextDecoration();
+                underline.Location = TextDecorationLocation.Underline;
+                underline.Pen = new Pen(e.ErrorColor, 1);
+                underline.PenThicknessUnit = TextDecorationUnit.FontRecommended;
+
+                errorLink.TextDecorations = new TextDecorationCollection(new[] { underline });
+
                 CompileOutputTextbox.ScrollToEnd();
 
             });
@@ -123,7 +130,8 @@ namespace CompilePalX
                 if (b != null)
                 {
                     TextRange tr = new TextRange(CompileOutputTextbox.Document.ContentEnd,
-                        CompileOutputTextbox.Document.ContentEnd) { Text = s };
+                        CompileOutputTextbox.Document.ContentEnd)
+                    { Text = s };
                     tr.ApplyPropertyValue(TextElement.ForegroundProperty, b);
                 }
                 else
