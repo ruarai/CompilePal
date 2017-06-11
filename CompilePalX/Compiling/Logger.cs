@@ -17,8 +17,13 @@ using System.Windows.Shapes;
 
 namespace CompilePalX.Compiling
 {
-    internal delegate void LogWrite(string s, Brush b);
+    internal delegate Run LogWrite(string s, Brush b);
+    internal delegate void LogBacktrack(List<Run> l);
     internal delegate void CompileErrorLogWrite(string errorText, Error e);
+
+    internal delegate void CompileErrorFound(Error e);
+
+
     static class CompilePalLogger
     {
         private const string logFile = "debug.log";
@@ -27,18 +32,19 @@ namespace CompilePalX.Compiling
             File.Delete(logFile);
         }
         public static event LogWrite OnWrite;
-        public static event CompileErrorLogWrite OnError;
+        public static event LogBacktrack OnBacktrack;
+        public static event CompileErrorLogWrite OnErrorLog;
 
-        public static void LogColor(string s, Brush b, params object[] formatStrings)
+        public static event CompileErrorFound OnErrorFound;
+
+
+        public static Run LogColor(string s, Brush b, params object[] formatStrings)
         {
             string text = s;
             if (formatStrings.Length != 0)
             {
                 text = string.Format(s, formatStrings);
             }
-            
-            if (OnWrite != null)
-                OnWrite(text,b);
 
             try
             {
@@ -46,35 +52,80 @@ namespace CompilePalX.Compiling
 
             }
             catch { }
+
+            if (OnWrite != null)
+                return OnWrite(text, b);
+            else
+                return null;
         }
 
 
-        public static void LogLineColor(string s, Brush b, params object[] formatStrings)
+        public static Run LogLineColor(string s, Brush b, params object[] formatStrings)
         {
-            LogColor(s + Environment.NewLine, b, formatStrings);
+            return LogColor(s + Environment.NewLine, b, formatStrings);
         }
 
-        public static void Log(string s = "",params object[] formatStrings)
+        public static Run Log(string s = "", params object[] formatStrings)
         {
-            LogColor(s,null,formatStrings);
+            return LogColor(s, null, formatStrings);
         }
 
-        public static void LogLine(string s = "", params object[] formatStrings)
+        public static Run LogLine(string s = "", params object[] formatStrings)
         {
-            Log(s + Environment.NewLine,formatStrings);
+            return Log(s + Environment.NewLine, formatStrings);
         }
 
         public static void LogCompileError(string errorText, Error e)
         {
-            if (OnError == null)
-                return;
-
-            OnError(errorText,e);
-
+            OnErrorLog(errorText, e);
 
             File.AppendAllText(logFile, errorText);
         }
 
+
+
+        private static StringBuilder lineBuffer = new StringBuilder();
+        private static List<Run> tempText = new List<Run>();
+        public static void ProgressiveLog(string s)
+        {
+            lineBuffer.Append(s);
+
+            if (s.Contains("\n"))
+            {
+                List<string> lines = lineBuffer.ToString().Split('\n').ToList();
+
+                string suffixText = lines.Last();
+
+                lineBuffer = new StringBuilder(suffixText);
+                
+                OnBacktrack(tempText);
+
+                for (var i = 0; i < lines.Count - 1; i++)
+                {
+                    var line = lines[i];
+                    var error = ErrorFinder.GetError(line);
+
+                    if (error == null)
+                        Log(line);
+                    else
+                    {
+                        LogCompileError(line, error);
+                        if (OnErrorFound != null)
+                            OnErrorFound(error);
+                    }
+                }
+
+                if (suffixText.Length > 0)
+                {
+                    tempText = new List<Run>();
+                    tempText.Add(Log(suffixText));
+                }
+            }
+            else
+            {
+                tempText.Add(Log(s));
+            }
+        }
 
     }
 }

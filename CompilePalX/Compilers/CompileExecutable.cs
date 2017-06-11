@@ -19,7 +19,6 @@ namespace CompilePalX.Compilers
                 Directory.CreateDirectory(runningDirectory);
         }
 
-
         private static string runningDirectory = "CompileLogs";
 
         public List<Error> CompileErrors;
@@ -52,8 +51,6 @@ namespace CompilePalX.Compilers
 
             if (Metadata.ReadOutput)
                 readOutput();
-
-
         }
 
         private void readOutput()
@@ -73,24 +70,7 @@ namespace CompilePalX.Compilers
                     {
                         string text = new string(buffer, 0, read.Result);
 
-                        var error = GetError(text);
-
-                        if (error != null)
-                        {
-                            CompilePalLogger.LogCompileError(text, error);
-
-                            CompileErrors.Add(error);
-
-                            if (error.Severity == 5)
-                            {
-                                CompilePalLogger.LogLineColor("An error cancelled the compile.", Brushes.Red);
-                                ProgressManager.ErrorProgress();
-                                return;
-                            }
-
-                        }
-                        else
-                            CompilePalLogger.Log(text);
+                        CompilePalLogger.ProgressiveLog(text);
 
                         read = null; // ok, this task completed so we need to create a new one
                         continue;
@@ -103,32 +83,5 @@ namespace CompilePalX.Compilers
             Process.WaitForExit();
         }
 
-        private static string lineBuffer = String.Empty;
-
-        private static Error GetError(string text)
-        {
-            //The process of trying to sort the random spouts of letters back into lines. Hacky.
-
-            if (text.Contains("\n"))
-            {
-                lineBuffer += text;
-
-                List<string> lines = lineBuffer.Split('\n').ToList();
-
-                lineBuffer = lines.Last();
-
-                foreach (string line in lines)
-                {
-                    var error = ErrorFinder.GetError(line);
-
-                    if (error != null)
-                        return error;
-                }
-            }
-            else
-                lineBuffer += text;
-
-            return null;
-        }
     }
 }

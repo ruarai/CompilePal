@@ -23,6 +23,7 @@ using Microsoft.Win32;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows.Media.Animation;
+using System.Windows.Media.TextFormatting;
 
 namespace CompilePalX
 {
@@ -43,7 +44,8 @@ namespace CompilePalX
             ActiveDispatcher = Dispatcher;
 
             CompilePalLogger.OnWrite += Logger_OnWrite;
-            CompilePalLogger.OnError += CompilePalLogger_OnError;
+            CompilePalLogger.OnBacktrack += Logger_OnBacktrack;
+            CompilePalLogger.OnErrorLog += CompilePalLogger_OnError;
 
             UpdateManager.OnUpdateFound += UpdateManager_OnUpdateFound;
             UpdateManager.CheckVersion();
@@ -87,24 +89,16 @@ namespace CompilePalX
                 errorLink.TargetName = e.ID.ToString();
                 errorLink.Click += errorLink_Click;
 
-                if (CompileOutputTextbox.Document.Blocks.Any())
+                var underline = new TextDecoration
                 {
-                    var lastPara = (Paragraph)CompileOutputTextbox.Document.Blocks.LastBlock;
-                    lastPara.Inlines.Add(errorLink);
-                }
-                else
-                {
-                    var newPara = new Paragraph(errorLink);
-                    CompileOutputTextbox.Document.Blocks.Add(newPara);
-                }
-
-                var underline = new TextDecoration();
-                underline.Location = TextDecorationLocation.Underline;
-                underline.Pen = new Pen(e.ErrorColor, 1);
-                underline.PenThicknessUnit = TextDecorationUnit.FontRecommended;
+                    Location = TextDecorationLocation.Underline,
+                    Pen = new Pen(e.ErrorColor, 1),
+                    PenThicknessUnit = TextDecorationUnit.FontRecommended
+                };
 
                 errorLink.TextDecorations = new TextDecorationCollection(new[] { underline });
 
+                OutputParagraph.Inlines.Add(errorLink);
                 CompileOutputTextbox.ScrollToEnd();
 
             });
@@ -117,30 +111,35 @@ namespace CompilePalX
 
             ErrorFinder.ShowErrorDialog(errorCode);
         }
+        
 
-        void Logger_OnWrite(string s, Brush b = null)
+        Run Logger_OnWrite(string s, Brush b = null)
+        {
+            return Dispatcher.Invoke(() =>
+            {
+                if (string.IsNullOrEmpty(s))
+                    return null;
+
+                Run textRun = new Run(s);
+
+                if (b != null)
+                    textRun.Foreground = b;
+
+                OutputParagraph.Inlines.Add(textRun);
+
+                CompileOutputTextbox.ScrollToEnd();
+                return textRun;
+            });
+        }
+
+        void Logger_OnBacktrack(List<Run> removals)
         {
             Dispatcher.Invoke(() =>
             {
-                if (string.IsNullOrEmpty(s))
-                    return;
-
-                //OutputTab.Focus();
-
-                if (b != null)
+                foreach (var run in removals)
                 {
-                    TextRange tr = new TextRange(CompileOutputTextbox.Document.ContentEnd,
-                        CompileOutputTextbox.Document.ContentEnd)
-                    { Text = s };
-                    tr.ApplyPropertyValue(TextElement.ForegroundProperty, b);
+                    run.Text = "";
                 }
-                else
-                {
-                    CompileOutputTextbox.AppendText(s);
-                }
-
-                CompileOutputTextbox.ScrollToEnd();
-
             });
         }
 
@@ -184,8 +183,7 @@ namespace CompilePalX
         {
             Dispatcher.Invoke(() =>
             {
-                CompileOutputTextbox.Document.Blocks.Clear();
-                CompileOutputTextbox.AppendText(Environment.NewLine);
+                OutputParagraph.Inlines.Clear();
             });
 
         }
