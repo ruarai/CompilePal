@@ -205,6 +205,7 @@ namespace CompilePalX
             AddPresetButton.IsEnabled = false;
             RemovePresetButton.IsEnabled = false;
             ClonePresetButton.IsEnabled = false;
+            PresetConfigListBox.IsEnabled = false;
 
             AddMapButton.IsEnabled = false;
             RemoveMapButton.IsEnabled = false;
@@ -224,6 +225,7 @@ namespace CompilePalX
             AddPresetButton.IsEnabled = true;
             RemovePresetButton.IsEnabled = true;
             ClonePresetButton.IsEnabled = true;
+            PresetConfigListBox.IsEnabled = true;
 
             AddMapButton.IsEnabled = true;
             RemoveMapButton.IsEnabled = true;
