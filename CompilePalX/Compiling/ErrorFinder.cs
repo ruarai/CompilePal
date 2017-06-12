@@ -122,6 +122,16 @@ namespace CompilePalX
 
         public int ID;
 
+        public override bool Equals(object obj)
+        {
+            return ((Error) obj).ID == this.ID;
+        }
+
+        public override int GetHashCode()
+        {
+            return ID;//ID is unique between errors
+        }
+
         public Brush ErrorColor
         {
             get

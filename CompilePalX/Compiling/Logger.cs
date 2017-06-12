@@ -75,6 +75,7 @@ namespace CompilePalX.Compiling
             return Log(s + Environment.NewLine, formatStrings);
         }
 
+
         public static void LogCompileError(string errorText, Error e)
         {
             OnErrorLog(errorText, e);
@@ -83,6 +84,7 @@ namespace CompilePalX.Compiling
         }
 
 
+        private static Dictionary<Error, int> errorsFound = new Dictionary<Error, int>();
 
         private static StringBuilder lineBuffer = new StringBuilder();
         private static List<Run> tempText = new List<Run>();
@@ -109,9 +111,17 @@ namespace CompilePalX.Compiling
                         Log(line);
                     else
                     {
-                        LogCompileError(line, error);
-                        if (OnErrorFound != null)
-                            OnErrorFound(error);
+                        if (errorsFound.ContainsKey(error))
+                            errorsFound[error]++;
+                        else
+                            errorsFound.Add(error, 1);
+
+                        if (errorsFound[error] < 128)
+                            LogCompileError(line, error);
+                        else
+                            Log(line);//Stop hyperlinking errors if we see over 128 of them
+                        
+                        OnErrorFound(error);
                     }
                 }
 
