@@ -71,8 +71,11 @@ namespace CompilePalX
             UpdateConfigGrid();
 
             CompilingManager.OnClear += CompilingManager_OnClear;
+
+            CompilingManager.OnStart += CompilingManager_OnStart;
             CompilingManager.OnFinish += CompilingManager_OnFinish;
         }
+
 
         void CompilePalLogger_OnError(string errorText, Error e)
         {
@@ -188,9 +191,43 @@ namespace CompilePalX
 
         }
 
+        private void CompilingManager_OnStart()
+        {
+            ConfigDataGrid.IsEnabled = false;
+
+            AddParameterButton.IsEnabled = false;
+            RemoveParameterButton.IsEnabled = false;
+
+            AddProcessesButton.IsEnabled = false;
+            RemoveProcessesButton.IsEnabled = false;
+            CompileProcessesListBox.IsEnabled = false;
+
+            AddPresetButton.IsEnabled = false;
+            RemovePresetButton.IsEnabled = false;
+            ClonePresetButton.IsEnabled = false;
+
+            AddMapButton.IsEnabled = false;
+            RemoveMapButton.IsEnabled = false;
+        }
 
         private void CompilingManager_OnFinish()
         {
+            ConfigDataGrid.IsEnabled = true;
+
+            AddParameterButton.IsEnabled = true;
+            RemoveParameterButton.IsEnabled = true;
+
+            AddProcessesButton.IsEnabled = true;
+            RemoveProcessesButton.IsEnabled = true;
+            CompileProcessesListBox.IsEnabled = true;
+
+            AddPresetButton.IsEnabled = true;
+            RemovePresetButton.IsEnabled = true;
+            ClonePresetButton.IsEnabled = true;
+
+            AddMapButton.IsEnabled = true;
+            RemoveMapButton.IsEnabled = true;
+
             string logName = DateTime.Now.ToString("s").Replace(":", "-") + ".txt";
             string textLog = new TextRange(CompileOutputTextbox.Document.ContentStart, CompileOutputTextbox.Document.ContentEnd).Text;
 

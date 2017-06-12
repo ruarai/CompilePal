@@ -18,6 +18,7 @@ using System.Runtime.InteropServices;
 namespace CompilePalX
 {
     internal delegate void CompileCleared();
+    internal delegate void CompileStarted();
     internal delegate void CompileFinished();
     static class CompilingManager
     {
@@ -33,9 +34,21 @@ namespace CompilePalX
             {
                 executable.CompileErrors.Add(e);
             }
+
+            if (e.Severity == 5 && IsCompiling)
+            {
+                //We're currently in the thread we would like to kill, so make sure we invoke from the window thread to do this.
+                MainWindow.ActiveDispatcher.Invoke(() =>
+                {
+                    CompilePalLogger.LogLineColor("An error cancelled the compile.", Error.GetSeverityBrush(5));
+                    CancelCompile();
+                    ProgressManager.ErrorProgress();
+                });
+            }
         }
 
         public static event CompileCleared OnClear;
+        public static event CompileFinished OnStart;
         public static event CompileFinished OnFinish;
 
         public static ObservableCollection<string> MapFiles = new ObservableCollection<string>();
@@ -56,6 +69,8 @@ namespace CompilePalX
 
         public static void StartCompile()
         {
+            OnStart();
+
             // Tells windows to not go to sleep during compile
             NativeMethods.SetThreadExecutionState(NativeMethods.ES_CONTINUOUS | NativeMethods.ES_SYSTEM_REQUIRED);
 
@@ -167,7 +182,15 @@ namespace CompilePalX
 
         public static void CancelCompile()
         {
-            compileThread.Abort();
+            try
+            {
+                compileThread.Abort();
+            }
+            catch
+            {
+            }
+            IsCompiling = false;
+
             foreach (var compileProcess in ConfigurationManager.CompileProcesses.Where(cP => cP.Process != null))
             {
                 try
