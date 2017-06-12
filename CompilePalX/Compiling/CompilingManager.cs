@@ -136,7 +136,7 @@ namespace CompilePalX
                     }
 
                     int mapMaxSeverity = map.Errors.Max(e => e.Severity);
-                    CompilePalLogger.LogLineColor("{0} errors/warnings logged for {1}", Error.GetSeverityBrush(mapMaxSeverity), map.Errors.Count, map.MapName);
+                    CompilePalLogger.LogLineColor("{0} errors/warnings logged for {1}:", Error.GetSeverityBrush(mapMaxSeverity), map.Errors.Count, map.MapName);
 
                     var distinctErrors = map.Errors.GroupBy(e => e.ID);
                     foreach (var errorList in distinctErrors)
