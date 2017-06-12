@@ -124,7 +124,7 @@ namespace CompilePalX
 
         public override bool Equals(object obj)
         {
-            return ((Error) obj).ID == this.ID;
+            return ((Error)obj).ID == this.ID;
         }
 
         public override int GetHashCode()
@@ -132,13 +132,7 @@ namespace CompilePalX
             return ID;//ID is unique between errors
         }
 
-        public Brush ErrorColor
-        {
-            get
-            {
-                return GetSeverityBrush(Severity);
-            }
-        }
+        public Brush ErrorColor => GetSeverityBrush(Severity);
 
         public static Brush GetSeverityBrush(int severity)
         {
@@ -147,9 +141,9 @@ namespace CompilePalX
                 default:
                     return Brushes.Black;
                 case 2:
-                    return Brushes.DimGray;
-                case 3:
                     return Brushes.Orange;
+                case 3:
+                    return Brushes.OrangeRed;
                 case 4:
                     return Brushes.DarkRed;
                 case 5:
