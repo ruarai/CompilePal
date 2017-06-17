@@ -158,7 +158,7 @@ namespace CompilePalX
                     {
                         var error = errorList.First();
 
-                        string errorText = $"{errorList.Count()}x: {error.ShortDescription} ({Error.GetSeverityText(error.Severity)})";
+                        string errorText = $"{errorList.Count()}x: {error.SeverityText}: {error.ShortDescription}";
 
                         CompilePalLogger.Log("    ● ");
                         CompilePalLogger.LogCompileError(errorText, error);

@@ -150,20 +150,24 @@ namespace CompilePalX
                     return Brushes.Red;
             }
         }
-        public static string GetSeverityText(int severity)
+
+        public string SeverityText
         {
-            switch (severity)
+            get
             {
-                default:
-                    return "Info";
-                case 2:
-                    return "Caution";
-                case 3:
-                    return "Warning";
-                case 4:
-                    return "Error";
-                case 5:
-                    return "Fatal Error";
+                switch (Severity)
+                {
+                    default:
+                        return "Info";
+                    case 2:
+                        return "Caution";
+                    case 3:
+                        return "Warning";
+                    case 4:
+                        return "Error";
+                    case 5:
+                        return "Fatal Error";
+                }
             }
         }
     }
