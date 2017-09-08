@@ -46,7 +46,7 @@ namespace CompilePalX
             //try loading from registry
             if (rk != null)
             {
-                string BinFolder = (string) rk.GetValue("Directory");
+                string BinFolder = (string)rk.GetValue("Directory");
 
 
                 string gameData = Path.Combine(BinFolder, "GameConfig.txt");
