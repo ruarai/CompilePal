@@ -70,7 +70,7 @@ namespace CompilePalX
 
                 GameGrid.ItemsSource = configs;
             }
-            else //oh noes
+            else//oh noes
             {
                 LaunchButton.IsEnabled = false;
                 WarningLabel.Content = "No Hammer configurations found. Cannot launch.";
