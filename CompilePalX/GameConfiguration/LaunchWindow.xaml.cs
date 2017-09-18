@@ -75,6 +75,38 @@ namespace CompilePalX
                 LaunchButton.IsEnabled = false;
                 WarningLabel.Content = "No Hammer configurations found. Cannot launch.";
             }
+
+            //Handle command line args for game configs
+            string[] commandLineArgs = Environment.GetCommandLineArgs();
+            foreach (string arg in commandLineArgs)
+            {
+                try
+                {
+                    //If arg type is a game, continue
+                    if (arg.Substring(0, 5).ToLower() == "game:")
+                    {
+                        //Make everything lowercase, remove arg type, and remove spaces
+                        string argGameConfig = arg.ToLower().Remove(0, 5).Replace(" ", "");
+
+                        //Search all configs to see if arg is a match
+                        foreach (GameConfiguration config in configs)
+                        {
+                            //Remove spaces and make everything lowercase
+                            string configName = config.Name.ToLower().Replace(" ", "");
+
+                            //If arg matches, launch that configuration
+                            if (argGameConfig == configName)
+                            {
+                                Launch(config);
+                            }
+                        }
+                    }
+                }
+                catch (ArgumentOutOfRangeException e)
+                {
+                    //Ignore error
+                }
+            }
         }
 
         private void Launch(GameConfiguration config)
