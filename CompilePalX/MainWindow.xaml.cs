@@ -75,40 +75,40 @@ namespace CompilePalX
             CompilingManager.OnStart += CompilingManager_OnStart;
             CompilingManager.OnFinish += CompilingManager_OnFinish;
 
-            HandleMapPathArgs();
+            HandleArgs();
         }
 
-        private void HandleMapPathArgs(bool ignoreWipeArg = false)
+        private void HandleArgs(bool ignoreWipeArg = false)
         {
-            //Handle command line args for map paths
+            //Handle command line args
             string[] commandLineArgs = Environment.GetCommandLineArgs();
             foreach (string arg in commandLineArgs)
             {
                 try
                 {
-                    //If arg type is a path, continue
-                    if (arg.Substring(0, 5).ToLower() == "path:")
+                    if (!ignoreWipeArg)
                     {
-                        //Remove arg type
-                        string argPath = arg.Remove(0, 5);
-
-                        if (File.Exists(argPath))
+                        //Wipes the map list
+                        if (arg.Substring(0, 5).ToLower() == "-wipe")
                         {
-                            if (argPath.EndsWith(".vmf") || argPath.EndsWith(".vmm") || argPath.EndsWith(".vmx"))
-                                CompilingManager.MapFiles.Add(argPath);
+                            CompilingManager.MapFiles.Clear();
+                            //Recursive so if the wipe arg comes after a arg path, it will readd it
+                            HandleArgs(true);
+                            break;
                         }
                     }
                     else
                     {
-                        if (!ignoreWipeArg)
+                        //If arg type is a path, continue
+                        if (arg.Substring(0, 6).ToLower() == "-path:")
                         {
-                            //Wipes the map list
-                            if (arg.Substring(0, 5).ToLower() == "wipe!")
+                            //Remove arg type
+                            string argPath = arg.Remove(0, 6);
+
+                            if (File.Exists(argPath))
                             {
-                                CompilingManager.MapFiles.Clear();
-                                //Recursive so if the wipe arg comes after a path, it will readd it
-                                HandleMapPathArgs(true);
-                                break;
+                                if (argPath.EndsWith(".vmf") || argPath.EndsWith(".vmm") || argPath.EndsWith(".vmx"))
+                                    CompilingManager.MapFiles.Add(argPath);
                             }
                         }
                     }

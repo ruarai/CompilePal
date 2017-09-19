@@ -83,10 +83,10 @@ namespace CompilePalX
                 try
                 {
                     //If arg type is a game, continue
-                    if (arg.Substring(0, 5).ToLower() == "game:")
+                    if (arg.Substring(0, 6).ToLower() == "-game:")
                     {
                         //Make everything lowercase, remove arg type, and remove spaces
-                        string argGameConfig = arg.ToLower().Remove(0, 5).Replace(" ", "");
+                        string argGameConfig = arg.ToLower().Remove(0, 6).Replace(" ", "");
 
                         //Search all configs to see if arg is a match
                         foreach (GameConfiguration config in configs)
