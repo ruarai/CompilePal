@@ -74,8 +74,51 @@ namespace CompilePalX
 
             CompilingManager.OnStart += CompilingManager_OnStart;
             CompilingManager.OnFinish += CompilingManager_OnFinish;
+
+            HandleArgs();
         }
 
+        private void HandleArgs(bool ignoreWipeArg = false)
+        {
+            //Handle command line args
+            string[] commandLineArgs = Environment.GetCommandLineArgs();
+            foreach (string arg in commandLineArgs)
+            {
+                try
+                {
+                    if (!ignoreWipeArg)
+                    {
+                        //Wipes the map list
+                        if (arg.Substring(0, 5).ToLower() == "-wipe")
+                        {
+                            CompilingManager.MapFiles.Clear();
+                            //Recursive so if the wipe arg comes after a arg path, it will readd it
+                            HandleArgs(true);
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        //If arg type is a path, continue
+                        if (arg.Substring(0, 6).ToLower() == "-path:")
+                        {
+                            //Remove arg type
+                            string argPath = arg.Remove(0, 6);
+
+                            if (File.Exists(argPath))
+                            {
+                                if (argPath.EndsWith(".vmf") || argPath.EndsWith(".vmm") || argPath.EndsWith(".vmx"))
+                                    CompilingManager.MapFiles.Add(argPath);
+                            }
+                        }
+                    }
+                }
+                catch (ArgumentOutOfRangeException e)
+                {
+                    //Ignore error
+                }
+            }
+        }
 
         void CompilePalLogger_OnError(string errorText, Error e)
         {
