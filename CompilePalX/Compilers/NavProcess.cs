@@ -20,6 +20,7 @@ namespace CompilePalX.Compilers
         static string mapnav;
         static string mapcfg;
         static string mapCFGBackup;
+        private string mapLogPath;
 
         bool hidden;
 
@@ -39,15 +40,21 @@ namespace CompilePalX.Compilers
             mapnav = context.CopyLocation.Replace(".bsp", ".nav");
             mapcfg = context.Configuration.GameFolder + "/cfg/" + mapname + ".cfg";
             mapCFGBackup = context.Configuration.GameFolder + "/cfg/" + mapname + "_cpalbackup.cfg";
+                string mapLog = mapname + "_nav.log";
+                mapLogPath = Path.Combine(context.Configuration.GameFolder, mapLog);
 
                 deleteNav(mapname, context.Configuration.GameFolder);
 
             hidden = GetParameterString().Contains("-hidden");
+            bool textmode = GetParameterString().Contains("-textmode");
 
-            string args = "-game \"" + context.Configuration.GameFolder + "\" -windowed -novid -nosound +sv_cheats 1 +map " + mapname;
+            string args = "-game \"" + context.Configuration.GameFolder + "\" -windowed -novid -nosound +log 0 +sv_logflush 1 +sv_cheats 1 +map " + mapname;
 
             if (hidden)
                 args += " -noborder -x 4000 -y 2000";
+
+            if (textmode)
+                args += " -textmode";
 
             var startInfo = new ProcessStartInfo(context.Configuration.GameEXE, args);
             startInfo.UseShellExecute = false;
@@ -61,28 +68,34 @@ namespace CompilePalX.Compilers
                 System.IO.File.Move(mapcfg, mapCFGBackup);
             }
 
+            if (File.Exists(mapLogPath))
+                File.Delete(mapLogPath);
+
             System.IO.File.Create(mapcfg).Dispose();
             TextWriter tw = new StreamWriter(mapcfg);
+            tw.WriteLine("con_logfile " + mapLog);
             tw.WriteLine("nav_generate");
             tw.Close();
 
-            Process = new Process { StartInfo = startInfo };
-            Process.Start();
+            using (TextReader tr = new StreamReader(File.Open(mapLogPath, FileMode.OpenOrCreate, FileAccess.Read, FileShare.ReadWrite)))
+            {
+                Process = new Process { StartInfo = startInfo };
+                Process.Exited += new EventHandler(Process_Exited);
+                Process.EnableRaisingEvents = true;
+                Process.Start();
+                
+                string line;
+                do
+                {
+                    Thread.Sleep(100);
+                    line = tr.ReadLine();
+                } while (line == null || !line.Contains(".nav' saved."));
+                
+                exitClient();
+            }
 
-            FileSystemWatcher fw = new FileSystemWatcher();
-            fw.Path = System.IO.Path.GetDirectoryName(mapnav);
-            fw.Filter = "*.nav";
-            fw.NotifyFilter = NotifyFilters.LastAccess | NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.DirectoryName;
-            fw.Changed += new FileSystemEventHandler(fileSystemWatcher_NavCreated);
-            fw.Created += new FileSystemEventHandler(fileSystemWatcher_NavCreated);
-            fw.EnableRaisingEvents = true;
-
-            Process.WaitForExit();
-            fw.Dispose();
-
-            cleanUp();
-            CompilePalLogger.LogLine("nav file complete!");
-        }
+                CompilePalLogger.LogLine("nav file complete!");
+            }
             catch (FileNotFoundException)
             {
                 CompilePalLogger.LogLine("FAILED - Could not find " + context.CopyLocation);
@@ -111,12 +124,14 @@ namespace CompilePalX.Compilers
 
         private void exitClient()
         {
-            if (Process != null)
+            if (Process != null && !Process.HasExited)
                 try
                 {
                     this.Process.Kill();
                 }
                 catch (Win32Exception) { }
+            else
+                cleanUp();
         }
         private void cleanUp()
         {
@@ -124,16 +139,18 @@ namespace CompilePalX.Compilers
                 File.Delete(mapcfg);
             if (File.Exists(mapCFGBackup))
                 System.IO.File.Move(mapCFGBackup, mapcfg);
+            if (File.Exists(mapLogPath))
+                File.Delete(mapLogPath);
         }
 
         public override void Cancel()
         {
-            cleanUp();
+            exitClient();
         }
 
-        void fileSystemWatcher_NavCreated(object sender, FileSystemEventArgs e)
+        void Process_Exited(object sender, EventArgs e)
         {
-            exitClient();
+            cleanUp();
         }
     }
 }

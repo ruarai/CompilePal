@@ -6,5 +6,13 @@
     "Value": null,
     "CanHaveValue": false,
     "Warning": ""
+  },
+  {
+    "Name": "Text Mode",
+    "Parameter": " -textmode",
+    "Description": "Runs the game client in text mode only.",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": ""
   }
 ]
