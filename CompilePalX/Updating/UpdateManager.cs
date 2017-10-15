@@ -23,7 +23,7 @@ namespace CompilePalX
 
         public static void CheckVersion()
         {
-            string currentVersion = File.ReadAllText("version.txt");
+            string currentVersion = File.ReadAllText(CompilePalPath.Directory + "version.txt");
             CurrentVersion = int.Parse(currentVersion);
 
             Thread updaterThread = new Thread(ThreadedCheck);

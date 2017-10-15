@@ -11,8 +11,8 @@ namespace CompilePalX
     {
         public static void LogException(Exception e, bool crash = true)
         {
-            if (!Directory.Exists("CrashLogs"))
-                Directory.CreateDirectory("CrashLogs");
+            if (!Directory.Exists(CompilePalPath.Directory + "CrashLogs"))
+                Directory.CreateDirectory(CompilePalPath.Directory + "CrashLogs");
 
 
             CompilePalLogger.LogLine("An exception was caught by the ExceptionHandler:");

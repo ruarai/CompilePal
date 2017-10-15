@@ -22,8 +22,9 @@ namespace CompilePalX
 
         public static string CurrentPreset = "Fast";
 
-        private const string ParametersFolder = "Parameters";
-        private const string PresetsFolder = "Presets";
+        private static readonly string ParametersFolder = CompilePalPath.Directory + "Parameters";
+        private static readonly string PresetsFolder = CompilePalPath.Directory + "Presets";
+        
 
         public static void AssembleParameters()
         {
@@ -154,7 +155,7 @@ namespace CompilePalX
         {
             foreach (var process in CompileProcesses)
             {
-                string jsonMetadata = Path.Combine("Parameters", process.Metadata.Name, "meta.json");
+                string jsonMetadata = Path.Combine(CompilePalPath.Directory + "Parameters", process.Metadata.Name, "meta.json");
 
                 File.WriteAllText(jsonMetadata, JsonConvert.SerializeObject(process.Metadata, Formatting.Indented));
             }

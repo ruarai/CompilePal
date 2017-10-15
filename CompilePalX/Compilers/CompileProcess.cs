@@ -16,7 +16,8 @@ namespace CompilePalX
 {
     class CompileProcess
     {
-        public string ParameterFolder = "Parameters";
+        public string ParameterFolder = CompilePalPath.Directory + "Parameters";
+
         public CompileProcess(string name)
         {
             string jsonMetadata = Path.Combine(ParameterFolder, name, "meta.json");

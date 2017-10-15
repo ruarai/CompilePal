@@ -23,7 +23,7 @@ namespace CompilePalX
     {
         public LaunchWindow()
         {
-            string gameConfigurationFolder = "GameConfiguration";
+            string gameConfigurationFolder = CompilePalPath.Directory + "GameConfiguration";
             string gameConfigurationsPath = Path.Combine(gameConfigurationFolder, "gameConfigs.json");
 
             InitializeComponent();
