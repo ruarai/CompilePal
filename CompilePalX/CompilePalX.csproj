@@ -79,6 +79,10 @@
     <Compile Include="Compilers\BSPPack\BSP.cs" />
     <Compile Include="Compilers\BSPPack\PakFile.cs" />
     <Compile Include="Compilers\BSPPack\Pack.cs" />
+    <Compile Include="Compilers\BSPPack\ConflictWindow.xaml.cs">
+      <DependentUpon>ConflictWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Compilers\BSPPack\ParticleUtils.cs" />
     <Compile Include="Compilers\CompileExecutable.cs" />
     <Compile Include="Compilers\ShutdownProcess.cs" />
     <Compile Include="Compilers\NavProcess.cs" />
@@ -101,6 +105,10 @@
     </Compile>
     <Compile Include="PersistenceManager.cs" />
     <Compile Include="Updating\UpdateManager.cs" />
+    <Page Include="Compilers\BSPPack\ConflictWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Compiling\ErrorWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -363,7 +371,9 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

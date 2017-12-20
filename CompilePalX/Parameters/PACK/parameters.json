@@ -22,5 +22,13 @@
     "Value": null,
     "CanHaveValue": false,
     "Warning": "For TF2 only"
+  },
+  {
+    "Name": "Generate Particle Manifest",
+    "Parameter": " -particlemanifest",
+    "Description": "Generates a particle manifest based on particles used",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": ""
   }
 ]

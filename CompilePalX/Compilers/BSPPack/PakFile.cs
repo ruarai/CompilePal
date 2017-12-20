@@ -166,11 +166,18 @@ namespace CompilePalX.Compilers.BSPPack
         {
             // adds pcf files and finds its dependencies
             string externalPath = FindExternalFile(internalPath);
+            PCF pcf = ParticleUtils.ReadParticle(externalPath);
+
             if (AddFile(internalPath, externalPath))
             {
                 pcfcount++;
-                foreach (string mat in AssetUtils.findPcfMaterials(externalPath))
+                foreach (string mat in pcf.MaterialNames)
                     AddTexture(mat);
+
+                foreach (string model in pcf.ModelNames)
+                {
+                    AddModel(model);
+                }
             }
         }
 

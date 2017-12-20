@@ -390,7 +390,7 @@ namespace CompilePalX.Compilers.BSPPack
                         bsp.TextureList.Add(material);
         }
 
-        public static void findBspUtilityFiles(BSP bsp, List<string> sourceDirectories, bool renamenav)
+        public static void findBspUtilityFiles(BSP bsp, List<string> sourceDirectories, bool renamenav, bool genparticlemanifest)
         {
             // Utility files are other files that are not assets and are sometimes not referenced in the bsp
             // those are manifests, soundscapes, nav, radar and detail files
@@ -551,15 +551,21 @@ namespace CompilePalX.Compilers.BSPPack
 
                 if (dir.Exists)
                     foreach (FileInfo f in dir.GetFiles(searchPattern))
-                        // particle files
-                        if (f.Name.StartsWith(name + "_particles") || f.Name.StartsWith(name + "_manifest"))
-                            bsp.particleManifest = new KeyValuePair<string, string>(internalDir + f.Name, externalDir + f.Name);
+                    {
+                        // particle files if particle manifest is not being generated
+                        if (!genparticlemanifest)
+                            if (f.Name.StartsWith(name + "_particles") || f.Name.StartsWith(name + "_manifest"))
+                                bsp.particleManifest =
+                                    new KeyValuePair<string, string>(internalDir + f.Name, externalDir + f.Name);
+
                         // soundscript
-                        else if (f.Name.StartsWith(name + "_level_sounds"))
-                            bsp.soundscript = new KeyValuePair<string, string>(internalDir + f.Name, externalDir + f.Name);
+                        if (f.Name.StartsWith(name + "_level_sounds"))
+                            bsp.soundscript =
+                                new KeyValuePair<string, string>(internalDir + f.Name, externalDir + f.Name);
                         // presumably language files
                         else
                             langfiles.Add(new KeyValuePair<string, string>(internalDir + f.Name, externalDir + f.Name));
+                    }
             }
             bsp.languages = langfiles;
         }
