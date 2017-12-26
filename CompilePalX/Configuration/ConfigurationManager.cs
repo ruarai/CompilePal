@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Documents;
 using CompilePalX.Compilers;
 using CompilePalX.Compilers.BSPPack;
+using CompilePalX.Compilers.UtilityProcess;
 using CompilePalX.Compiling;
 using Newtonsoft.Json;
 
@@ -34,6 +35,7 @@ namespace CompilePalX
             CompileProcesses.Add(new CubemapProcess());
             CompileProcesses.Add(new NavProcess());
             CompileProcesses.Add(new ShutdownProcess());
+            CompileProcesses.Add(new UtilityProcess());
 
             //collect new metadatas
 

@@ -6,9 +6,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using CompilePalX.Compilers.BSPPack;
 using CompilePalX.Compiling;
 
-namespace CompilePalX.Compilers.BSPPack
+namespace CompilePalX.Compilers.UtilityProcess
 {
     public class PCF
     {
@@ -347,6 +348,8 @@ namespace CompilePalX.Compilers.BSPPack
         private string filepath;
         private string baseDirectory;
 
+        public KeyValuePair<string, string> particleManifest { get; private set; }
+
         public ParticleManifest (List<string> sourceDirectories, BSP map, string bspPath, string gameFolder)
         {
             CompilePalLogger.LogLine("Generating Particle Manifest...");
@@ -377,55 +380,44 @@ namespace CompilePalX.Compilers.BSPPack
                 return;
 
             //Check for pcfs that contain the same particle name
-            List<ParticleConflict> conflictingParticles = new List<ParticleConflict>();
+            //List<ParticleConflict> conflictingParticles = new List<ParticleConflict>();
+            List<PCF> conflictingParticles = new List<PCF>();
             if (particles.Count != 1)
             {
                 for (int i = 0; i < particles.Count - 1; i++)
                 {
                     for (int j = i + 1; j < particles.Count; j++)
                     {
-                        ParticleConflict pc = new ParticleConflict(particles[i], particles[j]);
 
                         //Create a list of names that intersect between the 2 lists
                         List<string> conflictingNames = particles[i].ParticleNames.Intersect(particles[j].ParticleNames).ToList();
 
                         if (conflictingNames.Count != 0)
                         {
-                            pc.conflictingNames = conflictingNames;
-                            conflictingParticles.Add(pc);
+                            //pc.conflictingNames = conflictingNames;
+                            conflictingParticles.Add(particles[i]);
+                            conflictingParticles.Add(particles[j]);
                         }
                             
                     }
                 }
             }
 
-            //Sort conflicts so larger conflicts appear first which should reduce # of selections user makes
-
-
             //Solve conflicts
             if (conflictingParticles.Count != 0)
             {
-                List<PCF> newParticles = new List<PCF>();
+                //Remove duplicates
+                conflictingParticles = conflictingParticles.Distinct().ToList();
 
-                //Remove particle if it is in a particle conflict, readd back when conflict is manually resolved
-                //Cant edit the list as its being enumerated, so add everything but conflicting particles to new list and transfer it to old list
-                foreach (ParticleConflict conflictParticle in conflictingParticles)
+                //Remove particle if it is in a particle conflict, add back when conflict is manually resolved
+                foreach (PCF conflictParticle in conflictingParticles)
                 {
-                    foreach (PCF particle in particles)
-                    {
-                        if (particle.FilePath != conflictParticle.conflictingFiles.Item1 &&
-                            particle.FilePath != conflictParticle.conflictingFiles.Item2)
-                            newParticles.Add(particle);
-                    }
-
+                    particles.Remove(conflictParticle);
                 }
-
-                particles = newParticles;
-                newParticles.Clear();
                 
                 List<PCF> resolvedConflicts = new List<PCF>();
 
-                //Bring up conflict window if conflicts exist
+                //Bring up conflict window
                 //Have to run on STAthread
                 Application.Current.Dispatcher.Invoke((Action)delegate
                 {
@@ -433,7 +425,7 @@ namespace CompilePalX.Compilers.BSPPack
                     ProgressManager.ErrorProgress();
 
                     //Create window
-                    ConflictWindow cw = new ConflictWindow(conflictingParticles);
+                    ConflictWindow cw = new ConflictWindow(conflictingParticles, map.ParticleList);
                     cw.ShowDialog();
 
                     //Get resolved conflicts
@@ -465,27 +457,11 @@ namespace CompilePalX.Compilers.BSPPack
 
                 sw.WriteLine("}");
             }
-
+            
             string internalDirectory = filepath.Replace(baseDirectory, "");
-            map.particleManifest = new KeyValuePair<string, string>(internalDirectory, filepath);
 
-        }
-    }
-
-    public class ParticleConflict
-    {
-        public Tuple<string, string> conflictingFiles;
-        public Tuple<PCF, PCF> pcfs;
-        public List<string> conflictingNames;
-
-        //Used for sorting
-        public int numConflicts;
-
-        public ParticleConflict(PCF pcf1, PCF pcf2)
-        {
-            pcfs = new Tuple<PCF, PCF>(pcf1, pcf2);
-            conflictingFiles = new Tuple<string, string>(pcf1.FilePath, pcf2.FilePath);
-            conflictingNames = new List<string>();
+            //Store internal/external dir so it can be packed
+            particleManifest = new KeyValuePair<string, string>(internalDirectory, filepath);
         }
     }
 }
