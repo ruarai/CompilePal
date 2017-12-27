@@ -354,7 +354,7 @@ namespace CompilePalX.Compilers.UtilityProcess
         {
             CompilePalLogger.LogLine("Generating Particle Manifest...");
 
-            baseDirectory = gameFolder + "/";
+            baseDirectory = gameFolder + "\\";
 
             particles = new List<PCF>();
 
