@@ -4,7 +4,7 @@
   "Order": 10.0,
   "DoRun": false,
   "ReadOutput": true,
-  "Description": "General utilities for updating filenames.",
+  "Description": "Utilities for generating and updating filenames.",
   "Warning": "",
   "PresetDefault": false,
   "BasisString": ""

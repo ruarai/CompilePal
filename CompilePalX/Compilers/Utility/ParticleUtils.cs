@@ -344,13 +344,13 @@ namespace CompilePalX.Compilers.UtilityProcess
     {
         //Class responsible for holding information about particles
         private List<PCF> particles;
-        private string internalPath = "particles/";
+        private string internalPath = "particles\\";
         private string filepath;
         private string baseDirectory;
 
         public KeyValuePair<string, string> particleManifest { get; private set; }
 
-        public ParticleManifest (List<string> sourceDirectories, BSP map, string bspPath, string gameFolder)
+        public ParticleManifest (List<string> sourceDirectories, List<string> ignoreDirectories, BSP map, string bspPath, string gameFolder)
         {
             CompilePalLogger.LogLine("Generating Particle Manifest...");
 
@@ -362,9 +362,9 @@ namespace CompilePalX.Compilers.UtilityProcess
             //TODO multithread this?
             foreach (string sourceDirectory in sourceDirectories)
             {
-                string externalPath = sourceDirectory + "/" + internalPath;
-                if (Directory.Exists(externalPath))
+                string externalPath = sourceDirectory + "\\" + internalPath;
 
+                if (Directory.Exists(externalPath) && !ignoreDirectories.Contains(externalPath.Remove(externalPath.Length - 1, 1), StringComparer.OrdinalIgnoreCase))
                     foreach (string file in Directory.GetFiles(externalPath))
                     {
                         if (file.EndsWith(".pcf"))
@@ -377,7 +377,18 @@ namespace CompilePalX.Compilers.UtilityProcess
             }
 
             if (particles == null || particles.Count == 0)
+            {
+                Error e = new Error()
+                {
+                    Message = "Could not find any PCFs that contained used particles!",
+                    Severity = 3,
+                    ID = 403
+                };
+
+                CompilePalLogger.LogCompileError("Could not find any PCFs that contained used particles!\n", e);
                 return;
+            }
+                
 
             //Check for pcfs that contain the same particle name
             //List<ParticleConflict> conflictingParticles = new List<ParticleConflict>();
@@ -439,6 +450,10 @@ namespace CompilePalX.Compilers.UtilityProcess
             //Remove duplicates
             particles = particles.Distinct().ToList();
 
+            //Dont create particle manifest if there is no particles
+            if (particles.Count == 0)
+                return;
+            
             //Generate manifest file
             filepath = bspPath.Remove(bspPath.Length - 4, 4) + "_particles.txt";
 

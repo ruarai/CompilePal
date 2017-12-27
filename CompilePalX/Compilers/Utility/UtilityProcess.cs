@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Windows.Media;
 using CompilePalX.Compilers.BSPPack;
 using CompilePalX.Compiling;
 
@@ -22,12 +23,14 @@ namespace CompilePalX.Compilers.UtilityProcess
         private static bool incparticlemanifest;
         private static bool incsoundscape;
         private static bool inclevelsounds;
+        private static bool ignoreDir;
 
         private static string gameFolder;
         private static string bspPath;
         private const string keysFolder = "Keys";
 
         private List<string> sourceDirectories = new List<string>();
+        private List<string> ignoreDirectories = new List<string>();
 
         public override void Run(CompileContext context)
         {
@@ -35,11 +38,12 @@ namespace CompilePalX.Compilers.UtilityProcess
             incparticlemanifest = GetParameterString().Contains("-incparticlemanifest");
             incsoundscape = GetParameterString().Contains("-incsoundscape");
             inclevelsounds = GetParameterString().Contains("-inclevelsounds");
+            ignoreDir = GetParameterString().Contains("-ignoredir");
 
-            //TODO try to find a way to cut down on duplicate processes between manifest and pack steps
+            //TODO try to find a way to cut down on duplicate processes between utility and pack steps
             try
             {
-                CompilePalLogger.LogLine("\nCompilePal - Automated Manifest");
+                CompilePalLogger.LogLine("\nCompilePal - Utilities");
 
                 Keys.vmtTextureKeyWords = File.ReadAllLines(System.IO.Path.Combine(keysFolder, "texturekeys.txt")).ToList();
                 Keys.vmtMaterialKeyWords = File.ReadAllLines(System.IO.Path.Combine(keysFolder, "materialkeys.txt")).ToList();
@@ -54,6 +58,38 @@ namespace CompilePalX.Compilers.UtilityProcess
 
                 bspPath = context.CopyLocation;
 
+                //Parse parameters to get ignore directories
+                if (ignoreDir)
+                {
+                    string[] parameters = GetParameterString().Split('-');
+                    
+                    //Get directories from parameter list
+                    foreach (string parameter in parameters)
+                        if (parameter.Contains("ignoredir"))
+                            ignoreDirectories.Add(parameter.Replace("ignoredir ", "").TrimEnd(' '));
+
+                    List<string> tempList = new List<string>();
+
+                    //Test and see if each directory exists, remove if invalid. Add to temp list because you cant modify a foreach list
+                    foreach (string directory in ignoreDirectories)
+                    {
+                        if (Directory.Exists(directory))
+                        {
+                            //Get subdirectories
+                            string[] subDirectories = Directory.GetDirectories(directory, "*", SearchOption.AllDirectories);
+                            tempList.Add(directory);
+                            tempList.AddRange(subDirectories);
+                        }
+                            
+                            
+                    }
+
+                    ignoreDirectories = tempList;
+
+                    //Remove duplicates
+                    ignoreDirectories = ignoreDirectories.Distinct().ToList();
+                }
+
                 if (genparticlemanifest)
                 {
                     if (!File.Exists(bspPath))
@@ -64,7 +100,7 @@ namespace CompilePalX.Compilers.UtilityProcess
                     CompilePalLogger.LogLine("Reading BSP...");
                     BSP map = new BSP(new FileInfo(bspPath));
 
-                    ParticleManifest manifest = new ParticleManifest(sourceDirectories, map, bspPath, gameFolder);
+                    ParticleManifest manifest = new ParticleManifest(sourceDirectories, ignoreDirectories, map, bspPath, gameFolder);
 
 
                     //Set fields in bsppack so manifest gets detected correctly
@@ -74,27 +110,45 @@ namespace CompilePalX.Compilers.UtilityProcess
 
                 if (incparticlemanifest)
                 {
-                    CompilePalLogger.LogLine("Attempting to incrementing particle manifest");
+                    CompilePalLogger.LogLine("Attempting to update particle manifest");
 
-                    bool success = IncrementManifest("_particles.txt");
+                    bool success = UpdateManifest("_particles.txt");
 
                     if (!success)
-                        CompilePalLogger.LogLine("Could not increment manifest!");
+                    {
+                        Error e = new Error()
+                        {
+                            Message = "Could not update manifest!",
+                            Severity = 3,
+                            ID = 400
+                        };
+
+                        CompilePalLogger.LogCompileError("Could not update manifest!\n", e);
+                    }
                 }
 
                 if (inclevelsounds)
                 {
-                    CompilePalLogger.LogLine("Attempting to incrementing level sounds");
+                    CompilePalLogger.LogLine("Attempting to update level sounds");
 
-                    bool success = IncrementManifest("_level_sounds.txt");
+                    bool success = UpdateManifest("_level_sounds.txt");
 
                     if (!success)
-                        CompilePalLogger.LogLine("Could not increment level sounds!");
+                    {
+                        Error e = new Error()
+                        {
+                            Message = "Could not update level sounds!",
+                            Severity = 3,
+                            ID = 401
+                        };
+
+                        CompilePalLogger.LogCompileError("Could not update level sounds!\n", e);
+                    }
                 }
 
                 if (incsoundscape)
                 {
-                    CompilePalLogger.LogLine("Attempting to incrementing soundscape");
+                    CompilePalLogger.LogLine("Attempting to update soundscape");
 
                     //Get all script directories
                     List<string> directories = new List<string>();
@@ -103,9 +157,21 @@ namespace CompilePalX.Compilers.UtilityProcess
                         if (Directory.Exists(directory + "\\scripts\\"))
                             directories.Add(directory + "\\scripts\\");
 
-                    bool success = IncrementManifest("soundscapes_", directories, true);
+                    bool success = UpdateManifest("soundscapes_", directories, true);
+
                     if (!success)
-                        CompilePalLogger.LogLine("Could not increment soundscape!");
+                    {
+                        Error e = new Error()
+                        {
+                            Message = "Could not update soundscape!",
+                            Severity = 3,
+                            ID = 402
+                        };
+                        
+                        CompilePalLogger.LogCompileError("Could not update soundscape!\n", e);
+                    }
+                    
+                    
                 }
 
             }
@@ -120,7 +186,7 @@ namespace CompilePalX.Compilers.UtilityProcess
             }
         }
 
-        private static bool IncrementManifest(string manifestType, List<string> directories = null, bool manifestIsAtFrontOfFilename = false)
+        private static bool UpdateManifest(string manifestType, List<string> directories = null, bool manifestIsAtFrontOfFilename = false)
         {
             bool successfullyIncremented = true;
 
@@ -155,10 +221,8 @@ namespace CompilePalX.Compilers.UtilityProcess
                 bool version0Exists = false;
 
                 //There might be a version 0 of map, so try that first
-                //Try to find older version number by just decreasing versionnum
                 versionNum -= 1;
 
-                //string oldManifestPath0 = mapName + versionIdent + versionNum + "_particles.txt";
                 string oldManifestPathV0 = FindPreviousVersion(mapDir, mapName + versionIdent + versionNum, manifestType, manifestIsAtFrontOfFilename);
 
                 if (File.Exists(oldManifestPathV0))
@@ -173,7 +237,7 @@ namespace CompilePalX.Compilers.UtilityProcess
                     else
                         File.Copy(oldManifestPathV0, directory + bspName + manifestType, true);
 
-                    CompilePalLogger.LogLine(oldManifestPathV0 + " was used as base manifest");
+                    CompilePalLogger.LogLine(oldManifestPathV0 + " was used as base file");
                 }
 
                 if (!version0Exists)
@@ -197,10 +261,8 @@ namespace CompilePalX.Compilers.UtilityProcess
                             else
                                 File.Copy(oldManifestPath, directory + bspName + manifestType, true);
 
-                            CompilePalLogger.LogLine(oldManifestPath + " was used as base manifest");
+                            CompilePalLogger.LogLine(oldManifestPath + " was used as base file");
                         }
-
-
                     }
                     //Beta -> alpha
                     else if (versionIdent.ToLower() == "b")
@@ -221,7 +283,7 @@ namespace CompilePalX.Compilers.UtilityProcess
                             else
                                 File.Copy(oldManifestPath, directory + bspName + manifestType, true);
 
-                            CompilePalLogger.LogLine(oldManifestPath + " was used as base manifest");
+                            CompilePalLogger.LogLine(oldManifestPath + " was used as base file");
                         }
 
                     }
@@ -249,7 +311,7 @@ namespace CompilePalX.Compilers.UtilityProcess
                     else
                         File.Copy(oldManifestPath, directory + bspName + manifestType, true);
 
-                    CompilePalLogger.LogLine(oldManifestPath + " was used as base manifest");
+                    CompilePalLogger.LogLine(oldManifestPath + " was used as base file");
                 }
                 else
                 {
@@ -261,7 +323,7 @@ namespace CompilePalX.Compilers.UtilityProcess
         }
 
 
-        //Finds previous versions of files, and returns the highest version. Takes into account subversions such as a1b, b1c, etc
+        //Finds previous versions of files, and returns the highest version. Takes into account subversions such as a1b, a1c, etc
         private static string FindPreviousVersion(List<string> mapDirs, string searchString, string manifestType, bool manifestIsAtFrontOfFilename)
         {
             List<BspFileName> candidateFiles = new List<BspFileName>();
@@ -355,7 +417,7 @@ namespace CompilePalX.Compilers.UtilityProcess
             if (highestVersion.file != "")
                 return (highestVersion.file);
 
-            //Return null if no candidate files were found
+            //Return null if something went wrong
             return null;
         }
 

@@ -18,9 +18,11 @@ namespace CompilePalX
 
         public string Warning { get; set; }
 
+        public bool CanBeUsedMoreThanOnce { get; set; }
+
         public object Clone()
         {
-            return new ConfigItem() {Name=Name,Parameter=Parameter,Description = Description,Value=Value,CanHaveValue = CanHaveValue,Warning = Warning};
+            return new ConfigItem() {Name=Name,Parameter=Parameter,Description = Description,Value=Value,CanHaveValue = CanHaveValue,Warning = Warning,CanBeUsedMoreThanOnce = CanBeUsedMoreThanOnce};
         }
     }
 }

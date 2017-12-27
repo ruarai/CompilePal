@@ -8,25 +8,25 @@
     "Warning": ""
   },
   {
-    "Name": "Increment Particle Manifest Version",
+    "Name": "Update Particle Manifest Version",
     "Parameter": " -incparticlemanifest",
-    "Description": "Increments the version of an older particle manifest",
+    "Description": "Updates the filename of an older particle manifest",
     "Value": null,
     "CanHaveValue": false,
     "Warning": ""
   },
   {
-    "Name": "Increment Soundscape Version",
+    "Name": "Update Soundscape Version",
     "Parameter": " -incsoundscape",
-    "Description": "Increments the version of an older soundscape file",
+    "Description": "Updates the filename of an older soundscape file",
     "Value": null,
     "CanHaveValue": false,
     "Warning": "TF2 Only"
   },
   {
-    "Name": "Increment Level Sounds Version",
+    "Name": "Update Level Sounds Version",
     "Parameter": " -inclevelsounds",
-    "Description": "Increments the version of an older level sounds file",
+    "Description": "Updates the filename of an older level sounds file",
     "Value": null,
     "CanHaveValue": false,
     "Warning": "TF2 Only"
@@ -34,9 +34,10 @@
   {
     "Name": "Ignore Directory",
     "Parameter": " -ignoredir",
-    "Description": "Does not look in this folder for particle manifest generation and file incrementing",
+    "Description": "Skips this folder when looking for particle files",
     "Value": null,
     "CanHaveValue": true,
-    "Warning": ""
+    "Warning": "",
+    "CanBeUsedMoreThanOnce": true
   }
 ]
