@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -19,8 +20,11 @@ namespace CompilePalX.Compilers.BSPPack
 
         public List<int>[] modelSkinList { get; private set; }
 
-        public List<string> ModelList { get; private set; }
+        public List<string> ModelList { get; private set; } 
+
         public List<string> EntModelList { get; private set; }
+
+        public List<string> ParticleList { get; private set; }
 
         public List<string> TextureList { get; private set; }
         public List<string> EntTextureList { get; private set; }
@@ -62,6 +66,8 @@ namespace CompilePalX.Compilers.BSPPack
 
             buildEntModelList();
             buildModelList();
+
+            buildParticleList();
 
             buildEntTextureList();
             buildTextureList();
@@ -146,12 +152,16 @@ namespace CompilePalX.Compilers.BSPPack
             {
                 List<string> materials = new List<string>();
                 foreach (KeyValuePair<string, string> prop in ent)
+                {
+                    //Console.WriteLine(prop.Key + ": " + prop.Value);
                     if (Keys.vmfMaterialKeys.Contains(prop.Key.ToLower()))
                     {
                         materials.Add(prop.Value);
                         if (prop.Key.ToLower().StartsWith("team_icon"))
                             materials.Add(prop.Value + "_locked");
                     }
+                }
+
 
                 // special condition for sprites
                 if (ent["classname"].Contains("sprite") && ent.ContainsKey("model"))
@@ -272,6 +282,15 @@ namespace CompilePalX.Compilers.BSPPack
                 foreach (KeyValuePair<string, string> prop in ent)
                     if (Keys.vmfSoundKeys.Contains(prop.Key))
                         EntSoundList.Add("sound/" + prop.Value);
+        }
+
+        public void buildParticleList()
+        {
+            ParticleList = new List<string>();
+            foreach (Dictionary<string, string> ent in entityList)
+                foreach (KeyValuePair<string, string> particle in ent)
+                     if (particle.Key.ToLower() == "effect_name")
+                        ParticleList.Add(particle.Value);
         }
     }
 }

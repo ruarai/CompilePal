@@ -54,7 +54,7 @@
                             <RowDefinition/>
                             <RowDefinition Height="36px"/>
                         </Grid.RowDefinitions>
-                        <DataGrid Grid.Row ="0" Name="ConfigDataGrid" Margin="10,10,10,10" AutoGenerateColumns="False" CanUserAddRows="False" ItemsSource="{Binding}" >
+                        <DataGrid Grid.Row ="0" Name="ConfigDataGrid" Margin="10,10,10,10" AutoGenerateColumns="False" CanUserAddRows="False" ItemsSource="{Binding}">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="Name" Binding="{ Binding Name}" IsReadOnly="True"/>
                                 <DataGridTemplateColumn Header="Value">

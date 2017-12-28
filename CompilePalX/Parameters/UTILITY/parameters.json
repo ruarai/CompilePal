@@ -1,0 +1,43 @@
+[
+  {
+    "Name": "Generate Particle Manifest",
+    "Parameter": " -particlemanifest",
+    "Description": "Generates a particle manifest based on particles used",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": ""
+  },
+  {
+    "Name": "Update Particle Manifest Version",
+    "Parameter": " -incparticlemanifest",
+    "Description": "Updates the filename of an older particle manifest",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": ""
+  },
+  {
+    "Name": "Update Soundscape Version",
+    "Parameter": " -incsoundscape",
+    "Description": "Updates the filename of an older soundscape file",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": "TF2 Only"
+  },
+  {
+    "Name": "Update Level Sounds Version",
+    "Parameter": " -inclevelsounds",
+    "Description": "Updates the filename of an older level sounds file",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": "TF2 Only"
+  },
+  {
+    "Name": "Ignore Directory",
+    "Parameter": " -ignoredir",
+    "Description": "Skips this folder when looking for particle files",
+    "Value": null,
+    "CanHaveValue": true,
+    "Warning": "",
+    "CanBeUsedMoreThanOnce": true
+  }
+]

@@ -298,8 +298,18 @@ namespace CompilePalX
                 ParameterAdder c = new ParameterAdder(selectedProcess.ParameterList);
                 c.ShowDialog();
 
-                if (c.ChosenItem != null && !selectedProcess.PresetDictionary[ConfigurationManager.CurrentPreset].Contains(c.ChosenItem))
-                    selectedProcess.PresetDictionary[ConfigurationManager.CurrentPreset].Add(c.ChosenItem);
+                if (c.ChosenItem != null)
+                {
+                    if (c.ChosenItem.CanBeUsedMoreThanOnce)
+                    {
+                        selectedProcess.PresetDictionary[ConfigurationManager.CurrentPreset].Add(c.ChosenItem);
+                    } 
+                    else if (!selectedProcess.PresetDictionary[ConfigurationManager.CurrentPreset].Contains(c.ChosenItem))
+                    {
+                        selectedProcess.PresetDictionary[ConfigurationManager.CurrentPreset].Add(c.ChosenItem);
+                    }
+                }
+                    
 
                 AnalyticsManager.ModifyPreset();
 

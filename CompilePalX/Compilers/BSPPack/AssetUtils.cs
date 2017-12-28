@@ -288,83 +288,6 @@ namespace CompilePalX.Compilers.BSPPack
             return audioFiles;
         }
 
-        public static List<string> findPcfMaterials(string path)
-        {
-            List<string> materials = new List<string>();
-
-            if (File.Exists(path))
-            {
-                FileStream pcf = new FileStream(path, FileMode.Open);
-                BinaryReader reader = new BinaryReader(pcf);
-
-                string ver = readNullTerminatedString(pcf, reader);
-
-                if (!ver.Equals("<!-- dmx encoding binary 2 format pcf 1 -->\n"))
-                {
-                    Console.WriteLine("Warning: Pcf File not supported,\n" +
-                    "\t custom materials will not be added if used");
-                    return materials;
-                }
-
-                // read pcf strings
-                pcf.Seek(45, SeekOrigin.Begin);
-
-                uint nbstring = reader.ReadUInt16();
-                string[] pcfStrings = new string[nbstring];
-                for (int i = 0; i < nbstring; i++)
-                    pcfStrings[i] = readNullTerminatedString(pcf, reader);
-
-                // skipping over pcf elements
-                int nbElements = reader.ReadInt32();
-                for (int i = 0; i < nbElements; i++)
-                {
-                    pcf.Seek(2, SeekOrigin.Current);
-                    readNullTerminatedString(pcf, reader);
-                    pcf.Seek(16, SeekOrigin.Current);
-                }
-
-                // read element data
-                for (int e = 0; e < nbElements; e++)
-                {
-                    int nbElemAtribs = reader.ReadInt32();
-                    for (int p = 0; p < nbElemAtribs; p++)
-                    {
-                        int typeid = reader.ReadInt16();
-                        int attributeType = reader.ReadByte();
-                        int count = (attributeType > 14) ? reader.ReadInt32() : 1;
-                        attributeType = (attributeType > 14) ? attributeType - 14 : attributeType;
-
-                        int[] typelength = { 0, 4, 4, 4, 1, 1, 4, 4, 4, 8, 12, 16, 12, 16, 64 };
-
-                        switch (attributeType)
-                        {
-                            case 5:
-                                string attributeValue = readNullTerminatedString(pcf, reader);
-                                if (pcfStrings[typeid] == "material")
-                                    materials.Add("materials/" + attributeValue);
-                                break;
-
-                            case 6:
-                                for (int i = 0; i < count; i++)
-                                {
-                                    uint len = reader.ReadUInt32();
-                                    pcf.Seek(len, SeekOrigin.Current);
-                                }
-                                break;
-
-                            default:
-                                pcf.Seek(typelength[attributeType] * count, SeekOrigin.Current);
-                                break;
-                        }
-
-                    }
-
-                }
-                pcf.Close();
-            }
-            return materials;
-        }
-
         public static List<string> findManifestPcfs(string fullpath)
         {
             // finds pcf files from the manifest file
@@ -390,7 +313,7 @@ namespace CompilePalX.Compilers.BSPPack
                         bsp.TextureList.Add(material);
         }
 
-        public static void findBspUtilityFiles(BSP bsp, List<string> sourceDirectories, bool renamenav)
+        public static void findBspUtilityFiles(BSP bsp, List<string> sourceDirectories, bool renamenav, bool genparticlemanifest)
         {
             // Utility files are other files that are not assets and are sometimes not referenced in the bsp
             // those are manifests, soundscapes, nav, radar and detail files
@@ -551,15 +474,21 @@ namespace CompilePalX.Compilers.BSPPack
 
                 if (dir.Exists)
                     foreach (FileInfo f in dir.GetFiles(searchPattern))
-                        // particle files
-                        if (f.Name.StartsWith(name + "_particles") || f.Name.StartsWith(name + "_manifest"))
-                            bsp.particleManifest = new KeyValuePair<string, string>(internalDir + f.Name, externalDir + f.Name);
+                    {
+                        // particle files if particle manifest is not being generated
+                        if (!genparticlemanifest)
+                            if (f.Name.StartsWith(name + "_particles") || f.Name.StartsWith(name + "_manifest"))
+                                bsp.particleManifest =
+                                    new KeyValuePair<string, string>(internalDir + f.Name, externalDir + f.Name);
+
                         // soundscript
-                        else if (f.Name.StartsWith(name + "_level_sounds"))
-                            bsp.soundscript = new KeyValuePair<string, string>(internalDir + f.Name, externalDir + f.Name);
+                        if (f.Name.StartsWith(name + "_level_sounds"))
+                            bsp.soundscript =
+                                new KeyValuePair<string, string>(internalDir + f.Name, externalDir + f.Name);
                         // presumably language files
                         else
                             langfiles.Add(new KeyValuePair<string, string>(internalDir + f.Name, externalDir + f.Name));
+                    }
             }
             bsp.languages = langfiles;
         }

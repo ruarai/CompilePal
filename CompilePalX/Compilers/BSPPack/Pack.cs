@@ -33,6 +33,9 @@ namespace CompilePalX.Compilers.BSPPack
         private static bool verbose;
         private static bool dryrun;
         private static bool renamenav;
+        public static bool genparticlemanifest;
+
+        public static KeyValuePair<string, string> particleManifest;
 
         private List<string> sourceDirectories = new List<string>();
 
@@ -65,7 +68,11 @@ namespace CompilePalX.Compilers.BSPPack
 
                 CompilePalLogger.LogLine("Reading BSP...");
                 BSP map = new BSP(new FileInfo(bspPath));
-                AssetUtils.findBspUtilityFiles(map, sourceDirectories, renamenav);
+                AssetUtils.findBspUtilityFiles(map, sourceDirectories, renamenav, genparticlemanifest);
+
+                //Set map particle manifest
+                if (genparticlemanifest)
+                    map.particleManifest = particleManifest;
 
                 string unpackDir = System.IO.Path.GetTempPath() + Guid.NewGuid();
                 UnpackBSP(unpackDir);

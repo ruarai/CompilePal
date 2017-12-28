@@ -1,7 +1,7 @@
 {
   "Name": "STATS",
   "Path": "$vbspInfo$",
-  "Order": 13.0,
+  "Order": 14.0,
   "DoRun": true,
   "ReadOutput": true,
   "Description": "Outputs statistics similar to those of VRAD.",
