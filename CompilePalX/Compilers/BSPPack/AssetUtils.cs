@@ -203,7 +203,11 @@ namespace CompilePalX.Compilers.BSPPack
                 string param = line.Replace("\"", " ").Replace("\t", " ").Trim();
 
                 if (Keys.vmtTextureKeyWords.Any(key => param.ToLower().StartsWith(key + " ")))
+                {
                     vtfList.Add("materials/" + vmtPathParser(param) + ".vtf");
+                    if (param.ToLower().StartsWith("$envmap" + " "))
+                        vtfList.Add("materials/" + vmtPathParser(param) + ".hdr.vtf");
+                }
             }
             return vtfList;
         }

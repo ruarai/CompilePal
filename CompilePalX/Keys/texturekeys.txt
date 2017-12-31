@@ -7,6 +7,7 @@ $bumpmap2
 $cloudalphatexture
 $detail
 $dudvmap
+$envmap
 $envmapmask
 $fleshbordertexture1d
 $fleshcubetexture
