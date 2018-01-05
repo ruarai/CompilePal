@@ -221,10 +221,12 @@ namespace CompilePalX.Compilers.BSPPack
                                 if (verbose)
                                     CompilePalLogger.LogLine("Found wildcard path: {0}", fullPath);
 
-                                var directories = Directory.GetDirectories(fullPath);
-
-                                sourceDirectories.AddRange(directories);
-
+                                try
+                                {
+                                    var directories = Directory.GetDirectories(fullPath);
+                                    sourceDirectories.AddRange(directories);
+                                }
+                                catch { }
                             }
                             else
                             {
