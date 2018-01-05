@@ -279,13 +279,15 @@ namespace CompilePalX.Compilers.BSPPack
         {
             // finds audio files from soundscape file
 
+            char [] special_caracters = new char[] {'*', '#', '@', '>', '<', '^', '(', ')', '}', '$', '!', '?', ' '};
+
             List<string> audioFiles = new List<string>();
             foreach (string line in File.ReadAllLines(fullpath))
             {
                 string param = Regex.Replace(line, "[\t|\"]", " ").Trim();
                 if (param.ToLower().StartsWith("wave"))
                 {
-                    string clip = param.Split(new char[] { ' ' }, 2)[1].Trim(' ', ')', '(');
+                    string clip = param.Split(new char[] { ' ' }, 2)[1].Trim(special_caracters);
                     audioFiles.Add("sound/" + clip);
                 }
             }
