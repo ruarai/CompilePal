@@ -101,6 +101,8 @@ namespace CompilePalX.Compilers.BSPPack
                 CompilePalLogger.LogLine(pakfile.mdlcount + " models found");
                 CompilePalLogger.LogLine(pakfile.pcfcount + " particle files found");
                 CompilePalLogger.LogLine(pakfile.sndcount + " sounds found");
+                if (pakfile.vehiclescriptcount != 0)
+                    CompilePalLogger.LogLine(pakfile.vehiclescriptcount + " vehicle scripts found");
                 string additionalFiles =
                     (map.nav.Key != default(string) ? "\n-nav file" : "") +
                     (map.soundscape.Key != default(string) ? "\n-soundscape" : "") +
@@ -112,8 +114,8 @@ namespace CompilePalX.Compilers.BSPPack
                     (map.jpg.Key != default(string) ? "\n-loading screen image" : "") +
                     (map.kv.Key != default(string) ? "\n-kv file" : "") +
                     (map.res.Key != default(string) ? "\n-res file" : "");
-                CompilePalLogger.LogLine(additionalFiles != default(string) ?
-                    "additional files: " + additionalFiles : "none");
+                if (additionalFiles != "")
+                    CompilePalLogger.LogLine("additional files: " + additionalFiles);
                 CompilePalLogger.LogLine("---------------------");
 
             }

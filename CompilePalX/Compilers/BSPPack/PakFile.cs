@@ -20,10 +20,11 @@ namespace CompilePalX.Compilers.BSPPack
         public int vmtcount { get; private set; }
         public int pcfcount { get; private set; }
         public int sndcount { get; private set; }
+        public int vehiclescriptcount { get; private set; }
 
         public PakFile(BSP bsp, List<string> sourceDirectories)
         {
-            mdlcount = vmtcount = pcfcount = sndcount = 0;
+            mdlcount = vmtcount = pcfcount = sndcount = vehiclescriptcount = 0;
             sourceDirs = sourceDirectories;
             
             Files = new Dictionary<string, string>();
@@ -81,6 +82,9 @@ namespace CompilePalX.Compilers.BSPPack
                 if (cc.ContainsKey("filename"))
                     AddFile(cc["filename"], FindExternalFile(cc["filename"]));
 
+            foreach (KeyValuePair<string, string> vehicleScript in bsp.VehicleScriptList)
+                if (AddFile(vehicleScript.Key, vehicleScript.Value))
+                    vehiclescriptcount++;
             foreach (KeyValuePair<string, string> dds in bsp.radardds)
                 AddFile(dds.Key, dds.Value);
             foreach (KeyValuePair<string, string> lang in bsp.languages)
