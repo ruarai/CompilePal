@@ -6,6 +6,7 @@ point_hud_icon_axis
 point_hud_icon_allies
 point_hud_icon_timercap
 point_hud_icon_bombed
+spritename
 team_icon_0
 team_icon_2
 team_icon_3
