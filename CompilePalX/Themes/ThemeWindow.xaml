@@ -1,0 +1,62 @@
+﻿<controls:MetroWindow x:Class="CompilePalX.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:CompilePalX"
+        xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+        mc:Ignorable="d"
+        Title="Theme"
+        MinHeight="550" MinWidth="790"
+        Height="550" Width="790"      
+        IconEdgeMode="Aliased" ShowIconOnTitleBar="False"
+        BorderThickness="1" BorderBrush="{DynamicResource AccentColorBrush}" Loaded="OnLoaded">
+    
+    <Grid>
+        <TabControl Margin="10, 10, 10, 10">
+            <TabItem Header="SELECT" BorderThickness="0, 0, 0, 1" BorderBrush="{DynamicResource AccentBaseColorBrush}">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <ItemsControl x:Name="SelectControl">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="50"/>
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="100"/>
+                                        <ColumnDefinition Width="200"/>
+                                    </Grid.ColumnDefinitions>
+                                    
+                                    <RadioButton Content="{Binding Name}"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding ThemeStr}"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>                    
+                </ScrollViewer>
+
+            </TabItem>
+            
+            <TabItem Header="CREATE">
+
+            </TabItem>
+        </TabControl>
+        
+        <!--<Grid.ColumnDefinitions>
+            <ColumnDefinition Width="100"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <TextBlock Margin="10, 10, 10, 10" FontSize="20">Themes</TextBlock>
+        <ListBox Grid.Column="0" Grid.Row="1"></ListBox>
+        
+        <TabControl Grid.Column="1">
+            
+        </TabControl>-->
+    </Grid>
+</controls:MetroWindow>

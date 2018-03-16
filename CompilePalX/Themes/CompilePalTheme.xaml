@@ -3,6 +3,9 @@
                     xmlns:options="http://schemas.microsoft.com/winfx/2006/xaml/presentation/options"
                     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                     mc:Ignorable="options">
+     
+    <TextBox x:Key="Name">Default</TextBox>
+    <TextBox x:Key="Theme">Dark</TextBox>
     <!--RGB (Red, Green, Blue) = 228, 31, 39-->
     <!--E41F27-->
     <Color x:Key="HighlightColor">#FFE41F27</Color>
@@ -39,5 +42,4 @@
     <SolidColorBrush x:Key="IdealForegroundColorBrush" Color="{StaticResource IdealForegroundColor}" options:Freeze="True" />
     <SolidColorBrush x:Key="IdealForegroundDisabledBrush" Color="{StaticResource IdealForegroundColor}" Opacity="0.4" options:Freeze="True" />
     <SolidColorBrush x:Key="AccentSelectedColorBrush" Color="{StaticResource IdealForegroundColor}" options:Freeze="True" />
-
 </ResourceDictionary>

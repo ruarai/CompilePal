@@ -523,5 +523,10 @@ namespace CompilePalX
             Process.Start("http://www.github.com/ruarai/CompilePal/releases/latest");
         }
 
+        private void Settings_OnClick(object sender, RoutedEventArgs e)
+        {
+            SettingsWindow settings = new SettingsWindow();
+            settings.Show();
+        }
     }
 }
