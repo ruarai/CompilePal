@@ -258,6 +258,8 @@ namespace CompilePalX.Compilers.BSPPack
                 {
                     DDSs.Add("resource/" + vmtPathParser(param) + "_radar.dds");
                     DDSs.Add("resource/" + vmtPathParser(param) + "_radar_spectate.dds");
+                    DDSs.Add("resource/" + vmtPathParser(param) + "_lower_radar.dds");
+                    DDSs.Add("resource/" + vmtPathParser(param) + "_upper_radar.dds");
                     break;
                 }
             }
