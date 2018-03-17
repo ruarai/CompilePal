@@ -88,9 +88,25 @@
     "Warning": " always enabled for light_spot entities."
   },
   {
+    "Name": "Static Prop Lighting Final",
+    "Parameter": " -StaticPropLightingFinal",
+    "Description": "Generate per-vertex prop_static lighting (uses higher/final quality processing)",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": "CS:GO Only!"
+  },
+  {
+    "Name": "Static Prop Bounce",
+    "Parameter": " -StaticPropBounce",
+    "Description": "Enable static props to bounce light.",
+    "Value": null,
+    "CanHaveValue": true,
+    "Warning": "CS:GO Only!"
+  },
+  {
     "Name": "Static Prop Sample Scale",
     "Parameter": " -StaticPropSampleScale",
-    "Description": "To get proper lighting on static props 16 = slow, high quality, 4 = default and 0.25 = fast, low quality",
+    "Description": "Controls quality of static prop lighting (16 = slow, high quality, 4 = default and 0.25 = fast, low quality).",
     "Value": null,
     "CanHaveValue": true,
     "Warning": "Note that adding -final is the same as having -StaticPropLightingScale 16."
@@ -110,6 +126,14 @@
     "Value": null,
     "CanHaveValue": false,
     "Warning": ""
+  },
+  {
+    "Name": "AO Scale",
+    "Parameter": " -aoscale",
+    "Description": "Scales the amount of baked AO",
+    "Value": null,
+    "CanHaveValue": true,
+    "Warning": "CS:GO Only!"
   },
   {
     "Name": "Threads",

@@ -62,5 +62,45 @@
     "Value": null,
     "CanHaveValue": false,
     "Warning": ""
+  },
+  {
+    "Name": "Static Prop Combine",
+    "Parameter": " -staticpropcombine",
+    "Description": "Cluster specially supported static prop models.",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": "CS:GO Only!"
+  },
+  {
+    "Name": "Static Prop Combine - Keep Sources",
+    "Parameter": " -keepsources",
+    "Description": "Don't clean up cluster models after bspzip.",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": "CS:GO Only!"
+  },
+  {
+    "Name": "Static Prop Combine - Consider VIS",
+    "Parameter": " -staticpropcombine_considervis",
+    "Description": "Cluster static prop models only within vis clusters.",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": "CS:GO Only!"
+  },
+  {
+    "Name": "Static Prop Combine - Autocombine",
+    "Parameter": " -staticpropcombine_autocombine",
+    "Description": "Automatically combine simple static props without an explicit combine rule.",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": "CS:GO Only!"
+  },
+  {
+    "Name": "Static Prop Combine - Suggest Rules",
+    "Parameter": " -staticpropcombine_suggestrules",
+    "Description": "Suggest rules to add to spcombinerules.txt",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": "CS:GO Only!"
   }
 ]
