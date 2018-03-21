@@ -316,9 +316,15 @@ namespace CompilePalX.Compilers.BSPPack
         {
             // Search the temp folder to find dependencies of files extracted from the pak file
             if (Directory.Exists(tempdir))
-                foreach (String file in Directory.EnumerateFiles(tempdir, "*.vmt", SearchOption.AllDirectories))
+	            foreach (String file in Directory.EnumerateFiles(tempdir, "*.vmt", SearchOption.AllDirectories))
+	            {
                     foreach (string material in AssetUtils.findVmtMaterials(new FileInfo(file).FullName))
                         bsp.TextureList.Add(material);
+
+					foreach (string material in AssetUtils.findVmtTextures(new FileInfo(file).FullName))
+						bsp.TextureList.Add(material);
+				}
+
         }
 
         public static void findBspUtilityFiles(BSP bsp, List<string> sourceDirectories, bool renamenav, bool genparticlemanifest)
