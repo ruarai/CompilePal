@@ -56,11 +56,17 @@ namespace CompilePalX.Compilers.BSPPack
             bsp = new FileStream(file.FullName, FileMode.Open);
             reader = new BinaryReader(bsp);
 
-            //gathers an array of of where things are located in the bsp
+            bsp.Seek(4, SeekOrigin.Begin); //skip header
+            int bspVer = reader.ReadInt32();
+
+            if (bspVer == 21 && reader.ReadInt32() != 0)
+                bsp.Seek(8, SeekOrigin.Begin);
+
+            //gathers an array of offsets (where things are located in the bsp)
             for (int i = 0; i < offsets.GetLength(0); i++)
             {
-                bsp.Seek(8, SeekOrigin.Current); //skip id and version
                 offsets[i] = new KeyValuePair<int, int>(reader.ReadInt32(), reader.ReadInt32());
+                bsp.Seek(8, SeekOrigin.Current); //skip id and version
             }
 
             buildEntityList();
