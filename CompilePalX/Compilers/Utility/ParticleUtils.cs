@@ -146,33 +146,24 @@ namespace CompilePalX.Compilers.UtilityProcess
 
             }
 
-            //Test to see if any particles match a target particle
-            bool FindTargetParticle()
+            bool containsParticle = false;
+            foreach (string particleName in pcf.ParticleNames)
             {
-                foreach (string particleName in pcf.ParticleNames)
+                foreach (string targetParticle in targetParticles)
                 {
-                    foreach (string targetParticle in targetParticles)
+                    if (particleName == targetParticle)
                     {
-                        if (particleName == targetParticle)
-                        {
-                            return true;
-                        }
+                        containsParticle = true;
                     }
                 }
-
-                //If target particle is not in pcf dont read it
-                reader.Close();
-                fs.Close();
-
-                return false;
             }
 
-            bool containsParticle = FindTargetParticle();
-            if (!containsParticle)
-                return null;
-
+            //If target particle is not in pcf dont read it
             reader.Close();
             fs.Close();
+
+            if (!containsParticle)
+                return null;
 
             return pcf;
         }
