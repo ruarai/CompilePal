@@ -20,7 +20,9 @@ namespace CompilePalX
             if (e.InnerException != null)
                 CompilePalLogger.LogLine(e.InnerException.ToString());
 
-            AnalyticsManager.Error();//risky, but /interesting/
+            try {
+                AnalyticsManager.Error();//risky, but /interesting/
+            } catch (Exception) {}
 
             if (crash)
             {

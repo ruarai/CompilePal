@@ -277,12 +277,12 @@ namespace CompilePalX.Compilers.BSPPack
         public void buildEntSoundList()
         {
             // builds the list of sounds referenced in entities
-
+            char[] special_caracters = new char[] { '*', '#', '@', '>', '<', '^', '(', ')', '}', '$', '!', '?', ' ' };
             EntSoundList = new List<string>();
             foreach (Dictionary<string, string> ent in entityList)
                 foreach (KeyValuePair<string, string> prop in ent)
-                    if (Keys.vmfSoundKeys.Contains(prop.Key))
-                        EntSoundList.Add("sound/" + prop.Value);
+                    if (Keys.vmfSoundKeys.Contains(prop.Key))    
+                        EntSoundList.Add("sound/" + prop.Value.Trim(special_caracters));
         }
 
         public void buildParticleList()
