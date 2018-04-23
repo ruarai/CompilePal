@@ -245,7 +245,7 @@ namespace CompilePalX.Compilers.BSPPack
                 return;
 
             long propOffset = bsp.Position;
-            int byteLength = GameLumpOffsets[1].Key - (int)propOffset;
+            int byteLength = GameLumpOffsets[propStaticId].Key + GameLumpOffsets[propStaticId].Value - (int)propOffset;
             int propLength = byteLength / propCount;
 
             modelSkinList = new List<int>[modelCount]; // stores the ids of used skins
