@@ -457,7 +457,7 @@ namespace CompilePalX.Compilers.UtilityProcess
                 foreach (PCF particle in particles)
                 {
                     string internalParticlePath = particle.FilePath.Replace(baseDirectory, "");
-                    sw.WriteLine($"      \"file\"    !\"{internalParticlePath}\"");
+                    sw.WriteLine($"      \"file\"    \"!{internalParticlePath}\"");
                     CompilePalLogger.LogLine($"PCF added to manifest: {internalParticlePath}");
                 }
 
