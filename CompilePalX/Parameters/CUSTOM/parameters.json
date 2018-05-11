@@ -1,0 +1,13 @@
+[
+  {
+    "Name": "Run Program",
+    "Parameter": "15",
+    "Description": "Run a program with command line arguments",
+    "Value": null,
+    "Value2": null, 
+    "ReadOutput": true, 
+    "CanHaveValue": true,
+    "CanBeUsedMoreThanOnce":  true, 
+    "Warning": ""
+  }
+]

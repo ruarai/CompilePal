@@ -106,8 +106,22 @@ namespace CompilePalX
             foreach (var parameter in PresetDictionary[ConfigurationManager.CurrentPreset])
             {
                 parameters += parameter.Parameter;
-                if (parameter.CanHaveValue && !string.IsNullOrEmpty(parameter.Value))
-                    parameters += " " + parameter.Value;
+
+	            if (parameter.CanHaveValue && !string.IsNullOrEmpty(parameter.Value))
+	            {
+					//Handle additional parameters in CUSTOM process
+					if (parameter.Name == "Run Program")
+					{
+						//Add args
+						parameters += " " + parameter.Value;
+
+						//Read Ouput
+						if (parameter.ReadOutput)
+							parameters += " " + parameter.ReadOutput;
+					}
+					else
+						parameters += " " + parameter.Value;
+	            }
             }
 
             parameters += Metadata.BasisString;

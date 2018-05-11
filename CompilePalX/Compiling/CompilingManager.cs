@@ -14,6 +14,7 @@ using System.Windows.Threading;
 using CompilePalX.Compilers;
 using CompilePalX.Compiling;
 using System.Runtime.InteropServices;
+using CompilePalX.Configuration;
 
 namespace CompilePalX
 {
@@ -52,7 +53,6 @@ namespace CompilePalX
         public static event CompileFinished OnFinish;
 
         public static ObservableCollection<string> MapFiles = new ObservableCollection<string>();
-
 
         private static Thread compileThread;
         private static Stopwatch compileTimeStopwatch = new Stopwatch();
@@ -106,8 +106,11 @@ namespace CompilePalX
                     var compileErrors = new List<Error>();
                     CompilePalLogger.LogLine(string.Format("Starting compilation of {0}", cleanMapName));
 
-                    foreach (var compileProcess in ConfigurationManager.CompileProcesses.Where(c => c.Metadata.DoRun && c.PresetDictionary.ContainsKey(ConfigurationManager.CurrentPreset)))
-                    {
+					//Update the grid so we have the most up to date order
+	                OrderManager.UpdateOrder();
+
+					foreach (var compileProcess in OrderManager.CurrentOrder)
+					{
                         currentCompileProcess = compileProcess;
                         compileProcess.Run(GameConfigurationManager.BuildContext(mapFile));
 

@@ -36,6 +36,7 @@ namespace CompilePalX
             CompileProcesses.Add(new NavProcess());
             CompileProcesses.Add(new ShutdownProcess());
             CompileProcesses.Add(new UtilityProcess());
+			CompileProcesses.Add(new CustomProcess());
 
             //collect new metadatas
 
