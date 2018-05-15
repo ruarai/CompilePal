@@ -66,11 +66,13 @@ namespace CompilePalX
 			var draggedRow = RowDragHelper.GetDraggedItem(sender as DependencyObject);
 			DataGrid g = sender as DataGrid;
 
-			if (draggedRow == null || g == null) return;
+			if (draggedRow == null || g == null)
+				return;
 
 			var targetRow = GetRowFromPoint(g, mouseEventArgs.GetPosition(g));
 
-			if (targetRow == null) return;
+			if (targetRow == null)
+				return;
 
 			ExchangeRows(g, targetRow.Item);
 		}
@@ -80,7 +82,8 @@ namespace CompilePalX
 			var draggedItem = RowDragHelper.GetDraggedItem(sender as DependencyObject);
 			if (draggedItem == null) return;
 
-			ExchangeRows(sender, ((DataGrid) sender).SelectedItem);
+			//disabled because it seems to glitch out when 2 custom programs are swapped
+			//ExchangeRows(sender, ((DataGrid) sender).SelectedItem);
 
 			((DataGrid) sender).SelectedItem = draggedItem;
 			RowDragHelper.SetDraggedItem(sender as DataGrid, null);
@@ -144,7 +147,8 @@ namespace CompilePalX
 		{
 			var draggedRow = RowDragHelper.GetDraggedItem(sender as DependencyObject);
 
-			if (draggedRow == null) return;
+			if (draggedRow == null)
+				return;
 
 			if (target != null && !ReferenceEquals(draggedRow, target))
 			{
@@ -152,11 +156,38 @@ namespace CompilePalX
 				if (list == null)
 					return;
 
+				int oldIndex = list.IndexOf(draggedRow);
+
 				var targetIndex = list.IndexOf(target);
 				list.Remove(draggedRow);
 				list.Insert(targetIndex, draggedRow);
+
+				//Console.WriteLine("Row Switch");
+
+				RowSwitchEventArgs args = new RowSwitchEventArgs()
+				{
+					PrimaryRowIndex = targetIndex,
+					DisplacedRowIndex = oldIndex
+				};
+
+				OnRowSwitch(args);
 			}
 
 		}
+
+		 public static void OnRowSwitch(RowSwitchEventArgs e)
+		 {
+			 EventHandler<RowSwitchEventArgs> handler = RowSwitched;
+			 handler?.Invoke(typeof(RowDragHelper), e);
+		 }
+
+		public static event EventHandler<RowSwitchEventArgs> RowSwitched;
+	}
+
+
+	public class RowSwitchEventArgs : EventArgs
+	{
+		public int PrimaryRowIndex; //Row of the item being swapped
+		public int DisplacedRowIndex; //Row of item being displaced by row swap
 	}
 }
