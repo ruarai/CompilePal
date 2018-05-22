@@ -491,8 +491,17 @@ namespace CompilePalX
 		            ProcessTab.IsEnabled = true;
 		            ProcessTab.Visibility = Visibility.Visible;
 
+					ProcessDataGrid.ItemsSource = selectedProcess.PresetDictionary[ConfigurationManager.CurrentPreset];
 
-		            ProcessDataGrid.ItemsSource = selectedProcess.PresetDictionary[ConfigurationManager.CurrentPreset];
+					//Hide parameter buttons if ORDER is the current tab
+		            if ((string)(ProcessTab.SelectedItem as TabItem)?.Header == "ORDER")
+		            {
+						AddParameterButton.Visibility = Visibility.Hidden;
+						AddParameterButton.IsEnabled = false;
+
+						RemoveParameterButton.Visibility = Visibility.Hidden;
+						RemoveParameterButton.IsEnabled = false;
+					}
 				}
 	            else
 	            {
@@ -510,6 +519,16 @@ namespace CompilePalX
 					ProcessTab.Visibility = Visibility.Hidden;
 
 					ConfigDataGrid.ItemsSource = selectedProcess.PresetDictionary[ConfigurationManager.CurrentPreset];
+
+					//Make buttons visible if they were disabled
+		            if (!AddParameterButton.IsEnabled)
+		            {
+						AddParameterButton.Visibility = Visibility.Visible;
+						AddParameterButton.IsEnabled = true;
+
+						RemoveParameterButton.Visibility = Visibility.Visible;
+						RemoveParameterButton.IsEnabled = true;
+					}
 
 					UpdateParameterTextBox();
 	            }
@@ -605,9 +624,25 @@ namespace CompilePalX
 
 	    private void ProcessTab_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
 	    {
-			//Update order grid. Check that source of selection changed to prevent crashes due to draggable grid
-		    if ((e.Source is TabControl) && ((string)(e.AddedItems[0] as TabItem)?.Header == "ORDER"))
+			//Update order grid. Check that ORDER was selected to prevent crashes due to draggable grid
+		    if ((e.Source is TabControl) && ((string) (e.AddedItems[0] as TabItem)?.Header == "ORDER"))
+		    {
 				OrderManager.UpdateOrder();
+
+			    AddParameterButton.Visibility = Visibility.Hidden;
+			    AddParameterButton.IsEnabled = false;
+
+			    RemoveParameterButton.Visibility = Visibility.Hidden;
+				RemoveParameterButton.IsEnabled = false;
+			}
+		    else
+		    {
+				AddParameterButton.Visibility = Visibility.Visible;
+				AddParameterButton.IsEnabled = true;
+
+				RemoveParameterButton.Visibility = Visibility.Visible;
+				RemoveParameterButton.IsEnabled = true;
+			}
 		}
 
 	    private void DoRun_OnClick(object sender, RoutedEventArgs e)
