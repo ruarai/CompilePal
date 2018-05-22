@@ -25,6 +25,7 @@ namespace CompilePalX.Compilers
 				string path = parameter.Value;
 				string args = parameter.Value2;
 
+				//Set default order to 15
 				int order = 15;
 
 				//Use parameter to hold custom order
@@ -171,6 +172,9 @@ namespace CompilePalX.Compilers
 
 		public override bool Equals(object obj)
 		{
+			if (obj == null)
+				return false;
+
 			if (obj is CustomProgram program)
 				return Equals(program);
 
@@ -182,11 +186,17 @@ namespace CompilePalX.Compilers
 
 		protected bool Equals(CustomProgram other)
 		{
+			if (other == null)
+				return false;
+
 			return Equals(Process, other.Process) && string.Equals(Name, other.Name) && string.Equals(Description, other.Description) && string.Equals(Path, other.Path) && Equals(StartInfo, other.StartInfo) && string.Equals(Args, other.Args) && ReadOutput == other.ReadOutput && CustomOrder == other.CustomOrder;
 		}
 
 		protected bool Equals(ConfigItem other)
 		{
+			if (other == null)
+				return false;
+
 			return (ReadOutput == other.ReadOutput && string.Equals(Path, other.Value) && string.Equals(CustomOrder.ToString(), other.Parameter) && Equals(Args, other.Value2));
 		}
 

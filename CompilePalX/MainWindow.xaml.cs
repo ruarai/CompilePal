@@ -82,10 +82,12 @@ namespace CompilePalX
             CompilingManager.OnStart += CompilingManager_OnStart;
             CompilingManager.OnFinish += CompilingManager_OnFinish;
 
+			RowDragHelper.RowSwitched += RowDragHelperOnRowSwitched;
+
             HandleArgs();
         }
 
-        private void HandleArgs(bool ignoreWipeArg = false)
+	    private void HandleArgs(bool ignoreWipeArg = false)
         {
             //Handle command line args
             string[] commandLineArgs = Environment.GetCommandLineArgs();
@@ -633,53 +635,54 @@ namespace CompilePalX
 	    public void UpdateOrderGridSource<T>(ObservableCollection<T> newSrc)
 	    {
 			//Use dispatcher so this can be called from seperate thread
-		    this.Dispatcher.Invoke(() =>
-		    {
-				//TODO order grid doesnt seem to want to update, so have to do it manually
+			this.Dispatcher.Invoke(() =>
+			{
+				//TODO order grid doesnt seem to want to update, so have to do it manually by resetting the source
 				//Update ordergrid by resetting collection
 				OrderGrid.ItemsSource = newSrc;
 			});
 		}
 
-	    public void UpdateItemOrder<T>(ref T item, int newOrder)
+		private void RowDragHelperOnRowSwitched(object sender, RowSwitchEventArgs e)
+		{
+			var primaryItem = OrderGrid.Items[e.PrimaryRowIndex] as CustomProgram;
+			var displacedItem = OrderGrid.Items[e.DisplacedRowIndex] as CustomProgram;
+
+			SetOrder(primaryItem, e.PrimaryRowIndex);
+			SetOrder(displacedItem, e.DisplacedRowIndex);
+		}
+
+	    public void SetOrder<T>(T target, int newOrder)
 	    {
-		    int i = 0;
+			//Generic T is workaround for CustomProgram being
+		    //less accessible than this method.
+		    var program = target as CustomProgram;
+		    if (program == null)
+			    return;
 
-			//Check if item is in order grid
-		    foreach (var sourceItem in OrderGrid.ItemsSource)
-		    {
-				//  if (sourceItem is CustomProgram customProgram)
-				//  {
-				//   foreach (var procSourceItem in ProcessDataGrid.ItemsSource)
-				//   {
-				//    if (customProgram.Equals(procSourceItem))
-				//    {
-				//		(procSourceItem as ConfigItem).Parameter = (OrderGrid.ItemsSource as ObservableCollection<CompileProcess>).IndexOf(customProgram).ToString();
-				//		customProgram.CustomOrder = (OrderGrid.ItemsSource as ObservableCollection<CompileProcess>).IndexOf(customProgram);
-				//	    break;
-				//    }
+			var programConfig = GetConfigFromCustomProgram(program);
 
-				//}
-				//  }
+			if (programConfig == null)
+				return;
 
-				//  i++;
+			program.CustomOrder = newOrder;
+			programConfig.Parameter = newOrder.ToString();
+		}
 
-				if (item.Equals(sourceItem))
+
+		//Search through ProcDataGrid to find corresponding ConfigItem
+		private ConfigItem GetConfigFromCustomProgram(CustomProgram program)
+	    {
+			foreach (var procSourceItem in ProcessDataGrid.ItemsSource)
+			{
+				if (program.Equals(procSourceItem))
 				{
-					//Check if item is in process grid
-					foreach (var procSourceItem in ProcessDataGrid.ItemsSource)
-					{
-						//Set item parameter to new order
-						if (item.Equals(procSourceItem))
-						{
-							(procSourceItem as ConfigItem).Parameter = newOrder.ToString();
-							(item as CustomProgram).CustomOrder = newOrder;
-						}
-					}
-
-					break;
+					return procSourceItem as ConfigItem;
 				}
 			}
+
+			//Return null on failure
+		    return null;
 	    }
 	}
 

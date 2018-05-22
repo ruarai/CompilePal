@@ -22,41 +22,8 @@ namespace CompilePalX.Configuration
 		{
 			CurrentOrder = new ObservableCollection<CompileProcess>();
 			BindingOperations.EnableCollectionSynchronization(CurrentOrder, lockObj);
-			CurrentOrder.CollectionChanged += CurrentOrderOnCollectionChanged;
 		}
 
-		private static void CurrentOrderOnCollectionChanged(object sender, NotifyCollectionChangedEventArgs notifyCollectionChangedEventArgs)
-		{
-			if (notifyCollectionChangedEventArgs.NewItems == null)
-				return;
-
-			//This gets called when a custom process is moved on the order grid
-			foreach (var newItem in notifyCollectionChangedEventArgs.NewItems)
-			{
-				if (newItem is CustomProgram custProg)
-				{
-					//Get custom process
-					var customProcess = (CustomProcess) ConfigurationManager.CompileProcesses
-						.First(c => c.Metadata.DoRun
-						            && c.PresetDictionary.ContainsKey(ConfigurationManager.CurrentPreset)
-						            && c.Name == "CUSTOM"
-						);
-
-					var customProgram = customProcess.Programs
-						.First(c => c.Equals(custProg));
-
-					//Update the paramater of the config item correlating to the program with the new order
-					if (customProgram != null)
-						MainWindow.GetMainWindow.UpdateItemOrder(ref customProgram, notifyCollectionChangedEventArgs.NewStartingIndex);
-				}
-			}
-
-			if (notifyCollectionChangedEventArgs.OldItems != null )
-				foreach (var oldItem in notifyCollectionChangedEventArgs.OldItems)
-				{
-					Console.WriteLine("old: " + oldItem);
-				}
-		}
 
 		public static void UpdateOrder()
 		{
@@ -71,21 +38,20 @@ namespace CompilePalX.Configuration
 			//Get custom process
 			var customProcess = (CustomProcess) ConfigurationManager.CompileProcesses
 				.FirstOrDefault(c => c.Metadata.DoRun
-					        && c.PresetDictionary.ContainsKey(ConfigurationManager.CurrentPreset)
-					        && c.Name == "CUSTOM"
+					                    && c.PresetDictionary.ContainsKey(ConfigurationManager.CurrentPreset)
+					                    && c.Name == "CUSTOM"
 				);
 
 			var newOrder = new ObservableCollection<CompileProcess>(defaultProcs);
 
 			if (customProcess != null)
 			{
-				var orderedCustomPrograms = customProcess.BuildProgramList().OrderBy(c => c.CustomOrder).ToList();
-
-				foreach (var program in orderedCustomPrograms)
+				foreach (var program in customProcess.BuildProgramList().OrderBy(c => c.CustomOrder))
 				{
-					if (program.CustomOrder > defaultProcs.Count)
+					if (program.CustomOrder > newOrder.Count)
 					{
 						newOrder.Add(program);
+						MainWindow.GetMainWindow.SetOrder(program, newOrder.Count - 1);
 					}
 					else
 					{
