@@ -106,12 +106,39 @@
                             </TabItem>
 
                             <TabItem Header="ORDER" Margin="5, 0, 0, 0" IsEnabledChanged="OrderGrid_OnIsEnabledChanged">
-                                <DataGrid Name="OrderGrid" Margin="10,10,10,10" AutoGenerateColumns="False" CanUserAddRows="False" SelectionMode="Single" ItemsSource="{Binding Source={x:Static config:OrderManager.CurrentOrder}}" local:RowDragHelper.EnableRowDrag="True" MouseEnter="DataGrid_OnEnter" MouseLeave="DataGrid_OnExit">
+                                <DataGrid Name="OrderGrid" Margin="10,10,10,10" AutoGenerateColumns="False" CanUserAddRows="False" SelectionMode="Single" ItemsSource="{Binding Source={x:Static config:OrderManager.CurrentOrder}}" local:RowDragHelper.EnableRowDrag="True">
                                     <DataGrid.Columns>
                                         <DataGridTextColumn Header="Original Order" Binding="{ Binding Ordering}" IsReadOnly="True" CanUserSort="False"/>
                                         <DataGridTextColumn Header="Name" Binding="{ Binding Name}" IsReadOnly="True" Width="*" CanUserSort="False"/>
                                         <DataGridTextColumn Header="Description" Binding="{ Binding Description}" IsReadOnly="True" Width="*" CanUserSort="False"/>
                                     </DataGrid.Columns>
+                                    <DataGrid.CellStyle>
+                                        <Style TargetType="DataGridCell">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsDraggable}" Value="False">
+                                                    <Setter Property="Background" Value="#FFE5E5E5"/>
+                                                    <Setter Property="BorderThickness" Value="0"/>
+                                                    <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding IsDraggable}" Value="True">
+                                                    <Setter Property="BorderThickness" Value="0"/>
+                                                    <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </DataGrid.CellStyle>
+                                    <DataGrid.RowStyle>
+                                        <Style TargetType="DataGridRow">
+                                            <Style.Setters>
+                                                <EventSetter Event="MouseEnter" Handler="DataGridCell_OnEnter"/>
+                                                <EventSetter Event="MouseLeave" Handler="DataGridCell_OnExit"/>
+                                            </Style.Setters>
+                                        </Style>
+                                    </DataGrid.RowStyle>
+                                    <DataGrid.Resources>
+                                        <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="{x:Static SystemColors.HighlightColor}"/>
+                                        <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}" Color="{x:Static SystemColors.HighlightTextColor}"/>
+                                    </DataGrid.Resources>
                                 </DataGrid>
                             </TabItem>
                         </TabControl>

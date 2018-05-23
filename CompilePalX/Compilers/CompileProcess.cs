@@ -17,6 +17,7 @@ namespace CompilePalX
     class CompileProcess
     {
         public string ParameterFolder = CompilePalPath.Directory + "Parameters";
+	    public bool Draggable = false;
 
         public CompileProcess(string name)
         {
@@ -84,6 +85,7 @@ namespace CompilePalX
         public string Name { get { return Metadata.Name; } }
         public string Description { get { return Metadata.Description; } }
         public string Warning { get { return Metadata.Warning; } }
+		public bool IsDraggable { get { return Draggable; } }
 
         public Process Process;
 

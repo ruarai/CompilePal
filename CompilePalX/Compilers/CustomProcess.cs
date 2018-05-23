@@ -69,6 +69,7 @@ namespace CompilePalX.Compilers
 			CustomOrder = customOrder;
 			Name = path.Replace("\\", "/").Replace("\"", "").Split('/').Last();
 			Description = "Run program.";
+			Draggable = true;
 		}
 
 		//Import FindExecutable to find program associated with filetype

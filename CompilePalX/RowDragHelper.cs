@@ -1,9 +1,5 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -104,8 +100,9 @@ namespace CompilePalX
 			if (selectedRow == null)
 				return;
 
-			//Prevent user from reordering default processes
-			if ((selectedRow.Item as CompileProcess)?.Name != "CUSTOM")
+			//Prevent user from reordering processes not marked as orderable
+			var isDraggable = (selectedRow.Item as CompileProcess)?.IsDraggable;
+			if (isDraggable != null && !(bool) isDraggable)
 				return;
 
 			RowDragHelper.SetDraggedItem((DataGrid) sender, selectedRow.Item);
@@ -183,7 +180,6 @@ namespace CompilePalX
 
 		public static event EventHandler<RowSwitchEventArgs> RowSwitched;
 	}
-
 
 	public class RowSwitchEventArgs : EventArgs
 	{

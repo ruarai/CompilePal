@@ -608,7 +608,6 @@ namespace CompilePalX
 
         private void UpdateLabel_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-
             Process.Start("http://www.github.com/ruarai/CompilePal/releases/latest");
         }
 
@@ -657,14 +656,17 @@ namespace CompilePalX
 				OrderManager.UpdateOrder();
 		}
 
-	    private void DataGrid_OnEnter(object sender, MouseEventArgs e)
+	    private void DataGridCell_OnEnter(object sender, MouseEventArgs e)
 	    {
-		    Mouse.OverrideCursor = Cursors.SizeAll;
+			//Only show drag cursor if row is draggable
+		    if ((sender as DataGridRow)?.Item is CompileProcess process && process.IsDraggable)
+			    Cursor = Cursors.SizeAll;
 	    }
 
-	    private void DataGrid_OnExit(object sender, MouseEventArgs e)
+	    private void DataGridCell_OnExit(object sender, MouseEventArgs e)
 	    {
-		    Mouse.OverrideCursor = Cursors.Arrow;
+		    if ((sender as DataGridRow)?.Item is CompileProcess process && process.IsDraggable)
+			    Cursor = Cursors.Arrow;
 	    }
 
 	    public void UpdateOrderGridSource<T>(ObservableCollection<T> newSrc)
