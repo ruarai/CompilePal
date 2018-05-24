@@ -111,8 +111,8 @@ namespace CompilePalX.Compilers.BSPPack
                                 entity.Add(c[1], c[3]);
 
                             //everything after the hammerid is input/outputs
-                            if (c[1] == "hammerid")
-                                break;
+                            //if (c[1] == "hammerid")
+                            //    break;
                         }
                     }
                     entityList.Add(entity);
@@ -285,10 +285,23 @@ namespace CompilePalX.Compilers.BSPPack
             // builds the list of sounds referenced in entities
             char[] special_caracters = new char[] { '*', '#', '@', '>', '<', '^', '(', ')', '}', '$', '!', '?', ' ' };
             EntSoundList = new List<string>();
-            foreach (Dictionary<string, string> ent in entityList)
-                foreach (KeyValuePair<string, string> prop in ent)
-                    if (Keys.vmfSoundKeys.Contains(prop.Key))    
-                        EntSoundList.Add("sound/" + prop.Value.Trim(special_caracters));
+			foreach (Dictionary<string, string> ent in entityList)
+				foreach (KeyValuePair<string, string> prop in ent)
+				{
+					if (Keys.vmfSoundKeys.Contains(prop.Key))
+						EntSoundList.Add("sound/" + prop.Value.Trim(special_caracters));
+					else if (prop.Value.Contains("PlayVO"))
+					{
+						//Pack I/O PlayVO triggered sounds
+						//Parameter value following PlayVO is always either a sound path or an empty string
+						List<string> io = prop.Value.Split(',').ToList();
+						if (!string.IsNullOrWhiteSpace(io[io.IndexOf("PlayVO") + 1]))
+							EntSoundList.Add("sound/" + io[io.IndexOf("PlayVO") + 1].Trim(special_caracters));
+					}
+
+				}
+
+
         }
 
         public void buildParticleList()
