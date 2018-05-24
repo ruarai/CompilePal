@@ -41,4 +41,3 @@ team_capsound_0
 team_capsound_2
 team_capsound_3
 disablesound
-PlayVO

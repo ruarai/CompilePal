@@ -290,13 +290,19 @@ namespace CompilePalX.Compilers.BSPPack
 				{
 					if (Keys.vmfSoundKeys.Contains(prop.Key))
 						EntSoundList.Add("sound/" + prop.Value.Trim(special_caracters));
+					//Pack I/O triggered sounds
 					else if (prop.Value.Contains("PlayVO"))
 					{
-						//Pack I/O PlayVO triggered sounds
 						//Parameter value following PlayVO is always either a sound path or an empty string
 						List<string> io = prop.Value.Split(',').ToList();
 						if (!string.IsNullOrWhiteSpace(io[io.IndexOf("PlayVO") + 1]))
 							EntSoundList.Add("sound/" + io[io.IndexOf("PlayVO") + 1].Trim(special_caracters));
+					}
+					else if (prop.Value.Contains("playgamesound"))
+					{
+						List<string> io = prop.Value.Split(',').ToList();
+						if (!string.IsNullOrWhiteSpace(io[io.IndexOf("playgamesound") + 1]))
+							EntSoundList.Add("sound/" + io[io.IndexOf("playgamesound") + 1].Trim(special_caracters));
 					}
 
 				}
