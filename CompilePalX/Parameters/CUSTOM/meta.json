@@ -1,0 +1,11 @@
+{
+  "Name": "CUSTOM",
+  "Path": "",
+  "Order": 15.0,
+  "DoRun": false,
+  "ReadOutput": false,
+  "Description": "Run custom programs.",
+  "Warning": "",
+  "PresetDefault": false,
+  "BasisString": ""
+}

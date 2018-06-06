@@ -17,6 +17,7 @@ namespace CompilePalX
     class CompileProcess
     {
         public string ParameterFolder = CompilePalPath.Directory + "Parameters";
+	    public bool Draggable = false;
 
         public CompileProcess(string name)
         {
@@ -84,6 +85,7 @@ namespace CompilePalX
         public string Name { get { return Metadata.Name; } }
         public string Description { get { return Metadata.Description; } }
         public string Warning { get { return Metadata.Warning; } }
+		public bool IsDraggable { get { return Draggable; } }
 
         public Process Process;
 
@@ -106,8 +108,22 @@ namespace CompilePalX
             foreach (var parameter in PresetDictionary[ConfigurationManager.CurrentPreset])
             {
                 parameters += parameter.Parameter;
-                if (parameter.CanHaveValue && !string.IsNullOrEmpty(parameter.Value))
-                    parameters += " " + parameter.Value;
+
+	            if (parameter.CanHaveValue && !string.IsNullOrEmpty(parameter.Value))
+	            {
+					//Handle additional parameters in CUSTOM process
+					if (parameter.Name == "Run Program")
+					{
+						//Add args
+						parameters += " " + parameter.Value;
+
+						//Read Ouput
+						if (parameter.ReadOutput)
+							parameters += " " + parameter.ReadOutput;
+					}
+					else
+						parameters += " " + parameter.Value;
+	            }
             }
 
             parameters += Metadata.BasisString;

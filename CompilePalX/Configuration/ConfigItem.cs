@@ -13,8 +13,11 @@ namespace CompilePalX
         public string Description { get; set; }
 
         public string Value { get; set; }
+        public string Value2 { get; set; }
 
-        public bool CanHaveValue { get; set; }
+        public bool ReadOutput { get; set; }
+
+		public bool CanHaveValue { get; set; }
 
         public string Warning { get; set; }
 
@@ -22,7 +25,7 @@ namespace CompilePalX
 
         public object Clone()
         {
-            return new ConfigItem() {Name=Name,Parameter=Parameter,Description = Description,Value=Value,CanHaveValue = CanHaveValue,Warning = Warning,CanBeUsedMoreThanOnce = CanBeUsedMoreThanOnce};
+            return new ConfigItem() {Name=Name,Parameter=Parameter,Description = Description,Value=Value, Value2 = Value2, CanHaveValue = CanHaveValue,Warning = Warning,CanBeUsedMoreThanOnce = CanBeUsedMoreThanOnce, ReadOutput = ReadOutput};
         }
     }
 }

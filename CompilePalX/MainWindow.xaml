@@ -3,13 +3,15 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
         xmlns:dialogs="clr-namespace:MahApps.Metro.Controls.Dialogs;assembly=MahApps.Metro"
+        xmlns:local="clr-namespace:CompilePalX"
+        xmlns:config="clr-namespace:CompilePalX.Configuration"
+
         Title="Compile Pal X"
                       MinHeight="550" MinWidth="790"
                       Height="550" Width="790"
                       Closing="MetroWindow_Closing"
                       IconEdgeMode="Aliased" Icon="CompilePalIcon.ico" ShowIconOnTitleBar="False" 
                       Activated="MetroWindow_Activated" BorderThickness="1" BorderBrush="{DynamicResource AccentColorBrush}" >
-
 
     <Grid>
         <Grid.RowDefinitions>
@@ -43,7 +45,7 @@
                                 <DataTemplate>
                                     <DockPanel HorizontalAlignment="Stretch">
                                         <Label Content="{Binding}"/>
-                                        <CheckBox IsChecked="{Binding DoRun, Mode=TwoWay}" HorizontalAlignment="Right"/>
+                                        <CheckBox IsChecked="{Binding DoRun, Mode=TwoWay}" HorizontalAlignment="Right" Click="DoRun_OnClick"/>
                                     </DockPanel>
                                 </DataTemplate>
                             </ListBox.ItemTemplate>
@@ -77,6 +79,70 @@
                                 <DataGridTextColumn Header="Warnings" Binding="{ Binding Warning}" IsReadOnly="True"/>
                             </DataGrid.Columns>
                         </DataGrid>
+
+                        <TabControl Grid.Row="0" Visibility="Hidden" Name="ProcessTab" IsEnabled="False" SelectionChanged="ProcessTab_OnSelectionChanged">
+                            <TabItem Header="PROGRAMS" Margin="5, 0, 0, 0">
+                                <DataGrid IsEnabled="False" Visibility="Visible" Name="ProcessDataGrid" Margin="10,10,10,10" AutoGenerateColumns="False" CanUserAddRows="False" ItemsSource="{Binding}">
+                                    <DataGrid.Columns>
+                                        <DataGridTemplateColumn Header="Program Path" CanUserSort="False">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBox Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}" KeyUp="OnConfigChanged"/>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+
+                                        <DataGridTemplateColumn Header="Command Line Arguments" CanUserSort="False">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <TextBox Text="{Binding Value2, UpdateSourceTrigger=PropertyChanged}" KeyUp="OnConfigChanged"/>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
+
+                                        <DataGridCheckBoxColumn Header="Read Output" Binding="{Binding ReadOutput, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ElementStyle="{DynamicResource MetroDataGridCheckBox}" EditingElementStyle="{DynamicResource MetroDataGridCheckBox}" CanUserSort="False" />
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </TabItem>
+
+                            <TabItem Header="ORDER" Margin="5, 0, 0, 0" IsEnabledChanged="OrderGrid_OnIsEnabledChanged">
+                                <DataGrid Name="OrderGrid" Margin="10,10,10,10" AutoGenerateColumns="False" CanUserAddRows="False" SelectionMode="Single" ItemsSource="{Binding Source={x:Static config:OrderManager.CurrentOrder}}" local:RowDragHelper.EnableRowDrag="True">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="Original Order" Binding="{ Binding Ordering}" IsReadOnly="True" CanUserSort="False"/>
+                                        <DataGridTextColumn Header="Name" Binding="{ Binding Name}" IsReadOnly="True" Width="*" CanUserSort="False"/>
+                                        <DataGridTextColumn Header="Description" Binding="{ Binding Description}" IsReadOnly="True" Width="*" CanUserSort="False"/>
+                                    </DataGrid.Columns>
+                                    <DataGrid.CellStyle>
+                                        <Style TargetType="DataGridCell">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsDraggable}" Value="False">
+                                                    <Setter Property="Background" Value="#FFE5E5E5"/>
+                                                    <Setter Property="BorderThickness" Value="0"/>
+                                                    <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding IsDraggable}" Value="True">
+                                                    <Setter Property="BorderThickness" Value="0"/>
+                                                    <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </DataGrid.CellStyle>
+                                    <DataGrid.RowStyle>
+                                        <Style TargetType="DataGridRow">
+                                            <Style.Setters>
+                                                <EventSetter Event="MouseEnter" Handler="DataGridCell_OnEnter"/>
+                                                <EventSetter Event="MouseLeave" Handler="DataGridCell_OnExit"/>
+                                            </Style.Setters>
+                                        </Style>
+                                    </DataGrid.RowStyle>
+                                    <DataGrid.Resources>
+                                        <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="{x:Static SystemColors.HighlightColor}"/>
+                                        <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}" Color="{x:Static SystemColors.HighlightTextColor}"/>
+                                    </DataGrid.Resources>
+                                </DataGrid>
+                            </TabItem>
+                        </TabControl>
+
                         <Grid Grid.Row="1">
                             <TextBox Name="ParametersTextBox" Margin="10,0,180,0" VerticalAlignment="Top" IsEnabled="False"/>
                             <Button Content="Add..." Margin="10,0" Grid.Row="1" Width="80" HorizontalAlignment="Right" VerticalAlignment="Top" Name="AddParameterButton" Click="AddParameterButton_Click"/>
