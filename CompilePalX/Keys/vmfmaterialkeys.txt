@@ -1,6 +1,7 @@
 material
 texture
 ropematerial
+overlaymaterial
 point_hud_icon_neutral
 point_hud_icon_axis
 point_hud_icon_allies
