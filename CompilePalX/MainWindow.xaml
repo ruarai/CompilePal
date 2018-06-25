@@ -87,7 +87,14 @@
                                         <DataGridTemplateColumn Header="Program Path" CanUserSort="False">
                                             <DataGridTemplateColumn.CellTemplate>
                                                 <DataTemplate>
-                                                    <TextBox Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}" KeyUp="OnConfigChanged"/>
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <TextBox Grid.Column="0" Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}" KeyUp="OnConfigChanged"/>
+                                                        <Button Grid.Column="1" Click="CustProgBtn_OnClick">...</Button>
+                                                    </Grid>
                                                 </DataTemplate>
                                             </DataGridTemplateColumn.CellTemplate>
                                         </DataGridTemplateColumn>
@@ -175,4 +182,6 @@
         <TaskbarItemInfo/>
     </Window.TaskbarItemInfo>
 </controls:MetroWindow>
+    
+
     

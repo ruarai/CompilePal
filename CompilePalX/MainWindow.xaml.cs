@@ -721,7 +721,38 @@ namespace CompilePalX
 			//Return null on failure
 		    return null;
 	    }
-	}
+
+	    private void CustProgBtn_OnClick(object sender, RoutedEventArgs e)
+	    {
+			//Create new file dialog
+		    var fileDialog = new OpenFileDialog()
+		    {
+			    Multiselect = false,
+			    CheckFileExists = false,
+				Title = "Choose Program"
+		    };
+
+		    var progName = "";
+		    fileDialog.ShowDialog();
+			progName = fileDialog.FileName;
+
+			if (String.IsNullOrWhiteSpace(progName))
+				return;
+
+			//Get ConfigItem bound to same row and set its path
+		    var progField = ProcessDataGrid.SelectedCells
+			    .First(x => x.Item is ConfigItem).Item as ConfigItem;
+			if (progField == null)
+				return;
+
+		    progField.Value = progName;
+
+			//For some reason the data binding doesnt refresh, so we have to do it manually
+		    var temp = ProcessDataGrid.ItemsSource;
+		    ProcessDataGrid.ItemsSource = null;
+		    ProcessDataGrid.ItemsSource = temp;
+	    }
+    }
 
 	public static class ObservableCollectionExtension
 	{
