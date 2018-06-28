@@ -213,7 +213,6 @@ namespace CompilePalX
         void SetSources()
         {
             CompileProcessesListBox.ItemsSource = CompileProcessesSubList;
-
             PresetConfigListBox.ItemsSource = ConfigurationManager.KnownPresets;
 
             MapListBox.ItemsSource = CompilingManager.MapFiles;
@@ -481,7 +480,9 @@ namespace CompilePalX
 					ProcessDataGrid.BeginAnimation(OpacityProperty, new DoubleAnimation(0, 1, new Duration(TimeSpan.FromMilliseconds(50))));
 					processModeEnabled = true;
 
-		            ConfigDataGrid.IsEnabled = false;
+					ProcessDataGrid.ItemsSource = selectedProcess.PresetDictionary[ConfigurationManager.CurrentPreset];
+		            
+					ConfigDataGrid.IsEnabled = false;
 		            ConfigDataGrid.Visibility = Visibility.Hidden;
 					ParametersTextBox.Visibility = Visibility.Hidden;
 
@@ -490,8 +491,6 @@ namespace CompilePalX
 
 		            ProcessTab.IsEnabled = true;
 		            ProcessTab.Visibility = Visibility.Visible;
-
-					ProcessDataGrid.ItemsSource = selectedProcess.PresetDictionary[ConfigurationManager.CurrentPreset];
 
 					//Hide parameter buttons if ORDER is the current tab
 		            if ((string)(ProcessTab.SelectedItem as TabItem)?.Header == "ORDER")
@@ -703,7 +702,7 @@ namespace CompilePalX
 				return;
 
 			program.CustomOrder = newOrder;
-			programConfig.Parameter = newOrder.ToString();
+			programConfig.Warning = newOrder.ToString();
 		}
 
 

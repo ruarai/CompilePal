@@ -108,7 +108,7 @@ namespace CompilePalX
 
                         foreach (var line in lines)
                         {
-                            var item = ParsePresetLine(line);
+	                        var item = ParsePresetLine(line);
 
                             if (process.ParameterList.Any(c => c.Parameter == item.Parameter))
                             {
@@ -116,6 +116,14 @@ namespace CompilePalX
                                 var equivalentItem = (ConfigItem)process.ParameterList.FirstOrDefault(c => c.Parameter == item.Parameter).Clone();
 
                                 equivalentItem.Value = item.Value;
+
+								//Copy extra information stored for custom programs
+	                            if (item.Parameter == "program")
+	                            {
+									equivalentItem.Value2 = item.Value2;
+		                            equivalentItem.Warning = item.Warning;
+	                            }
+	                            
 
                                 process.PresetDictionary[preset].Add(equivalentItem);
                             }
@@ -278,15 +286,24 @@ namespace CompilePalX
                 item.Parameter = pieces[0];
                 if (pieces.Count() >= 2)
                     item.Value = pieces[1];
+				//Handle extra information stored for custom programs
+	            if (pieces.Count() >= 3)
+		            item.Value2 = pieces[2];
+	            if (pieces.Length >= 4)
+		            item.ReadOutput = Convert.ToBoolean(pieces[3]);
+	            if (pieces.Length >= 5)
+		            item.Warning = pieces[4];
             }
             return item;
         }
 
-        private static string WritePresetLine(ConfigItem item)
+		private static string WritePresetLine(ConfigItem item)
         {
-            return string.Format("{0},{1}", item.Parameter, item.Value);
+			//Handle extra information stored for custom programs
+	        if (item.Name == "Run Program")
+		        return $"{item.Parameter},{item.Value},{item.Value2},{item.ReadOutput},{item.Warning}";
+            return $"{item.Parameter},{item.Value}";
         }
-
 
         private static ConfigItem ParseBaseLine(string line)
         {

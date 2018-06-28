@@ -28,9 +28,9 @@ namespace CompilePalX.Compilers
 				//Set default order to 15
 				int order = 15;
 
-				//Use parameter to hold custom order
-				if (!string.IsNullOrWhiteSpace(parameter.Parameter))
-					Int32.TryParse(parameter.Parameter, out order);
+				//Use warning to hold custom order
+				if (!string.IsNullOrWhiteSpace(parameter.Warning))
+					Int32.TryParse(parameter.Warning, out order);
 
 				if (string.IsNullOrWhiteSpace(path))
 					continue;
@@ -198,7 +198,7 @@ namespace CompilePalX.Compilers
 			if (other == null)
 				return false;
 
-			return (ReadOutput == other.ReadOutput && string.Equals(Path, other.Value) && string.Equals(CustomOrder.ToString(), other.Parameter) && Equals(Args, other.Value2));
+			return (ReadOutput == other.ReadOutput && string.Equals(Path, other.Value) && string.Equals(CustomOrder.ToString(), other.Warning) && Equals(Args, other.Value2));
 		}
 
 		public override int GetHashCode()
