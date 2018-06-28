@@ -126,6 +126,7 @@
                                                     <Setter Property="Background" Value="#FFE5E5E5"/>
                                                     <Setter Property="BorderThickness" Value="0"/>
                                                     <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+                                                    <Setter Property="Foreground" Value="Black"/>
                                                 </DataTrigger>
                                                 <DataTrigger Binding="{Binding IsDraggable}" Value="True">
                                                     <Setter Property="BorderThickness" Value="0"/>
