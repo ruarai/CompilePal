@@ -76,7 +76,7 @@
                                     </DataGridTemplateColumn.CellStyle>
                                 </DataGridTemplateColumn>
                                 <DataGridTextColumn Header="Description" Binding="{ Binding Description}" IsReadOnly="True"/>
-                                <DataGridTextColumn Header="Warnings" Binding="{ Binding Warning}" IsReadOnly="True"/>
+                                <DataGridTextColumn Header="Warnings" Binding="{ Binding Warning}" IsReadOnly="True" Width="*"/>
                             </DataGrid.Columns>
                         </DataGrid>
 
@@ -99,7 +99,7 @@
                                             </DataGridTemplateColumn.CellTemplate>
                                         </DataGridTemplateColumn>
 
-                                        <DataGridTemplateColumn Header="Command Line Arguments" CanUserSort="False">
+                                        <DataGridTemplateColumn Header="Command Line Arguments" CanUserSort="False" Width="*">
                                             <DataGridTemplateColumn.CellTemplate>
                                                 <DataTemplate>
                                                     <TextBox Text="{Binding Value2, UpdateSourceTrigger=PropertyChanged}" KeyUp="OnConfigChanged"/>
@@ -107,7 +107,7 @@
                                             </DataGridTemplateColumn.CellTemplate>
                                         </DataGridTemplateColumn>
 
-                                        <DataGridCheckBoxColumn Header="Read Output" Binding="{Binding ReadOutput, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ElementStyle="{DynamicResource MetroDataGridCheckBox}" EditingElementStyle="{DynamicResource MetroDataGridCheckBox}" CanUserSort="False" />
+                                        <DataGridCheckBoxColumn Header="Read Output" Binding="{Binding ReadOutput, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ElementStyle="{DynamicResource MetroDataGridCheckBox}" EditingElementStyle="{DynamicResource MetroDataGridCheckBox}" CanUserSort="False"/>
                                     </DataGrid.Columns>
                                 </DataGrid>
                             </TabItem>
