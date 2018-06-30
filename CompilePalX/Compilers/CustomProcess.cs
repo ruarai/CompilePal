@@ -201,22 +201,6 @@ namespace CompilePalX.Compilers
 			return (ReadOutput == other.ReadOutput && string.Equals(Path, other.Value) && string.Equals(CustomOrder.ToString(), other.Warning) && Equals(Args, other.Value2));
 		}
 
-		public override int GetHashCode()
-		{
-			unchecked
-			{
-				var hashCode = (Process != null ? Process.GetHashCode() : 0);
-				hashCode = (hashCode * 397) ^ (Name != null ? Name.GetHashCode() : 0);
-				hashCode = (hashCode * 397) ^ (Description != null ? Description.GetHashCode() : 0);
-				hashCode = (hashCode * 397) ^ (Path != null ? Path.GetHashCode() : 0);
-				hashCode = (hashCode * 397) ^ (StartInfo != null ? StartInfo.GetHashCode() : 0);
-				hashCode = (hashCode * 397) ^ (Args != null ? Args.GetHashCode() : 0);
-				hashCode = (hashCode * 397) ^ ReadOutput.GetHashCode();
-				hashCode = (hashCode * 397) ^ CustomOrder;
-				return hashCode;
-			}
-		}
-
 		public override string ToString()
 		{
 			return Name;
