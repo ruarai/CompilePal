@@ -107,12 +107,14 @@ namespace CompilePalX.Compilers
 				return;
 			}
 
+			string parsedArgs = ParseArgs(Args, c);
+
 			StartInfo = new ProcessStartInfo
 			{
 				UseShellExecute = false,
 				CreateNoWindow = true,
 				FileName = programPath.ToString(),
-				Arguments = Path + " " + Args
+				Arguments = Path + " " + parsedArgs
 			};
 
 			if (ReadOutput)
@@ -169,6 +171,24 @@ namespace CompilePalX.Compilers
 				}
 			}
 			Process.WaitForExit();
+		}
+
+		//Parse args for parameters and replace them with their corresponding values
+		//Paramaters from https://developer.valvesoftware.com/wiki/Hammer_Run_Map_Expert#Parameters
+		private string ParseArgs(string originalArgs, CompileContext c)
+		{
+			string args = originalArgs.Replace("$file", $"\"{System.IO.Path.GetFileNameWithoutExtension(c.MapFile)}\"");
+			args = args.Replace("$ext", $"\"{System.IO.Path.GetExtension(c.MapFile)}\"");
+			args = args.Replace("$path", $"\"{System.IO.Path.GetDirectoryName(c.MapFile)}\"");
+			args = args.Replace("$bspdir", $"\"{c.Configuration.MapFolder}\"");
+			args = args.Replace("$gamedir", $"\"{c.Configuration.GameFolder}\"");
+
+			args = args.Replace("$bsp_exe", $"\"{c.Configuration.VBSP}\"");
+			args = args.Replace("$vis_exe", $"\"{c.Configuration.VVIS}\"");
+			args = args.Replace("$light_exe", $"\"{c.Configuration.VRAD}\"");
+			args = args.Replace("$game_exe", $"\"{c.Configuration.GameEXE}\"");
+
+			return args;
 		}
 
 		public override bool Equals(object obj)
