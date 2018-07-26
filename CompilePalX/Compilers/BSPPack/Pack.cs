@@ -33,7 +33,9 @@ namespace CompilePalX.Compilers.BSPPack
         private static bool verbose;
         private static bool dryrun;
         private static bool renamenav;
-        public static bool genparticlemanifest;
+	    private static bool include;
+	    private static bool exclude;
+        public static bool genParticleManifest;
 
         public static KeyValuePair<string, string> particleManifest;
 
@@ -44,6 +46,11 @@ namespace CompilePalX.Compilers.BSPPack
             verbose = GetParameterString().Contains("-verbose");
             dryrun = GetParameterString().Contains("-dryrun");
             renamenav = GetParameterString().Contains("-renamenav");
+	        include = GetParameterString().Contains("-include");
+	        exclude = GetParameterString().Contains("-exclude");
+
+			List<string> includeFiles = new List<string>();
+			List<string> excludeFiles = new List<string>();
 
             try
             {
@@ -63,15 +70,54 @@ namespace CompilePalX.Compilers.BSPPack
                 Keys.vmfMaterialKeys = File.ReadAllLines(System.IO.Path.Combine(keysFolder, "vmfmaterialkeys.txt")).ToList();
                 Keys.vmfModelKeys = File.ReadAllLines(System.IO.Path.Combine(keysFolder, "vmfmodelkeys.txt")).ToList();
 
-                CompilePalLogger.LogLine("Finding sources of game content...");
+				// get manually included files
+	            if (include)
+	            {
+					string[] parameters = GetParameterString().Split('-');
+
+					//Get included files from parameter list
+		            foreach (string parameter in parameters)
+		            {
+						if (parameter.Contains("include"))
+						{
+							var @filePath = parameter.Replace("\"", "").Replace("include ", "").TrimEnd(' ');
+							//Test that file exists
+							if (File.Exists(filePath))
+								includeFiles.Add(filePath);
+							else
+								CompilePalLogger.LogLineColor($"Could not find file: {filePath}", Error.GetSeverityBrush(2));
+						}
+		            }
+				}
+
+				if (exclude)
+				{
+					string[] parameters = GetParameterString().Split('-');
+
+					//Get excluded files from parameter list
+					foreach (string parameter in parameters)
+					{
+						if (parameter.Contains("exclude"))
+						{
+							var @filePath = parameter.Replace("\"", "").Replace("exclude ", "").Replace('/', '\\').ToLower().TrimEnd(' ');
+							//Test that file exists
+							if (File.Exists(filePath))
+								excludeFiles.Add(filePath);
+							else
+								CompilePalLogger.LogLineColor($"Could not find file: {filePath}", Error.GetSeverityBrush(2));
+						}
+					}
+				}
+
+				CompilePalLogger.LogLine("Finding sources of game content...");
                 sourceDirectories = GetSourceDirectories(gameFolder);
 
                 CompilePalLogger.LogLine("Reading BSP...");
                 BSP map = new BSP(new FileInfo(bspPath));
-                AssetUtils.findBspUtilityFiles(map, sourceDirectories, renamenav, genparticlemanifest);
-
+                AssetUtils.findBspUtilityFiles(map, sourceDirectories, renamenav, genParticleManifest);
+				
                 //Set map particle manifest
-                if (genparticlemanifest)
+                if (genParticleManifest)
                     map.particleManifest = particleManifest;
 
                 string unpackDir = System.IO.Path.GetTempPath() + Guid.NewGuid();
@@ -79,7 +125,7 @@ namespace CompilePalX.Compilers.BSPPack
                 AssetUtils.findBspPakDependencies(map, unpackDir);
 
                 CompilePalLogger.LogLine("Initializing pak file...");
-                PakFile pakfile = new PakFile(map, sourceDirectories);
+                PakFile pakfile = new PakFile(map, sourceDirectories, includeFiles, excludeFiles);
 
                 CompilePalLogger.LogLine("Writing file list...");
                 pakfile.OutputToFile();

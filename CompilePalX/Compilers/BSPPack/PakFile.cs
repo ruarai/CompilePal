@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using CompilePalX.Compilers.UtilityProcess;
@@ -13,6 +14,7 @@ namespace CompilePalX.Compilers.BSPPack
         // the dictionary is formated as <internalPath, externalPath>
         // matching the bspzip specification https://developer.valvesoftware.com/wiki/BSPZIP
         private IDictionary<string, string> Files;
+	    private List<string> excludedFiles;
 
         private List<string> sourceDirs;
 
@@ -22,11 +24,12 @@ namespace CompilePalX.Compilers.BSPPack
         public int sndcount { get; private set; }
         public int vehiclescriptcount { get; private set; }
 
-        public PakFile(BSP bsp, List<string> sourceDirectories)
+        public PakFile(BSP bsp, List<string> sourceDirectories, List<string> includeFiles, List<string> excludedFiles)
         {
             mdlcount = vmtcount = pcfcount = sndcount = vehiclescriptcount = 0;
             sourceDirs = sourceDirectories;
-            
+	        this.excludedFiles = excludedFiles;
+
             Files = new Dictionary<string, string>();
 
             if (bsp.nav.Key != default(string))
@@ -100,7 +103,36 @@ namespace CompilePalX.Compilers.BSPPack
             foreach (string sound in bsp.EntSoundList)
                 if (AddFile(sound, FindExternalFile(sound)))
                     sndcount++;
-        }
+
+			// add all manually included files
+			// TODO right now the files search for files it depends on. Not sure if this should be default behavior
+	        foreach (var file in includeFiles)
+	        {
+		        string internalPath = file.Replace(GameConfigurationManager.GameConfiguration.GameFolder + "\\", "");
+
+				// try to determine file type by extension
+				switch (file.Split('.').Last())
+		        {
+					case "vmt":
+						AddTexture(internalPath);
+						break;
+					case "pcf":
+						AddParticle(internalPath);
+						break;
+					case "mdl":
+						AddModel(internalPath);
+						break;
+					case "wav":
+					case "mp3":
+						AddFile(internalPath, file);
+						sndcount++;
+						break;
+					default:
+						AddFile(internalPath, file);
+						break;
+		        }
+	        }
+		}
 
         public void OutputToFile()
         {
@@ -120,8 +152,10 @@ namespace CompilePalX.Compilers.BSPPack
         public bool AddFile(string internalPath, string externalPath)
         {
             // adds file to the pakfile list
-            if (externalPath != "" && File.Exists(externalPath))
+            if (externalPath != "" && File.Exists(externalPath) && !excludedFiles.Contains(externalPath.ToLower().Replace('/', '\\')))
             {
+				Console.WriteLine(externalPath.ToLower().Replace('/', '\\'));
+				Console.WriteLine(excludedFiles[0]);
                 internalPath = internalPath.Replace("\\", "/");
                 if (!Files.ContainsKey(internalPath))
                 {

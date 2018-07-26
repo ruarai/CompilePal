@@ -19,10 +19,10 @@ namespace CompilePalX.Compilers.UtilityProcess
             
         }
 
-        private static bool genparticlemanifest;
-        private static bool incparticlemanifest;
-        private static bool incsoundscape;
-        private static bool inclevelsounds;
+        private static bool genParticleManifest;
+        private static bool incParticleManifest;
+        private static bool incSoundscape;
+        private static bool incLevelSounds;
         private static bool ignoreDir;
 
         private static string gameFolder;
@@ -31,13 +31,14 @@ namespace CompilePalX.Compilers.UtilityProcess
 
         private List<string> sourceDirectories = new List<string>();
         private List<string> ignoreDirectories = new List<string>();
+        private List<string> ignoreFiles = new List<string>();
 
         public override void Run(CompileContext context)
         {
-            genparticlemanifest = GetParameterString().Contains("-particlemanifest");
-            incparticlemanifest = GetParameterString().Contains("-incparticlemanifest");
-            incsoundscape = GetParameterString().Contains("-incsoundscape");
-            inclevelsounds = GetParameterString().Contains("-inclevelsounds");
+            genParticleManifest = GetParameterString().Contains("-particlemanifest");
+            incParticleManifest = GetParameterString().Contains("-incparticlemanifest");
+            incSoundscape = GetParameterString().Contains("-incsoundscape");
+            incLevelSounds = GetParameterString().Contains("-inclevelsounds");
             ignoreDir = GetParameterString().Contains("-ignoredir");
 
             //TODO try to find a way to cut down on duplicate processes between utility and pack steps
@@ -90,7 +91,7 @@ namespace CompilePalX.Compilers.UtilityProcess
                     ignoreDirectories = ignoreDirectories.Distinct().ToList();
                 }
 
-                if (genparticlemanifest)
+                if (genParticleManifest)
                 {
                     if (!File.Exists(bspPath))
                     {
@@ -104,11 +105,11 @@ namespace CompilePalX.Compilers.UtilityProcess
 
 
                     //Set fields in bsppack so manifest gets detected correctly
-                    BSPPack.BSPPack.genparticlemanifest = true;
+                    BSPPack.BSPPack.genParticleManifest = true;
                     BSPPack.BSPPack.particleManifest = manifest.particleManifest;
                 }
 
-                if (incparticlemanifest)
+                if (incParticleManifest)
                 {
                     CompilePalLogger.LogLine("Attempting to update particle manifest");
 
@@ -127,7 +128,7 @@ namespace CompilePalX.Compilers.UtilityProcess
                     }
                 }
 
-                if (inclevelsounds)
+                if (incLevelSounds)
                 {
                     CompilePalLogger.LogLine("Attempting to update level sounds");
 
@@ -146,7 +147,7 @@ namespace CompilePalX.Compilers.UtilityProcess
                     }
                 }
 
-                if (incsoundscape)
+                if (incSoundscape)
                 {
                     CompilePalLogger.LogLine("Attempting to update soundscape");
 

@@ -325,7 +325,8 @@ namespace CompilePalX
 					{
 						if (c.ChosenItem.CanBeUsedMoreThanOnce)
 						{
-							selectedProcess.PresetDictionary[ConfigurationManager.CurrentPreset].Add(c.ChosenItem);
+							// .clone() removes problems with parameters sometimes becoming linked
+							selectedProcess.PresetDictionary[ConfigurationManager.CurrentPreset].Add((ConfigItem)c.ChosenItem.Clone());
 						} 
 						else if (!selectedProcess.PresetDictionary[ConfigurationManager.CurrentPreset].Contains(c.ChosenItem))
 						{
