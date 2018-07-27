@@ -191,6 +191,10 @@ namespace CompilePalX.Compilers.BSPPack
                     }
                 }
 
+				// special condition for env_funnel. Hardcoded to use sprites/flare6.vmt
+				if (ent["classname"].Contains("env_funnel"))
+					materials.Add("sprites/flare6.vmt");
+
                 // format and add materials
                 foreach (string material in materials)
                 {
@@ -272,12 +276,22 @@ namespace CompilePalX.Compilers.BSPPack
 
             EntModelList = new List<string>();
             foreach (Dictionary<string, string> ent in entityList)
-                foreach (KeyValuePair<string, string> prop in ent)
-                    if (!ent["classname"].StartsWith("func") &&
-                        !ent["classname"].StartsWith("trigger") &&
-                        !ent["classname"].Contains("sprite") &&
-                        Keys.vmfModelKeys.Contains(prop.Key))
+            foreach (KeyValuePair<string, string> prop in ent)
+            {
+				if (!ent["classname"].StartsWith("func") &&
+					!ent["classname"].StartsWith("trigger") &&
+					!ent["classname"].Contains("sprite"))
+	            {
+					// item_sodacan is hardcoded to models/can.mdl
+					// env_beverage spawns item_sodacans
+					if (Keys.vmfModelKeys.Contains(prop.Key))
                         EntModelList.Add(prop.Value);
+					else if (prop.Value == "item_sodacan" || 
+					         prop.Value == "env_beverage")
+						EntModelList.Add("models/can.mdl");
+				}
+            }
+
         }
 
         public void buildEntSoundList()
