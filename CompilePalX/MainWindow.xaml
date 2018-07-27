@@ -62,7 +62,31 @@
                                 <DataGridTemplateColumn Header="Value">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
-                                            <TextBox Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}" KeyUp="OnConfigChanged"/>
+                                            <Grid>
+                                                <TextBox Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}" KeyUp="OnConfigChanged">
+                                                    <TextBox.Style>
+                                                        <Style TargetType="{x:Type TextBox}">
+                                                            <Setter Property="VerticalContentAlignment" Value="Center"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding ValueIsFile}" Value="True">
+                                                                    <Setter Property="Visibility" Value="Hidden"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBox.Style>
+                                                </TextBox>
+                                                <local:FileInput Config="{Binding}" FileDialogTitle="Choose File">
+                                                    <local:FileInput.Style>
+                                                        <Style TargetType="{x:Type local:FileInput}">
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding ValueIsFile}" Value="False">
+                                                                    <Setter Property="Visibility" Value="Hidden"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </local:FileInput.Style>
+                                                </local:FileInput>
+                                            </Grid>
                                         </DataTemplate>
                                     </DataGridTemplateColumn.CellTemplate>
                                     <DataGridTemplateColumn.CellStyle>
@@ -87,14 +111,7 @@
                                         <DataGridTemplateColumn Header="Program Path" CanUserSort="False">
                                             <DataGridTemplateColumn.CellTemplate>
                                                 <DataTemplate>
-                                                    <Grid>
-                                                        <Grid.ColumnDefinitions>
-                                                            <ColumnDefinition Width="*"/>
-                                                            <ColumnDefinition Width="Auto"/>
-                                                        </Grid.ColumnDefinitions>
-                                                        <TextBox Grid.Column="0" Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}" KeyUp="OnConfigChanged"/>
-                                                        <Button Grid.Column="1" Click="CustProgBtn_OnClick">...</Button>
-                                                    </Grid>
+                                                    <local:FileInput Config="{Binding}" FileDialogTitle="Choose Program"/>
                                                 </DataTemplate>
                                             </DataGridTemplateColumn.CellTemplate>
                                         </DataGridTemplateColumn>

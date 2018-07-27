@@ -28,6 +28,7 @@
     "Parameter": " -include",
     "Description": "Packs specified file",
     "Value": null,
+    "ValueIsFile": true, 
     "CanHaveValue": true,
     "Warning": "",
     "CanBeUsedMoreThanOnce": true
@@ -37,6 +38,7 @@
     "Parameter": " -exclude",
     "Description": "Excludes specified file",
     "Value": null,
+    "ValueIsFile": true, 
     "CanHaveValue": true,
     "Warning": "",
     "CanBeUsedMoreThanOnce":  true 

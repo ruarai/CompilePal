@@ -3,11 +3,13 @@
     "Name": "Run Program",
     "Parameter": "program",
     "Description": "Run a program with command line arguments",
-    "Value": null,
-    "Value2": null, 
+    "Value": "",
+    "ValueIsFile": true,
+    "Value2": "",
+    "Value2IsFile": false, 
     "ReadOutput": true, 
     "CanHaveValue": true,
-    "CanBeUsedMoreThanOnce":  true, 
-    "Warning": "15"
+    "CanBeUsedMoreThanOnce":  true,
+    "Warning": "15",
   }
 ]

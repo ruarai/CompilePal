@@ -98,6 +98,9 @@
       <DependentUpon>ProcessAdder.xaml</DependentUpon>
     </Compile>
     <Compile Include="ExceptionHandler.cs" />
+    <Compile Include="FileInput.xaml.cs">
+      <DependentUpon>FileInput.xaml</DependentUpon>
+    </Compile>
     <Compile Include="GameConfiguration\GameConfiguration.cs" />
     <Compile Include="GameConfiguration\GameConfigurationParser.cs" />
     <Compile Include="GameConfiguration\LaunchWindow.xaml.cs">
@@ -122,6 +125,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Configuration\ParameterAdder.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="FileInput.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
