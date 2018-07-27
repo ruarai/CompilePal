@@ -179,9 +179,14 @@ namespace CompilePalX.Compilers.BSPPack
                         foreach (string gib in AssetUtils.findPhyGibs(ext_path))
                             AddModel(gib);
                 }
-                    
-                foreach (string mat in AssetUtils.findMdlMaterials(externalPath, skins))
-                    AddTexture(mat);
+				var mdlMatsAndModels = AssetUtils.findMdlMaterialsAndModels(externalPath, skins);
+
+	            foreach (string mat in mdlMatsAndModels.Item1)
+					AddTexture(mat);
+
+	            foreach (var model in mdlMatsAndModels.Item2)
+					AddModel(model);
+
             }
         }
 

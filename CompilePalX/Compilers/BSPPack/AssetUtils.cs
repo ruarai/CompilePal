@@ -10,9 +10,10 @@ namespace CompilePalX.Compilers.BSPPack
     static class AssetUtils
     {
 
-        public static List<string> findMdlMaterials(string path, List<int> skins = null)
+        public static Tuple<List<string>, List<string>> findMdlMaterialsAndModels(string path, List<int> skins = null)
         {
             List<string> materials = new List<string>();
+            List<string> models = new List<string>();
 
             if (File.Exists(path))
             {
@@ -43,8 +44,13 @@ namespace CompilePalX.Compilers.BSPPack
                 int bodypart_count = reader.ReadInt32();
                 int bodypart_index = reader.ReadInt32();
 
-                // find model names
-                for (int i = 0; i < textureCount; i++)
+				// skip to includemodel
+				mdl.Seek(96, SeekOrigin.Current);
+	            int includeModelCount = reader.ReadInt32();
+	            int includeModelIndex = reader.ReadInt32();
+
+				// find model names
+				for (int i = 0; i < textureCount; i++)
                 {
                     mdl.Seek(textureOffset + (i * 64), SeekOrigin.Begin);
                     int textureNameOffset = reader.ReadInt32();
@@ -137,9 +143,53 @@ namespace CompilePalX.Compilers.BSPPack
                     for (int i = 0; i < modelVmts.Count; i++)
                         for (int j = 0; j < modelDirs.Count; j++)
                             materials.Add("materials/" + modelDirs[j] + modelVmts[i] + ".vmt");
-                mdl.Close();
+
+				// find included models. mdl v44 and up have same includemodel format
+	            if (ver > 44)
+	            {
+					mdl.Seek(includeModelIndex, SeekOrigin.Begin);
+
+		            var includeOffsetStart = mdl.Position;
+					for (int i = 0; i < includeModelCount; i++)
+					{
+						var includeStreamPos = mdl.Position;
+
+						var labelOffset = reader.ReadInt32();
+						var includeModelPathOffset = reader.ReadInt32();
+
+						// skip unknown section made up of 27 ints
+						mdl.Seek(27 * 4, SeekOrigin.Current);
+
+						var currentOffset = mdl.Position;
+
+						string label = "";
+
+						if (labelOffset != 0)
+						{
+							// go to label offset
+							mdl.Seek(labelOffset, SeekOrigin.Begin);
+							label = readNullTerminatedString(mdl, reader);
+
+							// return to current offset
+							mdl.Seek(currentOffset, SeekOrigin.Begin);
+						}
+
+						if (includeModelPathOffset != 0)
+						{
+							// go to model offset
+							mdl.Seek(includeModelPathOffset + includeOffsetStart, SeekOrigin.Begin);
+							models.Add(readNullTerminatedString(mdl, reader));
+						}
+
+
+					}
+	            }
+
+
+
+				mdl.Close();
             }
-            return materials;
+            return new Tuple<List<string>, List<string>>(materials, models);
         }
 
         public static List<string> findPhyGibs(string path)
