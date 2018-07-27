@@ -14,8 +14,10 @@ namespace CompilePalX
 
         public string Value { get; set; }
         public bool ValueIsFile { get; set; }
+        public bool ValueIsFolder { get; set; }
         public string Value2 { get; set; }
 		public bool Value2IsFile { get; set; }
+		public bool Value2IsFolder { get; set; }
 
 		public bool ReadOutput { get; set; }
 
@@ -27,7 +29,7 @@ namespace CompilePalX
 
         public object Clone()
         {
-            return new ConfigItem() {Name=Name,Parameter=Parameter,Description = Description,Value=Value, Value2 = Value2, CanHaveValue = CanHaveValue,Warning = Warning,CanBeUsedMoreThanOnce = CanBeUsedMoreThanOnce, ReadOutput = ReadOutput, ValueIsFile = ValueIsFile, Value2IsFile = Value2IsFile};
+            return new ConfigItem() {Name=Name,Parameter=Parameter,Description = Description,Value=Value, Value2 = Value2, CanHaveValue = CanHaveValue,Warning = Warning,CanBeUsedMoreThanOnce = CanBeUsedMoreThanOnce, ReadOutput = ReadOutput, ValueIsFile = ValueIsFile, Value2IsFile = Value2IsFile, ValueIsFolder = ValueIsFolder, Value2IsFolder = Value2IsFolder};
         }
     }
 }

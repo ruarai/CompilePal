@@ -4,15 +4,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
+using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using Microsoft.Win32;
+using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
+using UserControl = System.Windows.Controls.UserControl;
 
 namespace CompilePalX
 {
@@ -59,6 +60,20 @@ namespace CompilePalX
 			get => (string)GetValue(FileDialogTitleProperty);
 			set => SetValue(FileDialogTitleProperty, value);
 		}
+
+		public static readonly DependencyProperty IsFolderProperty =
+			DependencyProperty.Register(
+				"IsFolder",
+				typeof(bool),
+				typeof(FileInput),
+				new PropertyMetadata(false));
+
+		public bool IsFolder
+		{
+			get => (bool)GetValue(IsFolderProperty);
+			set => SetValue(IsFolderProperty, value);
+		}
+
 		public FileInput()
 		{
 			InitializeComponent();
@@ -66,23 +81,47 @@ namespace CompilePalX
 
 		private void FileBrowse_OnClick(object sender, RoutedEventArgs e)
 		{
-			//Create new file dialog
-			var fileDialog = new OpenFileDialog()
+			if (IsFolder)
 			{
-				Multiselect = false,
-				Filter = FileFilter,
-				CheckFileExists = false,
-				Title = FileDialogTitle
-			};
+				// create new folder dialog
+				// TODO look for a Nuget package for a folder browser that doesnt suck
+				using (var folderDialog = new FolderBrowserDialog()
+				{
+					Description = "Select Folder",
+					SelectedPath = GameConfigurationManager.GameConfiguration.GameFolder
+				})
+				{
+					var folderPath = "";
+					folderDialog.ShowDialog();
+					folderPath = folderDialog.SelectedPath;
 
-			var filePath = "";
-			fileDialog.ShowDialog();
-			filePath = fileDialog.FileName;
+					if (String.IsNullOrWhiteSpace(folderPath))
+						return;
 
-			if (String.IsNullOrWhiteSpace(filePath))
-				return;
+					textBox.Text = folderPath;
+				}
+			}
+			else
+			{
+				// create new file dialog
+				var fileDialog = new OpenFileDialog()
+				{
+					Multiselect = false,
+					Filter = FileFilter,
+					CheckFileExists = false,
+					Title = FileDialogTitle
+				};
 
-			textBox.Text = filePath;
+				var filePath = "";
+				fileDialog.ShowDialog();
+				filePath = fileDialog.FileName;
+
+				if (String.IsNullOrWhiteSpace(filePath))
+					return;
+
+				textBox.Text = filePath;
+			}
+
 		}
 	}
 }

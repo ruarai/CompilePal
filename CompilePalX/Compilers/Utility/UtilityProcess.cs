@@ -23,15 +23,16 @@ namespace CompilePalX.Compilers.UtilityProcess
         private static bool incParticleManifest;
         private static bool incSoundscape;
         private static bool incLevelSounds;
-        private static bool ignoreDir;
+        private static bool excludeDir;
+	    private static bool excludeFile;
 
         private static string gameFolder;
         private static string bspPath;
         private const string keysFolder = "Keys";
 
         private List<string> sourceDirectories = new List<string>();
-        private List<string> ignoreDirectories = new List<string>();
-        private List<string> ignoreFiles = new List<string>();
+        private List<string> excludedDirectories = new List<string>();
+        private List<string> excludedFiles = new List<string>();
 
         public override void Run(CompileContext context)
         {
@@ -39,7 +40,8 @@ namespace CompilePalX.Compilers.UtilityProcess
             incParticleManifest = GetParameterString().Contains("-incparticlemanifest");
             incSoundscape = GetParameterString().Contains("-incsoundscape");
             incLevelSounds = GetParameterString().Contains("-inclevelsounds");
-            ignoreDir = GetParameterString().Contains("-ignoredir");
+            excludeDir = GetParameterString().Contains("-excludedir");
+            excludeFile = GetParameterString().Contains("-excludefile");
 
             //TODO try to find a way to cut down on duplicate processes between utility and pack steps
             try
@@ -52,6 +54,9 @@ namespace CompilePalX.Compilers.UtilityProcess
                 Keys.vmfMaterialKeys = File.ReadAllLines(System.IO.Path.Combine(keysFolder, "vmfmaterialkeys.txt")).ToList();
                 Keys.vmfModelKeys = File.ReadAllLines(System.IO.Path.Combine(keysFolder, "vmfmodelkeys.txt")).ToList();
 
+				excludedDirectories = new List<string>();
+				excludedFiles = new List<string>();
+
 
                 CompilePalLogger.LogLine("Finding sources of game content...");
                 gameFolder = context.Configuration.GameFolder;
@@ -59,37 +64,44 @@ namespace CompilePalX.Compilers.UtilityProcess
 
                 bspPath = context.CopyLocation;
 
-                //Parse parameters to get ignore directories
-                if (ignoreDir)
-                {
-                    string[] parameters = GetParameterString().Split('-');
-                    
-                    //Get directories from parameter list
-                    foreach (string parameter in parameters)
-                        if (parameter.Contains("ignoredir"))
-                            ignoreDirectories.Add(parameter.Replace("ignoredir ", "").TrimEnd(' '));
+				//Parse parameters to get ignore directories
+				if (excludeDir)
+				{
+					string[] parameters = GetParameterString().Split('-');
 
-                    List<string> tempList = new List<string>();
+					//Get excluded directories from parameter list
+					foreach (string parameter in parameters)
+					{
+						if (parameter.Contains("excludedir"))
+						{
+							var @dirPath = parameter.Replace("\"", "").Replace("excludedir ", "").TrimEnd(' ');
+							//Test that directory exists
+							if (Directory.Exists(dirPath))
+								excludedDirectories.Add(dirPath);
+							else
+								CompilePalLogger.LogLineColor($"Could not find file: {dirPath}", Error.GetSeverityBrush(2));
+						}
+					}
+				}
 
-                    //Test and see if each directory exists, remove if invalid. Add to temp list because you cant modify a foreach list
-                    foreach (string directory in ignoreDirectories)
-                    {
-                        if (Directory.Exists(directory))
-                        {
-                            //Get subdirectories
-                            string[] subDirectories = Directory.GetDirectories(directory, "*", SearchOption.AllDirectories);
-                            tempList.Add(directory);
-                            tempList.AddRange(subDirectories);
-                        }
-                            
-                            
-                    }
+				if (excludeFile)
+	            {
+					string[] parameters = GetParameterString().Split('-');
 
-                    ignoreDirectories = tempList;
-
-                    //Remove duplicates
-                    ignoreDirectories = ignoreDirectories.Distinct().ToList();
-                }
+					//Get excluded files from parameter list
+					foreach (string parameter in parameters)
+					{
+						if (parameter.Contains("excludefile"))
+						{
+							var @filePath = parameter.Replace("\"", "").Replace("excludefile ", "").Replace('/', '\\').ToLower().TrimEnd(' ');
+							//Test that file exists
+							if (File.Exists(filePath))
+								excludedFiles.Add(filePath);
+							else
+								CompilePalLogger.LogLineColor($"Could not find file: {filePath}", Error.GetSeverityBrush(2));
+						}
+					}
+				}
 
                 if (genParticleManifest)
                 {
@@ -101,7 +113,7 @@ namespace CompilePalX.Compilers.UtilityProcess
                     CompilePalLogger.LogLine("Reading BSP...");
                     BSP map = new BSP(new FileInfo(bspPath));
 
-                    ParticleManifest manifest = new ParticleManifest(sourceDirectories, ignoreDirectories, map, bspPath, gameFolder);
+                    ParticleManifest manifest = new ParticleManifest(sourceDirectories, excludedDirectories, excludedFiles, map, bspPath, gameFolder);
 
 
                     //Set fields in bsppack so manifest gets detected correctly

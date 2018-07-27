@@ -341,7 +341,7 @@ namespace CompilePalX.Compilers.UtilityProcess
 
         public KeyValuePair<string, string> particleManifest { get; private set; }
 
-        public ParticleManifest (List<string> sourceDirectories, List<string> ignoreDirectories, BSP map, string bspPath, string gameFolder)
+        public ParticleManifest (List<string> sourceDirectories, List<string> ignoreDirectories, List<string> excludedFiles, BSP map, string bspPath, string gameFolder)
         {
             CompilePalLogger.LogLine("Generating Particle Manifest...");
 
@@ -358,7 +358,7 @@ namespace CompilePalX.Compilers.UtilityProcess
                 if (Directory.Exists(externalPath) && !ignoreDirectories.Contains(externalPath.Remove(externalPath.Length - 1, 1), StringComparer.OrdinalIgnoreCase))
                     foreach (string file in Directory.GetFiles(externalPath))
                     {
-                        if (file.EndsWith(".pcf"))
+                        if (file.EndsWith(".pcf") && !excludedFiles.Contains(file.ToLower()))
                         {
                             PCF pcf = ParticleUtils.IsTargetParticle(file, map.ParticleList);
                             if (pcf != null)

@@ -71,11 +71,14 @@
                                                                 <DataTrigger Binding="{Binding ValueIsFile}" Value="True">
                                                                     <Setter Property="Visibility" Value="Hidden"/>
                                                                 </DataTrigger>
+                                                                <DataTrigger Binding="{Binding ValueIsFolder}" Value="True">
+                                                                    <Setter Property="Visibility" Value="Hidden"/>
+                                                                </DataTrigger>
                                                             </Style.Triggers>
                                                         </Style>
                                                     </TextBox.Style>
                                                 </TextBox>
-                                                <local:FileInput Config="{Binding}" FileDialogTitle="Choose File">
+                                                <local:FileInput Config="{Binding}" FileDialogTitle="Choose File" IsFolder="{Binding ValueIsFolder}">
                                                     <local:FileInput.Style>
                                                         <Style TargetType="{x:Type local:FileInput}">
                                                             <Style.Triggers>
@@ -83,6 +86,7 @@
                                                                     <Setter Property="Visibility" Value="Hidden"/>
                                                                 </DataTrigger>
                                                             </Style.Triggers>
+
                                                         </Style>
                                                     </local:FileInput.Style>
                                                 </local:FileInput>
