@@ -330,7 +330,6 @@ namespace CompilePalX.Compilers.UtilityProcess
 
     }
 
-    //TODO add parameter for updating manifest to next version and a manual override for particles
     class ParticleManifest
     {
         //Class responsible for holding information about particles

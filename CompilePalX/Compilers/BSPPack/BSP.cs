@@ -93,14 +93,31 @@ namespace CompilePalX.Compilers.BSPPack
             byte[] ent = reader.ReadBytes(offsets[0].Value);
             List<byte> ents = new List<byte>();
 
+	        const int LCURLY = 123;
+	        const int RCURLY = 125;
+	        const int NEWLINE = 10;
+
             for (int i = 0; i < ent.Length; i++)
             {
-                if (ent[i] != 123 && ent[i] != 125)
-                    ents.Add(ent[i]);
-
-                else if (ent[i] == 125)
+	            if (ent[i] == LCURLY && i + 1 < ent.Length)
+	            {
+		            // if curly isnt followed by newline assume its part of filename
+		            if (ent[i + 1] != NEWLINE)
+			            ents.Add(ent[i]);
+	            }
+                if (ent[i] != LCURLY && ent[i] != RCURLY)
+					ents.Add(ent[i]);
+                else if (ent[i] == RCURLY)
                 {
-                    string rawent = Encoding.ASCII.GetString(ents.ToArray());
+					// if curly isnt followed by newline assume its part of filename
+	                if (i + 1 < ent.Length && ent[i + 1] != NEWLINE)
+	                {
+						ents.Add(ent[i]);
+						continue;
+	                }
+
+
+					string rawent = Encoding.ASCII.GetString(ents.ToArray());
                     Dictionary<string, string> entity = new Dictionary<string, string>();
                     foreach (string s in rawent.Split('\n'))
                     {
