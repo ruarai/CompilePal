@@ -295,8 +295,12 @@ namespace CompilePalX.Compilers.BSPPack
             foreach (Dictionary<string, string> ent in entityList)
             foreach (KeyValuePair<string, string> prop in ent)
             {
-				if (!ent["classname"].StartsWith("func") &&
-					!ent["classname"].StartsWith("trigger") &&
+	            if (ent["classname"].StartsWith("func"))
+	            {
+					if (prop.Key == "gibmodel")
+						EntModelList.Add(prop.Value);
+	            }
+				else if (!ent["classname"].StartsWith("trigger") &&
 					!ent["classname"].Contains("sprite"))
 	            {
 					// item_sodacan is hardcoded to models/can.mdl
