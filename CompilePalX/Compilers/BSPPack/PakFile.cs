@@ -105,10 +105,28 @@ namespace CompilePalX.Compilers.BSPPack
                     sndcount++;
 
 			// add all manually included files
-			// TODO right now the files search for files it depends on. Not sure if this should be default behavior
+			// TODO right now the manually included files search for files it depends on. Not sure if this should be default behavior
 	        foreach (var file in includeFiles)
 	        {
-		        string internalPath = file.Replace(GameConfigurationManager.GameConfiguration.GameFolder + "\\", "");
+				// try to get the source directory the file is located in
+				FileInfo fileInfo = new FileInfo(file);
+
+				// default base directory is the game folder
+		        string baseDir = GameConfigurationManager.GameConfiguration.GameFolder;
+
+		        var potentialSubDir = sourceDirs;
+				potentialSubDir.Remove(baseDir);
+		        foreach (var folder in potentialSubDir)
+		        {
+			        if (fileInfo.Directory != null 
+			            && fileInfo.Directory.FullName.Contains(folder))
+			        {
+				        baseDir = folder;
+						break;
+			        }
+		        }
+
+		        string internalPath = file.Replace(baseDir + "\\", "");
 
 				// try to determine file type by extension
 				switch (file.Split('.').Last())

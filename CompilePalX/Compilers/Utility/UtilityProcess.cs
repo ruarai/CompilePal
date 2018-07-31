@@ -67,7 +67,8 @@ namespace CompilePalX.Compilers.UtilityProcess
 				//Parse parameters to get ignore directories
 				if (excludeDir)
 				{
-					string[] parameters = GetParameterString().Split('-');
+					char[] paramChars = GetParameterString().ToCharArray();
+					List<string> parameters = ParseParameters(paramChars);
 
 					//Get excluded directories from parameter list
 					foreach (string parameter in parameters)
@@ -86,7 +87,8 @@ namespace CompilePalX.Compilers.UtilityProcess
 
 				if (excludeFile)
 	            {
-					string[] parameters = GetParameterString().Split('-');
+					char[] paramChars = GetParameterString().ToCharArray();
+					List<string> parameters = ParseParameters(paramChars);
 
 					//Get excluded files from parameter list
 					foreach (string parameter in parameters)
@@ -434,8 +436,32 @@ namespace CompilePalX.Compilers.UtilityProcess
             return null;
         }
 
+		// parses parameters that can contain '-' in their values. Ex. filepaths
+		private static List<string> ParseParameters(char[] paramChars)
+		{
+			List<string> parameters = new List<string>();
+			bool inQuote = false;
+			StringBuilder tempParam = new StringBuilder();
 
-        private struct BspFileName
+			foreach (var pChar in paramChars)
+			{
+				if (pChar == '\"')
+					inQuote = !inQuote;
+				else if (!inQuote && pChar == '-')
+				{
+					parameters.Add(tempParam.ToString());
+					tempParam.Clear();
+				}
+				else
+					tempParam.Append(pChar);
+
+			}
+
+			return parameters;
+		}
+
+
+		private struct BspFileName
         {
             public string file;
             public string subVersion;

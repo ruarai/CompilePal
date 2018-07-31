@@ -233,7 +233,7 @@ namespace CompilePalX.Compilers.BSPPack
 
             var references = new List<string>();
 
-            var variations = new List<string> { ".dx80.vtx", ".dx90.vtx", ".phy", ".sw.vtx", ".vtx", ".xbox.vtx", ".vvd" };
+            var variations = new List<string> { ".dx80.vtx", ".dx90.vtx", ".phy", ".sw.vtx", ".vtx", ".xbox.vtx", ".vvd", ".ani" };
             foreach (string variation in variations)
             {
                 string variant = Path.ChangeExtension(path, variation);

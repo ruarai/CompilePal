@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
 using CompilePalX.Compiling;
 
 namespace CompilePalX.Compilers.BSPPack
@@ -73,10 +74,10 @@ namespace CompilePalX.Compilers.BSPPack
 				// get manually included files
 	            if (include)
 	            {
-					string[] parameters = GetParameterString().Split('-');
-
+					char[] paramChars = GetParameterString().ToCharArray();
+					List<string> parameters = ParseParameters(paramChars);
 					//Get included files from parameter list
-		            foreach (string parameter in parameters)
+					foreach (string parameter in parameters)
 		            {
 						if (parameter.Contains("include"))
 						{
@@ -92,7 +93,8 @@ namespace CompilePalX.Compilers.BSPPack
 
 				if (exclude)
 				{
-					string[] parameters = GetParameterString().Split('-');
+					char[] paramChars = GetParameterString().ToCharArray();
+					List<string> parameters = ParseParameters(paramChars);
 
 					//Get excluded files from parameter list
 					foreach (string parameter in parameters)
@@ -308,6 +310,28 @@ namespace CompilePalX.Compilers.BSPPack
             return line.Split(new char[0], StringSplitOptions.RemoveEmptyEntries)[1];
         }
 
+		// parses parameters that can contain '-' in their values. Ex. filepaths
+	    private static List<string> ParseParameters(char[] paramChars)
+	    {
+			List<string> parameters = new List<string>();
+			bool inQuote = false;
+			StringBuilder tempParam = new StringBuilder();
 
+			foreach (var pChar in paramChars)
+			{
+				if (pChar == '\"')
+					inQuote = !inQuote;
+				else if (!inQuote && pChar == '-')
+				{
+					parameters.Add(tempParam.ToString());
+					tempParam.Clear();
+				}
+				else
+					tempParam.Append(pChar);
+
+			}
+
+		    return parameters;
+	    }
     }
 }

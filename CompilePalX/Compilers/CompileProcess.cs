@@ -107,7 +107,7 @@ namespace CompilePalX
             string parameters = string.Empty;
             foreach (var parameter in PresetDictionary[ConfigurationManager.CurrentPreset])
             {
-                parameters += parameter.Parameter;
+				parameters += parameter.Parameter;
 
 	            if (parameter.CanHaveValue && !string.IsNullOrEmpty(parameter.Value))
 	            {
@@ -122,7 +122,11 @@ namespace CompilePalX
 							parameters += " " + parameter.ReadOutput;
 					}
 					else
-						parameters += " " + parameter.Value;
+						// protect filepaths in quotes, since they can contain -
+						if (parameter.ValueIsFile || parameter.Value2IsFile)
+							parameters += $" \"{parameter.Value}\"";
+						else
+							parameters += " " + parameter.Value;
 	            }
             }
 
