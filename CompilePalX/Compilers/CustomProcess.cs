@@ -6,6 +6,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Media;
 using CompilePalX.Compiling;
 
 namespace CompilePalX.Compilers
@@ -108,13 +109,16 @@ namespace CompilePalX.Compilers
 			}
 
 			string parsedArgs = ParseArgs(Args, c);
+			// Python files require the filename to be the first arg, otherwise it just opens python
+			if (Path.EndsWith(".py"))
+				parsedArgs = parsedArgs.Insert(0, Path);
 
 			StartInfo = new ProcessStartInfo
 			{
 				UseShellExecute = false,
 				CreateNoWindow = true,
 				FileName = programPath.ToString(),
-				Arguments = Path + " " + parsedArgs
+				Arguments = parsedArgs
 			};
 
 			if (ReadOutput)
@@ -122,9 +126,6 @@ namespace CompilePalX.Compilers
 				StartInfo.RedirectStandardOutput = true;
 				StartInfo.RedirectStandardInput = true;
 				StartInfo.RedirectStandardError = true;
-				StartInfo.UseShellExecute = false;
-				ReadOutput = true;
-
 			}
 
 			Process = new Process()
@@ -133,61 +134,49 @@ namespace CompilePalX.Compilers
 			};
 
 			Process.Start();
+			Process.BeginOutputReadLine();
+			Process.BeginErrorReadLine();
 
 			if (ReadOutput)
-				readOutput();
+			{
+				Process.OutputDataReceived += ProcessOnOutputDataReceived;
+				Process.ErrorDataReceived += ProcessOnErrorDataReceived;
+			}
 
 			//TODO maybe add limit to how long programs can run for programs that dont exit on their own
 			Process.WaitForExit();
-			CompilePalLogger.LogLine("Program completed sucesfully\n");
+			Process.Close();
+			CompilePalLogger.LogLine("\nProgram completed sucesfully\n");
 
 		}
 
-		private void readOutput()
+		private void ProcessOnErrorDataReceived(object sender, DataReceivedEventArgs e)
 		{
-			char[] buffer = new char[256];
-			Task<int> read = null;
-			while (true)
-			{
-				if (read == null)
-					read = Process.StandardOutput.ReadAsync(buffer, 0, buffer.Length);
+			if (e.Data != null)
+				CompilePalLogger.LogLineColor(e.Data, Error.GetSeverityBrush(3));
+		}
 
-				read.Wait(100); // an arbitray timeout
-
-				if (read.IsCompleted)
-				{
-					if (read.Result > 0)
-					{
-						string text = new string(buffer, 0, read.Result);
-
-						CompilePalLogger.ProgressiveLog(text);
-
-						read = null; // ok, this task completed so we need to create a new one
-						continue;
-					}
-
-					// got -1, process ended
-					break;
-				}
-			}
-			Process.WaitForExit();
+		private void ProcessOnOutputDataReceived(object sender, DataReceivedEventArgs e)
+		{
+			if (e.Data != null)
+				CompilePalLogger.LogLine(e.Data);
 		}
 
 		//Parse args for parameters and replace them with their corresponding values
 		//Paramaters from https://developer.valvesoftware.com/wiki/Hammer_Run_Map_Expert#Parameters
 		private string ParseArgs(string originalArgs, CompileContext c)
 		{
-			string args = originalArgs.Replace("$file", $"\"{System.IO.Path.GetFileNameWithoutExtension(c.MapFile)}\"");
-			args = args.Replace("$ext", $"\"{System.IO.Path.GetExtension(c.MapFile)}\"");
-			args = args.Replace("$path", $"\"{System.IO.Path.GetDirectoryName(c.MapFile)}\"");
-			args = args.Replace("$bspdir", $"\"{c.Configuration.MapFolder}\"");
-			args = args.Replace("$gamedir", $"\"{c.Configuration.GameFolder}\"");
+			string args = originalArgs.Replace("$file", $"{System.IO.Path.GetFileNameWithoutExtension(c.MapFile)}");
+			args = args.Replace("$ext", $"{System.IO.Path.GetExtension(c.MapFile)}");
+			args = args.Replace("$path", $"{System.IO.Path.GetDirectoryName(c.MapFile)}");
+			args = args.Replace("$bspdir", $"{c.Configuration.MapFolder}\\");
+			args = args.Replace("$gamedir", $"{c.Configuration.GameFolder}");
 
-			args = args.Replace("$bsp_exe", $"\"{c.Configuration.VBSP}\"");
-			args = args.Replace("$vis_exe", $"\"{c.Configuration.VVIS}\"");
-			args = args.Replace("$light_exe", $"\"{c.Configuration.VRAD}\"");
-			args = args.Replace("$game_exe", $"\"{c.Configuration.GameEXE}\"");
-
+			args = args.Replace("$bsp_exe", $"{c.Configuration.VBSP}");
+			args = args.Replace("$vis_exe", $"{c.Configuration.VVIS}");
+			args = args.Replace("$light_exe", $"{c.Configuration.VRAD}");
+			args = args.Replace("$game_exe", $"{c.Configuration.GameEXE}");
+			CompilePalLogger.LogLine("Args: " + args);
 			return args;
 		}
 
