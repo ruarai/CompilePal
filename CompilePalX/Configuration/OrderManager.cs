@@ -27,6 +27,9 @@ namespace CompilePalX.Configuration
 
 		public static void UpdateOrder()
 		{
+			if (ConfigurationManager.CurrentPreset == null)
+				return;
+
 			//Get all default processes for config
 			var defaultProcs = new List<CompileProcess>(ConfigurationManager.CompileProcesses
 				.Where(c => c.Metadata.DoRun
