@@ -216,7 +216,7 @@ namespace CompilePalX.Compilers.BSPPack
                 foreach (string material in materials)
                 {
                     string materialpath = material;
-                    if (!material.EndsWith(".vmt"))
+                    if (!material.EndsWith(".vmt") && !materialpath.EndsWith(".spr"))
                         materialpath += ".vmt";
 
                     EntTextureList.Add("materials/" + materialpath);
