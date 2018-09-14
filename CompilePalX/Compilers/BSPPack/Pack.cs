@@ -256,7 +256,7 @@ namespace CompilePalX.Compilers.BSPPack
                         if (line.Contains("//") || string.IsNullOrWhiteSpace(line))
                             continue;
 
-                        string path = GetInfoValue(line);
+                        string path = GetInfoValue(line).Replace("\"", "");
 
                         if (!(path.Contains("|") || path.Contains(".vpk")))
                         {
@@ -264,7 +264,7 @@ namespace CompilePalX.Compilers.BSPPack
                             {
                                 string newPath = path.Replace("*", "");
 
-                                string fullPath = System.IO.Path.GetFullPath(rootPath + "\\" + newPath.TrimEnd('\\'));
+								string fullPath = System.IO.Path.GetFullPath(rootPath + "\\" + newPath.TrimEnd('\\'));
 
                                 if (verbose)
                                     CompilePalLogger.LogLine("Found wildcard path: {0}", fullPath);
@@ -276,9 +276,9 @@ namespace CompilePalX.Compilers.BSPPack
                                 }
                                 catch { }
                             }
-                            else
-                            {
-                                string fullPath = System.IO.Path.GetFullPath(rootPath + "\\" + path.TrimEnd('\\'));
+							else
+							{
+								string fullPath = System.IO.Path.GetFullPath(rootPath + "\\" + path.TrimEnd('\\'));
 
                                 if (verbose)
                                     CompilePalLogger.LogLine("Found search path: {0}", fullPath);
