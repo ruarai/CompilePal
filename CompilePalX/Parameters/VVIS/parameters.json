@@ -48,6 +48,14 @@
     "Warning": ""
   },
   {
+    "Name": "Low Priority ",
+    "Parameter": " -low",
+    "Description": "Force VVIS to run as a low-priority process.",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": ""
+  }, 
+  {
     "Name": "Verbose",
     "Parameter": " -verbose",
     "Description": "Turn on verbose output for debug purposes.",
