@@ -150,7 +150,7 @@ namespace CompilePalX.Compilers.BSPPack
 					mdl.Seek(includeModelIndex, SeekOrigin.Begin);
 
 		            var includeOffsetStart = mdl.Position;
-					for (int i = 0; i < includeModelCount; i++)
+					for (int j = 0; j < includeModelCount; j++)
 					{
 						var includeStreamPos = mdl.Position;
 
@@ -158,7 +158,8 @@ namespace CompilePalX.Compilers.BSPPack
 						var includeModelPathOffset = reader.ReadInt32();
 
 						// skip unknown section made up of 27 ints
-						mdl.Seek(27 * 4, SeekOrigin.Current);
+						// TODO: not needed?
+						//mdl.Seek(27 * 4, SeekOrigin.Current);
 
 						var currentOffset = mdl.Position;
 
@@ -179,6 +180,9 @@ namespace CompilePalX.Compilers.BSPPack
 							// go to model offset
 							mdl.Seek(includeModelPathOffset + includeOffsetStart, SeekOrigin.Begin);
 							models.Add(readNullTerminatedString(mdl, reader));
+
+							// return to current offset
+							mdl.Seek(currentOffset, SeekOrigin.Begin);
 						}
 
 
