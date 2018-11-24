@@ -339,6 +339,17 @@ namespace CompilePalX.Compilers.BSPPack
 						if (!string.IsNullOrWhiteSpace(io[io.IndexOf("playgamesound") + 1]))
 							EntSoundList.Add("sound/" + io[io.IndexOf("playgamesound") + 1].Trim(special_caracters));
 					}
+					else if (prop.Value.Contains("play"))
+					{
+						List<string> io = prop.Value.Split(',').ToList();
+
+						var playCommand = io.Where(i => i.Contains("play"));
+
+						foreach (var command in playCommand)
+						{
+							EntSoundList.Add("sound/" + command.Split(' ')[1].Trim(special_caracters));
+						}
+					}
 
 				}
 
