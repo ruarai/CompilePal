@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Windows.Forms;
 using CompilePalX.Compiling;
 
 namespace CompilePalX
@@ -12,7 +13,6 @@ namespace CompilePalX
             CompilePalLogger.LogLine("Parsing game configuration file {0}",filename);
 
             var lines = File.ReadAllLines(filename);
-	        var gameInfoDir = Path.GetDirectoryName(filename);
             //not as lazy parsing! woo!
 
             var gameInfos = new List<GameConfiguration>();
@@ -39,31 +39,44 @@ namespace CompilePalX
                         switch (GetKey(line))
                         {
                             case "GameDir":
-                                game.GameFolder = GetFullPath(GetValue(line), gameInfoDir);
+                                game.GameFolder = GetFullPath(GetValue(line), game.BinFolder);
                                 CompilePalLogger.LogLine(GetKey(line) + ":" + GetValue(line));
                                 break;
                             case "GameExe":
-                                game.GameEXE = GetFullPath(GetValue(line), gameInfoDir);
+                                game.GameEXE = GetFullPath(GetValue(line), game.BinFolder);
                                 CompilePalLogger.LogLine(GetKey(line) + ":" + GetValue(line));
                                 break;
                             case "MapDir":
-                                game.SDKMapFolder = GetFullPath(GetValue(line), gameInfoDir);
+                                game.SDKMapFolder = GetFullPath(GetValue(line), game.BinFolder);
                                 CompilePalLogger.LogLine(GetKey(line) + ":" + GetValue(line));
                                 break;
                             case "BSP":
-                                game.VBSP = GetFullPath(GetValue(line), gameInfoDir);
+                                game.VBSP = GetFullPath(GetValue(line), game.BinFolder);
+
+								// incase vbsp is stored as relative path
+	                            if (String.IsNullOrEmpty(Path.GetDirectoryName(game.VBSP)))
+		                            game.VBSP = Path.Combine(game.BinFolder, game.VBSP);
+
                                 CompilePalLogger.LogLine(GetKey(line) + ":" + GetValue(line));
                                 break;
                             case "Vis":
-                                game.VVIS = GetFullPath(GetValue(line), gameInfoDir);
-                                CompilePalLogger.LogLine(GetKey(line) + ":" + GetValue(line));
+                                game.VVIS = GetFullPath(GetValue(line), game.BinFolder);
+
+								if (String.IsNullOrEmpty(Path.GetDirectoryName(game.VVIS)))
+									game.VVIS = Path.Combine(game.BinFolder, game.VVIS);
+
+								CompilePalLogger.LogLine(GetKey(line) + ":" + GetValue(line));
                                 break;
                             case "Light":
-                                game.VRAD = GetFullPath(GetValue(line), gameInfoDir);
-                                CompilePalLogger.LogLine(GetKey(line) + ":" + GetValue(line));
+                                game.VRAD = GetFullPath(GetValue(line), game.BinFolder);
+
+								if (String.IsNullOrEmpty(Path.GetDirectoryName(game.VRAD)))
+									game.VRAD = Path.Combine(game.BinFolder, game.VRAD);
+
+								CompilePalLogger.LogLine(GetKey(line) + ":" + GetValue(line));
                                 break;
                             case "BSPDir":
-                                game.MapFolder = GetFullPath(GetValue(line), gameInfoDir);
+                                game.MapFolder = GetFullPath(GetValue(line), game.BinFolder);
                                 CompilePalLogger.LogLine(GetKey(line) + ":" + GetValue(line));
                                 break;
                         }
