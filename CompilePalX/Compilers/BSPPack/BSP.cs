@@ -343,7 +343,7 @@ namespace CompilePalX.Compilers.BSPPack
 					{
 						List<string> io = prop.Value.Split(',').ToList();
 
-						var playCommand = io.Where(i => i.Contains("play"));
+						var playCommand = io.Where(i => i.StartsWith("play"));
 
 						foreach (var command in playCommand)
 						{
