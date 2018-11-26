@@ -303,12 +303,11 @@ namespace CompilePalX.Compilers.BSPPack
 				else if (!ent["classname"].StartsWith("trigger") &&
 					!ent["classname"].Contains("sprite"))
 	            {
-					// item_sodacan is hardcoded to models/can.mdl
-					// env_beverage spawns item_sodacans
 					if (Keys.vmfModelKeys.Contains(prop.Key))
                         EntModelList.Add(prop.Value);
-					else if (prop.Value == "item_sodacan" || 
-					         prop.Value == "env_beverage")
+					// item_sodacan is hardcoded to models/can.mdl
+					// env_beverage spawns item_sodacans
+					else if (prop.Value == "item_sodacan" || prop.Value == "env_beverage")
 						EntModelList.Add("models/can.mdl");
 				}
             }
@@ -343,7 +342,7 @@ namespace CompilePalX.Compilers.BSPPack
 					{
 						List<string> io = prop.Value.Split(',').ToList();
 
-						var playCommand = io.Where(i => i.StartsWith("play"));
+						var playCommand = io.Where(i => i.StartsWith("play "));
 
 						foreach (var command in playCommand)
 						{
