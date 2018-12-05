@@ -465,8 +465,27 @@ namespace CompilePalX.Compilers.BSPPack
             }
             bsp.VehicleScriptList = vehicleScripts;
 
-            // Res file (for tf2's pd gamemode)
-            Dictionary<string, string>  pd_ent = bsp.entityList.FirstOrDefault(item => item["classname"] == "tf_logic_player_destruction");
+			// Effect Scripts
+			List<KeyValuePair<string, string>> effectScripts = new List<KeyValuePair<string, string>>();
+			foreach (Dictionary<string, string> ent in bsp.entityList)
+			{
+				if (ent.ContainsKey("scriptfile"))
+				{
+					foreach (string source in sourceDirectories)
+					{
+						string externalPath = source + "/" + ent["scriptfile"];
+						if (File.Exists(externalPath))
+						{
+							internalPath = ent["scriptfile"];
+							effectScripts.Add(new KeyValuePair<string, string>(ent["scriptfile"], externalPath));
+						}
+					}
+				}
+			}
+			bsp.EffectScriptList = effectScripts;
+
+			// Res file (for tf2's pd gamemode)
+			Dictionary<string, string>  pd_ent = bsp.entityList.FirstOrDefault(item => item["classname"] == "tf_logic_player_destruction");
             if (pd_ent != null && pd_ent.ContainsKey("res_file"))
             {
                 foreach (string source in sourceDirectories)

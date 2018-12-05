@@ -15,3 +15,5 @@ team_overlay_2
 team_overlay_3
 team_base_icon_2
 team_base_icon_3
+overlaymaterial
+particletrailmaterial

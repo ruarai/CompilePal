@@ -10,3 +10,4 @@ team_model_3
 flag_model
 plymodel
 powerup_model
+swapmodel

@@ -151,6 +151,8 @@ namespace CompilePalX.Compilers.BSPPack
                 CompilePalLogger.LogLine(pakfile.sndcount + " sounds found");
                 if (pakfile.vehiclescriptcount != 0)
                     CompilePalLogger.LogLine(pakfile.vehiclescriptcount + " vehicle scripts found");
+				if (pakfile.effectscriptcount != 0)
+					CompilePalLogger.LogLine(pakfile.effectscriptcount + " effect scripts found");
                 string additionalFiles =
                     (map.nav.Key != default(string) ? "\n-nav file" : "") +
                     (map.soundscape.Key != default(string) ? "\n-soundscape" : "") +

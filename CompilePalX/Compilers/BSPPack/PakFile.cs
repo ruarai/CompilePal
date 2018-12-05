@@ -23,10 +23,11 @@ namespace CompilePalX.Compilers.BSPPack
         public int pcfcount { get; private set; }
         public int sndcount { get; private set; }
         public int vehiclescriptcount { get; private set; }
+        public int effectscriptcount { get; private set; }
 
         public PakFile(BSP bsp, List<string> sourceDirectories, List<string> includeFiles, List<string> excludedFiles)
         {
-            mdlcount = vmtcount = pcfcount = sndcount = vehiclescriptcount = 0;
+            mdlcount = vmtcount = pcfcount = sndcount = vehiclescriptcount = effectscriptcount = 0;
             sourceDirs = sourceDirectories;
 	        this.excludedFiles = excludedFiles;
 
@@ -88,6 +89,9 @@ namespace CompilePalX.Compilers.BSPPack
             foreach (KeyValuePair<string, string> vehicleScript in bsp.VehicleScriptList)
                 if (AddFile(vehicleScript.Key, vehicleScript.Value))
                     vehiclescriptcount++;
+	        foreach (KeyValuePair<string, string> effectScript in bsp.EffectScriptList)
+		        if (AddFile(effectScript.Key, effectScript.Value))
+			        effectscriptcount++;
             foreach (KeyValuePair<string, string> dds in bsp.radardds)
                 AddFile(dds.Key, dds.Value);
             foreach (KeyValuePair<string, string> lang in bsp.languages)

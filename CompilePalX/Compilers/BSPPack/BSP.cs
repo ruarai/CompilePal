@@ -45,6 +45,7 @@ namespace CompilePalX.Compilers.BSPPack
         public List<KeyValuePair<string, string>> radardds { get; set; }
         public List<KeyValuePair<string, string>> languages { get; set; }
         public List<KeyValuePair<string, string>> VehicleScriptList { get; set; }
+        public List<KeyValuePair<string, string>> EffectScriptList { get; set; }
 
         public FileInfo file { get; private set; }
 
@@ -212,6 +213,27 @@ namespace CompilePalX.Compilers.BSPPack
 				if (ent["classname"].Contains("env_funnel"))
 					materials.Add("sprites/flare6.vmt");
 
+				// special condition for vgui_slideshow_display. directory paramater references all textures in a folder (does not include subfolders)
+				if (ent["classname"].Contains("vgui_slideshow_display"))
+	            {
+		            if (ent.ContainsKey("directory"))
+		            {
+			            var directory = $"{GameConfigurationManager.GameConfiguration.GameFolder}/materials/vgui/{ent["directory"]}";
+			            if (Directory.Exists(directory))
+			            {
+				            foreach (var file in Directory.GetFiles(directory))
+				            {
+					            if (file.EndsWith(".vmt"))
+					            {
+									materials.Add($"/vgui/{ent["directory"]}/{Path.GetFileName(file)}");
+					            }
+				            }
+			            }
+
+
+					}
+	            }
+
                 // format and add materials
                 foreach (string material in materials)
                 {
@@ -292,26 +314,30 @@ namespace CompilePalX.Compilers.BSPPack
             // builds the list of models referenced in entities
 
             EntModelList = new List<string>();
-            foreach (Dictionary<string, string> ent in entityList)
-            foreach (KeyValuePair<string, string> prop in ent)
-            {
-	            if (ent["classname"].StartsWith("func"))
-	            {
-					if (prop.Key == "gibmodel")
-						EntModelList.Add(prop.Value);
-	            }
-				else if (!ent["classname"].StartsWith("trigger") &&
-					!ent["classname"].Contains("sprite"))
-	            {
-					if (Keys.vmfModelKeys.Contains(prop.Key))
-                        EntModelList.Add(prop.Value);
-					// item_sodacan is hardcoded to models/can.mdl
-					// env_beverage spawns item_sodacans
-					else if (prop.Value == "item_sodacan" || prop.Value == "env_beverage")
-						EntModelList.Add("models/can.mdl");
+	        foreach (Dictionary<string, string> ent in entityList)
+	        {
+				foreach (KeyValuePair<string, string> prop in ent)
+				{
+					if (ent["classname"].StartsWith("func"))
+					{
+						if (prop.Key == "gibmodel")
+							EntModelList.Add(prop.Value);
+					}
+					else if (!ent["classname"].StartsWith("trigger") &&
+						!ent["classname"].Contains("sprite"))
+					{
+						if (Keys.vmfModelKeys.Contains(prop.Key))
+							EntModelList.Add(prop.Value);
+						// item_sodacan is hardcoded to models/can.mdl
+						// env_beverage spawns item_sodacans
+						else if (prop.Value == "item_sodacan" || prop.Value == "env_beverage")
+							EntModelList.Add("models/can.mdl");
+						// tf_projectile_throwable is hardcoded to  models/props_gameplay/small_loaf.mdl
+						else if (prop.Value == "tf_projectile_throwable")
+							EntModelList.Add("models/props_gameplay/small_loaf.mdl");
+					}
 				}
-            }
-
+			}
         }
 
         public void buildEntSoundList()
