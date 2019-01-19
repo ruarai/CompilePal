@@ -598,6 +598,25 @@ namespace CompilePalX.Compilers.BSPPack
                     }
             }
             bsp.languages = langfiles;
+
+            // ASW/Source2009 branch VScripts
+            List<string> vscripts = new List<string>();
+
+            foreach(Dictionary<string, string> entity in bsp.entityList)
+            {
+                foreach(KeyValuePair<string,string> kvp in entity)
+                {
+                    if(kvp.Key.ToLower() == "vscripts")
+                    {
+                        string[] scripts = kvp.Value.Split(' ');
+                        foreach(string script in scripts)
+                        {
+                            vscripts.Add("scripts/vscripts/" + script);
+                        }
+                    }
+                }
+            }
+            bsp.vscriptList = vscripts;
         }
 
         private static string readNullTerminatedString(FileStream fs, BinaryReader reader)

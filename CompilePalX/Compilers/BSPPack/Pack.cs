@@ -141,6 +141,14 @@ namespace CompilePalX.Compilers.BSPPack
                     CompilePalLogger.LogLine("Running bspzip...");
                     PackBSP();
                 }
+
+                CompilePalLogger.LogLine("Copying packed bsp to vmf folder...");
+
+                if (File.Exists(context.BSPFile))
+                    File.Move(context.BSPFile, context.BSPFile + ".unpacked");
+
+                File.Copy(bspPath, context.BSPFile);
+
                 
                 CompilePalLogger.LogLine("Finished!");
 
@@ -153,6 +161,8 @@ namespace CompilePalX.Compilers.BSPPack
                     CompilePalLogger.LogLine(pakfile.vehiclescriptcount + " vehicle scripts found");
 				if (pakfile.effectscriptcount != 0)
 					CompilePalLogger.LogLine(pakfile.effectscriptcount + " effect scripts found");
+                if (pakfile.vscriptcount != 0)
+                    CompilePalLogger.LogLine(pakfile.vscriptcount + " vscripts found");
                 string additionalFiles =
                     (map.nav.Key != default(string) ? "\n-nav file" : "") +
                     (map.soundscape.Key != default(string) ? "\n-soundscape" : "") +
@@ -164,6 +174,7 @@ namespace CompilePalX.Compilers.BSPPack
                     (map.jpg.Key != default(string) ? "\n-loading screen image" : "") +
                     (map.kv.Key != default(string) ? "\n-kv file" : "") +
                     (map.res.Key != default(string) ? "\n-res file" : "");
+
                 if (additionalFiles != "")
                     CompilePalLogger.LogLine("additional files: " + additionalFiles);
                 CompilePalLogger.LogLine("---------------------");
