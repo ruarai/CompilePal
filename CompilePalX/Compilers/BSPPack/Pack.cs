@@ -144,7 +144,7 @@ namespace CompilePalX.Compilers.BSPPack
                     if (File.Exists(bspPath))
                     {
                         // Add bsp to the vpk
-                        responseFile.Add(gameFolder, bspPath.Replace(gameFolder + "\\", ""));
+                        responseFile.Add(bspPath.Replace(gameFolder + "\\", ""), gameFolder);
                     }
 
                     if (GetParameterString().Contains("-ainfo"))
@@ -158,7 +158,7 @@ namespace CompilePalX.Compilers.BSPPack
                                 if (File.Exists(filePath))
                                 {
                                     File.Copy(filePath, Path.Combine(gameFolder, "addoninfo.txt"), true);
-                                    responseFile.Add(gameFolder, "addoninfo.txt");
+                                    responseFile.Add("addoninfo.txt", gameFolder);
                                 }
                             }
                         }
@@ -168,9 +168,9 @@ namespace CompilePalX.Compilers.BSPPack
                     foreach (var path in sourceDirectories)
                     {
                         var testedFiles = "";
-                        foreach(var entry in responseFile)
+                        foreach (var entry in responseFile)
                         {
-                            if (entry.Value.Contains(path))
+                            if (entry.Value.Contains(path) || path.Contains(entry.Value))
                             {
                                 testedFiles += entry.Key + "\n";
                             }
