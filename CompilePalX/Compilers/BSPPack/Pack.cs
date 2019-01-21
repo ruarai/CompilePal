@@ -185,6 +185,11 @@ namespace CompilePalX.Compilers.BSPPack
                     }
 
                     File.Delete("_tempResponseFile.txt");
+
+                    if (GetParameterString().Contains("-ainfo"))
+                    {
+                        File.Delete(Path.Combine(gameFolder, "addoninfo.txt"));
+                    }
                 }
                 else
                 {
