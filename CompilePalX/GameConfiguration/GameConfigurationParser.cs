@@ -68,9 +68,10 @@ namespace CompilePalX
 								CompilePalLogger.LogLine(GetKey(line) + ":" + GetValue(line));
                                 break;
                             case "Light":
-                                game.VRAD = GetFullPath(GetValue(line), game.BinFolder);
+                                var vrad  = GetFullPath(GetValue(line), game.BinFolder);
+                                game.VRAD = vrad;
 
-								if (String.IsNullOrEmpty(Path.GetDirectoryName(game.VRAD)))
+                                if (String.IsNullOrEmpty(Path.GetDirectoryName(game.VRAD)))
 									game.VRAD = Path.Combine(game.BinFolder, game.VRAD);
 
 								CompilePalLogger.LogLine(GetKey(line) + ":" + GetValue(line));

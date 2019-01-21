@@ -204,27 +204,33 @@ namespace CompilePalX.Compilers.BSPPack
 
             if (File.Exists(path))
             {
-                FileStream phy = new FileStream(path, FileMode.Open);
-                BinaryReader reader = new BinaryReader(phy);
-                int header_size = reader.ReadInt32();
-                phy.Seek(4, SeekOrigin.Current);
-                int solidCount = reader.ReadInt32();
-
-                phy.Seek(header_size, SeekOrigin.Begin);
-                int solid_size = reader.ReadInt32();
-                
-                phy.Seek(solid_size, SeekOrigin.Current);
-                string something = readNullTerminatedString(phy, reader);
-                
-                string[] entries = something.Split(new char [] { '{','}' });
-                for (int i = 0; i < entries.Count(); i++ )
+                // YOU GUYS DIDNT CLOSE STREAM OMG!!!!!
+                using (FileStream phy = new FileStream(path, FileMode.Open))
                 {
-                    if (entries[i].Trim().Equals("break")){
-                        string[] entry = entries[i + 1].Split(new char[]{' '}, StringSplitOptions.RemoveEmptyEntries);
+                    using (BinaryReader reader = new BinaryReader(phy))
+                    {
+                        int header_size = reader.ReadInt32();
+                        phy.Seek(4, SeekOrigin.Current);
+                        int solidCount = reader.ReadInt32();
 
-                        for (int j = 0; j < entry.Count(); j++)
-                            if (entry[j].Equals("\"model\"") || entry[j].Equals("\"ragdoll\""))
-                                models.Add("models\\" + entry[j + 1].Trim('"')+".mdl");
+                        phy.Seek(header_size, SeekOrigin.Begin);
+                        int solid_size = reader.ReadInt32();
+
+                        phy.Seek(solid_size, SeekOrigin.Current);
+                        string something = readNullTerminatedString(phy, reader);
+
+                        string[] entries = something.Split(new char[] { '{', '}' });
+                        for (int i = 0; i < entries.Count(); i++)
+                        {
+                            if (entries[i].Trim().Equals("break"))
+                            {
+                                string[] entry = entries[i + 1].Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+
+                                for (int j = 0; j < entry.Count(); j++)
+                                    if (entry[j].Equals("\"model\"") || entry[j].Equals("\"ragdoll\""))
+                                        models.Add("models\\" + entry[j + 1].Trim('"') + ".mdl");
+                            }
+                        }
                     }
                 }
             }

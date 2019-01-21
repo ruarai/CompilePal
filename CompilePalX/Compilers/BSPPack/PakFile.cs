@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using CompilePalX.Compilers.UtilityProcess;
 
 namespace CompilePalX.Compilers.BSPPack
@@ -173,6 +174,18 @@ namespace CompilePalX.Compilers.BSPPack
             if (File.Exists("files.txt"))
                 File.Delete("files.txt");
             File.WriteAllLines("files.txt", outputLines);
+        }
+
+        public Dictionary<string,string> GetResponseFile()
+        {
+            var output = new Dictionary<string,string>();
+
+            foreach (var entry in Files)
+            {
+                output.Add(entry.Key, entry.Value.Replace(entry.Key, ""));
+            }
+
+            return output;
         }
 
         public bool AddFile(string internalPath, string externalPath)
