@@ -96,20 +96,6 @@ namespace CompilePalX.Compilers.BSPPack
                     }
                 }
 
-                if (GetParameterString().Contains("-addoninfo"))
-                {
-                    foreach (string parameter in parameters)
-                    {
-                        if (parameter.Contains("addoninfo"))
-                        {
-                            var @filePath = parameter.Replace("\"", "").Replace("addoninfo ", "").TrimEnd(' ');
-                            //Test that file exists
-                            if (File.Exists(filePath))
-                                includeFiles.Add(filePath);
-                        }
-                    }
-                }
-
                 if (exclude)
                 {
                     //Get excluded files from parameter list
