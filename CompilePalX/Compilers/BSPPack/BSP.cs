@@ -46,6 +46,7 @@ namespace CompilePalX.Compilers.BSPPack
         public List<KeyValuePair<string, string>> languages { get; set; }
         public List<KeyValuePair<string, string>> VehicleScriptList { get; set; }
         public List<KeyValuePair<string, string>> EffectScriptList { get; set; }
+        public List<string> vscriptList { get; set; }
 
         public FileInfo file { get; private set; }
 

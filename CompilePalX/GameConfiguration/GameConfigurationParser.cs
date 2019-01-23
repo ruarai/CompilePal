@@ -70,7 +70,7 @@ namespace CompilePalX
                             case "Light":
                                 game.VRAD = GetFullPath(GetValue(line), game.BinFolder);
 
-								if (String.IsNullOrEmpty(Path.GetDirectoryName(game.VRAD)))
+                                if (String.IsNullOrEmpty(Path.GetDirectoryName(game.VRAD)))
 									game.VRAD = Path.Combine(game.BinFolder, game.VRAD);
 
 								CompilePalLogger.LogLine(GetKey(line) + ":" + GetValue(line));

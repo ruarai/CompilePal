@@ -26,6 +26,7 @@ namespace CompilePalX.Compilers.BSPPack
         }
 
         private static string bspZip;
+        private static string vpk;
         private static string gameFolder;
         private static string bspPath;
 
@@ -34,8 +35,9 @@ namespace CompilePalX.Compilers.BSPPack
         private static bool verbose;
         private static bool dryrun;
         private static bool renamenav;
-	    private static bool include;
-	    private static bool exclude;
+        private static bool include;
+        private static bool exclude;
+        private static bool packvpk;
         public static bool genParticleManifest;
 
         public static KeyValuePair<string, string> particleManifest;
@@ -47,16 +49,21 @@ namespace CompilePalX.Compilers.BSPPack
             verbose = GetParameterString().Contains("-verbose");
             dryrun = GetParameterString().Contains("-dryrun");
             renamenav = GetParameterString().Contains("-renamenav");
-	        include = GetParameterString().Contains("-include");
-	        exclude = GetParameterString().Contains("-exclude");
+            include = GetParameterString().Contains("-include");
+            exclude = GetParameterString().Contains("-exclude");
+            packvpk = GetParameterString().Contains("-vpk");
 
-			List<string> includeFiles = new List<string>();
-			List<string> excludeFiles = new List<string>();
+            char[] paramChars = GetParameterString().ToCharArray();
+            List<string> parameters = ParseParameters(paramChars);
+
+            List<string> includeFiles = new List<string>();
+            List<string> excludeFiles = new List<string>();
 
             try
             {
                 CompilePalLogger.LogLine("\nCompilePal - Automated Packaging");
                 bspZip = context.Configuration.BSPZip;
+                vpk = context.Configuration.VPK;
                 gameFolder = context.Configuration.GameFolder;
                 bspPath = context.CopyLocation;
 
@@ -71,53 +78,48 @@ namespace CompilePalX.Compilers.BSPPack
                 Keys.vmfMaterialKeys = File.ReadAllLines(System.IO.Path.Combine(keysFolder, "vmfmaterialkeys.txt")).ToList();
                 Keys.vmfModelKeys = File.ReadAllLines(System.IO.Path.Combine(keysFolder, "vmfmodelkeys.txt")).ToList();
 
-				// get manually included files
-	            if (include)
-	            {
-					char[] paramChars = GetParameterString().ToCharArray();
-					List<string> parameters = ParseParameters(paramChars);
-					//Get included files from parameter list
-					foreach (string parameter in parameters)
-		            {
-						if (parameter.Contains("include"))
-						{
-							var @filePath = parameter.Replace("\"", "").Replace("include ", "").TrimEnd(' ');
-							//Test that file exists
-							if (File.Exists(filePath))
-								includeFiles.Add(filePath);
-							else
-								CompilePalLogger.LogLineColor($"Could not find file: {filePath}", Error.GetSeverityBrush(2));
-						}
-		            }
-				}
+                // get manually included files
+                if (include)
+                {
+                    //Get included files from parameter list
+                    foreach (string parameter in parameters)
+                    {
+                        if (parameter.Contains("include"))
+                        {
+                            var @filePath = parameter.Replace("\"", "").Replace("include ", "").TrimEnd(' ');
+                            //Test that file exists
+                            if (File.Exists(filePath))
+                                includeFiles.Add(filePath);
+                            else
+                                CompilePalLogger.LogLineColor($"Could not find file: {filePath}", Error.GetSeverityBrush(2));
+                        }
+                    }
+                }
 
-				if (exclude)
-				{
-					char[] paramChars = GetParameterString().ToCharArray();
-					List<string> parameters = ParseParameters(paramChars);
+                if (exclude)
+                {
+                    //Get excluded files from parameter list
+                    foreach (string parameter in parameters)
+                    {
+                        if (parameter.Contains("exclude"))
+                        {
+                            var @filePath = parameter.Replace("\"", "").Replace("exclude ", "").Replace('/', '\\').ToLower().TrimEnd(' ');
+                            //Test that file exists
+                            if (File.Exists(filePath))
+                                excludeFiles.Add(filePath);
+                            else
+                                CompilePalLogger.LogLineColor($"Could not find file: {filePath}", Error.GetSeverityBrush(2));
+                        }
+                    }
+                }
 
-					//Get excluded files from parameter list
-					foreach (string parameter in parameters)
-					{
-						if (parameter.Contains("exclude"))
-						{
-							var @filePath = parameter.Replace("\"", "").Replace("exclude ", "").Replace('/', '\\').ToLower().TrimEnd(' ');
-							//Test that file exists
-							if (File.Exists(filePath))
-								excludeFiles.Add(filePath);
-							else
-								CompilePalLogger.LogLineColor($"Could not find file: {filePath}", Error.GetSeverityBrush(2));
-						}
-					}
-				}
-
-				CompilePalLogger.LogLine("Finding sources of game content...");
+                CompilePalLogger.LogLine("Finding sources of game content...");
                 sourceDirectories = GetSourceDirectories(gameFolder);
 
                 CompilePalLogger.LogLine("Reading BSP...");
                 BSP map = new BSP(new FileInfo(bspPath));
                 AssetUtils.findBspUtilityFiles(map, sourceDirectories, renamenav, genParticleManifest);
-				
+
                 //Set map particle manifest
                 if (genParticleManifest)
                     map.particleManifest = particleManifest;
@@ -129,19 +131,94 @@ namespace CompilePalX.Compilers.BSPPack
                 CompilePalLogger.LogLine("Initializing pak file...");
                 PakFile pakfile = new PakFile(map, sourceDirectories, includeFiles, excludeFiles);
 
-                CompilePalLogger.LogLine("Writing file list...");
-                pakfile.OutputToFile();
-
-                if (dryrun)
+                if (packvpk)
                 {
-                    CompilePalLogger.LogLine("File list saved as " + Environment.CurrentDirectory + "\\files.txt");
+                    string vpkName = context.BSPFile.Replace(".bsp", ".vpk");
+                    if (File.Exists(vpkName))
+                    {
+                        File.Delete(vpkName);
+                    }
+
+                    var responseFile = pakfile.GetResponseFile();
+
+                    if (File.Exists(bspPath))
+                    {
+                        // Add bsp to the vpk
+                        responseFile.Add(bspPath.Replace(gameFolder + "\\", ""), gameFolder);
+                    }
+
+                    if (GetParameterString().Contains("-ainfo"))
+                    {
+                        foreach (string parameter in parameters)
+                        {
+                            if (parameter.Contains("ainfo"))
+                            {
+                                var @filePath = parameter.Replace("\"", "").Replace("ainfo ", "").TrimEnd(' ');
+                                //Test that file exists
+                                if (File.Exists(filePath))
+                                {
+                                    File.Copy(filePath, Path.Combine(gameFolder, "addoninfo.txt"), true);
+                                    responseFile.Add("addoninfo.txt", gameFolder);
+                                }
+                            }
+                        }
+                    }
+
+                    CompilePalLogger.LogLine("Running VPK...");
+                    foreach (var path in sourceDirectories)
+                    {
+                        var testedFiles = "";
+                        foreach (var entry in responseFile)
+                        {
+                            if (entry.Value.Contains(path) || path.Contains(entry.Value))
+                            {
+                                testedFiles += entry.Key + "\n";
+                            }
+                        }
+
+                        var combinedPath = Path.Combine(path, "_tempResponseFile.txt");
+                        File.WriteAllText(combinedPath, testedFiles);
+
+                        PackVPK(vpkName, combinedPath, path);
+
+                        File.Delete(combinedPath);
+                    }
+
+                    File.Delete("_tempResponseFile.txt");
+
+                    if (GetParameterString().Contains("-ainfo"))
+                    {
+                        File.Delete(Path.Combine(gameFolder, "addoninfo.txt"));
+                    }
                 }
                 else
                 {
-                    CompilePalLogger.LogLine("Running bspzip...");
-                    PackBSP();
+                    CompilePalLogger.LogLine("Writing file list...");
+                    pakfile.OutputToFile();
+
+                    if (dryrun)
+                    {
+                        CompilePalLogger.LogLine("File list saved as " + Environment.CurrentDirectory + "\\files.txt");
+                    }
+                    else
+                    {
+                        CompilePalLogger.LogLine("Running bspzip...");
+                        PackBSP();
+                    }
+
+                    CompilePalLogger.LogLine("Copying packed bsp to vmf folder...");
+
+                    if (File.Exists(context.BSPFile))
+                    {
+                        if (File.Exists(context.BSPFile + ".unpacked"))
+                            File.Delete(context.BSPFile + ".unpacked");
+
+                        File.Move(context.BSPFile, context.BSPFile + ".unpacked");
+                    }
+
+                    File.Copy(bspPath, context.BSPFile);
                 }
-                
+
                 CompilePalLogger.LogLine("Finished!");
 
                 CompilePalLogger.LogLine("---------------------");
@@ -151,8 +228,10 @@ namespace CompilePalX.Compilers.BSPPack
                 CompilePalLogger.LogLine(pakfile.sndcount + " sounds found");
                 if (pakfile.vehiclescriptcount != 0)
                     CompilePalLogger.LogLine(pakfile.vehiclescriptcount + " vehicle scripts found");
-				if (pakfile.effectscriptcount != 0)
-					CompilePalLogger.LogLine(pakfile.effectscriptcount + " effect scripts found");
+                if (pakfile.effectscriptcount != 0)
+                    CompilePalLogger.LogLine(pakfile.effectscriptcount + " effect scripts found");
+                if (pakfile.vscriptcount != 0)
+                    CompilePalLogger.LogLine(pakfile.vscriptcount + " vscripts found");
                 string additionalFiles =
                     (map.nav.Key != default(string) ? "\n-nav file" : "") +
                     (map.soundscape.Key != default(string) ? "\n-soundscape" : "") +
@@ -164,6 +243,7 @@ namespace CompilePalX.Compilers.BSPPack
                     (map.jpg.Key != default(string) ? "\n-loading screen image" : "") +
                     (map.kv.Key != default(string) ? "\n-kv file" : "") +
                     (map.res.Key != default(string) ? "\n-res file" : "");
+
                 if (additionalFiles != "")
                     CompilePalLogger.LogLine("additional files: " + additionalFiles);
                 CompilePalLogger.LogLine("---------------------");
@@ -204,7 +284,7 @@ namespace CompilePalX.Compilers.BSPPack
             string output = p.StandardOutput.ReadToEnd();
 
             p.WaitForExit();
-            
+
         }
 
         static void PackBSP()
@@ -226,6 +306,40 @@ namespace CompilePalX.Compilers.BSPPack
             string output = p.StandardOutput.ReadToEnd();
             if (verbose)
                 CompilePalLogger.Log(output);
+            p.WaitForExit();
+        }
+
+        static void PackVPK(string targetVPK, string responseFile, string searchPath)
+        {
+            string arguments = $"a \"{targetVPK}\" \"@{responseFile}\"";
+
+            var p = new Process
+            {
+                StartInfo = new ProcessStartInfo
+
+                {
+                    WorkingDirectory = searchPath,
+                    FileName = vpk,
+                    Arguments = arguments,
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    CreateNoWindow = true,
+                }
+            };
+
+            //p.StartInfo.EnvironmentVariables["VPROJECT"] = gameFolder;
+            p.Start();
+
+            string output = p.StandardOutput.ReadToEnd();
+            string errOutput = p.StandardError.ReadToEnd();
+            if (verbose)
+            {
+                CompilePalLogger.Log(output);
+                CompilePalLogger.Log(errOutput);
+            }
+
+
             p.WaitForExit();
         }
 
@@ -260,13 +374,13 @@ namespace CompilePalX.Compilers.BSPPack
 
                         string path = GetInfoValue(line).Replace("\"", "");
 
-                        if (!(path.Contains("|") || path.Contains(".vpk")))
+                        if (!(path.Contains("|") && !path.Contains("|gameinfo_path|") || path.Contains(".vpk")))
                         {
                             if (path.Contains("*"))
                             {
                                 string newPath = path.Replace("*", "");
 
-								string fullPath = System.IO.Path.GetFullPath(rootPath + "\\" + newPath.TrimEnd('\\'));
+                                string fullPath = System.IO.Path.GetFullPath(rootPath + "\\" + newPath.TrimEnd('\\'));
 
                                 if (verbose)
                                     CompilePalLogger.LogLine("Found wildcard path: {0}", fullPath);
@@ -278,9 +392,18 @@ namespace CompilePalX.Compilers.BSPPack
                                 }
                                 catch { }
                             }
-							else
-							{
-								string fullPath = System.IO.Path.GetFullPath(rootPath + "\\" + path.TrimEnd('\\'));
+                            else if (path.Contains("|gameinfo_path|"))
+                            {
+                                string fullPath = gamePath;
+
+                                if (verbose)
+                                    CompilePalLogger.LogLine("Found search path: {0}", fullPath);
+
+                                sourceDirectories.Add(fullPath);
+                            }
+                            else
+                            {
+                                string fullPath = System.IO.Path.GetFullPath(rootPath + "\\" + path.TrimEnd('\\'));
 
                                 if (verbose)
                                     CompilePalLogger.LogLine("Found search path: {0}", fullPath);
@@ -312,28 +435,28 @@ namespace CompilePalX.Compilers.BSPPack
             return line.Split(new char[0], StringSplitOptions.RemoveEmptyEntries)[1];
         }
 
-		// parses parameters that can contain '-' in their values. Ex. filepaths
-	    private static List<string> ParseParameters(char[] paramChars)
-	    {
-			List<string> parameters = new List<string>();
-			bool inQuote = false;
-			StringBuilder tempParam = new StringBuilder();
+        // parses parameters that can contain '-' in their values. Ex. filepaths
+        private static List<string> ParseParameters(char[] paramChars)
+        {
+            List<string> parameters = new List<string>();
+            bool inQuote = false;
+            StringBuilder tempParam = new StringBuilder();
 
-			foreach (var pChar in paramChars)
-			{
-				if (pChar == '\"')
-					inQuote = !inQuote;
-				else if (!inQuote && pChar == '-')
-				{
-					parameters.Add(tempParam.ToString());
-					tempParam.Clear();
-				}
-				else
-					tempParam.Append(pChar);
+            foreach (var pChar in paramChars)
+            {
+                if (pChar == '\"')
+                    inQuote = !inQuote;
+                else if (!inQuote && pChar == '-')
+                {
+                    parameters.Add(tempParam.ToString());
+                    tempParam.Clear();
+                }
+                else
+                    tempParam.Append(pChar);
 
-			}
+            }
 
-		    return parameters;
-	    }
+            return parameters;
+        }
     }
 }

@@ -16,6 +16,9 @@ namespace CompilePalX
         public string VBSPInfo {
             get { return Path.Combine(BinFolder, "vbspinfo.exe"); }
         }
+        public string VPK {
+            get { return Path.Combine(BinFolder, "vpk.exe"); }
+        }
 
         public string GameEXE { get; set; }
 

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using CompilePalX.Compilers.UtilityProcess;
 
 namespace CompilePalX.Compilers.BSPPack
@@ -24,6 +25,7 @@ namespace CompilePalX.Compilers.BSPPack
         public int sndcount { get; private set; }
         public int vehiclescriptcount { get; private set; }
         public int effectscriptcount { get; private set; }
+        public int vscriptcount { get; private set; }
 
         public PakFile(BSP bsp, List<string> sourceDirectories, List<string> includeFiles, List<string> excludedFiles)
         {
@@ -107,6 +109,9 @@ namespace CompilePalX.Compilers.BSPPack
             foreach (string sound in bsp.EntSoundList)
                 if (AddFile(sound, FindExternalFile(sound)))
                     sndcount++;
+            foreach (string vscript in bsp.vscriptList)
+                if (AddFile(vscript, FindExternalFile(vscript)))
+                    vscriptcount++;
 
 			// add all manually included files
 			// TODO right now the manually included files search for files it depends on. Not sure if this should be default behavior
@@ -169,6 +174,18 @@ namespace CompilePalX.Compilers.BSPPack
             if (File.Exists("files.txt"))
                 File.Delete("files.txt");
             File.WriteAllLines("files.txt", outputLines);
+        }
+
+        public Dictionary<string,string> GetResponseFile()
+        {
+            var output = new Dictionary<string,string>();
+
+            foreach (var entry in Files)
+            {
+                output.Add(entry.Key, entry.Value.Replace(entry.Key, ""));
+            }
+
+            return output;
         }
 
         public bool AddFile(string internalPath, string externalPath)
