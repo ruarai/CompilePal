@@ -206,17 +206,17 @@ namespace CompilePalX.Compilers.BSPPack
                         PackBSP();
                     }
 
-                    /* CompilePalLogger.LogLine("Copying packed bsp to vmf folder...");
+                    CompilePalLogger.LogLine("Copying packed bsp to vmf folder...");
 
-                     if (File.Exists(context.BSPFile))
-                     {
-                         if (File.Exists(context.BSPFile + ".unpacked"))
-                             File.Delete(context.BSPFile + ".unpacked");
+                    if (File.Exists(context.BSPFile))
+                    {
+                        if (File.Exists(context.BSPFile + ".unpacked"))
+                            File.Delete(context.BSPFile + ".unpacked");
 
-                         File.Move(context.BSPFile, context.BSPFile + ".unpacked");
-                     }
+                        File.Move(context.BSPFile, context.BSPFile + ".unpacked");
+                    }
 
-                     File.Copy(bspPath, context.BSPFile);*/
+                    File.Copy(bspPath, context.BSPFile);
                 }
 
                 CompilePalLogger.LogLine("Finished!");
