@@ -120,6 +120,22 @@
     "Warning": ""
   },
   {
+    "Name": "Static Prop Lighting Only",
+    "Parameter": " -OnlyStaticProps",
+    "Description": "Only perform direct static prop lighting.",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": ""
+  },
+  {
+    "Name": "No self-shadowing props",
+    "Parameter": " -nossprops",
+    "Description": "Globally disable self-shadowing on static props",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": ""
+  },
+  {
     "Name": "Texture Shadows",
     "Parameter": " -TextureShadows",
     "Description": "Generates lightmap shadows from $translucent surfaces of models. (Not brushes)",
