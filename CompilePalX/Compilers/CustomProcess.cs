@@ -84,6 +84,7 @@ namespace CompilePalX.Compilers
 			//Find filepath of program associated with filetype
 			//This is similar to using shellexecute, except we can read the output
 			StringBuilder programPath = new StringBuilder();
+			Path = ParseArgs(Path, c);
 			int result = FindExecutable(Path, null, programPath);
 
 			//Result code <= is an error
@@ -171,6 +172,7 @@ namespace CompilePalX.Compilers
 			args = args.Replace("$path", $"{System.IO.Path.GetDirectoryName(c.MapFile)}");
 			args = args.Replace("$bspdir", $"{c.Configuration.MapFolder}\\");
 			args = args.Replace("$gamedir", $"{c.Configuration.GameFolder}");
+			args = args.Replace("$bindir", $"{c.Configuration.BinFolder}");
 
 			args = args.Replace("$bsp_exe", $"{c.Configuration.VBSP}");
 			args = args.Replace("$vis_exe", $"{c.Configuration.VVIS}");
