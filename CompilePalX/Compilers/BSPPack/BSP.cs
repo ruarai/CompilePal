@@ -1,16 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace CompilePalX.Compilers.BSPPack
 {
-    // this is the class that stores data about the bsp.
-    // You can find information about the file format here
-    // https://developer.valvesoftware.com/wiki/Source_BSP_File_Format#BSP_file_header
+	// this is the class that stores data about the bsp.
+	// You can find information about the file format here
+	// https://developer.valvesoftware.com/wiki/Source_BSP_File_Format#BSP_file_header
 
-    class BSP
+	class BSP
     {
         private FileStream bsp;
         private BinaryReader reader;
@@ -121,7 +121,9 @@ namespace CompilePalX.Compilers.BSPPack
 
 					string rawent = Encoding.ASCII.GetString(ents.ToArray());
                     Dictionary<string, string> entity = new Dictionary<string, string>();
-                    foreach (string s in rawent.Split('\n'))
+					// split on \n, ignore \n inside of quotes
+                    foreach (string s in Regex.Split(rawent, "(?=(?:(?:[^\"]*\"){2})*[^\"]*$)\\n"))
+                    //foreach (string s in rawent.Split('\n'))
                     {
                         if (s.Count() != 0)
                         {

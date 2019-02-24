@@ -251,6 +251,7 @@ namespace CompilePalX
         {
             ConfigDataGrid.IsEnabled = false;
             ProcessDataGrid.IsEnabled = false;
+	        OrderGrid.IsEnabled = false;
 
             AddParameterButton.IsEnabled = false;
             RemoveParameterButton.IsEnabled = false;
@@ -273,6 +274,7 @@ namespace CompilePalX
 			//If process grid is enabled, disable config grid
             ConfigDataGrid.IsEnabled = !processModeEnabled;
             ProcessDataGrid.IsEnabled = processModeEnabled;
+	        OrderGrid.IsEnabled = true;
 
             AddParameterButton.IsEnabled = true;
             RemoveParameterButton.IsEnabled = true;
@@ -623,15 +625,15 @@ namespace CompilePalX
 
 	    private void ProcessTab_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
 	    {
-			//Update order grid. Check that ORDER was selected to prevent crashes due to draggable grid
-		    if ((e.Source is TabControl) && ((string) (e.AddedItems[0] as TabItem)?.Header == "ORDER"))
-		    {
+			if (e.Source is TabControl)
 				OrderManager.UpdateOrder();
 
-			    AddParameterButton.Visibility = Visibility.Hidden;
-			    AddParameterButton.IsEnabled = false;
+			if (OrderTab.IsSelected)
+		    {
+				AddParameterButton.Visibility = Visibility.Hidden;
+				AddParameterButton.IsEnabled = false;
 
-			    RemoveParameterButton.Visibility = Visibility.Hidden;
+				RemoveParameterButton.Visibility = Visibility.Hidden;
 				RemoveParameterButton.IsEnabled = false;
 			}
 		    else

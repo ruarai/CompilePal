@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using CompilePalX.Compilers.UtilityProcess;
 
 namespace CompilePalX.Compilers.BSPPack
@@ -267,10 +268,19 @@ namespace CompilePalX.Compilers.BSPPack
             // Attempts to find the file from the internalPath
             // returns the externalPath or an empty string
 
-            foreach (string source in sourceDirs)
-                if (File.Exists(source +"/"+ internalPath))
-                    return source + "/" + internalPath.Replace("\\", "/");
+	        var sanitizedPath = SanitizePath(internalPath);
+
+			foreach (string source in sourceDirs)
+                if (File.Exists(source +"/"+ sanitizedPath))
+                    return source + "/" + sanitizedPath.Replace("\\", "/");
             return "";
         }
+
+		private static readonly string invalidChars = Regex.Escape(new string(Path.GetInvalidFileNameChars()));
+		private static readonly string invalidRegString = string.Format(@"([{0}]*\.+$)|([{0}]+)", invalidChars);
+	    private string SanitizePath(string path)
+	    {
+		    return Regex.Replace(path, invalidRegString, "");
+	    }
     }
 }

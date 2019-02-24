@@ -108,8 +108,8 @@
                             </DataGrid.Columns>
                         </DataGrid>
 
-                        <TabControl Grid.Row="0" Visibility="Hidden" Name="ProcessTab" IsEnabled="False" SelectionChanged="ProcessTab_OnSelectionChanged">
-                            <TabItem Header="PROGRAMS" Margin="5, 0, 0, 0">
+                        <TabControl Grid.Row="0" Visibility="Hidden" Name="ProcessTab" IsEnabled="False" SelectionChanged="ProcessTab_OnSelectionChanged" >
+                            <TabItem Header="PROGRAMS" Margin="5, 0, 0, 0" x:Name="ProgramTab">
                                 <DataGrid IsEnabled="False" Visibility="Visible" Name="ProcessDataGrid" Margin="10,10,10,10" AutoGenerateColumns="False" CanUserAddRows="False" ItemsSource="{Binding}">
                                     <DataGrid.Columns>
                                         <DataGridTemplateColumn Header="Program Path" CanUserSort="False">
@@ -133,7 +133,7 @@
                                 </DataGrid>
                             </TabItem>
 
-                            <TabItem Header="ORDER" Margin="5, 0, 0, 0" IsEnabledChanged="OrderGrid_OnIsEnabledChanged">
+                            <TabItem Header="ORDER" Margin="5, 0, 0, 0" IsEnabledChanged="OrderGrid_OnIsEnabledChanged" x:Name="OrderTab">
                                 <DataGrid Name="OrderGrid" Margin="10,10,10,10" AutoGenerateColumns="False" CanUserAddRows="False" SelectionMode="Single" ItemsSource="{Binding Source={x:Static config:OrderManager.CurrentOrder}}" local:RowDragHelper.EnableRowDrag="True">
                                     <DataGrid.Columns>
                                         <DataGridTextColumn Header="Original Order" Binding="{ Binding Ordering}" IsReadOnly="True" CanUserSort="False"/>
