@@ -276,9 +276,9 @@ namespace CompilePalX.Compilers.BSPPack
             return "";
         }
 
-		private static readonly string invalidChars = Regex.Escape(new string(Path.GetInvalidFileNameChars()));
-		private static readonly string invalidRegString = string.Format(@"([{0}]*\.+$)|([{0}]+)", invalidChars);
-	    private string SanitizePath(string path)
+		private static readonly string invalidChars = Regex.Escape(new string(Path.GetInvalidPathChars()));
+		private static readonly string invalidRegString = $@"([{invalidChars}]*\.+$)|([{invalidChars}]+)";
+		private string SanitizePath(string path)
 	    {
 		    return Regex.Replace(path, invalidRegString, "");
 	    }
