@@ -36,7 +36,7 @@ namespace CompilePalX.Compilers
 				if (string.IsNullOrWhiteSpace(path))
 					continue;
 
-				CustomProgram program = new CustomProgram(path, args, parameter.ReadOutput, order);
+				CustomProgram program = new CustomProgram(path, args, parameter.ReadOutput, parameter.WaitForExit, order);
 
 				Programs.Add(program);
 			}
@@ -60,13 +60,16 @@ namespace CompilePalX.Compilers
 
 		public bool ReadOutput { get; set; }
 
+		public bool WaitForExit { get; set; }
+
 		public int CustomOrder { get; set; }
 
-		public CustomProgram(string path, string args, bool readOutput, int customOrder) : base("CUSTOM")
+		public CustomProgram(string path, string args, bool readOutput, bool waitForExit, int customOrder) : base("CUSTOM")
 		{
 			Path = path;
 			Args = args;
 			ReadOutput = readOutput;
+			WaitForExit = waitForExit;
 			CustomOrder = customOrder;
 			Name = path.Replace("\\", "/").Replace("\"", "").Split('/').Last();
 			Description = "Run program.";
@@ -144,11 +147,22 @@ namespace CompilePalX.Compilers
 				Process.ErrorDataReceived += ProcessOnErrorDataReceived;
 			}
 
-			//TODO maybe add limit to how long programs can run for programs that dont exit on their own
-			Process.WaitForExit();
-			Process.Close();
-			CompilePalLogger.LogLine("\nProgram completed sucesfully\n");
-
+			if (WaitForExit)
+			{
+				Process.WaitForExit();
+				Process.Close();
+				CompilePalLogger.LogLine("\nProgram completed sucesfully\n");
+			}
+			else
+			{
+				// run async
+				Task.Run(() =>
+				{
+					Process.WaitForExit();
+					Process.Close();
+					CompilePalLogger.LogLine("\nProgram completed sucesfully\n");
+				});
+			}
 		}
 
 		private void ProcessOnErrorDataReceived(object sender, DataReceivedEventArgs e)

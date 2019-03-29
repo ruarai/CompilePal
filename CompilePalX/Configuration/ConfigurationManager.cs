@@ -121,6 +121,7 @@ namespace CompilePalX
 	                            if (item.Parameter == "program")
 	                            {
 									equivalentItem.Value2 = item.Value2;
+									equivalentItem.WaitForExit= item.WaitForExit;
 		                            equivalentItem.Warning = item.Warning;
 	                            }
 	                            
@@ -292,7 +293,9 @@ namespace CompilePalX
 	            if (pieces.Length >= 4)
 		            item.ReadOutput = Convert.ToBoolean(pieces[3]);
 	            if (pieces.Length >= 5)
-		            item.Warning = pieces[4];
+					item.WaitForExit= Convert.ToBoolean(pieces[4]);
+	            if (pieces.Length >= 6)
+		            item.Warning = pieces[5];
             }
             return item;
         }
@@ -301,7 +304,7 @@ namespace CompilePalX
         {
 			//Handle extra information stored for custom programs
 	        if (item.Name == "Run Program")
-		        return $"{item.Parameter},{item.Value},{item.Value2},{item.ReadOutput},{item.Warning}";
+		        return $"{item.Parameter},{item.Value},{item.Value2},{item.ReadOutput},{item.WaitForExit},{item.Warning}";
             return $"{item.Parameter},{item.Value}";
         }
 

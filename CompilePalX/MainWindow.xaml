@@ -129,6 +129,8 @@
                                         </DataGridTemplateColumn>
 
                                         <DataGridCheckBoxColumn Header="Read Output" Binding="{Binding ReadOutput, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ElementStyle="{DynamicResource MetroDataGridCheckBox}" EditingElementStyle="{DynamicResource MetroDataGridCheckBox}" CanUserSort="False"/>
+                                        
+                                        <DataGridCheckBoxColumn Header="Wait For Exit" Binding="{Binding WaitForExit, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ElementStyle="{DynamicResource MetroDataGridCheckBox}" EditingElementStyle="{DynamicResource MetroDataGridCheckBox}" CanUserSort="False"/>
                                     </DataGrid.Columns>
                                 </DataGrid>
                             </TabItem>

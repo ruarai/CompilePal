@@ -4,7 +4,7 @@
   "Order": 15.0,
   "DoRun": false,
   "ReadOutput": false,
-  "Description": "Run custom programs.",
+  "Description": "Run custom build steps.",
   "Warning": "",
   "PresetDefault": false,
   "BasisString": ""

@@ -6,10 +6,11 @@
     "Value": "",
     "ValueIsFile": true,
     "Value2": "",
-    "Value2IsFile": false, 
-    "ReadOutput": true, 
+    "Value2IsFile": false,
+    "ReadOutput": true,
+    "WaitForExit": true, 
     "CanHaveValue": true,
     "CanBeUsedMoreThanOnce":  true,
-    "Warning": "15",
+    "Warning": "15"
   }
 ]
