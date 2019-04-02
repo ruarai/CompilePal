@@ -17,3 +17,13 @@ team_base_icon_2
 team_base_icon_3
 overlaymaterial
 particletrailmaterial
+overlayname1
+overlayname2
+overlayname3
+overlayname4
+overlayname5
+overlayname6
+overlayname7
+overlayname8
+overlayname9
+overlayname10
