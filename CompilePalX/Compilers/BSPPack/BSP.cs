@@ -123,17 +123,12 @@ namespace CompilePalX.Compilers.BSPPack
                     Dictionary<string, string> entity = new Dictionary<string, string>();
 					// split on \n, ignore \n inside of quotes
                     foreach (string s in Regex.Split(rawent, "(?=(?:(?:[^\"]*\"){2})*[^\"]*$)\\n"))
-                    //foreach (string s in rawent.Split('\n'))
                     {
                         if (s.Count() != 0)
                         {
                             string[] c = s.Split('"');
                             if (!entity.ContainsKey(c[1]))
                                 entity.Add(c[1], c[3]);
-
-                            //everything after the hammerid is input/outputs
-                            //if (c[1] == "hammerid")
-                            //    break;
                         }
                     }
                     entityList.Add(entity);
@@ -236,6 +231,22 @@ namespace CompilePalX.Compilers.BSPPack
 
 					}
 	            }
+
+				// pack IO triggered screen_overlay materials
+				var screenOverlays = ent.Values.Where((e) => e.Contains("r_screenoverlay"));
+				if (screenOverlays.Any())
+				{
+					foreach (var screenOverlay in screenOverlays)
+					{
+						var overlay = screenOverlay.Split(',')
+							.Where((e) => e.Contains("r_screenoverlay"))
+							.Select((e) => e.Replace("r_screenoverlay ", ""))
+							.FirstOrDefault();
+
+						if (overlay != null)
+							materials.Add(overlay);
+					}
+				}
 
                 // format and add materials
                 foreach (string material in materials)
