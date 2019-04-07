@@ -213,7 +213,6 @@ namespace CompilePalX
         void SetSources()
         {
             CompileProcessesListBox.ItemsSource = CompileProcessesSubList;
-
             PresetConfigListBox.ItemsSource = ConfigurationManager.KnownPresets;
 
             MapListBox.ItemsSource = CompilingManager.MapFiles;
@@ -252,6 +251,7 @@ namespace CompilePalX
         {
             ConfigDataGrid.IsEnabled = false;
             ProcessDataGrid.IsEnabled = false;
+	        OrderGrid.IsEnabled = false;
 
             AddParameterButton.IsEnabled = false;
             RemoveParameterButton.IsEnabled = false;
@@ -274,6 +274,7 @@ namespace CompilePalX
 			//If process grid is enabled, disable config grid
             ConfigDataGrid.IsEnabled = !processModeEnabled;
             ProcessDataGrid.IsEnabled = processModeEnabled;
+	        OrderGrid.IsEnabled = true;
 
             AddParameterButton.IsEnabled = true;
             RemoveParameterButton.IsEnabled = true;
@@ -326,7 +327,8 @@ namespace CompilePalX
 					{
 						if (c.ChosenItem.CanBeUsedMoreThanOnce)
 						{
-							selectedProcess.PresetDictionary[ConfigurationManager.CurrentPreset].Add(c.ChosenItem);
+							// .clone() removes problems with parameters sometimes becoming linked
+							selectedProcess.PresetDictionary[ConfigurationManager.CurrentPreset].Add((ConfigItem)c.ChosenItem.Clone());
 						} 
 						else if (!selectedProcess.PresetDictionary[ConfigurationManager.CurrentPreset].Contains(c.ChosenItem))
 						{
@@ -481,7 +483,9 @@ namespace CompilePalX
 					ProcessDataGrid.BeginAnimation(OpacityProperty, new DoubleAnimation(0, 1, new Duration(TimeSpan.FromMilliseconds(50))));
 					processModeEnabled = true;
 
-		            ConfigDataGrid.IsEnabled = false;
+					ProcessDataGrid.ItemsSource = selectedProcess.PresetDictionary[ConfigurationManager.CurrentPreset];
+		            
+					ConfigDataGrid.IsEnabled = false;
 		            ConfigDataGrid.Visibility = Visibility.Hidden;
 					ParametersTextBox.Visibility = Visibility.Hidden;
 
@@ -490,8 +494,6 @@ namespace CompilePalX
 
 		            ProcessTab.IsEnabled = true;
 		            ProcessTab.Visibility = Visibility.Visible;
-
-					ProcessDataGrid.ItemsSource = selectedProcess.PresetDictionary[ConfigurationManager.CurrentPreset];
 
 					//Hide parameter buttons if ORDER is the current tab
 		            if ((string)(ProcessTab.SelectedItem as TabItem)?.Header == "ORDER")
@@ -623,15 +625,15 @@ namespace CompilePalX
 
 	    private void ProcessTab_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
 	    {
-			//Update order grid. Check that ORDER was selected to prevent crashes due to draggable grid
-		    if ((e.Source is TabControl) && ((string) (e.AddedItems[0] as TabItem)?.Header == "ORDER"))
-		    {
+			if (e.Source is TabControl)
 				OrderManager.UpdateOrder();
 
-			    AddParameterButton.Visibility = Visibility.Hidden;
-			    AddParameterButton.IsEnabled = false;
+			if (OrderTab.IsSelected)
+		    {
+				AddParameterButton.Visibility = Visibility.Hidden;
+				AddParameterButton.IsEnabled = false;
 
-			    RemoveParameterButton.Visibility = Visibility.Hidden;
+				RemoveParameterButton.Visibility = Visibility.Hidden;
 				RemoveParameterButton.IsEnabled = false;
 			}
 		    else
@@ -703,7 +705,7 @@ namespace CompilePalX
 				return;
 
 			program.CustomOrder = newOrder;
-			programConfig.Parameter = newOrder.ToString();
+			programConfig.Warning = newOrder.ToString();
 		}
 
 
@@ -721,7 +723,7 @@ namespace CompilePalX
 			//Return null on failure
 		    return null;
 	    }
-	}
+    }
 
 	public static class ObservableCollectionExtension
 	{

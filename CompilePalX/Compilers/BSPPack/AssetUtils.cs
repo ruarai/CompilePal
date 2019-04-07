@@ -10,9 +10,10 @@ namespace CompilePalX.Compilers.BSPPack
     static class AssetUtils
     {
 
-        public static List<string> findMdlMaterials(string path, List<int> skins = null)
+        public static Tuple<List<string>, List<string>> findMdlMaterialsAndModels(string path, List<int> skins = null)
         {
             List<string> materials = new List<string>();
+            List<string> models = new List<string>();
 
             if (File.Exists(path))
             {
@@ -43,8 +44,13 @@ namespace CompilePalX.Compilers.BSPPack
                 int bodypart_count = reader.ReadInt32();
                 int bodypart_index = reader.ReadInt32();
 
-                // find model names
-                for (int i = 0; i < textureCount; i++)
+				// skip to includemodel
+				mdl.Seek(96, SeekOrigin.Current);
+	            int includeModelCount = reader.ReadInt32();
+	            int includeModelIndex = reader.ReadInt32();
+
+				// find model names
+				for (int i = 0; i < textureCount; i++)
                 {
                     mdl.Seek(textureOffset + (i * 64), SeekOrigin.Begin);
                     int textureNameOffset = reader.ReadInt32();
@@ -137,9 +143,57 @@ namespace CompilePalX.Compilers.BSPPack
                     for (int i = 0; i < modelVmts.Count; i++)
                         for (int j = 0; j < modelDirs.Count; j++)
                             materials.Add("materials/" + modelDirs[j] + modelVmts[i] + ".vmt");
-                mdl.Close();
+
+				// find included models. mdl v44 and up have same includemodel format
+	            if (ver > 44)
+	            {
+					mdl.Seek(includeModelIndex, SeekOrigin.Begin);
+
+		            var includeOffsetStart = mdl.Position;
+					for (int j = 0; j < includeModelCount; j++)
+					{
+						var includeStreamPos = mdl.Position;
+
+						var labelOffset = reader.ReadInt32();
+						var includeModelPathOffset = reader.ReadInt32();
+
+						// skip unknown section made up of 27 ints
+						// TODO: not needed?
+						//mdl.Seek(27 * 4, SeekOrigin.Current);
+
+						var currentOffset = mdl.Position;
+
+						string label = "";
+
+						if (labelOffset != 0)
+						{
+							// go to label offset
+							mdl.Seek(labelOffset, SeekOrigin.Begin);
+							label = readNullTerminatedString(mdl, reader);
+
+							// return to current offset
+							mdl.Seek(currentOffset, SeekOrigin.Begin);
+						}
+
+						if (includeModelPathOffset != 0)
+						{
+							// go to model offset
+							mdl.Seek(includeModelPathOffset + includeOffsetStart, SeekOrigin.Begin);
+							models.Add(readNullTerminatedString(mdl, reader));
+
+							// return to current offset
+							mdl.Seek(currentOffset, SeekOrigin.Begin);
+						}
+
+
+					}
+	            }
+
+
+
+				mdl.Close();
             }
-            return materials;
+            return new Tuple<List<string>, List<string>>(materials, models);
         }
 
         public static List<string> findPhyGibs(string path)
@@ -150,27 +204,33 @@ namespace CompilePalX.Compilers.BSPPack
 
             if (File.Exists(path))
             {
-                FileStream phy = new FileStream(path, FileMode.Open);
-                BinaryReader reader = new BinaryReader(phy);
-                int header_size = reader.ReadInt32();
-                phy.Seek(4, SeekOrigin.Current);
-                int solidCount = reader.ReadInt32();
-
-                phy.Seek(header_size, SeekOrigin.Begin);
-                int solid_size = reader.ReadInt32();
-                
-                phy.Seek(solid_size, SeekOrigin.Current);
-                string something = readNullTerminatedString(phy, reader);
-                
-                string[] entries = something.Split(new char [] { '{','}' });
-                for (int i = 0; i < entries.Count(); i++ )
+                // YOU GUYS DIDNT CLOSE STREAM OMG!!!!!
+                using (FileStream phy = new FileStream(path, FileMode.Open))
                 {
-                    if (entries[i].Trim().Equals("break")){
-                        string[] entry = entries[i + 1].Split(new char[]{' '}, StringSplitOptions.RemoveEmptyEntries);
+                    using (BinaryReader reader = new BinaryReader(phy))
+                    {
+                        int header_size = reader.ReadInt32();
+                        phy.Seek(4, SeekOrigin.Current);
+                        int solidCount = reader.ReadInt32();
 
-                        for (int j = 0; j < entry.Count(); j++)
-                            if (entry[j].Equals("\"model\"") || entry[j].Equals("\"ragdoll\""))
-                                models.Add("models\\" + entry[j + 1].Trim('"')+".mdl");
+                        phy.Seek(header_size, SeekOrigin.Begin);
+                        int solid_size = reader.ReadInt32();
+
+                        phy.Seek(solid_size, SeekOrigin.Current);
+                        string something = readNullTerminatedString(phy, reader);
+
+                        string[] entries = something.Split(new char[] { '{', '}' });
+                        for (int i = 0; i < entries.Count(); i++)
+                        {
+                            if (entries[i].Trim().Equals("break"))
+                            {
+                                string[] entry = entries[i + 1].Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+
+                                for (int j = 0; j < entry.Count(); j++)
+                                    if (entry[j].Equals("\"model\"") || entry[j].Equals("\"ragdoll\""))
+                                        models.Add("models\\" + entry[j + 1].Trim('"') + ".mdl");
+                            }
+                        }
                     }
                 }
             }
@@ -183,7 +243,7 @@ namespace CompilePalX.Compilers.BSPPack
 
             var references = new List<string>();
 
-            var variations = new List<string> { ".dx80.vtx", ".dx90.vtx", ".phy", ".sw.vtx", ".vtx", ".xbox.vtx", ".vvd" };
+            var variations = new List<string> { ".dx80.vtx", ".dx90.vtx", ".phy", ".sw.vtx", ".vtx", ".xbox.vtx", ".vvd", ".ani" };
             foreach (string variation in variations)
             {
                 string variant = Path.ChangeExtension(path, variation);
@@ -411,8 +471,27 @@ namespace CompilePalX.Compilers.BSPPack
             }
             bsp.VehicleScriptList = vehicleScripts;
 
-            // Res file (for tf2's pd gamemode)
-            Dictionary<string, string>  pd_ent = bsp.entityList.FirstOrDefault(item => item["classname"] == "tf_logic_player_destruction");
+			// Effect Scripts
+			List<KeyValuePair<string, string>> effectScripts = new List<KeyValuePair<string, string>>();
+			foreach (Dictionary<string, string> ent in bsp.entityList)
+			{
+				if (ent.ContainsKey("scriptfile"))
+				{
+					foreach (string source in sourceDirectories)
+					{
+						string externalPath = source + "/" + ent["scriptfile"];
+						if (File.Exists(externalPath))
+						{
+							internalPath = ent["scriptfile"];
+							effectScripts.Add(new KeyValuePair<string, string>(ent["scriptfile"], externalPath));
+						}
+					}
+				}
+			}
+			bsp.EffectScriptList = effectScripts;
+
+			// Res file (for tf2's pd gamemode)
+			Dictionary<string, string>  pd_ent = bsp.entityList.FirstOrDefault(item => item["classname"] == "tf_logic_player_destruction");
             if (pd_ent != null && pd_ent.ContainsKey("res_file"))
             {
                 foreach (string source in sourceDirectories)
@@ -525,6 +604,25 @@ namespace CompilePalX.Compilers.BSPPack
                     }
             }
             bsp.languages = langfiles;
+
+            // ASW/Source2009 branch VScripts
+            List<string> vscripts = new List<string>();
+
+            foreach(Dictionary<string, string> entity in bsp.entityList)
+            {
+                foreach(KeyValuePair<string,string> kvp in entity)
+                {
+                    if(kvp.Key.ToLower() == "vscripts")
+                    {
+                        string[] scripts = kvp.Value.Split(' ');
+                        foreach(string script in scripts)
+                        {
+                            vscripts.Add("scripts/vscripts/" + script);
+                        }
+                    }
+                }
+            }
+            bsp.vscriptList = vscripts;
         }
 
         private static string readNullTerminatedString(FileStream fs, BinaryReader reader)

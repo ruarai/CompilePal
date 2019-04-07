@@ -22,5 +22,44 @@
     "Value": null,
     "CanHaveValue": false,
     "Warning": "For TF2 only"
+  },
+  {
+    "Name": "Include",
+    "Parameter": " -include",
+    "Description": "Packs specified file",
+    "Value": null,
+    "ValueIsFile": true,
+    "CanHaveValue": true,
+    "Warning": "",
+    "CanBeUsedMoreThanOnce": true
+  },
+  {
+    "Name": "Exclude",
+    "Parameter": " -exclude",
+    "Description": "Excludes specified file",
+    "Value": null,
+    "ValueIsFile": true,
+    "CanHaveValue": true,
+    "Warning": "",
+    "CanBeUsedMoreThanOnce": true
+  },
+  {
+    "Name": "VPK",
+    "Parameter": " -vpk",
+    "Description": "Pack into a VPK instead of BSP.",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": "L4D2/Portal2 only",
+    "CanBeUsedMoreThanOnce": false
+  },
+  {
+    "Name": "Addon Info",
+    "Parameter": " -ainfo",
+    "Description": "Packs specified file as addoninfo.txt",
+    "Value": null,
+    "ValueIsFile": true,
+    "CanHaveValue": true,
+    "Warning": "L4D2/Portal2 only",
+    "CanBeUsedMoreThanOnce": false
   }
 ]

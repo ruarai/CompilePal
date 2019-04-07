@@ -62,7 +62,35 @@
                                 <DataGridTemplateColumn Header="Value">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
-                                            <TextBox Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}" KeyUp="OnConfigChanged"/>
+                                            <Grid>
+                                                <TextBox Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}" KeyUp="OnConfigChanged">
+                                                    <TextBox.Style>
+                                                        <Style TargetType="{x:Type TextBox}">
+                                                            <Setter Property="VerticalContentAlignment" Value="Center"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding ValueIsFile}" Value="True">
+                                                                    <Setter Property="Visibility" Value="Hidden"/>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding ValueIsFolder}" Value="True">
+                                                                    <Setter Property="Visibility" Value="Hidden"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBox.Style>
+                                                </TextBox>
+                                                <local:FileInput Config="{Binding}" FileDialogTitle="Choose File" IsFolder="{Binding ValueIsFolder}">
+                                                    <local:FileInput.Style>
+                                                        <Style TargetType="{x:Type local:FileInput}">
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding ValueIsFile}" Value="False">
+                                                                    <Setter Property="Visibility" Value="Hidden"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+
+                                                        </Style>
+                                                    </local:FileInput.Style>
+                                                </local:FileInput>
+                                            </Grid>
                                         </DataTemplate>
                                     </DataGridTemplateColumn.CellTemplate>
                                     <DataGridTemplateColumn.CellStyle>
@@ -76,23 +104,23 @@
                                     </DataGridTemplateColumn.CellStyle>
                                 </DataGridTemplateColumn>
                                 <DataGridTextColumn Header="Description" Binding="{ Binding Description}" IsReadOnly="True"/>
-                                <DataGridTextColumn Header="Warnings" Binding="{ Binding Warning}" IsReadOnly="True"/>
+                                <DataGridTextColumn Header="Warnings" Binding="{ Binding Warning}" IsReadOnly="True" Width="*"/>
                             </DataGrid.Columns>
                         </DataGrid>
 
-                        <TabControl Grid.Row="0" Visibility="Hidden" Name="ProcessTab" IsEnabled="False" SelectionChanged="ProcessTab_OnSelectionChanged">
-                            <TabItem Header="PROGRAMS" Margin="5, 0, 0, 0">
+                        <TabControl Grid.Row="0" Visibility="Hidden" Name="ProcessTab" IsEnabled="False" SelectionChanged="ProcessTab_OnSelectionChanged" >
+                            <TabItem Header="PROGRAMS" Margin="5, 0, 0, 0" x:Name="ProgramTab">
                                 <DataGrid IsEnabled="False" Visibility="Visible" Name="ProcessDataGrid" Margin="10,10,10,10" AutoGenerateColumns="False" CanUserAddRows="False" ItemsSource="{Binding}">
                                     <DataGrid.Columns>
                                         <DataGridTemplateColumn Header="Program Path" CanUserSort="False">
                                             <DataGridTemplateColumn.CellTemplate>
                                                 <DataTemplate>
-                                                    <TextBox Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}" KeyUp="OnConfigChanged"/>
+                                                    <local:FileInput Config="{Binding}" FileDialogTitle="Choose Program"/>
                                                 </DataTemplate>
                                             </DataGridTemplateColumn.CellTemplate>
                                         </DataGridTemplateColumn>
 
-                                        <DataGridTemplateColumn Header="Command Line Arguments" CanUserSort="False">
+                                        <DataGridTemplateColumn Header="Command Line Arguments" CanUserSort="False" Width="*">
                                             <DataGridTemplateColumn.CellTemplate>
                                                 <DataTemplate>
                                                     <TextBox Text="{Binding Value2, UpdateSourceTrigger=PropertyChanged}" KeyUp="OnConfigChanged"/>
@@ -100,12 +128,14 @@
                                             </DataGridTemplateColumn.CellTemplate>
                                         </DataGridTemplateColumn>
 
-                                        <DataGridCheckBoxColumn Header="Read Output" Binding="{Binding ReadOutput, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ElementStyle="{DynamicResource MetroDataGridCheckBox}" EditingElementStyle="{DynamicResource MetroDataGridCheckBox}" CanUserSort="False" />
+                                        <DataGridCheckBoxColumn Header="Read Output" Binding="{Binding ReadOutput, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ElementStyle="{DynamicResource MetroDataGridCheckBox}" EditingElementStyle="{DynamicResource MetroDataGridCheckBox}" CanUserSort="False"/>
+                                        
+                                        <DataGridCheckBoxColumn Header="Wait For Exit" Binding="{Binding WaitForExit, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ElementStyle="{DynamicResource MetroDataGridCheckBox}" EditingElementStyle="{DynamicResource MetroDataGridCheckBox}" CanUserSort="False"/>
                                     </DataGrid.Columns>
                                 </DataGrid>
                             </TabItem>
 
-                            <TabItem Header="ORDER" Margin="5, 0, 0, 0" IsEnabledChanged="OrderGrid_OnIsEnabledChanged">
+                            <TabItem Header="ORDER" Margin="5, 0, 0, 0" IsEnabledChanged="OrderGrid_OnIsEnabledChanged" x:Name="OrderTab">
                                 <DataGrid Name="OrderGrid" Margin="10,10,10,10" AutoGenerateColumns="False" CanUserAddRows="False" SelectionMode="Single" ItemsSource="{Binding Source={x:Static config:OrderManager.CurrentOrder}}" local:RowDragHelper.EnableRowDrag="True">
                                     <DataGrid.Columns>
                                         <DataGridTextColumn Header="Original Order" Binding="{ Binding Ordering}" IsReadOnly="True" CanUserSort="False"/>
@@ -119,6 +149,7 @@
                                                     <Setter Property="Background" Value="#FFE5E5E5"/>
                                                     <Setter Property="BorderThickness" Value="0"/>
                                                     <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+                                                    <Setter Property="Foreground" Value="Black"/>
                                                 </DataTrigger>
                                                 <DataTrigger Binding="{Binding IsDraggable}" Value="True">
                                                     <Setter Property="BorderThickness" Value="0"/>
@@ -175,4 +206,6 @@
         <TaskbarItemInfo/>
     </Window.TaskbarItemInfo>
 </controls:MetroWindow>
+    
+
     

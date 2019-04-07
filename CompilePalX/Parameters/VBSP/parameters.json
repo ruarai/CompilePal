@@ -48,12 +48,28 @@
     "Warning": "Not supported on newer Source."
   },
   {
+    "Name": "Micro Volume Test",
+    "Parameter": " -micro",
+    "Description": "VBSP will warn when brushes are output with a volume less than this number (default: 1.0).",
+    "Value": 1.0,
+    "CanHaveValue": true,
+    "Warning": ""
+  },
+  {
     "Name": "All Detail",
     "Parameter": " -alldetail",
     "Description": "Make all geometry func_detail to improve VVIS times. Use with a radius override of 2500 in VVIS.",
     "Value": null,
     "CanHaveValue": false,
     "Warning": "Support varies between versions of source."
+  },
+  {
+    "Name": "Full Detail",
+    "Parameter": " -fulldetail",
+    "Description": "Mark all detail geometry as normal geometry (so all detail geometry will affect visibility).",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": ""
   },
   {
     "Name": "Verbose",

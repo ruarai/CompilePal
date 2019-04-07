@@ -73,7 +73,7 @@
   },
   {
     "Name": "Luxel Density",
-    "Parameter": " -density",
+    "Parameter": " -luxeldensity",
     "Description": "Scale down luxels. Maximum value is 1.",
     "Value": null,
     "CanHaveValue": true,
@@ -109,12 +109,28 @@
     "Description": "Controls quality of static prop lighting (16 = slow, high quality, 4 = default and 0.25 = fast, low quality).",
     "Value": null,
     "CanHaveValue": true,
-    "Warning": "Note that adding -final is the same as having -StaticPropLightingScale 16."
+    "Warning": "CS:GO Only! Note that adding -final is the same as having -StaticPropLightingScale 16."
   },
   {
     "Name": "Static Prop Polys",
     "Parameter": " -StaticPropPolys",
     "Description": "Generate lighting on props at polygon precision.",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": ""
+  },
+  {
+    "Name": "Static Prop Lighting Only",
+    "Parameter": " -OnlyStaticProps",
+    "Description": "Only perform direct static prop lighting.",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": ""
+  },
+  {
+    "Name": "No self-shadowing props",
+    "Parameter": " -nossprops",
+    "Description": "Globally disable self-shadowing on static props",
     "Value": null,
     "CanHaveValue": false,
     "Warning": ""
@@ -141,6 +157,14 @@
     "Description": "Override the number of CPU threads used.",
     "Value": null,
     "CanHaveValue": true,
+    "Warning": ""
+  },
+  {
+    "Name": "Low Priority ",
+    "Parameter": " -low",
+    "Description": "Force VRAD to run as a low-priority process.",
+    "Value": null,
+    "CanHaveValue": false,
     "Warning": ""
   },
   {

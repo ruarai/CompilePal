@@ -1,16 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace CompilePalX.Compilers.BSPPack
 {
-    // this is the class that stores data about the bsp.
-    // You can find information about the file format here
-    // https://developer.valvesoftware.com/wiki/Source_BSP_File_Format#BSP_file_header
+	// this is the class that stores data about the bsp.
+	// You can find information about the file format here
+	// https://developer.valvesoftware.com/wiki/Source_BSP_File_Format#BSP_file_header
 
-    class BSP
+	class BSP
     {
         private FileStream bsp;
         private BinaryReader reader;
@@ -45,6 +45,8 @@ namespace CompilePalX.Compilers.BSPPack
         public List<KeyValuePair<string, string>> radardds { get; set; }
         public List<KeyValuePair<string, string>> languages { get; set; }
         public List<KeyValuePair<string, string>> VehicleScriptList { get; set; }
+        public List<KeyValuePair<string, string>> EffectScriptList { get; set; }
+        public List<string> vscriptList { get; set; }
 
         public FileInfo file { get; private set; }
 
@@ -93,26 +95,40 @@ namespace CompilePalX.Compilers.BSPPack
             byte[] ent = reader.ReadBytes(offsets[0].Value);
             List<byte> ents = new List<byte>();
 
+	        const int LCURLY = 123;
+	        const int RCURLY = 125;
+	        const int NEWLINE = 10;
+
             for (int i = 0; i < ent.Length; i++)
             {
-                if (ent[i] != 123 && ent[i] != 125)
-                    ents.Add(ent[i]);
-
-                else if (ent[i] == 125)
+	            if (ent[i] == LCURLY && i + 1 < ent.Length)
+	            {
+		            // if curly isnt followed by newline assume its part of filename
+		            if (ent[i + 1] != NEWLINE)
+			            ents.Add(ent[i]);
+	            }
+                if (ent[i] != LCURLY && ent[i] != RCURLY)
+					ents.Add(ent[i]);
+                else if (ent[i] == RCURLY)
                 {
-                    string rawent = Encoding.ASCII.GetString(ents.ToArray());
+					// if curly isnt followed by newline assume its part of filename
+	                if (i + 1 < ent.Length && ent[i + 1] != NEWLINE)
+	                {
+						ents.Add(ent[i]);
+						continue;
+	                }
+
+
+					string rawent = Encoding.ASCII.GetString(ents.ToArray());
                     Dictionary<string, string> entity = new Dictionary<string, string>();
-                    foreach (string s in rawent.Split('\n'))
+					// split on \n, ignore \n inside of quotes
+                    foreach (string s in Regex.Split(rawent, "(?=(?:(?:[^\"]*\"){2})*[^\"]*$)\\n"))
                     {
                         if (s.Count() != 0)
                         {
                             string[] c = s.Split('"');
                             if (!entity.ContainsKey(c[1]))
                                 entity.Add(c[1], c[3]);
-
-                            //everything after the hammerid is input/outputs
-                            //if (c[1] == "hammerid")
-                            //    break;
                         }
                     }
                     entityList.Add(entity);
@@ -191,11 +207,52 @@ namespace CompilePalX.Compilers.BSPPack
                     }
                 }
 
+				// special condition for env_funnel. Hardcoded to use sprites/flare6.vmt
+				if (ent["classname"].Contains("env_funnel"))
+					materials.Add("sprites/flare6.vmt");
+
+				// special condition for vgui_slideshow_display. directory paramater references all textures in a folder (does not include subfolders)
+				if (ent["classname"].Contains("vgui_slideshow_display"))
+	            {
+		            if (ent.ContainsKey("directory"))
+		            {
+			            var directory = $"{GameConfigurationManager.GameConfiguration.GameFolder}/materials/vgui/{ent["directory"]}";
+			            if (Directory.Exists(directory))
+			            {
+				            foreach (var file in Directory.GetFiles(directory))
+				            {
+					            if (file.EndsWith(".vmt"))
+					            {
+									materials.Add($"/vgui/{ent["directory"]}/{Path.GetFileName(file)}");
+					            }
+				            }
+			            }
+
+
+					}
+	            }
+
+				// pack IO triggered screen_overlay materials
+				var screenOverlays = ent.Values.Where((e) => e.Contains("r_screenoverlay"));
+				if (screenOverlays.Any())
+				{
+					foreach (var screenOverlay in screenOverlays)
+					{
+						var overlay = screenOverlay.Split(',')
+							.Where((e) => e.Contains("r_screenoverlay"))
+							.Select((e) => e.Replace("r_screenoverlay ", ""))
+							.FirstOrDefault();
+
+						if (overlay != null)
+							materials.Add(overlay);
+					}
+				}
+
                 // format and add materials
                 foreach (string material in materials)
                 {
                     string materialpath = material;
-                    if (!material.EndsWith(".vmt"))
+                    if (!material.EndsWith(".vmt") && !materialpath.EndsWith(".spr"))
                         materialpath += ".vmt";
 
                     EntTextureList.Add("materials/" + materialpath);
@@ -271,13 +328,30 @@ namespace CompilePalX.Compilers.BSPPack
             // builds the list of models referenced in entities
 
             EntModelList = new List<string>();
-            foreach (Dictionary<string, string> ent in entityList)
-                foreach (KeyValuePair<string, string> prop in ent)
-                    if (!ent["classname"].StartsWith("func") &&
-                        !ent["classname"].StartsWith("trigger") &&
-                        !ent["classname"].Contains("sprite") &&
-                        Keys.vmfModelKeys.Contains(prop.Key))
-                        EntModelList.Add(prop.Value);
+	        foreach (Dictionary<string, string> ent in entityList)
+	        {
+				foreach (KeyValuePair<string, string> prop in ent)
+				{
+					if (ent["classname"].StartsWith("func"))
+					{
+						if (prop.Key == "gibmodel")
+							EntModelList.Add(prop.Value);
+					}
+					else if (!ent["classname"].StartsWith("trigger") &&
+						!ent["classname"].Contains("sprite"))
+					{
+						if (Keys.vmfModelKeys.Contains(prop.Key))
+							EntModelList.Add(prop.Value);
+						// item_sodacan is hardcoded to models/can.mdl
+						// env_beverage spawns item_sodacans
+						else if (prop.Value == "item_sodacan" || prop.Value == "env_beverage")
+							EntModelList.Add("models/can.mdl");
+						// tf_projectile_throwable is hardcoded to  models/props_gameplay/small_loaf.mdl
+						else if (prop.Value == "tf_projectile_throwable")
+							EntModelList.Add("models/props_gameplay/small_loaf.mdl");
+					}
+				}
+			}
         }
 
         public void buildEntSoundList()
@@ -303,6 +377,17 @@ namespace CompilePalX.Compilers.BSPPack
 						List<string> io = prop.Value.Split(',').ToList();
 						if (!string.IsNullOrWhiteSpace(io[io.IndexOf("playgamesound") + 1]))
 							EntSoundList.Add("sound/" + io[io.IndexOf("playgamesound") + 1].Trim(special_caracters));
+					}
+					else if (prop.Value.Contains("play"))
+					{
+						List<string> io = prop.Value.Split(',').ToList();
+
+						var playCommand = io.Where(i => i.StartsWith("play "));
+
+						foreach (var command in playCommand)
+						{
+							EntSoundList.Add("sound/" + command.Split(' ')[1].Trim(special_caracters));
+						}
 					}
 
 				}

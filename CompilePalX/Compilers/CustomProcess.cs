@@ -6,6 +6,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Media;
 using CompilePalX.Compiling;
 
 namespace CompilePalX.Compilers
@@ -28,14 +29,14 @@ namespace CompilePalX.Compilers
 				//Set default order to 15
 				int order = 15;
 
-				//Use parameter to hold custom order
-				if (!string.IsNullOrWhiteSpace(parameter.Parameter))
-					Int32.TryParse(parameter.Parameter, out order);
+				//Use warning to hold custom order
+				if (!string.IsNullOrWhiteSpace(parameter.Warning))
+					Int32.TryParse(parameter.Warning, out order);
 
 				if (string.IsNullOrWhiteSpace(path))
 					continue;
 
-				CustomProgram program = new CustomProgram(path, args, parameter.ReadOutput, order);
+				CustomProgram program = new CustomProgram(path, args, parameter.ReadOutput, parameter.WaitForExit, order);
 
 				Programs.Add(program);
 			}
@@ -59,13 +60,16 @@ namespace CompilePalX.Compilers
 
 		public bool ReadOutput { get; set; }
 
+		public bool WaitForExit { get; set; }
+
 		public int CustomOrder { get; set; }
 
-		public CustomProgram(string path, string args, bool readOutput, int customOrder) : base("CUSTOM")
+		public CustomProgram(string path, string args, bool readOutput, bool waitForExit, int customOrder) : base("CUSTOM")
 		{
 			Path = path;
 			Args = args;
 			ReadOutput = readOutput;
+			WaitForExit = waitForExit;
 			CustomOrder = customOrder;
 			Name = path.Replace("\\", "/").Replace("\"", "").Split('/').Last();
 			Description = "Run program.";
@@ -83,6 +87,7 @@ namespace CompilePalX.Compilers
 			//Find filepath of program associated with filetype
 			//This is similar to using shellexecute, except we can read the output
 			StringBuilder programPath = new StringBuilder();
+			Path = ParseArgs(Path, c);
 			int result = FindExecutable(Path, null, programPath);
 
 			//Result code <= is an error
@@ -107,12 +112,17 @@ namespace CompilePalX.Compilers
 				return;
 			}
 
+			string parsedArgs = ParseArgs(Args, c);
+			// Python files require the filename to be the first arg, otherwise it just opens python
+			if (Path.EndsWith(".py"))
+				parsedArgs = parsedArgs.Insert(0, Path);
+
 			StartInfo = new ProcessStartInfo
 			{
 				UseShellExecute = false,
 				CreateNoWindow = true,
 				FileName = programPath.ToString(),
-				Arguments = Path + " " + Args
+				Arguments = parsedArgs
 			};
 
 			if (ReadOutput)
@@ -120,9 +130,6 @@ namespace CompilePalX.Compilers
 				StartInfo.RedirectStandardOutput = true;
 				StartInfo.RedirectStandardInput = true;
 				StartInfo.RedirectStandardError = true;
-				StartInfo.UseShellExecute = false;
-				ReadOutput = true;
-
 			}
 
 			Process = new Process()
@@ -131,44 +138,62 @@ namespace CompilePalX.Compilers
 			};
 
 			Process.Start();
+			Process.BeginOutputReadLine();
+			Process.BeginErrorReadLine();
 
 			if (ReadOutput)
-				readOutput();
+			{
+				Process.OutputDataReceived += ProcessOnOutputDataReceived;
+				Process.ErrorDataReceived += ProcessOnErrorDataReceived;
+			}
 
-			//TODO maybe add limit to how long programs can run for programs that dont exit on their own
-			Process.WaitForExit();
-			CompilePalLogger.LogLine("Program completed sucesfully\n");
-
+			if (WaitForExit)
+			{
+				Process.WaitForExit();
+				Process.Close();
+				CompilePalLogger.LogLine("\nProgram completed sucesfully\n");
+			}
+			else
+			{
+				// run async
+				Task.Run(() =>
+				{
+					Process.WaitForExit();
+					Process.Close();
+					CompilePalLogger.LogLine("\nProgram completed sucesfully\n");
+				});
+			}
 		}
 
-		private void readOutput()
+		private void ProcessOnErrorDataReceived(object sender, DataReceivedEventArgs e)
 		{
-			char[] buffer = new char[256];
-			Task<int> read = null;
-			while (true)
-			{
-				if (read == null)
-					read = Process.StandardOutput.ReadAsync(buffer, 0, buffer.Length);
+			if (e.Data != null)
+				CompilePalLogger.LogLineColor(e.Data, Error.GetSeverityBrush(3));
+		}
 
-				read.Wait(100); // an arbitray timeout
+		private void ProcessOnOutputDataReceived(object sender, DataReceivedEventArgs e)
+		{
+			if (e.Data != null)
+				CompilePalLogger.LogLine(e.Data);
+		}
 
-				if (read.IsCompleted)
-				{
-					if (read.Result > 0)
-					{
-						string text = new string(buffer, 0, read.Result);
+		//Parse args for parameters and replace them with their corresponding values
+		//Paramaters from https://developer.valvesoftware.com/wiki/Hammer_Run_Map_Expert#Parameters
+		private string ParseArgs(string originalArgs, CompileContext c)
+		{
+			string args = originalArgs.Replace("$file", $"{System.IO.Path.GetFileNameWithoutExtension(c.MapFile)}");
+			args = args.Replace("$ext", $"{System.IO.Path.GetExtension(c.MapFile)}");
+			args = args.Replace("$path", $"{System.IO.Path.GetDirectoryName(c.MapFile)}");
+			args = args.Replace("$bspdir", $"{c.Configuration.MapFolder}\\");
+			args = args.Replace("$gamedir", $"{c.Configuration.GameFolder}");
+			args = args.Replace("$bindir", $"{c.Configuration.BinFolder}");
 
-						CompilePalLogger.ProgressiveLog(text);
-
-						read = null; // ok, this task completed so we need to create a new one
-						continue;
-					}
-
-					// got -1, process ended
-					break;
-				}
-			}
-			Process.WaitForExit();
+			args = args.Replace("$bsp_exe", $"{c.Configuration.VBSP}");
+			args = args.Replace("$vis_exe", $"{c.Configuration.VVIS}");
+			args = args.Replace("$light_exe", $"{c.Configuration.VRAD}");
+			args = args.Replace("$game_exe", $"{c.Configuration.GameEXE}");
+			CompilePalLogger.LogLine("Args: " + args);
+			return args;
 		}
 
 		public override bool Equals(object obj)
@@ -198,23 +223,7 @@ namespace CompilePalX.Compilers
 			if (other == null)
 				return false;
 
-			return (ReadOutput == other.ReadOutput && string.Equals(Path, other.Value) && string.Equals(CustomOrder.ToString(), other.Parameter) && Equals(Args, other.Value2));
-		}
-
-		public override int GetHashCode()
-		{
-			unchecked
-			{
-				var hashCode = (Process != null ? Process.GetHashCode() : 0);
-				hashCode = (hashCode * 397) ^ (Name != null ? Name.GetHashCode() : 0);
-				hashCode = (hashCode * 397) ^ (Description != null ? Description.GetHashCode() : 0);
-				hashCode = (hashCode * 397) ^ (Path != null ? Path.GetHashCode() : 0);
-				hashCode = (hashCode * 397) ^ (StartInfo != null ? StartInfo.GetHashCode() : 0);
-				hashCode = (hashCode * 397) ^ (Args != null ? Args.GetHashCode() : 0);
-				hashCode = (hashCode * 397) ^ ReadOutput.GetHashCode();
-				hashCode = (hashCode * 397) ^ CustomOrder;
-				return hashCode;
-			}
+			return (ReadOutput == other.ReadOutput && string.Equals(Path, other.Value) && string.Equals(CustomOrder.ToString(), other.Warning) && Equals(Args, other.Value2));
 		}
 
 		public override string ToString()
