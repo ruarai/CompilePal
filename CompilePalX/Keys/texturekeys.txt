@@ -12,6 +12,7 @@ $cloudalphatexture
 $detail
 $detail2
 $tintmasktexture
+$masks
 $masks1
 $masks2
 $dudvmap
@@ -45,5 +46,7 @@ $selfillummask
 $selfillumtexture
 $texture
 $texture2
+$worldspacetint
+$worldspacetype
 %tooltexture
 srgb?$basetexture
