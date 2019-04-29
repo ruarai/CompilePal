@@ -401,6 +401,15 @@ namespace CompilePalX.Compilers.BSPPack
 
                                 sourceDirectories.Add(fullPath);
                             }
+                            else if (path.Contains(":"))
+                            {
+                                string fullPath = path;
+
+                                if (verbose)
+                                    CompilePalLogger.LogLine("Found search path: {0}", fullPath);
+
+                                sourceDirectories.Add(fullPath);
+                            }
                             else
                             {
                                 string fullPath = System.IO.Path.GetFullPath(rootPath + "\\" + path.TrimEnd('\\'));
@@ -430,9 +439,21 @@ namespace CompilePalX.Compilers.BSPPack
             }
             return sourceDirectories;
         }
+
         static private string GetInfoValue(string line)
         {
-            return line.Split(new char[0], StringSplitOptions.RemoveEmptyEntries)[1];
+            var split = line.Split(new char[0], StringSplitOptions.RemoveEmptyEntries);
+            string result = split[1];
+
+            if (split.Length > 2) //hacky way to add together second part of the line if the string is in quotes and has spaces
+            {
+                for (int i = 0; i < split.Length - 2; i++)
+                {
+                    result = result + " " + split[i + 2];
+                }
+            }
+            return result;
+            //return line.Split(new char[0], StringSplitOptions.RemoveEmptyEntries)[1];
         }
 
         // parses parameters that can contain '-' in their values. Ex. filepaths
