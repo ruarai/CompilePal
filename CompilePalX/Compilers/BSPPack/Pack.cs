@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using CompilePalX.Compiling;
 
 namespace CompilePalX.Compilers.BSPPack
@@ -401,6 +402,14 @@ namespace CompilePalX.Compilers.BSPPack
 
                                 sourceDirectories.Add(fullPath);
                             }
+							else if (Directory.Exists(path))
+							{
+								if (verbose)
+									CompilePalLogger.LogLine("Found search path: {0}", path);
+
+								sourceDirectories.Add(path);
+
+							}
                             else
                             {
                                 string fullPath = System.IO.Path.GetFullPath(rootPath + "\\" + path.TrimEnd('\\'));
@@ -430,8 +439,14 @@ namespace CompilePalX.Compilers.BSPPack
             }
             return sourceDirectories;
         }
-        static private string GetInfoValue(string line)
+        private static string GetInfoValue(string line)
         {
+			// filepath info values
+			if (line.Contains('"'))
+				return Regex.Split( line, @"[^\s""']+|""([^""]*)""|'([^']*)'") // splits on whitespace outside of quotes
+					.First((l) => !string.IsNullOrWhiteSpace(l)); // ignore empty entries
+
+			// new char[0] = split on whitespace
             return line.Split(new char[0], StringSplitOptions.RemoveEmptyEntries)[1];
         }
 
