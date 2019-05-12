@@ -96,7 +96,8 @@ namespace CompilePalX
                 if (error.RegexTrigger.IsMatch(line))
                 {
 	                var err = error.Clone() as Error;
-	                err.ShortDescription = line;
+					// remove all control chars
+	                err.ShortDescription = new string(line.Where(c => !char.IsControl(c)).ToArray());;
                     return err;
                 }
             }
