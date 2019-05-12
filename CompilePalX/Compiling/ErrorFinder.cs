@@ -95,7 +95,9 @@ namespace CompilePalX
             {
                 if (error.RegexTrigger.IsMatch(line))
                 {
-                    return error;
+	                var err = error.Clone() as Error;
+	                err.ShortDescription = line;
+                    return err;
                 }
             }
             return null;
@@ -113,7 +115,7 @@ namespace CompilePalX
         }
     }
 
-    class Error
+    class Error : ICloneable
     {
         public Regex RegexTrigger;
         public string Message;
@@ -130,6 +132,11 @@ namespace CompilePalX
         public override int GetHashCode()
         {
             return ID;//ID is unique between errors
+        }
+
+        public object Clone()
+        {
+	        return this.MemberwiseClone();
         }
 
         public Brush ErrorColor => GetSeverityBrush(Severity);
