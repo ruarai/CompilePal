@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
+using CompilePalX.Compiling;
 
 namespace CompilePalX
 {
@@ -25,6 +26,14 @@ namespace CompilePalX
     /// </summary>
     public partial class App : Application
     {
-        
+		// catch all unhandled exceptions and log them
+	    protected override void OnStartup(StartupEventArgs e)
+	    {
+		    AppDomain.CurrentDomain.UnhandledException += (s, err) => { ExceptionHandler.LogException((Exception)err.ExceptionObject); };
+
+		    DispatcherUnhandledException += (s, err) => { ExceptionHandler.LogException(err.Exception); };
+
+		    TaskScheduler.UnobservedTaskException += (s, err) => { ExceptionHandler.LogException(err.Exception); };
+	    }
     }
 }
