@@ -34,7 +34,7 @@
   {
     "Name": "Exclude Directory",
     "Parameter": " -excludedir",
-    "Description": "Skips this folder when looking for particle files",
+    "Description": "Ignores this folder when looking for particle files",
     "Value": null,
     "ValueIsFile": true, 
     "ValueIsFolder": true, 
@@ -45,7 +45,7 @@
   {
     "Name": "Exclude File",
     "Parameter": " -excludefile",
-    "Description": "Skips this file when scanning particles",
+    "Description": "Ignores this file when scanning particles",
     "Value": null,
     "ValueIsFile": true, 
     "CanHaveValue": true,

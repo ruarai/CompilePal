@@ -36,9 +36,20 @@
   {
     "Name": "Exclude",
     "Parameter": " -exclude",
-    "Description": "Excludes specified file",
+    "Description": "Ignores specified file",
     "Value": null,
     "ValueIsFile": true,
+    "CanHaveValue": true,
+    "Warning": "",
+    "CanBeUsedMoreThanOnce": true
+  },
+  {
+    "Name": "Exclude Directory",
+    "Parameter": " -excludedir",
+    "Description": "Ignores this folder when looking for assets",
+    "Value": null,
+    "ValueIsFile": true, 
+    "ValueIsFolder": true, 
     "CanHaveValue": true,
     "Warning": "",
     "CanBeUsedMoreThanOnce": true

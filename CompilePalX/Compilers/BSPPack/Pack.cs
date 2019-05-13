@@ -38,6 +38,7 @@ namespace CompilePalX.Compilers.BSPPack
         private static bool renamenav;
         private static bool include;
         private static bool exclude;
+        private static bool excludeDir;
         private static bool packvpk;
         public static bool genParticleManifest;
 
@@ -52,6 +53,7 @@ namespace CompilePalX.Compilers.BSPPack
             renamenav = GetParameterString().Contains("-renamenav");
             include = GetParameterString().Contains("-include");
             exclude = GetParameterString().Contains("-exclude");
+            excludeDir = GetParameterString().Contains("-excludedir");
             packvpk = GetParameterString().Contains("-vpk");
 
             char[] paramChars = GetParameterString().ToCharArray();
@@ -59,6 +61,7 @@ namespace CompilePalX.Compilers.BSPPack
 
             List<string> includeFiles = new List<string>();
             List<string> excludeFiles = new List<string>();
+            List<string> excludeDirs = new List<string>();
 
             try
             {
@@ -104,12 +107,29 @@ namespace CompilePalX.Compilers.BSPPack
                     {
                         if (parameter.Contains("exclude"))
                         {
-                            var @filePath = parameter.Replace("\"", "").Replace("exclude ", "").Replace('/', '\\').ToLower().TrimEnd(' ');
+                            var filePath = parameter.Replace("\"", "").Replace("exclude ", "").Replace('/', '\\').ToLower().TrimEnd(' ');
                             //Test that file exists
                             if (File.Exists(filePath))
                                 excludeFiles.Add(filePath);
                             else
                                 CompilePalLogger.LogLineColor($"Could not find file: {filePath}", Error.GetSeverityBrush(2));
+                        }
+                    }
+                }
+
+                if (excludeDir)
+                {
+                    //Get excluded directories from parameter list
+                    foreach (string parameter in parameters)
+                    {
+                        if (parameter.Contains("excludedir"))
+                        {
+                            var path = parameter.Replace("\"", "").Replace("excludedir ", "").Replace('/', '\\').ToLower().TrimEnd(' ');
+                            //Test that dir exists
+                            if (Directory.Exists(path))
+                                excludeDirs.Add(path);
+                            else
+                                CompilePalLogger.LogLineColor($"Could not find path: {path}", Error.GetSeverityBrush(2));
                         }
                     }
                 }
@@ -130,7 +150,7 @@ namespace CompilePalX.Compilers.BSPPack
                 AssetUtils.findBspPakDependencies(map, unpackDir);
 
                 CompilePalLogger.LogLine("Initializing pak file...");
-                PakFile pakfile = new PakFile(map, sourceDirectories, includeFiles, excludeFiles);
+                PakFile pakfile = new PakFile(map, sourceDirectories, includeFiles, excludeFiles, excludeDirs);
 
                 if (packvpk)
                 {

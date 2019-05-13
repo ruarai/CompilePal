@@ -17,6 +17,7 @@ namespace CompilePalX.Compilers.BSPPack
         // matching the bspzip specification https://developer.valvesoftware.com/wiki/BSPZIP
         private IDictionary<string, string> Files;
 	    private List<string> excludedFiles;
+	    private List<string> excludedDirs;
 
         private List<string> sourceDirs;
 
@@ -28,11 +29,13 @@ namespace CompilePalX.Compilers.BSPPack
         public int effectscriptcount { get; private set; }
         public int vscriptcount { get; private set; }
 
-        public PakFile(BSP bsp, List<string> sourceDirectories, List<string> includeFiles, List<string> excludedFiles)
+        public PakFile(BSP bsp, List<string> sourceDirectories, List<string> includeFiles, List<string> excludedFiles, List<string> excludedDirs)
         {
             mdlcount = vmtcount = pcfcount = sndcount = vehiclescriptcount = effectscriptcount = 0;
             sourceDirs = sourceDirectories;
+
 	        this.excludedFiles = excludedFiles;
+	        this.excludedDirs = excludedDirs;
 
             Files = new Dictionary<string, string>();
 
@@ -192,7 +195,9 @@ namespace CompilePalX.Compilers.BSPPack
         public bool AddFile(string internalPath, string externalPath)
         {
             // adds file to the pakfile list
-            if (externalPath != "" && File.Exists(externalPath) && !excludedFiles.Contains(externalPath.ToLower().Replace('/', '\\')))
+            if (externalPath != "" && File.Exists(externalPath) 
+                                   && !excludedFiles.Contains(externalPath.ToLower().Replace('/', '\\'))
+                                   && !excludedDirs.TrueForAll(externalPath.ToLower().Replace('/', '\\').StartsWith))
             {
                 internalPath = internalPath.Replace("\\", "/");
                 if (!Files.ContainsKey(internalPath))
