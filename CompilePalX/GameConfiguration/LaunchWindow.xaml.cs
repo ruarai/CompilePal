@@ -54,8 +54,15 @@ namespace CompilePalX
 
 
                     string gameData = Path.Combine(BinFolder, "GameConfig.txt");
-
-                    configs.AddRange(GameConfigurationParser.Parse(gameData));
+                    try
+                    {
+	                    configs.AddRange(GameConfigurationParser.Parse(gameData));
+                    }
+                    catch (Exception e)
+                    {
+						ExceptionHandler.LogException(e);
+                    }
+                    
                 }
 
                 //finalise config loading
