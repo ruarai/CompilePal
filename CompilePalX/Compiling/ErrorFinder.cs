@@ -147,13 +147,13 @@ namespace CompilePalX
             switch (severity)
             {
                 default:
-                    return Brushes.Black;
+                    return (SolidColorBrush)(new BrushConverter().ConvertFrom("#0e5fc1")); // blue
                 case 2:
-                    return Brushes.Orange;
+                    return (SolidColorBrush)(new BrushConverter().ConvertFrom("#e19520")); // yellow orange
                 case 3:
-                    return Brushes.OrangeRed;
+                    return (SolidColorBrush)(new BrushConverter().ConvertFrom("#ce4a08")); // orange
                 case 4:
-                    return Brushes.DarkRed;
+                    return (SolidColorBrush)(new BrushConverter().ConvertFrom("#d93600")); // red
                 case 5:
                     return Brushes.Red;
             }

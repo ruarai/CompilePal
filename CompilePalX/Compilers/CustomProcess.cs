@@ -168,7 +168,7 @@ namespace CompilePalX.Compilers
 		private void ProcessOnErrorDataReceived(object sender, DataReceivedEventArgs e)
 		{
 			if (e.Data != null)
-				CompilePalLogger.LogLineColor(e.Data, Error.GetSeverityBrush(3));
+				CompilePalLogger.LogLineColor(e.Data, Error.GetSeverityBrush(4));
 		}
 
 		private void ProcessOnOutputDataReceived(object sender, DataReceivedEventArgs e)
