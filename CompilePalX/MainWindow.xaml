@@ -35,7 +35,7 @@
                         <Button x:Name="RemovePresetButton" Content="Remove" Margin="5,0,5,5" VerticalAlignment="Bottom" Click="RemovePresetButton_Click" DockPanel.Dock="Bottom"/>
                         <Button x:Name="ClonePresetButton" Content="Clone..." Margin="5,0,5,5" VerticalAlignment="Bottom" Click="ClonePresetButton_OnClick" DockPanel.Dock="Bottom"/>
                         <Button x:Name="AddPresetButton" Content="Add..." Margin="5,0,5,5" VerticalAlignment="Bottom"  Click="AddPresetButton_Click" DockPanel.Dock="Bottom"/>
-                        <ListBox Name ="PresetConfigListBox" Margin="0,0,0,5" SelectionChanged="PresetConfigListBox_SelectionChanged" />
+                        <ListBox Name="PresetConfigListBox" Margin="0,0,0,5" SelectionChanged="PresetConfigListBox_SelectionChanged" />
                     </DockPanel>
                     <DockPanel Grid.Column="1" Margin="10,10,0,10" Background="White">
                         <Button x:Name="RemoveProcessesButton" Content="Remove" DockPanel.Dock="Bottom" Margin="5,0,5,5" Grid.Row="1" Click="RemoveProcessButton_Click"/>
@@ -44,7 +44,7 @@
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
                                     <DockPanel HorizontalAlignment="Stretch">
-                                        <Label Content="{Binding}"/>
+                                        <TextBlock Text="{Binding}"/>
                                         <CheckBox IsChecked="{Binding DoRun, Mode=TwoWay}" HorizontalAlignment="Right" Click="DoRun_OnClick"/>
                                     </DockPanel>
                                 </DataTemplate>
