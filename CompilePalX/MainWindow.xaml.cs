@@ -91,36 +91,38 @@ namespace CompilePalX
         {
             //Handle command line args
             string[] commandLineArgs = Environment.GetCommandLineArgs();
-            foreach (string arg in commandLineArgs)
+            for (int i = 0; i < commandLineArgs.Length; i++)
             {
+	            var arg = commandLineArgs[i];
                 try
                 {
                     if (!ignoreWipeArg)
                     {
-                        //Wipes the map list
-                        if (arg.Substring(0, 5).ToLower() == "-wipe")
+                        // wipes the map list
+                        if (arg == "--wipe")
                         {
                             CompilingManager.MapFiles.Clear();
-                            //Recursive so if the wipe arg comes after a arg path, it will readd it
+                            // recursive so that wipe doesn't clear maps added through the command line
                             HandleArgs(true);
                             break;
                         }
                     }
-                    else
-                    {
-                        //If arg type is a path, continue
-                        if (arg.Substring(0, 6).ToLower() == "-path:")
-                        {
-                            //Remove arg type
-                            string argPath = arg.Remove(0, 6);
 
-                            if (File.Exists(argPath))
-                            {
-                                if (argPath.EndsWith(".vmf") || argPath.EndsWith(".vmm") || argPath.EndsWith(".vmx"))
-                                    CompilingManager.MapFiles.Add(argPath);
-                            }
+                    // adds map
+                    if (arg == "--add")
+                    {
+                        if (i + 1 > commandLineArgs.Length)
+	                        break;
+
+                        var argPath = commandLineArgs[i + 1];
+
+                        if (File.Exists(argPath))
+                        {
+                            if (argPath.EndsWith(".vmf") || argPath.EndsWith(".vmm") || argPath.EndsWith(".vmx"))
+                                CompilingManager.MapFiles.Add(argPath);
                         }
                     }
+
                 }
                 catch (ArgumentOutOfRangeException e)
                 {

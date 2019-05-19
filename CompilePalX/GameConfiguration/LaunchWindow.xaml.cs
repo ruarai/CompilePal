@@ -89,27 +89,26 @@ namespace CompilePalX
 
                 //Handle command line args for game configs
                 string[] commandLineArgs = Environment.GetCommandLineArgs();
-                foreach (string arg in commandLineArgs)
+                for (int i = 0; i < commandLineArgs.Length; i++)
                 {
+	                var arg = commandLineArgs[i];
                     try
                     {
-                        //If arg type is a game, continue
-                        if (arg.Substring(0, 6).ToLower() == "-game:")
+                        // look for game args
+                        if (arg == "--game")
                         {
-                            //Make everything lowercase, remove arg type, and remove spaces
-                            string argGameConfig = arg.ToLower().Remove(0, 6).Replace(" ", "");
+							// make sure args don't go out of bounds
+	                        if (i + 1 > commandLineArgs.Length)
+		                        break;
 
-                            //Search all configs to see if arg is a match
+	                        string argGameConfig = commandLineArgs[i + 1].ToLower();
+
                             foreach (GameConfiguration config in configs)
                             {
-                                //Remove spaces and make everything lowercase
-                                string configName = config.Name.ToLower().Replace(" ", "");
+	                            string configName = config.Name.ToLower();
 
-                                //If arg matches, launch that configuration
                                 if (argGameConfig == configName)
-                                {
-                                    Launch(config);
-                                }
+	                                Launch(config);
                             }
                         }
                     }
