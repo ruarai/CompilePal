@@ -14,8 +14,8 @@ Compile Pal is an easy to use wrapper for the Source map compiling tools.
 
 * [Downloads]("#downloads")
 * [Features]("#features")
-* [Configuration]("#configuration)
 * [Guides]("#guides")
+* [Reporting Issues]("#issues")
 * [Contributing]("#contributing")
 * [Developers]("#devs")
 
@@ -31,22 +31,16 @@ Coming soon
 
 Experimental releases may be unstable, use at your own risk.
 
-## Configuration
-
-Compile Pal will automatically detect the game configuration from the last game SDK ran.
-
 ## Features
 * Packing
 * Error Checking
+* Not freezing your computer while compiling
 * Cubemaps
 * Manifest Generation
 * Nav File Generation
 * Custom Compile Steps
 * Batch Compiling
 * Much More!
-
-![errors](http://i.imgur.com/JA3gH3x.png)
-![errors](http://i.imgur.com/Ckz5XyA.png)
 
 ## Guides
 * [Quick Start]("./Guides/QuickStart.md")
