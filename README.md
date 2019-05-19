@@ -36,8 +36,7 @@ Experimental releases may be unstable, use at your own risk.
 
 ## Guides
 * [Quick Start](Guides/QuickStart.md)
-* [Configuration]()
-* [Presets]()
+* [Reporting An Issue](Guides/Issues.md)
 * [Custom Compile Steps]()
 * [Command Line Arguments]()
 
