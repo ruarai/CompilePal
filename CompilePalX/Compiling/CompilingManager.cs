@@ -132,7 +132,7 @@ namespace CompilePalX
         private static void postCompile(List<MapErrors> errors)
         {
             CompilePalLogger.LogLineColor(
-	            $"'{ConfigurationManager.CurrentPreset}' compile finished in {compileTimeStopwatch.Elapsed.ToString(@"hh\:mm\:ss")}", Brushes.ForestGreen);
+	            $"\n'{ConfigurationManager.CurrentPreset}' compile finished in {compileTimeStopwatch.Elapsed.ToString(@"hh\:mm\:ss")}", Brushes.ForestGreen);
 
             if (errors != null && errors.Any())
             {
