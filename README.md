@@ -13,11 +13,11 @@
 
 ## Downloads
 
-##### Latest Release
+#### Latest Release
 
 [Compile Pal V25](https://github.com/ruarai/CompilePal/releases/latest)
 
-##### Experimental Releases
+#### Experimental Releases
 
 Coming soon
 
