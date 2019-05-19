@@ -6,18 +6,10 @@
 	/>
 </p>
 
-Compile Pal is an easy to use wrapper for the Source map compiling tools.
+<p align="center">Compile Pal is an easy to use wrapper for the Source map compiling tools.</p>
 
 ![ui](https://i.imgur.com/DvAVPeR.png)
 
-# Table of Contents
-
-* [Downloads]("#downloads")
-* [Features]("#features")
-* [Guides]("#guides")
-* [Reporting Issues]("#issues")
-* [Contributing]("#contributing")
-* [Developers]("#devs")
 
 ## Downloads
 
