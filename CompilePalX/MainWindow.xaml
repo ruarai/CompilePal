@@ -104,7 +104,7 @@
                                     </DataGridTemplateColumn.CellStyle>
                                 </DataGridTemplateColumn>
                                 <DataGridTextColumn Header="Description" Binding="{ Binding Description}" IsReadOnly="True"/>
-                                <DataGridTextColumn Header="Warnings" Binding="{ Binding Warning}" IsReadOnly="True" Width="*"/>
+                                <DataGridTextColumn Header="Warnings" Binding="{ Binding Warning}" IsReadOnly="True"/>
                             </DataGrid.Columns>
                         </DataGrid>
 
