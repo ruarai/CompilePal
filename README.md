@@ -15,7 +15,7 @@
 
 ##### Latest Release
 
-[Compile Pal V25]("https://github.com/ruarai/CompilePal/releases/latest")
+[Compile Pal V25](https://github.com/ruarai/CompilePal/releases/latest)
 
 ##### Experimental Releases
 
@@ -35,11 +35,11 @@ Experimental releases may be unstable, use at your own risk.
 * Much More!
 
 ## Guides
-* [Quick Start]("./Guides/QuickStart.md")
-* [Configuration]("")
-* [Presets]("")
-* [Custom Compile Steps]("")
-* [Command Line Arguments]("")
+* [Quick Start](Guides/QuickStart.md)
+* [Configuration]()
+* [Presets]()
+* [Custom Compile Steps]()
+* [Command Line Arguments]()
 
 ## Contributing
 
