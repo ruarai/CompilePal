@@ -82,7 +82,7 @@ namespace CompilePalX
 
             OnClear();
 
-            CompilePalLogger.LogLine(string.Format("Starting a '{0}' compile.", ConfigurationManager.CurrentPreset));
+            CompilePalLogger.LogLine($"Starting a '{ConfigurationManager.CurrentPreset}' compile.");
 
             compileThread = new Thread(CompileThreaded);
             compileThread.Start();
@@ -104,7 +104,7 @@ namespace CompilePalX
                     string cleanMapName = Path.GetFileNameWithoutExtension(mapFile);
 
                     var compileErrors = new List<Error>();
-                    CompilePalLogger.LogLine(string.Format("Starting compilation of {0}", cleanMapName));
+                    CompilePalLogger.LogLine($"Starting compilation of {cleanMapName}");
 
 					//Update the grid so we have the most up to date order
 	                OrderManager.UpdateOrder();
@@ -114,12 +114,8 @@ namespace CompilePalX
                         currentCompileProcess = compileProcess;
                         compileProcess.Run(GameConfigurationManager.BuildContext(mapFile));
 
-                        if (compileProcess is CompileExecutable)
-                        {
-                            var executable = compileProcess as CompileExecutable;
-
-                            compileErrors.AddRange(executable.CompileErrors);
-                        }
+                        if (compileProcess is CompileExecutable executable)
+	                        compileErrors.AddRange(executable.CompileErrors);
 
                         ProgressManager.Progress += (1d / ConfigurationManager.CompileProcesses.Count(c => c.Metadata.DoRun &&
                             c.PresetDictionary.ContainsKey(ConfigurationManager.CurrentPreset))) / MapFiles.Count;
@@ -135,7 +131,8 @@ namespace CompilePalX
 
         private static void postCompile(List<MapErrors> errors)
         {
-            CompilePalLogger.LogLineColor(string.Format("'{0}' compile finished in {1}", ConfigurationManager.CurrentPreset, compileTimeStopwatch.Elapsed.ToString(@"hh\:mm\:ss")), Brushes.ForestGreen);
+            CompilePalLogger.LogLineColor(
+	            $"'{ConfigurationManager.CurrentPreset}' compile finished in {compileTimeStopwatch.Elapsed.ToString(@"hh\:mm\:ss")}", Brushes.ForestGreen);
 
             if (errors != null && errors.Any())
             {

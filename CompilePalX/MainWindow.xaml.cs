@@ -199,7 +199,8 @@ namespace CompilePalX
 
         async void UpdateManager_OnUpdateFound()
         {
-            UpdateHyperLink.Inlines.Add(string.Format("An update is available. Current version is {0}, latest version is {1}.", UpdateManager.CurrentVersion, UpdateManager.LatestVersion));
+            UpdateHyperLink.Inlines.Add(
+	            $"An update is available. Current version is {UpdateManager.CurrentVersion}, latest version is {UpdateManager.LatestVersion}.");
             UpdateLabel.Visibility = Visibility.Visible;
         }
 
