@@ -197,7 +197,7 @@ namespace CompilePalX.Compilers.BSPPack
             // adds file to the pakfile list
             if (externalPath != "" && File.Exists(externalPath) 
                                    && !excludedFiles.Contains(externalPath.ToLower().Replace('/', '\\'))
-                                   && !excludedDirs.TrueForAll(externalPath.ToLower().Replace('/', '\\').StartsWith))
+                                   && !excludedDirs.Any(externalPath.ToLower().Replace('/', '\\').StartsWith))
             {
                 internalPath = internalPath.Replace("\\", "/");
                 if (!Files.ContainsKey(internalPath))

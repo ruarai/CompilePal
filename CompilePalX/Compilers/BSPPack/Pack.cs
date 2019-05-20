@@ -90,7 +90,7 @@ namespace CompilePalX.Compilers.BSPPack
                     {
                         if (parameter.Contains("include"))
                         {
-                            var @filePath = parameter.Replace("\"", "").Replace("include ", "").TrimEnd(' ');
+                            var filePath = parameter.Replace("\"", "").Replace("include ", "").TrimEnd(' ');
                             //Test that file exists
                             if (File.Exists(filePath))
                                 includeFiles.Add(filePath);
