@@ -15,7 +15,7 @@
 
 #### Latest Release
 
-[Compile Pal V25](https://github.com/ruarai/CompilePal/releases/latest)
+[Compile Pal V26](https://github.com/ruarai/CompilePal/releases/latest)
 
 #### Experimental Releases
 
