@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
@@ -22,13 +23,14 @@ namespace CompilePalX
         public static float LatestPrereleaseVersion;
 
         private const string UpdateURL = "https://raw.githubusercontent.com/ruarai/CompilePal/master/CompilePalX/version.txt";
+        //private const string PrereleaseUpdateURL = "https://raw.githubusercontent.com/ruarai/CompilePal/master/CompilePalX/version_prerelease.txt";
 
         public static void CheckVersion()
         {
             string currentVersion = File.ReadAllText(CompilePalPath.Directory + "version.txt");
             string currentPrereleaseVersion = File.ReadAllText(CompilePalPath.Directory + "version_prerelease.txt");
-            CurrentVersion = float.Parse(currentVersion);
-            CurrentPrereleaseVersion = float.Parse(currentPrereleaseVersion);
+            CurrentVersion = float.Parse(currentVersion, new CultureInfo("es-US"));
+            CurrentPrereleaseVersion = float.Parse(currentPrereleaseVersion, new CultureInfo("es-US"));
 
             if (CurrentPrereleaseVersion > CurrentVersion)
 	            CurrentVersion = CurrentPrereleaseVersion;
