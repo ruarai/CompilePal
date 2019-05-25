@@ -18,7 +18,7 @@
 [Compile Pal V26](https://github.com/ruarai/CompilePal/releases/latest)
 
 #### Experimental Releases
-Experimental releases may be unstable, use at your own risk.
+Get the latest features without having to wait. Experimental releases may be unstable, use at your own risk.
 
 [Compile Pal V26.1](https://github.com/ruarai/CompilePal/releases/tag/26.1)
 
