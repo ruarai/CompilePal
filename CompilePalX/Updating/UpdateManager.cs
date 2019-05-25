@@ -16,15 +16,22 @@ namespace CompilePalX
     {
         public static event UpdateFound OnUpdateFound;
 
-        public static int CurrentVersion;
-        public static int LatestVersion;
+        public static float CurrentVersion;
+        public static float CurrentPrereleaseVersion;
+        public static float LatestVersion;
+        public static float LatestPrereleaseVersion;
 
         private const string UpdateURL = "https://raw.githubusercontent.com/ruarai/CompilePal/master/CompilePalX/version.txt";
 
         public static void CheckVersion()
         {
             string currentVersion = File.ReadAllText(CompilePalPath.Directory + "version.txt");
-            CurrentVersion = int.Parse(currentVersion);
+            string currentPrereleaseVersion = File.ReadAllText(CompilePalPath.Directory + "version_prerelease.txt");
+            CurrentVersion = float.Parse(currentVersion);
+            CurrentPrereleaseVersion = float.Parse(currentPrereleaseVersion);
+
+            if (CurrentPrereleaseVersion > CurrentVersion)
+	            CurrentVersion = CurrentPrereleaseVersion;
 
             Thread updaterThread = new Thread(ThreadedCheck);
             updaterThread.Start();

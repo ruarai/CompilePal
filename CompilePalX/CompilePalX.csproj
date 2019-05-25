@@ -187,6 +187,9 @@
     <Content Include="Compiling\errorstyle.html">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="version_prerelease.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Keys\materialkeys.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

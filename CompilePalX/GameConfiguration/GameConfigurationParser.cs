@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 public static class sutil {
@@ -98,6 +99,13 @@ namespace KV {
 
             return null;
         }
+        public DataBlock GetFirstByName(string[] names) {
+            for (int i = 0; i < this.subBlocks.Count; i++)
+                if (names.Contains(this.subBlocks[i].name))
+                    return this.subBlocks[i];
+
+            return null;
+        }
 
         public List<DataBlock> GetAllByName(string _name) {
             List<DataBlock> c = new List<DataBlock>();
@@ -140,7 +148,7 @@ namespace CompilePalX {
 
             KV.FileData data = new KV.FileData(filename);
 
-            foreach (KV.DataBlock gamedb in data.headnode.GetFirstByName("\"Configs\"").GetFirstByName("\"Games\"").subBlocks) {
+            foreach (KV.DataBlock gamedb in data.headnode.GetFirstByName(new []{"\"Configs\"", "\"GameConfig.txt\""}).GetFirstByName("\"Games\"").subBlocks) {
                 string binfolder = Path.GetDirectoryName(filename);
                 KV.DataBlock hdb = gamedb.GetFirstByName("\"Hammer\"");
 
