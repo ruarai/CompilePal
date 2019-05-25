@@ -726,6 +726,12 @@ namespace CompilePalX
 			//Return null on failure
 		    return null;
 	    }
+
+		private void UpdateHyperLink_OnRequestNavigate(object sender, RequestNavigateEventArgs e)
+		{
+			Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri));
+			e.Handled = true;
+		}
     }
 
 	public static class ObservableCollectionExtension
