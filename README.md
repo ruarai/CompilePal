@@ -18,10 +18,10 @@
 [Compile Pal V26](https://github.com/ruarai/CompilePal/releases/latest)
 
 #### Experimental Releases
-
-Coming soon
-
 Experimental releases may be unstable, use at your own risk.
+
+[Compile Pal V26.1](https://github.com/ruarai/CompilePal/releases/tag/26.1)
+
 
 ## Features
 * Packing
