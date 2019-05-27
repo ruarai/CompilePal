@@ -5,6 +5,7 @@
         xmlns:dialogs="clr-namespace:MahApps.Metro.Controls.Dialogs;assembly=MahApps.Metro"
         xmlns:local="clr-namespace:CompilePalX"
         xmlns:config="clr-namespace:CompilePalX.Configuration"
+        xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
 
         Title="Compile Pal X"
                       MinHeight="550" MinWidth="790"
@@ -13,6 +14,22 @@
                       IconEdgeMode="Aliased" Icon="CompilePalIcon.ico" ShowIconOnTitleBar="False" 
                       Activated="MetroWindow_Activated" BorderThickness="1" BorderBrush="{DynamicResource AccentColorBrush}" >
 
+    <!--<controls:MetroWindow.RightWindowCommands>
+        <controls:WindowCommands>
+            <Button Click="ConfigBack_OnClick">
+                <iconPacks:Material Kind="Settings"/>
+            </Button>
+        </controls:WindowCommands>
+    </controls:MetroWindow.RightWindowCommands>-->
+
+    <controls:MetroWindow.LeftWindowCommands>
+    <controls:WindowCommands>
+        <Button Click="ConfigBack_OnClick">
+            <iconPacks:Material Kind="ArrowLeft"/>
+        </Button>
+    </controls:WindowCommands>
+</controls:MetroWindow.LeftWindowCommands>
+    
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="80" MinHeight="80" MaxHeight="240"></RowDefinition>

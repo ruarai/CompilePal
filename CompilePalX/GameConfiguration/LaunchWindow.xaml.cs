@@ -125,8 +125,16 @@ namespace CompilePalX
         private void Launch(GameConfiguration config)
         {
             GameConfigurationManager.GameConfiguration = config;
-            var c = new MainWindow();
-            c.Show();
+			// if main window already exists update title
+            if (MainWindow.GetMainWindow == null)
+            {
+				var c = new MainWindow();
+				c.Show();
+            }
+            else
+            {
+				MainWindow.GetMainWindow.Title = $"Compile Pal {UpdateManager.CurrentVersion}X {GameConfigurationManager.GameConfiguration.Name}";
+            }
 
             Close();
 

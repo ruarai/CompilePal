@@ -732,6 +732,16 @@ namespace CompilePalX
 			Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri));
 			e.Handled = true;
 		}
+
+		private void Settings_OnClick(object sender, RoutedEventArgs e)
+		{
+			throw new NotImplementedException();
+		}
+
+		private void ConfigBack_OnClick(object sender, RoutedEventArgs e)
+		{
+			new LaunchWindow().Show();
+		}
     }
 
 	public static class ObservableCollectionExtension
