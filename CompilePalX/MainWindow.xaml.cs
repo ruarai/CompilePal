@@ -585,7 +585,12 @@ namespace CompilePalX
             dialog.Multiselect = true;
             dialog.Filter = "Map files (*.vmf;*.vmm)|*.vmf;*.vmm";
 
-            dialog.ShowDialog();
+            if (!dialog.ShowDialog().GetValueOrDefault(false))
+            {
+				// if dialog fails to open it's possible its initial directory is in a non existant folder or something
+	            dialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+	            dialog.ShowDialog();
+            }
 
             foreach (var file in dialog.FileNames)
             {
