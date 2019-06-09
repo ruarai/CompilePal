@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,6 +12,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.IO;
+using System.Security.Cryptography.X509Certificates;
 using Microsoft.Win32;
 using Newtonsoft.Json;
 
@@ -21,8 +23,9 @@ namespace CompilePalX
     /// </summary>
     public partial class LaunchWindow
     {
+	    public static LaunchWindow Instance;
         public LaunchWindow()
-        {
+        {	
             try
             {
 
@@ -120,6 +123,7 @@ namespace CompilePalX
             }
             catch (Exception e) { ExceptionHandler.LogException(e); }
 
+            Instance = this;
         }
 
         private void Launch(GameConfiguration config)
@@ -136,6 +140,7 @@ namespace CompilePalX
 				MainWindow.GetMainWindow.Title = $"Compile Pal {UpdateManager.CurrentVersion}X {GameConfigurationManager.GameConfiguration.Name}";
             }
 
+            Instance = null;
             Close();
 
         }
@@ -146,6 +151,12 @@ namespace CompilePalX
 
             if (selectedItem != null)
                 Launch(selectedItem);
+        }
+
+        protected override void OnClosing(CancelEventArgs e)
+        {
+	        Instance = null;
+	        base.OnClosing(e);
         }
     }
 }

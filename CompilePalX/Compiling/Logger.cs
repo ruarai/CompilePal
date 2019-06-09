@@ -52,10 +52,7 @@ namespace CompilePalX.Compiling
             }
             catch { }
 
-            if (OnWrite != null)
-                return OnWrite(text, b);
-            else
-                return null;
+            return OnWrite?.Invoke(text, b);
         }
 
 

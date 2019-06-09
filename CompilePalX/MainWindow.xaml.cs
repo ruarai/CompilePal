@@ -745,7 +745,10 @@ namespace CompilePalX
 
 		private void ConfigBack_OnClick(object sender, RoutedEventArgs e)
 		{
-			new LaunchWindow().Show();
+			if (LaunchWindow.Instance == null)
+				new LaunchWindow().Show();
+			else
+				LaunchWindow.Instance.Focus();
 		}
     }
 
