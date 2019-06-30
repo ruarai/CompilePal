@@ -204,7 +204,6 @@ namespace CompilePalX.Compilers.BSPPack
 
             if (File.Exists(path))
             {
-                // YOU GUYS DIDNT CLOSE STREAM OMG!!!!!
                 using (FileStream phy = new FileStream(path, FileMode.Open))
                 {
                     using (BinaryReader reader = new BinaryReader(phy))

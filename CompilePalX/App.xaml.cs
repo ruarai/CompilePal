@@ -29,11 +29,11 @@ namespace CompilePalX
 		// catch all unhandled exceptions and log them
 	    protected override void OnStartup(StartupEventArgs e)
 	    {
-		    AppDomain.CurrentDomain.UnhandledException += (s, err) => { ExceptionHandler.LogException((Exception)err.ExceptionObject); };
+		    AppDomain.CurrentDomain.UnhandledException += (s, err) => { ExceptionHandler.LogException((Exception)err.ExceptionObject, false); };
 
-		    DispatcherUnhandledException += (s, err) => { ExceptionHandler.LogException(err.Exception); };
+		    DispatcherUnhandledException += (s, err) => { ExceptionHandler.LogException(err.Exception, false); };
 
-		    TaskScheduler.UnobservedTaskException += (s, err) => { ExceptionHandler.LogException(err.Exception); };
+		    TaskScheduler.UnobservedTaskException += (s, err) => { ExceptionHandler.LogException(err.Exception, false); };
 	    }
     }
 }

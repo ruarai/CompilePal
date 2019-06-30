@@ -4,7 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Windows.Media;
 using CompilePalX.Compilers.UtilityProcess;
+using CompilePalX.Compiling;
 
 namespace CompilePalX.Compilers.BSPPack
 {
@@ -224,7 +226,18 @@ namespace CompilePalX.Compilers.BSPPack
                         foreach (string gib in AssetUtils.findPhyGibs(ext_path))
                             AddModel(gib);
                 }
-				var mdlMatsAndModels = AssetUtils.findMdlMaterialsAndModels(externalPath, skins);
+
+                Tuple<List<string>, List<string>> mdlMatsAndModels;
+                try
+                {
+	                mdlMatsAndModels = AssetUtils.findMdlMaterialsAndModels(externalPath, skins);
+                }
+                catch (Exception e)
+                {
+	                ExceptionHandler.LogException(e, false);
+	                CompilePalLogger.LogLineColor($"Failed to read file {externalPath}", Brushes.Red);
+	                return;
+                }
 
 	            foreach (string mat in mdlMatsAndModels.Item1)
 					AddTexture(mat);
