@@ -48,7 +48,7 @@ namespace CompilePalX.Compilers
             hidden = GetParameterString().Contains("-hidden");
             bool textmode = GetParameterString().Contains("-textmode");
 
-            string args = "-game \"" + context.Configuration.GameFolder + "\" -windowed -novid -nosound +log 0 +sv_logflush 1 +sv_cheats 1 +map " + mapname;
+            string args = "-steam -game \"" + context.Configuration.GameFolder + "\" -windowed -novid -nosound +log 0 +sv_logflush 1 +sv_cheats 1 +map " + mapname;
 
             if (hidden)
                 args += " -noborder -x 4000 -y 2000";
