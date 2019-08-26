@@ -266,10 +266,16 @@ namespace CompilePalX.Compilers.BSPPack
         {
             // adds pcf files and finds its dependencies
             string externalPath = FindExternalFile(internalPath);
-            PCF pcf = ParticleUtils.ReadParticle(externalPath);
+            if (externalPath == String.Empty)
+            {
+				CompilePalLogger.LogLineColor($"Failed to find particle manifest file {internalPath}", Brushes.Red);
+				return;
+            }
 
             if (AddFile(internalPath, externalPath))
             {
+
+				PCF pcf = ParticleUtils.ReadParticle(externalPath);
                 pcfcount++;
                 foreach (string mat in pcf.MaterialNames)
                     AddTexture(mat);
@@ -278,6 +284,11 @@ namespace CompilePalX.Compilers.BSPPack
                 {
                     AddModel(model);
                 }
+            }
+            else
+            {
+				CompilePalLogger.LogLineColor($"Failed to find particle manifest file {internalPath}", Brushes.Red);
+				return;
             }
         }
 
