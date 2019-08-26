@@ -80,7 +80,7 @@ namespace CompilePalX.Compilers.BSPPack
                     for (int i = 0; i < bodypart_count; i++)
                     // we are reading an array of mstudiobodyparts_t
                     {
-                        mdl.Seek(bodypart_index + i * 32, SeekOrigin.Begin);
+                        mdl.Seek(bodypart_index + i * 16, SeekOrigin.Begin);
 
                         mdl.Seek(4, SeekOrigin.Current);
                         int nummodels = reader.ReadInt32();
