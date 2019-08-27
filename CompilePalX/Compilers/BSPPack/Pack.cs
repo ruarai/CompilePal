@@ -395,50 +395,60 @@ namespace CompilePalX.Compilers.BSPPack
 
                         string path = GetInfoValue(line).Replace("\"", "");
 
-                        if (!(path.Contains("|") && !path.Contains("|gameinfo_path|") || path.Contains(".vpk")))
+                        if (path.Contains("|") && !path.Contains("|gameinfo_path|") || path.Contains(".vpk")) continue;
+
+                        if (path.Contains("*"))
                         {
-                            if (path.Contains("*"))
-                            {
-                                string newPath = path.Replace("*", "");
 
-                                string fullPath = System.IO.Path.GetFullPath(rootPath + "\\" + newPath.TrimEnd('\\'));
+							string fullPath;
+							if (path.Contains(("|gameinfo_path|")))
+	                        {
+		                        string newPath = path.Replace("*", "").Replace("|gameinfo_path|", "");
 
-                                if (verbose)
-                                    CompilePalLogger.LogLine("Found wildcard path: {0}", fullPath);
+		                        fullPath = System.IO.Path.GetFullPath(gamePath + "\\" + newPath.TrimEnd('\\'));
+	                        }
+	                        else
+	                        {
+		                        string newPath = path.Replace("*", "");
 
-                                try
-                                {
-                                    var directories = Directory.GetDirectories(fullPath);
-                                    sourceDirectories.AddRange(directories);
-                                }
-                                catch { }
-                            }
-                            else if (path.Contains("|gameinfo_path|"))
-                            {
-                                string fullPath = gamePath;
+		                        fullPath = System.IO.Path.GetFullPath(rootPath + "\\" + newPath.TrimEnd('\\'));
+	                        }
 
-                                if (verbose)
-                                    CompilePalLogger.LogLine("Found search path: {0}", fullPath);
+	                        if (verbose)
+		                        CompilePalLogger.LogLine("Found wildcard path: {0}", fullPath);
 
-                                sourceDirectories.Add(fullPath);
-                            }
-							else if (Directory.Exists(path))
-							{
-								if (verbose)
-									CompilePalLogger.LogLine("Found search path: {0}", path);
+	                        try
+	                        {
+		                        var directories = Directory.GetDirectories(fullPath);
+		                        sourceDirectories.AddRange(directories);
+	                        }
+	                        catch { }
+                        }
+                        else if (path.Contains("|gameinfo_path|"))
+                        {
+	                        string fullPath = gamePath;
 
-								sourceDirectories.Add(path);
+	                        if (verbose)
+		                        CompilePalLogger.LogLine("Found search path: {0}", fullPath);
 
-							}
-                            else
-                            {
-                                string fullPath = System.IO.Path.GetFullPath(rootPath + "\\" + path.TrimEnd('\\'));
+	                        sourceDirectories.Add(fullPath);
+                        }
+                        else if (Directory.Exists(path))
+                        {
+	                        if (verbose)
+		                        CompilePalLogger.LogLine("Found search path: {0}", path);
 
-                                if (verbose)
-                                    CompilePalLogger.LogLine("Found search path: {0}", fullPath);
+	                        sourceDirectories.Add(path);
 
-                                sourceDirectories.Add(fullPath);
-                            }
+                        }
+                        else
+                        {
+	                        string fullPath = System.IO.Path.GetFullPath(rootPath + "\\" + path.TrimEnd('\\'));
+
+	                        if (verbose)
+		                        CompilePalLogger.LogLine("Found search path: {0}", fullPath);
+
+	                        sourceDirectories.Add(fullPath);
                         }
                     }
                     else
