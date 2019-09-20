@@ -18,7 +18,7 @@ namespace CompilePalX
         private static List<Error> errorList = new List<Error>();
 
         //interlopers list of errors
-        private static string errorURL = "http://www.interlopers.net/includes/errorpage/errorChecker.txt";
+        private static string errorURL = "https://www.interlopers.net/includes/errorpage/errorChecker.txt";
 
         private static Regex errorDescriptionPattern = new Regex("<h4>(.*?)</h4>");
 
@@ -40,13 +40,24 @@ namespace CompilePalX
                 }
                 else
                 {
-                    WebClient c = new WebClient();
+                    ServicePointManager.Expect100Continue = true;
+                    ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
 
-                    string result = c.DownloadString(new Uri(errorURL));
+                    try
+                    {
+	                    WebClient c = new WebClient();
+	                    string result = c.DownloadString(new Uri(errorURL));
 
-                    LoadErrorData(result);
+	                    LoadErrorData(result);
+						File.WriteAllText(errorCache, result);
+                    }
+                    catch (Exception e)
+                    {
+						// fallback to cache if download fails
+						ExceptionHandler.LogException(e, false);
+						LoadErrorData(File.ReadAllText((errorCache)));
+                    }
 
-                    File.WriteAllText(errorCache, result);
                 }
             }
             catch (Exception x)
