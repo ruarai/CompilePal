@@ -54,7 +54,7 @@ namespace CompilePalX.Configuration
 					if (program.CustomOrder > newOrder.Count)
 					{
 						newOrder.Add(program);
-						MainWindow.GetMainWindow.SetOrder(program, newOrder.Count - 1);
+						MainWindow.Instance.SetOrder(program, newOrder.Count - 1);
 					}
 					else
 					{
@@ -67,7 +67,7 @@ namespace CompilePalX.Configuration
 			CurrentOrder.Clear();
 			CurrentOrder.AddRange(newOrder);
 
-			MainWindow.GetMainWindow.UpdateOrderGridSource(CurrentOrder);
+			MainWindow.Instance.UpdateOrderGridSource(CurrentOrder);
 		}
 	}
 }

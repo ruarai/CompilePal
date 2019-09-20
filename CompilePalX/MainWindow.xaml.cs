@@ -38,11 +38,11 @@ namespace CompilePalX
         public static Dispatcher ActiveDispatcher;
         private ObservableCollection<CompileProcess> CompileProcessesSubList = new ObservableCollection<CompileProcess>();
 	    private bool processModeEnabled;
-		public static MainWindow GetMainWindow { get; private set; }
+		public static MainWindow Instance { get; private set; }
 
 		public MainWindow()
         {
-	        GetMainWindow = this;
+	        Instance = this;
 
 			Application.Current.DispatcherUnhandledException += Current_DispatcherUnhandledException;
 
@@ -86,6 +86,11 @@ namespace CompilePalX
 
             HandleArgs();
         }
+
+		public Task<MessageDialogResult> ShowModal(string title, string message, MessageDialogStyle style = MessageDialogStyle.Affirmative, MetroDialogSettings settings = null)
+		{
+			return this.Dispatcher.Invoke(() => this.ShowMessageAsync(title, message, style, settings));
+		}
 
 	    private void HandleArgs(bool ignoreWipeArg = false)
         {

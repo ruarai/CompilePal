@@ -130,14 +130,14 @@ namespace CompilePalX
         {
             GameConfigurationManager.GameConfiguration = config;
 			// if main window already exists update title
-            if (MainWindow.GetMainWindow == null)
+            if (MainWindow.Instance == null)
             {
 				var c = new MainWindow();
 				c.Show();
             }
             else
             {
-				MainWindow.GetMainWindow.Title = $"Compile Pal {UpdateManager.CurrentVersion}X {GameConfigurationManager.GameConfiguration.Name}";
+				MainWindow.Instance.Title = $"Compile Pal {UpdateManager.CurrentVersion}X {GameConfigurationManager.GameConfiguration.Name}";
             }
 
             Instance = null;
