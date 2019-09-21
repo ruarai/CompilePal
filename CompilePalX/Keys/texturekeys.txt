@@ -48,5 +48,8 @@ $texture
 $texture2
 $worldspacetint
 $worldspacetype
+$emissiveBlendTexture
+$emissiveBlendBaseTexture
+$emissiveBlendFlowTexture
 %tooltexture
 srgb?$basetexture
