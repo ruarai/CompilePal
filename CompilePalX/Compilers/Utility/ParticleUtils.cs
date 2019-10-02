@@ -54,6 +54,10 @@ namespace CompilePalX.Compilers.UtilityProcess
 
                 if (s.EndsWith(".vmt") || s.EndsWith(".vtf"))
                 {
+                    // Alien Swarm does not prepend materials/ to particles, add it just in case
+                    if (this.BinaryVersion == 5 && this.PcfVersion == 2)
+                        materialNames.Add("materials\\" + s);
+
                     materialNames.Add(s);
                 }
             }
