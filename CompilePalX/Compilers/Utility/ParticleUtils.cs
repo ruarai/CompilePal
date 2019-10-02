@@ -256,7 +256,7 @@ namespace CompilePalX.Compilers.UtilityProcess
                 //Add materials and models to the master list
                 List<string> materialNames = pcf.GetMaterialNamesV4();
                 if (materialNames != null && materialNames.Count != 0)
-                    pcf.MaterialNames.AddRange(pcf.MaterialNames);
+                    pcf.MaterialNames.AddRange(materialNames);
 
                 List<string> modelNames = pcf.GetModelNames();
                 if (modelNames != null && modelNames.Count != 0)
