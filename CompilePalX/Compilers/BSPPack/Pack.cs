@@ -232,11 +232,16 @@ namespace CompilePalX.Compilers.BSPPack
                     if (File.Exists(context.BSPFile))
                     {
                         if (File.Exists(context.BSPFile + ".unpacked"))
+                        {
+                            CompilePalLogger.LogLineDebug($"Deleting: {context.BSPFile}.unpacked");
                             File.Delete(context.BSPFile + ".unpacked");
+                        }
 
+                        CompilePalLogger.LogLineDebug($"Copying {context.BSPFile} to {context.BSPFile}.unpacked");
                         File.Move(context.BSPFile, context.BSPFile + ".unpacked");
                     }
 
+                    CompilePalLogger.LogLineDebug($"Copying {bspPath} to {context.BSPFile}");
                     File.Copy(bspPath, context.BSPFile);
                 }
 

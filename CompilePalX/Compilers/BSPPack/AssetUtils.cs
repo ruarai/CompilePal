@@ -126,7 +126,7 @@ namespace CompilePalX.Compilers.BSPPack
                             trimmedtable[i, j] = skintable[i, material_ids[j]];
 
                     // add default skin 0 in case of non-existing skin indexes
-                    if (skins.IndexOf(0) == -1 && skins.Where(s => s >= trimmedtable.GetLength(0)).Count() != 0)
+                    if (skins.IndexOf(0) == -1 && skins.Count(s => s >= trimmedtable.GetLength(0)) != 0)
                         skins.Add(0);
 
                     // use the trimmed table to fetch used vmts

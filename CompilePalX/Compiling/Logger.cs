@@ -71,6 +71,22 @@ namespace CompilePalX.Compiling
             return Log(s + Environment.NewLine, formatStrings);
         }
 
+        public static void LogDebug(string s)
+        {
+            // log in debug, no op in release
+#if DEBUG
+            try
+            {
+                File.AppendAllText(logFile, s);
+            } catch { }
+#endif
+        }
+
+        public static void LogLineDebug(string s)
+        {
+            LogDebug(s + Environment.NewLine);
+        }
+
 
         public static void LogCompileError(string errorText, Error e)
         {
