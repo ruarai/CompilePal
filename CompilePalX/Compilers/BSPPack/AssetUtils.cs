@@ -90,7 +90,7 @@ namespace CompilePalX.Compilers.BSPPack
                         for (int j = 0; j < nummodels; j++)
                         // we are reading an array of mstudiomodel_t
                         {
-                            mdl.Seek(bodypart_index + modelindex + j * 140, SeekOrigin.Begin);
+                            mdl.Seek((bodypart_index + i * 16) + modelindex + j * 140, SeekOrigin.Begin);
 
                             mdl.Seek(72, SeekOrigin.Current);
                             int nummeshes = reader.ReadInt32();
@@ -99,7 +99,7 @@ namespace CompilePalX.Compilers.BSPPack
                             for (int k = 0; k < nummeshes; k++)
                             // we are reading an array of mstudiomesh_t
                             {
-                                mdl.Seek(bodypart_index + modelindex + meshindex + (k * 116), SeekOrigin.Begin);
+                                mdl.Seek((bodypart_index + i * 16) + modelindex + meshindex + (k * 116), SeekOrigin.Begin);
                                 int mat_index = reader.ReadInt32();
 
                                 if (!material_ids.Contains(mat_index))
