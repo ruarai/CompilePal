@@ -39,6 +39,7 @@ Get the latest features without having to wait. Experimental releases may be uns
 * [Reporting An Issue](Guides/Issues.md)
 * [Custom Compile Steps](Guides/Custom.md)
 * [Command Line Arguments](Guides/CMDArgs.md)
+* [Registry Values](Guides/Registry.md)
 
 ## Contributing
 
