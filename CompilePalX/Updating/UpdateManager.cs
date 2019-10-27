@@ -35,6 +35,10 @@ namespace CompilePalX
             if (CurrentPrereleaseVersion > CurrentVersion)
 	            CurrentVersion = CurrentPrereleaseVersion;
 
+            // store version info in registry
+            RegistryManager.Write("Version", currentVersion);
+            RegistryManager.Write("PrereleaseVersion", currentPrereleaseVersion);
+
             Thread updaterThread = new Thread(ThreadedCheck);
             updaterThread.Start();
         }

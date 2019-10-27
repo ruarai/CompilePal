@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
 using CompilePalX.Compiling;
+using Microsoft.Win32;
 
 namespace CompilePalX
 {
@@ -16,17 +17,18 @@ namespace CompilePalX
     /// </summary>
     public partial class App : Application
     {
-		// catch all unhandled exceptions and log them
 	    protected override void OnStartup(StartupEventArgs e)
 	    {
+		    // catch all unhandled exceptions and log them
 		    AppDomain.CurrentDomain.UnhandledException += (s, err) => { ExceptionHandler.LogException((Exception)err.ExceptionObject, false); };
-
 		    DispatcherUnhandledException += (s, err) => { ExceptionHandler.LogException(err.Exception, false); };
-
 		    TaskScheduler.UnobservedTaskException += (s, err) => { ExceptionHandler.LogException(err.Exception, false); };
 
             // set working directory
             Directory.SetCurrentDirectory(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location));
-	    }
+
+            // store path in registry
+            RegistryManager.Write("Path", Assembly.GetExecutingAssembly().Location);
+        }
     }
 }

@@ -117,6 +117,7 @@
       <DependentUpon>InputDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="PersistenceManager.cs" />
+    <Compile Include="RegistryManager.cs" />
     <Compile Include="RowDragHelper.cs" />
     <Compile Include="Updating\UpdateManager.cs" />
     <Page Include="Compilers\Utility\ConflictWindow.xaml">
