@@ -105,9 +105,12 @@ namespace CompilePalX.Compilers.BSPPack
                     //Get excluded files from parameter list
                     foreach (string parameter in parameters)
                     {
-                        if (parameter.Contains("exclude"))
+                        if (Regex.IsMatch(parameter, @"^exclude\b"))
                         {
-                            var filePath = parameter.Replace("\"", "").Replace("exclude ", "").Replace('/', '\\').ToLower().TrimEnd(' ');
+                            var filePath = parameter.Replace("\"", "")
+                                .Replace("exclude ", "")
+                                .Replace('/', '\\')
+                                .ToLower().TrimEnd(' ');
                             //Test that file exists
                             if (File.Exists(filePath))
                                 excludeFiles.Add(filePath);
@@ -122,9 +125,12 @@ namespace CompilePalX.Compilers.BSPPack
                     //Get excluded directories from parameter list
                     foreach (string parameter in parameters)
                     {
-                        if (parameter.Contains("excludedir"))
+                        if (Regex.IsMatch(parameter, @"^excludedir\b"))
                         {
-                            var path = parameter.Replace("\"", "").Replace("excludedir ", "").Replace('/', '\\').ToLower().TrimEnd(' ');
+                            var path = parameter.Replace("\"", "")
+                                .Replace("excludedir ", "")
+                                .Replace('/', '\\')
+                                .ToLower().TrimEnd(' ');
                             //Test that dir exists
                             if (Directory.Exists(path))
                                 excludeDirs.Add(path);
