@@ -19,7 +19,7 @@ namespace CompilePalX.Compilers
                 Directory.CreateDirectory(runningDirectory);
         }
 
-        private static string runningDirectory = CompilePalPath.Directory + "CompileLogs";
+        private static string runningDirectory = "./CompileLogs";
 
         public List<Error> CompileErrors;
 

@@ -27,8 +27,8 @@ namespace CompilePalX
 
         public static void CheckVersion()
         {
-            string currentVersion = File.ReadAllText(CompilePalPath.Directory + "version.txt");
-            string currentPrereleaseVersion = File.ReadAllText(CompilePalPath.Directory + "version_prerelease.txt");
+            string currentVersion = File.ReadAllText("./version.txt");
+            string currentPrereleaseVersion = File.ReadAllText("./version_prerelease.txt");
             CurrentVersion = float.Parse(currentVersion, new CultureInfo("es-US"));
             CurrentPrereleaseVersion = float.Parse(currentPrereleaseVersion, new CultureInfo("es-US"));
 

@@ -25,7 +25,7 @@ namespace CompilePalX.Compiling
 
     static class CompilePalLogger
     {
-        private static readonly string logFile = CompilePalPath.Directory + "debug.log";
+        private static readonly string logFile = "./debug.log";
         static CompilePalLogger()
         {
             File.Delete(logFile);

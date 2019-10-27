@@ -30,7 +30,7 @@ namespace CompilePalX
             {
 
 
-                string gameConfigurationFolder = CompilePalPath.Directory + "GameConfiguration";
+                string gameConfigurationFolder = "./GameConfiguration";
                 string gameConfigurationsPath = Path.Combine(gameConfigurationFolder, "gameConfigs.json");
 
                 InitializeComponent();

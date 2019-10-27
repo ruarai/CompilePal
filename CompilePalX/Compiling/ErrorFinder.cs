@@ -22,8 +22,8 @@ namespace CompilePalX
 
         private static Regex errorDescriptionPattern = new Regex("<h4>(.*?)</h4>");
 
-        private static string errorStyle = Path.Combine(CompilePalPath.Directory + "Compiling", "errorstyle.html");
-        private static string errorCache = Path.Combine(CompilePalPath.Directory + "Compiling", "errors.txt");
+        private static string errorStyle = Path.Combine("./Compiling", "errorstyle.html");
+        private static string errorCache = Path.Combine("./Compiling", "errors.txt");
         public static void Init()
         {
             Thread t = new Thread(AsyncInit);

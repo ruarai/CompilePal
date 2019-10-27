@@ -16,7 +16,7 @@ namespace CompilePalX
 {
     class CompileProcess
     {
-        public string ParameterFolder = CompilePalPath.Directory + "Parameters";
+        public string ParameterFolder = "./Parameters";
 	    public bool Draggable = false;
 
         public CompileProcess(string name)
