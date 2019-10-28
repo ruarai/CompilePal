@@ -15,12 +15,12 @@
 
 #### Latest Release
 
-[Compile Pal V26](https://github.com/ruarai/CompilePal/releases/latest)
+[Compile Pal V27](https://github.com/ruarai/CompilePal/releases/latest)
 
 #### Experimental Releases
 Get the latest features without having to wait. Experimental releases may be unstable, use at your own risk.
 
-[Compile Pal V26.2](https://github.com/ruarai/CompilePal/releases/tag/026.2)
+[Compile Pal V27](https://github.com/ruarai/CompilePal/releases/latest)
 
 
 ## Features
@@ -39,6 +39,7 @@ Get the latest features without having to wait. Experimental releases may be uns
 * [Reporting An Issue](Guides/Issues.md)
 * [Custom Compile Steps](Guides/Custom.md)
 * [Command Line Arguments](Guides/CMDArgs.md)
+* [Registry Values](Guides/Registry.md)
 
 ## Contributing
 
