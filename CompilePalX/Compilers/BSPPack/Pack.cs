@@ -410,7 +410,6 @@ namespace CompilePalX.Compilers.BSPPack
 
                         if (path.Contains("*"))
                         {
-
 							string fullPath;
 							if (path.Contains(("|gameinfo_path|")))
 	                        {
@@ -418,6 +417,10 @@ namespace CompilePalX.Compilers.BSPPack
 
 		                        fullPath = System.IO.Path.GetFullPath(gamePath + "\\" + newPath.TrimEnd('\\'));
 	                        }
+                            if (path.EndsWith("*"))
+                            {
+                                fullPath = path.Replace("*", "");
+                            }
 	                        else
 	                        {
 		                        string newPath = path.Replace("*", "");
