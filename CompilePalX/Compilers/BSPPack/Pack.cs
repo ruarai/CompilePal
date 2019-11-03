@@ -417,7 +417,7 @@ namespace CompilePalX.Compilers.BSPPack
 
 		                        fullPath = System.IO.Path.GetFullPath(gamePath + "\\" + newPath.TrimEnd('\\'));
 	                        }
-                            if (path.EndsWith("*"))
+                            if (Path.IsPathRooted(path.Replace("*", "")))
                             {
                                 fullPath = path.Replace("*", "");
                             }
