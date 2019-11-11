@@ -313,7 +313,7 @@ namespace CompilePalX.Compilers.BSPPack
             List<string> DDSs = new List<string>();
             foreach (string line in File.ReadAllLines(fullpath))
             {   
-                string param = line.Replace("\"", " ").Replace("\t", " ").Trim();
+                string param = line.Replace("\"", " ").Replace("\t", " ").Replace("_radar", "").Trim();
                 if (param.StartsWith("material "))
                 {
                     DDSs.Add("resource/" + vmtPathParser(param) + "_radar.dds");
