@@ -25,7 +25,7 @@
     <controls:MetroWindow.LeftWindowCommands>
     <controls:WindowCommands>
         <Button Click="ConfigBack_OnClick">
-            <iconPacks:Material Kind="ArrowLeft"/>
+            <iconPacks:Material Kind="PlaylistEdit"/>
         </Button>
     </controls:WindowCommands>
 </controls:MetroWindow.LeftWindowCommands>
