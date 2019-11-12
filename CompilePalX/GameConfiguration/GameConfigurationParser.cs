@@ -44,7 +44,7 @@ namespace KV {
             string prev = "";
 
             while((line = stream.ReadLine()) != null) {
-                line = line.Split("//".ToCharArray())[0]; // ditch comments
+                line = line.Split(new string[] {"//"}, StringSplitOptions.None)[0]; // ditch comments
 
                 if (sutil.get_unquoted_material(line).Contains("{")) {
                     string pname = prev;
