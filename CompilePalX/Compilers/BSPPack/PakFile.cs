@@ -18,7 +18,34 @@ namespace CompilePalX.Compilers.BSPPack
         // the dictionary is formated as <internalPath, externalPath>
         // matching the bspzip specification https://developer.valvesoftware.com/wiki/BSPZIP
         private IDictionary<string, string> Files;
-	    private List<string> excludedFiles;
+
+        private bool AddFile(string internalPath, string externalPath)
+        {
+            return AddFile(new KeyValuePair<string, string>(internalPath, externalPath));
+        }
+        // onFailure is for utility files such as nav, radar, etc which get excluded. if they are excluded, the Delegate is run. This is used for removing the files from the BSP class, so they dont appear in the summary at the end
+        private bool AddFile(KeyValuePair<string, string> paths, Action<BSP> onExcluded = null, BSP bsp = null)
+        {
+            var externalPath = paths.Value;
+
+            // exclude files that are excluded
+            if (externalPath != "" && File.Exists(externalPath)
+                                   && !excludedFiles.Contains(externalPath.ToLower().Replace('/', '\\'))
+                                   && !excludedDirs.Any(externalPath.ToLower().Replace('/', '\\').StartsWith))
+            {
+                Files.Add(paths);
+                return true;
+            }
+
+            if (onExcluded != null && bsp != null)
+            {
+                onExcluded(bsp);
+            }
+
+            return false;
+        }
+
+        private List<string> excludedFiles;
 	    private List<string> excludedDirs;
 
         private List<string> sourceDirs;
@@ -42,68 +69,76 @@ namespace CompilePalX.Compilers.BSPPack
             Files = new Dictionary<string, string>();
 
             if (bsp.nav.Key != default(string))
-                Files.Add(bsp.nav);
+                AddFile(bsp.nav, (b => b.nav = default), bsp);
 
             if (bsp.detail.Key != default(string))
-                Files.Add(bsp.detail);
+                AddFile(bsp.detail, (b => b.detail = default), bsp);
 
             if (bsp.kv.Key != default(string))
-                Files.Add(bsp.kv);
+                AddFile(bsp.kv, (b => b.kv = default), bsp);
 
             if (bsp.txt.Key != default(string))
-                Files.Add(bsp.txt);
+                AddFile(bsp.txt, (b => b.txt = default), bsp);
 
             if (bsp.jpg.Key != default(string))
-                Files.Add(bsp.jpg);
+                AddFile(bsp.jpg, (b => b.jpg = default), bsp);
 
             if (bsp.radartxt.Key != default(string))
-                Files.Add(bsp.radartxt);
+                AddFile(bsp.radartxt, (b => b.radartxt = default), bsp);
 
             if (bsp.res.Key != default(string))
             {
-                Files.Add(bsp.res);
-                foreach (string material in AssetUtils.findResMaterials(bsp.res.Value))
-                    AddTexture(material);
+                if (AddFile(bsp.res, (b => b.res = default), bsp))
+                {
+                    foreach (string material in AssetUtils.findResMaterials(bsp.res.Value))
+                        AddTexture(material);
+                }
             }
 
             if (bsp.particleManifest.Key != default(string))
             {
-                Files.Add(bsp.particleManifest);
-                foreach (string particle in AssetUtils.findManifestPcfs(bsp.particleManifest.Value))
-                    AddParticle(particle);
+                if (AddFile(bsp.particleManifest, (b => b.particleManifest = default), bsp))
+                {
+                    foreach (string particle in AssetUtils.findManifestPcfs(bsp.particleManifest.Value))
+                        AddParticle(particle);
+                }
             }
             
             if (bsp.soundscape.Key != default(string))
             {
-                Files.Add(bsp.soundscape);
-                foreach (string sound in AssetUtils.findSoundscapeSounds(bsp.soundscape.Value))
-                    if (AddFile(sound, FindExternalFile(sound)))
-                        sndcount++;
+                if (AddFile(bsp.soundscape, (b => b.soundscape = default), bsp))
+                {
+                    foreach (string sound in AssetUtils.findSoundscapeSounds(bsp.soundscape.Value))
+                        if (AddInternalFile(sound, FindExternalFile(sound)))
+                            sndcount++;
+                }
             }
             
             if (bsp.soundscript.Key != default(string))
             {
-                Files.Add(bsp.soundscript);
-                foreach (string sound in AssetUtils.findSoundscapeSounds(bsp.soundscript.Value))
-                    if (AddFile(sound, FindExternalFile(sound)))
-                        sndcount++;
+                if (AddFile(bsp.soundscript, (b => b.soundscript = default), bsp))
+                {
+                    foreach (string sound in AssetUtils.findSoundscapeSounds(bsp.soundscript.Value))
+                        if (AddInternalFile(sound, FindExternalFile(sound)))
+                            sndcount++;
+                }
             }
 
             // find color correction files
             foreach (Dictionary<string, string> cc in bsp.entityList.Where(item => item["classname"] == "color_correction"))
                 if (cc.ContainsKey("filename"))
-                    AddFile(cc["filename"], FindExternalFile(cc["filename"]));
+                    AddInternalFile(cc["filename"], FindExternalFile(cc["filename"]));
 
             foreach (KeyValuePair<string, string> vehicleScript in bsp.VehicleScriptList)
-                if (AddFile(vehicleScript.Key, vehicleScript.Value))
+                if (AddInternalFile(vehicleScript.Key, vehicleScript.Value))
                     vehiclescriptcount++;
 	        foreach (KeyValuePair<string, string> effectScript in bsp.EffectScriptList)
-		        if (AddFile(effectScript.Key, effectScript.Value))
+		        if (AddInternalFile(effectScript.Key, effectScript.Value))
 			        effectscriptcount++;
             foreach (KeyValuePair<string, string> dds in bsp.radardds)
-                AddFile(dds.Key, dds.Value);
+                AddInternalFile(dds.Key, dds.Value);
             foreach (KeyValuePair<string, string> lang in bsp.languages)
-                AddFile(lang.Key, lang.Value);
+                AddInternalFile(lang.Key, lang.Value);
             foreach (string model in bsp.EntModelList)
                 AddModel(model);
             for (int i = 0; i < bsp.ModelList.Count; i++)
@@ -113,10 +148,10 @@ namespace CompilePalX.Compilers.BSPPack
             foreach (string vmt in bsp.EntTextureList)
                 AddTexture(vmt);
             foreach (string sound in bsp.EntSoundList)
-                if (AddFile(sound, FindExternalFile(sound)))
+                if (AddInternalFile(sound, FindExternalFile(sound)))
                     sndcount++;
             foreach (string vscript in bsp.vscriptList)
-                if (AddFile(vscript, FindExternalFile(vscript)))
+                if (AddInternalFile(vscript, FindExternalFile(vscript)))
                     vscriptcount++;
 
 			// add all manually included files
@@ -157,11 +192,11 @@ namespace CompilePalX.Compilers.BSPPack
 						break;
 					case "wav":
 					case "mp3":
-						AddFile(internalPath, file);
+						AddInternalFile(internalPath, file);
 						sndcount++;
 						break;
 					default:
-						AddFile(internalPath, file);
+						AddInternalFile(internalPath, file);
 						break;
 		        }
 	        }
@@ -194,34 +229,28 @@ namespace CompilePalX.Compilers.BSPPack
             return output;
         }
 
-        public bool AddFile(string internalPath, string externalPath)
+        public bool AddInternalFile(string internalPath, string externalPath)
         {
-            // adds file to the pakfile list
-            if (externalPath != "" && File.Exists(externalPath) 
-                                   && !excludedFiles.Contains(externalPath.ToLower().Replace('/', '\\'))
-                                   && !excludedDirs.Any(externalPath.ToLower().Replace('/', '\\').StartsWith))
-            {
                 internalPath = internalPath.Replace("\\", "/");
                 if (!Files.ContainsKey(internalPath))
                 {
-                    Files.Add(internalPath, externalPath);
-                    return true;
+                    return AddFile(internalPath, externalPath);
                 }
-            }
-            return false;
+
+                return false;
         }
 
         public void AddModel(string internalPath, List<int> skins = null)
         {
             // adds mdl files and finds its dependencies
             string externalPath = FindExternalFile(internalPath);
-            if (AddFile(internalPath, externalPath))
+            if (AddInternalFile(internalPath, externalPath))
             {
                 mdlcount++;
                 foreach (string reference in AssetUtils.findMdlRefs(internalPath))
                 {
                     string ext_path = FindExternalFile(reference);
-                    AddFile(reference, FindExternalFile(reference));
+                    AddInternalFile(reference, FindExternalFile(reference));
                     if (reference.EndsWith(".phy"))
                         foreach (string gib in AssetUtils.findPhyGibs(ext_path))
                             AddModel(gib);
@@ -252,11 +281,11 @@ namespace CompilePalX.Compilers.BSPPack
         {
             // adds vmt files and finds its dependencies
             string externalPath = FindExternalFile(internalPath);
-            if (AddFile(internalPath, externalPath))
+            if (AddInternalFile(internalPath, externalPath))
             {
                 vmtcount++;
                 foreach (string vtf in AssetUtils.findVmtTextures(externalPath))
-                    AddFile(vtf, FindExternalFile(vtf));
+                    AddInternalFile(vtf, FindExternalFile(vtf));
                 foreach (string vmt in AssetUtils.findVmtMaterials(externalPath))
                     AddTexture(vmt);
             }
@@ -272,7 +301,7 @@ namespace CompilePalX.Compilers.BSPPack
 				return;
             }
 
-            if (AddFile(internalPath, externalPath))
+            if (AddInternalFile(internalPath, externalPath))
             {
 
 				PCF pcf = ParticleUtils.ReadParticle(externalPath);
