@@ -147,7 +147,12 @@ namespace CompilePalX.Compilers.BSPPack
             bsp.Seek(offsets[43].Key, SeekOrigin.Begin);
             TextureList = new List<string>(Encoding.ASCII.GetString(reader.ReadBytes(offsets[43].Value)).Split('\0'));
             for (int i = 0; i < TextureList.Count; i++)
-                TextureList[i] = "materials/" + TextureList[i] + ".vmt";
+            {
+                if (TextureList[i].StartsWith("/")) // materials in root level material directory start with /
+                    TextureList[i] = "materials" + TextureList[i] + ".vmt";
+                else
+                    TextureList[i] = "materials/" + TextureList[i] + ".vmt";
+            }
 
             // find skybox materials
             Dictionary<string, string> worldspawn = entityList.First(item => item["classname"] == "worldspawn");
