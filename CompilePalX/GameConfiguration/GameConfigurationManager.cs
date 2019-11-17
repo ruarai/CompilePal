@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -9,6 +10,7 @@ namespace CompilePalX
     static class GameConfigurationManager
     {
         public static GameConfiguration GameConfiguration;
+        public static List<GameConfiguration> GameConfigurations;
 
         public static string SubstituteValues(string text, string mapFile = "")
         {

@@ -77,6 +77,10 @@ namespace CompilePalX
 
             UpdateConfigGrid();
 
+            ConfigSelectButton.Visibility = GameConfigurationManager.GameConfigurations.Count > 1
+                ? Visibility.Visible
+                : Visibility.Collapsed;
+
             CompilingManager.OnClear += CompilingManager_OnClear;
 
             CompilingManager.OnStart += CompilingManager_OnStart;

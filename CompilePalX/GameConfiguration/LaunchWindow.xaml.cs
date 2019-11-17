@@ -28,8 +28,6 @@ namespace CompilePalX
         {	
             try
             {
-
-
                 string gameConfigurationFolder = "./GameConfiguration";
                 string gameConfigurationsPath = Path.Combine(gameConfigurationFolder, "gameConfigs.json");
 
@@ -77,6 +75,7 @@ namespace CompilePalX
                     //save
                     string jsonSaveText = JsonConvert.SerializeObject(configs, Formatting.Indented);
                     File.WriteAllText(gameConfigurationsPath, jsonSaveText);
+                    GameConfigurationManager.GameConfigurations = configs;
 
                     if (configs.Count == 1)
                         Launch(configs.First());
