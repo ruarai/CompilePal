@@ -594,8 +594,13 @@ namespace CompilePalX
             dialog.Multiselect = true;
             dialog.Filter = "Map files (*.vmf;*.vmm)|*.vmf;*.vmm";
 
-            if (!dialog.ShowDialog().GetValueOrDefault(false))
+            try
             {
+                dialog.ShowDialog();
+            }
+            catch
+            {
+                CompilePalLogger.LogDebug($"AddMapButton dialog failed to open, falling back to {Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)}");
 				// if dialog fails to open it's possible its initial directory is in a non existant folder or something
 	            dialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 	            dialog.ShowDialog();
