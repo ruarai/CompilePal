@@ -24,8 +24,8 @@
 
     <controls:MetroWindow.LeftWindowCommands>
     <controls:WindowCommands>
-        <Button Click="ConfigBack_OnClick" x:Name="ConfigSelectButton">
-            <iconPacks:Material Kind="PlaylistEdit"/>
+        <Button Click="ConfigBack_OnClick" ToolTip="Open Game Selector" x:Name="ConfigSelectButton">
+            <iconPacks:Material Kind="Menu" />
         </Button>
     </controls:WindowCommands>
 </controls:MetroWindow.LeftWindowCommands>
