@@ -97,7 +97,7 @@
   },
   {
     "Name": "Static Prop Lighting Old",
-    "Parameter": "-StaticPropLightingOld",
+    "Parameter": " -StaticPropLightingOld",
     "Description": "Generate per-vertex prop_static lighting using the old algorithm",
     "Value": null,
     "CanHaveValue": false,
