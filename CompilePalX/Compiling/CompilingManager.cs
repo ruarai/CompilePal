@@ -115,7 +115,19 @@ namespace CompilePalX
                         compileProcess.Run(GameConfigurationManager.BuildContext(mapFile));
 
                         if (compileProcess is CompileExecutable executable)
-	                        compileErrors.AddRange(executable.CompileErrors);
+                        {
+                            compileErrors.AddRange(executable.CompileErrors);
+
+                            //Portal 2 cannot work with leaks, stop compiling if we do get a leak.
+                            if (GameConfigurationManager.GameConfiguration.Name == "Portal 2")
+                            {
+                                if (executable.Name == "VBSP" && executable.CompileErrors.Count > 0)
+                                {
+                                    //we have a VBSP error, aka a leak -> stop compiling;
+                                    break;
+                                }
+                            }
+                        }
 
                         ProgressManager.Progress += (1d / ConfigurationManager.CompileProcesses.Count(c => c.Metadata.DoRun &&
                             c.PresetDictionary.ContainsKey(ConfigurationManager.CurrentPreset))) / MapFiles.Count;
