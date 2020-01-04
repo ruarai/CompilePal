@@ -164,7 +164,7 @@ namespace CompilePalX.Compilers.BSPPack
 				// default base directory is the game folder
 		        string baseDir = GameConfigurationManager.GameConfiguration.GameFolder;
 
-		        var potentialSubDir = sourceDirs;
+		        var potentialSubDir = new List<string>(sourceDirs); // clone to prevent accidental modification
 				potentialSubDir.Remove(baseDir);
 		        foreach (var folder in potentialSubDir)
 		        {

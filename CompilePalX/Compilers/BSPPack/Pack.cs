@@ -37,6 +37,7 @@ namespace CompilePalX.Compilers.BSPPack
         private static bool dryrun;
         private static bool renamenav;
         private static bool include;
+        private static bool includeDir;
         private static bool exclude;
         private static bool excludeDir;
         private static bool packvpk;
@@ -51,8 +52,9 @@ namespace CompilePalX.Compilers.BSPPack
             verbose = GetParameterString().Contains("-verbose");
             dryrun = GetParameterString().Contains("-dryrun");
             renamenav = GetParameterString().Contains("-renamenav");
-            include = GetParameterString().Contains("-include");
-            exclude = GetParameterString().Contains("-exclude");
+            include = Regex.IsMatch(GetParameterString(), "^-include\b"); // ensures it doesnt match -includedir
+            includeDir = GetParameterString().Contains("-includedir");
+            exclude = Regex.IsMatch(GetParameterString(), "^-exclude\b"); // ensures it doesnt match -excludedir
             excludeDir = GetParameterString().Contains("-excludedir");
             packvpk = GetParameterString().Contains("-vpk");
 
@@ -96,6 +98,28 @@ namespace CompilePalX.Compilers.BSPPack
                                 includeFiles.Add(filePath);
                             else
                                 CompilePalLogger.LogLineColor($"Could not find file: {filePath}", Error.GetSeverityBrush(2));
+                        }
+                    }
+                }
+
+                // get manually included files in directories
+                if (includeDir)
+                {
+                    //Get included files from parameter list
+                    foreach (string parameter in parameters)
+                    {
+                        if (parameter.Contains("includedir"))
+                        {
+                            var folderPath = parameter.Replace("\"", "").Replace("includedir ", "").TrimEnd(' ');
+                            //Test that folder exists
+                            if (Directory.Exists(folderPath))
+                            {
+                                var files = Directory.GetFiles(folderPath, "*", SearchOption.AllDirectories);
+                                foreach (var file in files)
+                                    includeFiles.Add(file);
+                            }
+                            else
+                                CompilePalLogger.LogLineColor($"Could not find folder: {folderPath}", Error.GetSeverityBrush(2));
                         }
                     }
                 }

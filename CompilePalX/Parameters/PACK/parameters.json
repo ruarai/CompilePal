@@ -34,6 +34,17 @@
     "CanBeUsedMoreThanOnce": true
   },
   {
+    "Name": "Include Directory",
+    "Parameter": " -includedir",
+    "Description": "Packs all files in specified directory",
+    "Value": null,
+    "ValueIsFile": true,
+    "ValueIsFolder": true, 
+    "CanHaveValue": true,
+    "Warning": "",
+    "CanBeUsedMoreThanOnce": true
+  },
+  {
     "Name": "Exclude",
     "Parameter": " -exclude",
     "Description": "Ignores specified file",
