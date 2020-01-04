@@ -13,7 +13,7 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <TextBox Grid.Column="0" controls:TextBoxHelper.Watermark="File Path" x:Name="textBox" Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}"/> <!--KeyUp="OnConfigChanged"/>-->
+            <TextBox Grid.Column="0" controls:TextBoxHelper.Watermark="{Binding Hint, RelativeSource={RelativeSource AncestorType= local:FileInput}}" x:Name="textBox" Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}"/>
             <Button Grid.Column="1" Click="FileBrowse_OnClick">...</Button>
         </Grid>
     </Grid>

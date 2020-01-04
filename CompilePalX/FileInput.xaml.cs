@@ -74,7 +74,20 @@ namespace CompilePalX
 			set => SetValue(IsFolderProperty, value);
 		}
 
-		public FileInput()
+		public static readonly DependencyProperty HintProperty =
+			DependencyProperty.Register(
+				"Hint",
+				typeof(string),
+				typeof(FileInput),
+				new PropertyMetadata("Choose File"));
+
+        public string Hint
+        {
+            get => (string) GetValue(HintProperty);
+            set => SetValue(HintProperty, value);
+        }
+
+        public FileInput()
 		{
 			InitializeComponent();
 		}
