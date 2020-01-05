@@ -250,10 +250,10 @@ namespace CompilePalX
                 {
                     list.Add(new ConfigItem()
                     {
-                        Name = "Custom",
+                        Name = "Command Line Argument",
                         CanHaveValue = true,
                         CanBeUsedMoreThanOnce = true,
-                        Description = "Pass this value as a command line argument",
+                        Description = "Passes value as a command line argument",
                     });
                 }
             }
@@ -297,7 +297,7 @@ namespace CompilePalX
             if (pieces.Any())
             {
                 // Custom parameter stores name as first value instead of parameter, because it has no parameter
-                if (pieces[0] == "Custom")
+                if (pieces[0] == "Command Line Argument")
                     item.Name = pieces[0];
                 else
                     item.Parameter = pieces[0];
@@ -322,7 +322,7 @@ namespace CompilePalX
 			//Handle extra information stored for custom programs
 	        if (item.Name == "Run Program")
 		        return $"{item.Parameter},{item.Value},{item.Value2},{item.ReadOutput},{item.WaitForExit},{item.Warning}";
-            else if (item.Name == "Custom") // Custom has no parameter value
+            else if (item.Name == "Command Line Argument") // Command line arguments have no parameter value
                 return $"{item.Name},{item.Value}";
             return $"{item.Parameter},{item.Value}";
         }

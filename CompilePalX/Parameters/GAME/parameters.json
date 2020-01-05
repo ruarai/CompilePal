@@ -104,9 +104,9 @@
     "Warning": ""
   },
   {
-    "Name": "Command Line Parameter",
+    "Name": "Command Line Argument",
     "Parameter": "",
-    "Description": "Passes parameter to the game.",
+    "Description": "Passes value as a command line argument",
     "Value": "",
     "CanHaveValue": true,
     "Warning": "",
