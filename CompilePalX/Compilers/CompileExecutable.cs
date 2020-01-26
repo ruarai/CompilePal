@@ -36,11 +36,11 @@ namespace CompilePalX.Compilers
                         RedirectStandardInput = true,
                         RedirectStandardError = true,
                         UseShellExecute = false,
-                        CreateNoWindow = true
+                        CreateNoWindow = true,
                     };
             }
 
-            var args = GameConfigurationManager.SubstituteValues(GetParameterString(), c.MapFile); ;
+            var args = GameConfigurationManager.SubstituteValues(GetParameterString(), c.MapFile);
 
             Process.StartInfo.FileName = GameConfigurationManager.SubstituteValues(Metadata.Path);
             Process.StartInfo.Arguments = string.Join(" ", args);

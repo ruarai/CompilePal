@@ -108,7 +108,7 @@
       <DependentUpon>ErrorWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Compiling\Logger.cs" />
-    <Compile Include="Configuration\OrderManager.cs" />
+    <Compile Include="Compiling\OrderManager.cs" />
     <Compile Include="Configuration\ProcessAdder.xaml.cs">
       <DependentUpon>ProcessAdder.xaml</DependentUpon>
     </Compile>

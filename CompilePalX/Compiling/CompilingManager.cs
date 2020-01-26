@@ -30,8 +30,7 @@ namespace CompilePalX
             
         private static void CompilePalLogger_OnErrorFound(Error e)
         {
-            var executable = currentCompileProcess as CompileExecutable;
-            if (executable != null)
+            if (currentCompileProcess is CompileExecutable executable)
             {
                 executable.CompileErrors.Add(e);
             }
@@ -109,6 +108,7 @@ namespace CompilePalX
 					//Update the grid so we have the most up to date order
 	                OrderManager.UpdateOrder();
 
+                    GameConfigurationManager.BackupCurrentContext();
 					foreach (var compileProcess in OrderManager.CurrentOrder)
 					{
                         currentCompileProcess = compileProcess;
@@ -134,6 +134,8 @@ namespace CompilePalX
                     }
 
                     mapErrors.Add(new MapErrors { MapName = cleanMapName, Errors = compileErrors });
+                    
+                    GameConfigurationManager.RestoreCurrentContext();
                 }
 
                 MainWindow.ActiveDispatcher.Invoke(() => postCompile(mapErrors));

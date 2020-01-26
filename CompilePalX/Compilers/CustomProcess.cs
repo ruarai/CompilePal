@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -173,8 +172,13 @@ namespace CompilePalX.Compilers
 
 		private void ProcessOnOutputDataReceived(object sender, DataReceivedEventArgs e)
 		{
-			if (e.Data != null)
-				CompilePalLogger.LogLine(e.Data);
+            if (e.Data != null)
+            {
+				if (e.Data.StartsWith("COMPILE_PAL_SET"))
+					GameConfigurationManager.ModifyCurrentContext(e.Data);
+				else
+                    CompilePalLogger.LogLine(e.Data);
+            }
 		}
 
 		//Parse args for parameters and replace them with their corresponding values
