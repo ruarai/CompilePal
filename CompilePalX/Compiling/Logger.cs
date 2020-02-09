@@ -90,9 +90,18 @@ namespace CompilePalX.Compiling
 
         public static void LogCompileError(string errorText, Error e)
         {
-            OnErrorLog(errorText, e);
+            if (errorsFound.ContainsKey(e))
+                errorsFound[e]++;
+            else
+                errorsFound.Add(e, 1);
 
+            if (errorsFound[e] < 128)
+                OnErrorLog(errorText, e);
+            else
+                Log(errorText); //Stop hyperlinking errors if we see over 128 of them
+            
             File.AppendAllText(logFile, errorText);
+            OnErrorFound(e);
         }
 
 
@@ -122,19 +131,7 @@ namespace CompilePalX.Compiling
                     if (error == null)
                         Log(line);
                     else
-                    {
-                        if (errorsFound.ContainsKey(error))
-                            errorsFound[error]++;
-                        else
-                            errorsFound.Add(error, 1);
-
-                        if (errorsFound[error] < 128)
-                            LogCompileError(line, error);
-                        else
-                            Log(line);//Stop hyperlinking errors if we see over 128 of them
-                        
-                        OnErrorFound(error);
-                    }
+                        LogCompileError(line, error);
                 }
 
                 if (suffixText.Length > 0)

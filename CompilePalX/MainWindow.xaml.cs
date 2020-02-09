@@ -151,8 +151,11 @@ namespace CompilePalX
                 text.Foreground = e.ErrorColor;
 
                 errorLink.Inlines.Add(text);
-                errorLink.TargetName = e.ID.ToString();
-                errorLink.Click += errorLink_Click;
+                if (e.ID >= 0)
+                {
+                    errorLink.TargetName = e.ID.ToString();
+                    errorLink.Click += errorLink_Click;
+                }
 
                 var underline = new TextDecoration
                 {

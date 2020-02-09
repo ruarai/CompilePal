@@ -21,8 +21,6 @@ namespace CompilePalX.Compilers
 
         private static string runningDirectory = "./CompileLogs";
 
-        public List<Error> CompileErrors;
-
         public override void Run(CompileContext c)
         {
             CompileErrors = new List<Error>();

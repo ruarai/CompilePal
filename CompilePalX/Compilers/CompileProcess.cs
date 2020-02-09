@@ -18,6 +18,7 @@ namespace CompilePalX
     {
         public string ParameterFolder = "./Parameters";
 	    public bool Draggable = false;
+        public List<Error> CompileErrors;
 
         public CompileProcess(string name)
         {

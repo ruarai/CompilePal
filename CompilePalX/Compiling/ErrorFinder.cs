@@ -136,6 +136,23 @@ namespace CompilePalX
 
         public int ID;
 
+        public Error() { }
+
+        public Error(string message, string shortDescription, ErrorSeverity severity, int id = -1)
+        {
+            this.Message = message;
+            this.ShortDescription = shortDescription;
+            this.Severity = (int) severity;
+            this.ID = id;
+        }
+        public Error(string message, ErrorSeverity severity, int id = -1)
+        {
+            this.Message = message;
+            this.ShortDescription = message;
+            this.Severity = (int) severity;
+            this.ID = id;
+        }
+
         public override bool Equals(object obj)
         {
             return ((Error)obj).ID == this.ID;
@@ -189,5 +206,13 @@ namespace CompilePalX
                 }
             }
         }
+    }
+
+    public enum ErrorSeverity {
+        Info = 1,
+        Caution = 2,
+        Warning = 3,
+        Error = 4,
+        FatalError = 5,
     }
 }

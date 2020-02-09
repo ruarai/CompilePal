@@ -79,7 +79,7 @@ namespace CompilePalX.Compilers.UtilityProcess
             }
             catch (FileNotFoundException e)
             {
-                CompilePalLogger.LogLine($"ParticleUtils: {filePath} not found");
+                CompilePalLogger.LogCompileError($"Could not find {filePath}\n", new Error($"Could not find {filePath}", ErrorSeverity.Error));
                 return null;
             }
 
@@ -182,7 +182,7 @@ namespace CompilePalX.Compilers.UtilityProcess
             }
             catch (FileNotFoundException e)
             {
-                CompilePalLogger.LogLine($"ParticleUtils: {filePath} not found");
+                CompilePalLogger.LogCompileError($"Could not find {filePath}\n", new Error($"Could not find {filePath}", ErrorSeverity.Error));
                 return null;
             }
 
@@ -380,6 +380,7 @@ namespace CompilePalX.Compilers.UtilityProcess
                 };
 
                 CompilePalLogger.LogCompileError("Could not find any PCFs that contained used particles!\n", e);
+                CompilePalLogger.LogCompileError("Could not find any PCFs that contained used particles!\n", new Error("Could not find any PCFs that contained used particles!\n", ErrorSeverity.Warning));
                 return;
             }
                 

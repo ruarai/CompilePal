@@ -30,10 +30,7 @@ namespace CompilePalX
             
         private static void CompilePalLogger_OnErrorFound(Error e)
         {
-            if (currentCompileProcess is CompileExecutable executable)
-            {
-                executable.CompileErrors.Add(e);
-            }
+            currentCompileProcess.CompileErrors.Add(e);
 
             if (e.Severity == 5 && IsCompiling)
             {
@@ -114,18 +111,15 @@ namespace CompilePalX
                         currentCompileProcess = compileProcess;
                         compileProcess.Run(GameConfigurationManager.BuildContext(mapFile));
 
-                        if (compileProcess is CompileExecutable executable)
-                        {
-                            compileErrors.AddRange(executable.CompileErrors);
+                        compileErrors.AddRange(currentCompileProcess.CompileErrors);
 
-                            //Portal 2 cannot work with leaks, stop compiling if we do get a leak.
-                            if (GameConfigurationManager.GameConfiguration.Name == "Portal 2")
+                        //Portal 2 cannot work with leaks, stop compiling if we do get a leak.
+                        if (GameConfigurationManager.GameConfiguration.Name == "Portal 2")
+                        {
+                            if (currentCompileProcess.Name == "VBSP" && currentCompileProcess.CompileErrors.Count > 0)
                             {
-                                if (executable.Name == "VBSP" && executable.CompileErrors.Count > 0)
-                                {
-                                    //we have a VBSP error, aka a leak -> stop compiling;
-                                    break;
-                                }
+                                //we have a VBSP error, aka a leak -> stop compiling;
+                                break;
                             }
                         }
 

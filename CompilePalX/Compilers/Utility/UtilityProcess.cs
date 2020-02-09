@@ -36,6 +36,8 @@ namespace CompilePalX.Compilers.UtilityProcess
 
         public override void Run(CompileContext context)
         {
+            CompileErrors = new List<Error>();
+
             genParticleManifest = GetParameterString().Contains("-particlemanifest");
             incParticleManifest = GetParameterString().Contains("-incparticlemanifest");
             incSoundscape = GetParameterString().Contains("-incsoundscape");
@@ -80,7 +82,7 @@ namespace CompilePalX.Compilers.UtilityProcess
 							if (Directory.Exists(dirPath))
 								excludedDirectories.Add(dirPath);
 							else
-								CompilePalLogger.LogLineColor($"Could not find file: {dirPath}", Error.GetSeverityBrush(2));
+                                CompilePalLogger.LogCompileError($"Could not find directory: {dirPath}\n", new Error($"Could not find directory: {dirPath}\n", ErrorSeverity.Warning));
 						}
 					}
 				}
@@ -100,7 +102,7 @@ namespace CompilePalX.Compilers.UtilityProcess
 							if (File.Exists(filePath))
 								excludedFiles.Add(filePath);
 							else
-								CompilePalLogger.LogLineColor($"Could not find file: {filePath}", Error.GetSeverityBrush(2));
+                                CompilePalLogger.LogCompileError($"Could not find file: {filePath}\n", new Error($"Could not find file: {filePath}\n", ErrorSeverity.Warning));
 						}
 					}
 				}
@@ -130,16 +132,7 @@ namespace CompilePalX.Compilers.UtilityProcess
                     bool success = UpdateManifest("_particles.txt");
 
                     if (!success)
-                    {
-                        Error e = new Error()
-                        {
-                            Message = "Could not update manifest!",
-                            Severity = 3,
-                            ID = 400
-                        };
-
-                        CompilePalLogger.LogCompileError("Could not update manifest!\n", e);
-                    }
+                        CompilePalLogger.LogCompileError("Could not update manifest!\n", new Error("Could not update manifest!", ErrorSeverity.Error));
                 }
 
                 if (incLevelSounds)
@@ -149,16 +142,7 @@ namespace CompilePalX.Compilers.UtilityProcess
                     bool success = UpdateManifest("_level_sounds.txt");
 
                     if (!success)
-                    {
-                        Error e = new Error()
-                        {
-                            Message = "Could not update level sounds!",
-                            Severity = 3,
-                            ID = 401
-                        };
-
-                        CompilePalLogger.LogCompileError("Could not update level sounds!\n", e);
-                    }
+                        CompilePalLogger.LogCompileError("Could not update level sounds!\n", new Error("Could not update level sounds!", ErrorSeverity.Error));
                 }
 
                 if (incSoundscape)
@@ -175,29 +159,18 @@ namespace CompilePalX.Compilers.UtilityProcess
                     bool success = UpdateManifest("soundscapes_", directories, true);
 
                     if (!success)
-                    {
-                        Error e = new Error()
-                        {
-                            Message = "Could not update soundscape!",
-                            Severity = 3,
-                            ID = 402
-                        };
-                        
-                        CompilePalLogger.LogCompileError("Could not update soundscape!\n", e);
-                    }
-                    
-                    
+                        CompilePalLogger.LogCompileError("Could not update soundscape!\n", new Error("Could not update soundscape!", ErrorSeverity.Error));
                 }
 
             }
             catch (FileNotFoundException)
             {
-                CompilePalLogger.LogLine("FAILED - Could not find " + context.CopyLocation);
+                CompilePalLogger.LogCompileError($"Could not find {context.CopyLocation}\n", new Error($"Could not find {context.CopyLocation}", ErrorSeverity.Error));
             }
             catch (Exception e)
             {
                 CompilePalLogger.LogLine("Something broke:");
-                CompilePalLogger.LogLine(e.ToString());
+                CompilePalLogger.LogCompileError($"{e}\n", new Error(e.ToString(), "CompilePal Internal Error", ErrorSeverity.FatalError));
             }
         }
 
