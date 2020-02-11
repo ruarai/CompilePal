@@ -264,7 +264,7 @@ namespace CompilePalX.Compilers.BSPPack
                 catch (Exception e)
                 {
 	                ExceptionHandler.LogException(e, false);
-	                CompilePalLogger.LogLineColor($"Failed to read file {externalPath}", Brushes.Red);
+	                CompilePalLogger.LogCompileError($"Failed to read file {externalPath}", new Error($"Failed to read file {externalPath}", ErrorSeverity.Error));
 	                return;
                 }
 
@@ -297,7 +297,7 @@ namespace CompilePalX.Compilers.BSPPack
             string externalPath = FindExternalFile(internalPath);
             if (externalPath == String.Empty)
             {
-				CompilePalLogger.LogLineColor($"Failed to find particle manifest file {internalPath}", Brushes.Red);
+				CompilePalLogger.LogCompileError($"Failed to find particle manifest file {internalPath}", new Error($"Failed to find particle manifest file {internalPath}", ErrorSeverity.Error));
 				return;
             }
 
@@ -316,7 +316,7 @@ namespace CompilePalX.Compilers.BSPPack
             }
             else
             {
-				CompilePalLogger.LogLineColor($"Failed to find particle manifest file {internalPath}", Brushes.Red);
+				CompilePalLogger.LogCompileError($"Failed to find particle manifest file {internalPath}", new Error($"Failed to find particle manifest file {internalPath}", ErrorSeverity.Error));
 				return;
             }
         }
