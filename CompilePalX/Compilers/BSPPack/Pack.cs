@@ -37,6 +37,7 @@ namespace CompilePalX.Compilers.BSPPack
         private static bool dryrun;
         private static bool renamenav;
         private static bool include;
+        private static bool includeDir;
         private static bool exclude;
         private static bool excludeDir;
         private static bool packvpk;
@@ -48,11 +49,14 @@ namespace CompilePalX.Compilers.BSPPack
 
         public override void Run(CompileContext context)
         {
+            CompileErrors = new List<Error>();
+
             verbose = GetParameterString().Contains("-verbose");
             dryrun = GetParameterString().Contains("-dryrun");
             renamenav = GetParameterString().Contains("-renamenav");
-            include = GetParameterString().Contains("-include");
-            exclude = GetParameterString().Contains("-exclude");
+            include = Regex.IsMatch(GetParameterString(), "^-include\b"); // ensures it doesnt match -includedir
+            includeDir = GetParameterString().Contains("-includedir");
+            exclude = Regex.IsMatch(GetParameterString(), "^-exclude\b"); // ensures it doesnt match -excludedir
             excludeDir = GetParameterString().Contains("-excludedir");
             packvpk = GetParameterString().Contains("-vpk");
 
@@ -95,7 +99,29 @@ namespace CompilePalX.Compilers.BSPPack
                             if (File.Exists(filePath))
                                 includeFiles.Add(filePath);
                             else
-                                CompilePalLogger.LogLineColor($"Could not find file: {filePath}", Error.GetSeverityBrush(2));
+                                CompilePalLogger.LogCompileError($"Could not find file: {filePath}", new Error($"Could not find file: {filePath}",$"Could not find file: {filePath}", ErrorSeverity.Caution));
+                        }
+                    }
+                }
+
+                // get manually included files in directories
+                if (includeDir)
+                {
+                    //Get included files from parameter list
+                    foreach (string parameter in parameters)
+                    {
+                        if (parameter.Contains("includedir"))
+                        {
+                            var folderPath = parameter.Replace("\"", "").Replace("includedir ", "").TrimEnd(' ');
+                            //Test that folder exists
+                            if (Directory.Exists(folderPath))
+                            {
+                                var files = Directory.GetFiles(folderPath, "*", SearchOption.AllDirectories);
+                                foreach (var file in files)
+                                    includeFiles.Add(file);
+                            }
+                            else
+                                CompilePalLogger.LogCompileError($"Could not find folder: {folderPath}\n", new Error($"Could not find folder: {folderPath}", ErrorSeverity.Caution));
                         }
                     }
                 }
@@ -115,7 +141,7 @@ namespace CompilePalX.Compilers.BSPPack
                             if (File.Exists(filePath))
                                 excludeFiles.Add(filePath);
                             else
-                                CompilePalLogger.LogLineColor($"Could not find file: {filePath}", Error.GetSeverityBrush(2));
+                                CompilePalLogger.LogCompileError($"Could not find file: {filePath}\n", new Error($"Could not find file: {filePath}", ErrorSeverity.Caution));
                         }
                     }
                 }
@@ -135,7 +161,7 @@ namespace CompilePalX.Compilers.BSPPack
                             if (Directory.Exists(path))
                                 excludeDirs.Add(path);
                             else
-                                CompilePalLogger.LogLineColor($"Could not find path: {path}", Error.GetSeverityBrush(2));
+                                CompilePalLogger.LogCompileError($"Could not find folder: {path}\n", new Error($"Could not find folder: {path}", ErrorSeverity.Caution));
                         }
                     }
                 }
@@ -283,12 +309,12 @@ namespace CompilePalX.Compilers.BSPPack
             }
             catch (FileNotFoundException)
             {
-                CompilePalLogger.LogLine("FAILED - Could not find " + bspPath);
+                CompilePalLogger.LogCompileError($"Could not find {bspPath}\n", new Error($"Could not find {bspPath}", ErrorSeverity.Error));
             }
             catch (Exception exception)
             {
                 CompilePalLogger.LogLine("Something broke:");
-                CompilePalLogger.LogLine(exception.ToString());
+                CompilePalLogger.LogCompileError($"{exception}\n", new Error(exception.ToString(), "CompilePal Internal Error", ErrorSeverity.FatalError));
             }
         }
 
@@ -479,7 +505,7 @@ namespace CompilePalX.Compilers.BSPPack
             }
             else
             {
-                CompilePalLogger.LogLine("Couldn't find gameinfo.txt at {0}", gameInfo);
+                CompilePalLogger.LogCompileError($"Couldn't find gameinfo.txt at {gameInfo}", new Error($"Couldn't find gameinfo.txt at {gameInfo}", ErrorSeverity.Caution));
             }
             return sourceDirectories;
         }

@@ -331,7 +331,8 @@ namespace CompilePalX.Compilers.BSPPack
             vmtline = vmtline.Split(new char[] { ' ' }, 2)[1]; // removes the parameter name
             vmtline = vmtline.Split(new string[] { "//", "\\\\" }, StringSplitOptions.None)[0]; // removes endline parameter
             vmtline = vmtline.Trim(new char[] { ' ', '/', '\\' }); // removes leading slashes
-            vmtline = vmtline.Split(new string[] { "materials/" }, StringSplitOptions.RemoveEmptyEntries)[0];// removes materials/ for consistency
+            if (vmtline.StartsWith("materials/"))
+                vmtline = vmtline.Remove(0, "materials/".Length); // removes materials/ if its the beginning of the string for consistency
             if (vmtline.EndsWith(".vmt") || vmtline.EndsWith(".vtf")) // removes extentions if present for consistency
                 vmtline = vmtline.Substring(0, vmtline.Length - 4);
             return vmtline;

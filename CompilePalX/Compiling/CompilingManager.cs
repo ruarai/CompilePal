@@ -30,11 +30,7 @@ namespace CompilePalX
             
         private static void CompilePalLogger_OnErrorFound(Error e)
         {
-            var executable = currentCompileProcess as CompileExecutable;
-            if (executable != null)
-            {
-                executable.CompileErrors.Add(e);
-            }
+            currentCompileProcess.CompileErrors.Add(e);
 
             if (e.Severity == 5 && IsCompiling)
             {
@@ -109,23 +105,21 @@ namespace CompilePalX
 					//Update the grid so we have the most up to date order
 	                OrderManager.UpdateOrder();
 
+                    GameConfigurationManager.BackupCurrentContext();
 					foreach (var compileProcess in OrderManager.CurrentOrder)
 					{
                         currentCompileProcess = compileProcess;
                         compileProcess.Run(GameConfigurationManager.BuildContext(mapFile));
 
-                        if (compileProcess is CompileExecutable executable)
-                        {
-                            compileErrors.AddRange(executable.CompileErrors);
+                        compileErrors.AddRange(currentCompileProcess.CompileErrors);
 
-                            //Portal 2 cannot work with leaks, stop compiling if we do get a leak.
-                            if (GameConfigurationManager.GameConfiguration.Name == "Portal 2")
+                        //Portal 2 cannot work with leaks, stop compiling if we do get a leak.
+                        if (GameConfigurationManager.GameConfiguration.Name == "Portal 2")
+                        {
+                            if (currentCompileProcess.Name == "VBSP" && currentCompileProcess.CompileErrors.Count > 0)
                             {
-                                if (executable.Name == "VBSP" && executable.CompileErrors.Count > 0)
-                                {
-                                    //we have a VBSP error, aka a leak -> stop compiling;
-                                    break;
-                                }
+                                //we have a VBSP error, aka a leak -> stop compiling;
+                                break;
                             }
                         }
 
@@ -134,6 +128,8 @@ namespace CompilePalX
                     }
 
                     mapErrors.Add(new MapErrors { MapName = cleanMapName, Errors = compileErrors });
+                    
+                    GameConfigurationManager.RestoreCurrentContext();
                 }
 
                 MainWindow.ActiveDispatcher.Invoke(() => postCompile(mapErrors));

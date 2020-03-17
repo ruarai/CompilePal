@@ -18,6 +18,7 @@ namespace CompilePalX
     {
         public string ParameterFolder = "./Parameters";
 	    public bool Draggable = false;
+        public List<Error> CompileErrors;
 
         public CompileProcess(string name)
         {
@@ -52,7 +53,7 @@ namespace CompilePalX
 
 
 
-            ParameterList = ConfigurationManager.GetParameters(Metadata.Name);
+            ParameterList = ConfigurationManager.GetParameters(Metadata.Name, Metadata.DoRun);
 
         }
 

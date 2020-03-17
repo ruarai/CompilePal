@@ -16,8 +16,8 @@ Steps to reproduce the behavior.
 **Expected behavior**
 A clear and concise description of what you expected to happen.
 
-**Debug.txt**
-Please upload the debug.txt file found in your Compile Pal folder.
+**Debug.log**
+Please upload the debug.log file found in your Compile Pal folder.
 
 **Crash logs**
 If applicable, please upload crash logs found in the CrashLog folder.

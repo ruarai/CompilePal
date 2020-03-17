@@ -231,7 +231,7 @@ namespace CompilePalX
         }
 
 
-        public static ObservableCollection<ConfigItem> GetParameters(string processName)
+        public static ObservableCollection<ConfigItem> GetParameters(string processName, bool doRun = false)
         {
             var list = new ObservableCollection<ConfigItem>();
 
@@ -243,6 +243,18 @@ namespace CompilePalX
                 foreach (var configItem in items)
                 {
                     list.Add(configItem);
+                }
+
+                // add custom parameter to all runnable steps
+                if (doRun)
+                {
+                    list.Add(new ConfigItem()
+                    {
+                        Name = "Command Line Argument",
+                        CanHaveValue = true,
+                        CanBeUsedMoreThanOnce = true,
+                        Description = "Passes value as a command line argument",
+                    });
                 }
             }
             else
@@ -284,7 +296,12 @@ namespace CompilePalX
 
             if (pieces.Any())
             {
-                item.Parameter = pieces[0];
+                // Custom parameter stores name as first value instead of parameter, because it has no parameter
+                if (pieces[0] == "Command Line Argument")
+                    item.Name = pieces[0];
+                else
+                    item.Parameter = pieces[0];
+
                 if (pieces.Count() >= 2)
                     item.Value = pieces[1];
 				//Handle extra information stored for custom programs
@@ -305,6 +322,8 @@ namespace CompilePalX
 			//Handle extra information stored for custom programs
 	        if (item.Name == "Run Program")
 		        return $"{item.Parameter},{item.Value},{item.Value2},{item.ReadOutput},{item.WaitForExit},{item.Warning}";
+            else if (item.Name == "Command Line Argument") // Command line arguments have no parameter value
+                return $"{item.Name},{item.Value}";
             return $"{item.Parameter},{item.Value}";
         }
 

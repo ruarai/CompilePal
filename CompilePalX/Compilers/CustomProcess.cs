@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -82,6 +81,8 @@ namespace CompilePalX.Compilers
 
 		public override void Run(CompileContext c)
 		{
+            CompileErrors = new List<Error>();
+
 			CompilePalLogger.LogLine("\nCompilePal - " + Path);
 
 			//Find filepath of program associated with filetype
@@ -97,16 +98,16 @@ namespace CompilePalX.Compilers
 				switch (result)
 				{
 					case 2:
-						CompilePalLogger.LogLine("ERROR! The specified file not found: \n" + Path);
+						CompilePalLogger.LogCompileError($"File not found: {Path}\n", new Error($"File not found: {Path}\n", ErrorSeverity.Error));
 						break;
 					case 3:
-						CompilePalLogger.LogLine("ERROR! The specified path is invalid: \n" + Path);
+						CompilePalLogger.LogCompileError($"Path is invalid: {Path}\n", new Error($"Path is invalid: {Path}\n", ErrorSeverity.Error));
 						break;
 					case 5:
-						CompilePalLogger.LogLine("ERROR! The specified file cannot be accessed: \n" + Path);
+						CompilePalLogger.LogCompileError($"File could not be accessed: {Path}\n", new Error($"File could not be accessed: {Path}\n", ErrorSeverity.Error));
 						break;
 					case 31:
-						CompilePalLogger.LogLine("ERROR! There is no program asscociated with this filetype: \n" + Path);
+						CompilePalLogger.LogCompileError($"There is no program associated with this filetype: {Path}\n", new Error($"There is no program associated with this filetype: {Path}\n", ErrorSeverity.Error));
 						break;
 				}
 				return;
@@ -173,8 +174,13 @@ namespace CompilePalX.Compilers
 
 		private void ProcessOnOutputDataReceived(object sender, DataReceivedEventArgs e)
 		{
-			if (e.Data != null)
-				CompilePalLogger.LogLine(e.Data);
+            if (e.Data != null)
+            {
+				if (e.Data.StartsWith("COMPILE_PAL_SET"))
+					GameConfigurationManager.ModifyCurrentContext(e.Data);
+				else
+                    CompilePalLogger.LogLine(e.Data);
+            }
 		}
 
 		//Parse args for parameters and replace them with their corresponding values

@@ -14,3 +14,18 @@ This can cause the logs from different programs to become mixed up. If Compile P
 Custom processes can be run at any point in the compile. To reorder the compile steps, click the Order tab to switch to the Order view. 
 Click and drag on any custom process to move it up or down in the compile process.
 Processes at the top get run first.
+
+# Modifying the current Game Configuration
+You can modify the current game configuration by sending `COMPILE_PAL_SET variable value` through stdout. These changes will persist until the next map is compiled.
+
+| Variable | Description |
+| ------ | ---- |
+| file | VMF filepath |
+| bspdir | BSP directory |
+| bindir | Bin directory|
+| sdkbindir | SDK bin directory |
+| gamedir | Game directory |
+| vbsp_exe | Path to VBSP |
+| vvis_exe | Path to VVIS |
+| vrad_exe | Path to VRAD |
+| game_exe | Path to the game |

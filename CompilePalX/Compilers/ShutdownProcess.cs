@@ -1,4 +1,5 @@
-﻿using CompilePalX.Compiling;
+﻿using System.Collections.Generic;
+using CompilePalX.Compiling;
 using System.Diagnostics;
 using System.Linq;
 
@@ -10,6 +11,8 @@ namespace CompilePalX.Compilers
 
         public override void Run(CompileContext context)
         {
+            CompileErrors = new List<Error>();
+
             // don't run unless it's the last map of the queue
             if (CompilingManager.MapFiles.Last() == context.MapFile)
             {

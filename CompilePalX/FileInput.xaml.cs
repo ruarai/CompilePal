@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Documents;
-using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Microsoft.WindowsAPICodePack.Dialogs;
 using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
 using UserControl = System.Windows.Controls.UserControl;
 
@@ -74,7 +74,20 @@ namespace CompilePalX
 			set => SetValue(IsFolderProperty, value);
 		}
 
-		public FileInput()
+		public static readonly DependencyProperty HintProperty =
+			DependencyProperty.Register(
+				"Hint",
+				typeof(string),
+				typeof(FileInput),
+				new PropertyMetadata("Choose File"));
+
+        public string Hint
+        {
+            get => (string) GetValue(HintProperty);
+            set => SetValue(HintProperty, value);
+        }
+
+        public FileInput()
 		{
 			InitializeComponent();
 		}
@@ -84,16 +97,16 @@ namespace CompilePalX
 			if (IsFolder)
 			{
 				// create new folder dialog
-				// TODO look for a Nuget package for a folder browser that doesnt suck
-				using (var folderDialog = new FolderBrowserDialog()
+				using (var folderDialog = new CommonOpenFileDialog()
 				{
-					Description = "Select Folder",
-					SelectedPath = GameConfigurationManager.GameConfiguration.GameFolder
+					Title = "Select Folder",
+					IsFolderPicker = true,
+					InitialDirectory = GameConfigurationManager.GameConfiguration.GameFolder,
 				})
 				{
 					var folderPath = "";
 					folderDialog.ShowDialog();
-					folderPath = folderDialog.SelectedPath;
+					folderPath = folderDialog.FileName;
 
 					if (String.IsNullOrWhiteSpace(folderPath))
 						return;
@@ -109,8 +122,8 @@ namespace CompilePalX
 					Multiselect = false,
 					Filter = FileFilter,
 					CheckFileExists = false,
-					Title = FileDialogTitle
-				};
+					Title = FileDialogTitle,
+                };
 
 				var filePath = "";
 				fileDialog.ShowDialog();
