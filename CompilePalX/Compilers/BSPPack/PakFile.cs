@@ -59,11 +59,11 @@ namespace CompilePalX.Compilers.BSPPack
         public int effectscriptcount { get; private set; }
         public int vscriptcount { get; private set; }
 
-        public PakFile(BSP bsp, List<string> sourceDirectories, List<string> includeFiles, List<string> excludedFiles, List<string> excludedDirs)
+        public PakFile(BSP bsp, List<string> sourceDirectories, List<string> includeFiles, List<string> excludedFiles, List<string> excludedDirs, string outputFile)
         {
             mdlcount = vmtcount = pcfcount = sndcount = vehiclescriptcount = effectscriptcount = 0;
             sourceDirs = sourceDirectories;
-            fileName = Path.GetFileNameWithoutExtension(bsp.file.FullName);
+            fileName = outputFile;
 
 	        this.excludedFiles = excludedFiles;
 	        this.excludedDirs = excludedDirs;
@@ -217,9 +217,9 @@ namespace CompilePalX.Compilers.BSPPack
             if (!Directory.Exists("BSPZipFiles"))
                 Directory.CreateDirectory("BSPZipFiles");
 
-            if (File.Exists($"BSPZipFiles/{fileName}_files.txt"))
-                File.Delete($"BSPZipFiles/{fileName}_files.txt");
-            File.WriteAllLines($"BSPZipFiles/{fileName}_files.txt", outputLines);
+            if (File.Exists(fileName))
+                File.Delete(fileName);
+            File.WriteAllLines(fileName, outputLines);
         }
 
         public Dictionary<string,string> GetResponseFile()

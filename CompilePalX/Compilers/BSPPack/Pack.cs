@@ -46,7 +46,7 @@ namespace CompilePalX.Compilers.BSPPack
         public static KeyValuePair<string, string> particleManifest;
 
         private List<string> sourceDirectories = new List<string>();
-        private string mapName;
+        private string outputFile = "BSPZipFiles\\files.txt";
 
         public override void Run(CompileContext context)
         {
@@ -67,6 +67,8 @@ namespace CompilePalX.Compilers.BSPPack
             List<string> includeFiles = new List<string>();
             List<string> excludeFiles = new List<string>();
             List<string> excludeDirs = new List<string>();
+
+            outputFile = "BSPZipFiles\\files.txt";
 
             try
             {
@@ -173,7 +175,10 @@ namespace CompilePalX.Compilers.BSPPack
                 CompilePalLogger.LogLine("Reading BSP...");
                 BSP map = new BSP(new FileInfo(bspPath));
                 AssetUtils.findBspUtilityFiles(map, sourceDirectories, renamenav, genParticleManifest);
-                mapName = Path.GetFileNameWithoutExtension(map.file.FullName);
+
+                // give files unique names based on map so they dont get overwritten
+                if (dryrun)
+                    outputFile = $"BSPZipFiles\\{Path.GetFileNameWithoutExtension(map.file.FullName)}_files.txt";
 
                 //Set map particle manifest
                 if (genParticleManifest)
@@ -184,7 +189,7 @@ namespace CompilePalX.Compilers.BSPPack
                 AssetUtils.findBspPakDependencies(map, unpackDir);
 
                 CompilePalLogger.LogLine("Initializing pak file...");
-                PakFile pakfile = new PakFile(map, sourceDirectories, includeFiles, excludeFiles, excludeDirs);
+                PakFile pakfile = new PakFile(map, sourceDirectories, includeFiles, excludeFiles, excludeDirs, outputFile);
 
                 if (packvpk)
                 {
@@ -253,12 +258,12 @@ namespace CompilePalX.Compilers.BSPPack
 
                     if (dryrun)
                     {
-                        CompilePalLogger.LogLine("File list saved as " + Environment.CurrentDirectory + $@"BSPZipFiles\{mapName}_files.txt");
+                        CompilePalLogger.LogLine("File list saved as " + Environment.CurrentDirectory + outputFile);
                     }
                     else
                     {
                         CompilePalLogger.LogLine("Running bspzip...");
-                        PackBSP(mapName);
+                        PackBSP(outputFile);
                     }
 
                     CompilePalLogger.LogLine("Copying packed bsp to vmf folder...");
@@ -347,12 +352,12 @@ namespace CompilePalX.Compilers.BSPPack
 
         }
 
-        static void PackBSP(string mapName)
+        static void PackBSP(string outputFile)
         {
             string arguments = "-addlist \"$bspnew\"  \"$list\" \"$bspold\"";
             arguments = arguments.Replace("$bspnew", bspPath);
             arguments = arguments.Replace("$bspold", bspPath);
-            arguments = arguments.Replace("$list", $@"BSPZipFiles\{mapName}_files.txt");
+            arguments = arguments.Replace("$list", outputFile);
 
             var startInfo = new ProcessStartInfo(bspZip, arguments);
             startInfo.UseShellExecute = false;
