@@ -49,6 +49,7 @@ namespace CompilePalX.Compilers.BSPPack
 	    private List<string> excludedDirs;
 
         private List<string> sourceDirs;
+        private string fileName;
 
         public int mdlcount { get; private set; }
         public int vmtcount { get; private set; }
@@ -62,6 +63,7 @@ namespace CompilePalX.Compilers.BSPPack
         {
             mdlcount = vmtcount = pcfcount = sndcount = vehiclescriptcount = effectscriptcount = 0;
             sourceDirs = sourceDirectories;
+            fileName = Path.GetFileNameWithoutExtension(bsp.file.FullName);
 
 	        this.excludedFiles = excludedFiles;
 	        this.excludedDirs = excludedDirs;
@@ -212,9 +214,12 @@ namespace CompilePalX.Compilers.BSPPack
                 outputLines.Add(entry.Value);
             }
 
-            if (File.Exists("files.txt"))
-                File.Delete("files.txt");
-            File.WriteAllLines("files.txt", outputLines);
+            if (!Directory.Exists("BSPZipFiles"))
+                Directory.CreateDirectory("BSPZipFiles");
+
+            if (File.Exists($"BSPZipFiles/{fileName}_files.txt"))
+                File.Delete($"BSPZipFiles/{fileName}_files.txt");
+            File.WriteAllLines($"BSPZipFiles/{fileName}_files.txt", outputLines);
         }
 
         public Dictionary<string,string> GetResponseFile()

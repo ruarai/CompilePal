@@ -46,6 +46,7 @@ namespace CompilePalX.Compilers.BSPPack
         public static KeyValuePair<string, string> particleManifest;
 
         private List<string> sourceDirectories = new List<string>();
+        private string mapName;
 
         public override void Run(CompileContext context)
         {
@@ -172,6 +173,7 @@ namespace CompilePalX.Compilers.BSPPack
                 CompilePalLogger.LogLine("Reading BSP...");
                 BSP map = new BSP(new FileInfo(bspPath));
                 AssetUtils.findBspUtilityFiles(map, sourceDirectories, renamenav, genParticleManifest);
+                mapName = Path.GetFileNameWithoutExtension(map.file.FullName);
 
                 //Set map particle manifest
                 if (genParticleManifest)
@@ -251,12 +253,12 @@ namespace CompilePalX.Compilers.BSPPack
 
                     if (dryrun)
                     {
-                        CompilePalLogger.LogLine("File list saved as " + Environment.CurrentDirectory + "\\files.txt");
+                        CompilePalLogger.LogLine("File list saved as " + Environment.CurrentDirectory + $@"BSPZipFiles\{mapName}_files.txt");
                     }
                     else
                     {
                         CompilePalLogger.LogLine("Running bspzip...");
-                        PackBSP();
+                        PackBSP(mapName);
                     }
 
                     CompilePalLogger.LogLine("Copying packed bsp to vmf folder...");
@@ -345,12 +347,12 @@ namespace CompilePalX.Compilers.BSPPack
 
         }
 
-        static void PackBSP()
+        static void PackBSP(string mapName)
         {
             string arguments = "-addlist \"$bspnew\"  \"$list\" \"$bspold\"";
             arguments = arguments.Replace("$bspnew", bspPath);
             arguments = arguments.Replace("$bspold", bspPath);
-            arguments = arguments.Replace("$list", "files.txt");
+            arguments = arguments.Replace("$list", $@"BSPZipFiles\{mapName}_files.txt");
 
             var startInfo = new ProcessStartInfo(bspZip, arguments);
             startInfo.UseShellExecute = false;
