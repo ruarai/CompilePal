@@ -27,6 +27,7 @@ namespace CompilePalX.Compilers
         {
             vbspInfo = context.Configuration.VBSPInfo;
             bspFile = context.CopyLocation;
+            CompileErrors = new List<Error>();
 
             try
             {
@@ -67,12 +68,12 @@ namespace CompilePalX.Compilers
             }
             catch (FileNotFoundException)
             {
-                CompilePalLogger.LogLine("FAILED - Could not find " + context.CopyLocation);
+                CompilePalLogger.LogCompileError($"Could not find file: {context.CopyLocation}", new Error($"Could not find file: {context.CopyLocation}", ErrorSeverity.Error));
             }
             catch (Exception exception)
             {
                 CompilePalLogger.LogLine("Something broke:");
-                CompilePalLogger.LogLine(exception.ToString());
+                CompilePalLogger.LogCompileError($"{exception}\n", new Error(exception.ToString(), "CompilePal Internal Error", ErrorSeverity.FatalError));
             }
 
         }
