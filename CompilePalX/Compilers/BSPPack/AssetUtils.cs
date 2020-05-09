@@ -395,6 +395,8 @@ namespace CompilePalX.Compilers.BSPPack
             
             // Soundscape file
             string internalPath = "scripts/soundscapes_" + bsp.file.Name.Replace(".bsp", ".txt");
+            // Soundscapes can have either .txt or .vsc extensions
+            string internalPathVsc = "scripts/soundscapes_" + bsp.file.Name.Replace(".bsp", ".vsc");
             foreach (string source in sourceDirectories)
             {
                 string externalPath = source + "/" + internalPath;
@@ -402,6 +404,10 @@ namespace CompilePalX.Compilers.BSPPack
                 if (File.Exists(externalPath))
                 {
                     bsp.soundscape = new KeyValuePair<string, string>(internalPath, externalPath);
+                    break;
+                } else if (File.Exists(internalPathVsc))
+                {
+                    bsp.soundscape = new KeyValuePair<string, string>(internalPathVsc, externalPath);
                     break;
                 }
             }
