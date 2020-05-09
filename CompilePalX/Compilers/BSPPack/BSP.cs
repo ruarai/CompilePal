@@ -20,7 +20,7 @@ namespace CompilePalX.Compilers.BSPPack
 
         public List<int>[] modelSkinList { get; private set; }
 
-        public List<string> ModelList { get; private set; } 
+        public List<string> ModelList { get; private set; }
 
         public List<string> EntModelList { get; private set; }
 
@@ -49,6 +49,7 @@ namespace CompilePalX.Compilers.BSPPack
         public List<string> vscriptList { get; set; }
 
         public FileInfo file { get; private set; }
+        private bool isL4D2 = false;
 
         public BSP(FileInfo file)
         {
@@ -63,14 +64,28 @@ namespace CompilePalX.Compilers.BSPPack
                 bsp.Seek(4, SeekOrigin.Begin); //skip header
                 int bspVer = reader.ReadInt32();
 
-                //if (bspVer == 21 && reader.ReadInt32() == 0)
-                //    bsp.Seek(8, SeekOrigin.Begin);
+                // hack for detecting l4d2 maps
+                if (bspVer == 21 && reader.ReadInt32() == 0)
+                    isL4D2 = true;
+
+                // reset reader position
+                bsp.Seek(-4, SeekOrigin.Current);
 
                 //gathers an array of offsets (where things are located in the bsp)
                 for (int i = 0; i < offsets.GetLength(0); i++)
                 {
-                    offsets[i] = new KeyValuePair<int, int>(reader.ReadInt32(), reader.ReadInt32());
-                    bsp.Seek(8, SeekOrigin.Current); //skip id and version
+                    // l4d2 has different lump order
+                    if (isL4D2)
+                    {
+                        bsp.Seek(4, SeekOrigin.Current); //skip version
+                        offsets[i] = new KeyValuePair<int, int>(reader.ReadInt32(), reader.ReadInt32());
+                        bsp.Seek(4, SeekOrigin.Current); //skip id
+                    }
+                    else
+                    {
+                        offsets[i] = new KeyValuePair<int, int>(reader.ReadInt32(), reader.ReadInt32());
+                        bsp.Seek(8, SeekOrigin.Current); //skip id and version
+                    }
                 }
 
 
