@@ -55,36 +55,43 @@ namespace CompilePalX.Compilers.BSPPack
             this.file = file;
 
             offsets = new KeyValuePair<int, int>[64];
-            bsp = new FileStream(file.FullName, FileMode.Open);
-            reader = new BinaryReader(bsp);
-
-            bsp.Seek(4, SeekOrigin.Begin); //skip header
-            int bspVer = reader.ReadInt32();
-
-            //if (bspVer == 21 && reader.ReadInt32() != 0)
-            //    bsp.Seek(8, SeekOrigin.Begin);
-
-            //gathers an array of offsets (where things are located in the bsp)
-            for (int i = 0; i < offsets.GetLength(0); i++)
+            try
             {
-                offsets[i] = new KeyValuePair<int, int>(reader.ReadInt32(), reader.ReadInt32());
-                bsp.Seek(8, SeekOrigin.Current); //skip id and version
+                bsp = new FileStream(file.FullName, FileMode.Open);
+                reader = new BinaryReader(bsp);
+
+                bsp.Seek(4, SeekOrigin.Begin); //skip header
+                int bspVer = reader.ReadInt32();
+
+                //if (bspVer == 21 && reader.ReadInt32() == 0)
+                //    bsp.Seek(8, SeekOrigin.Begin);
+
+                //gathers an array of offsets (where things are located in the bsp)
+                for (int i = 0; i < offsets.GetLength(0); i++)
+                {
+                    offsets[i] = new KeyValuePair<int, int>(reader.ReadInt32(), reader.ReadInt32());
+                    bsp.Seek(8, SeekOrigin.Current); //skip id and version
+                }
+
+
+                buildEntityList();
+
+                buildEntModelList();
+                buildModelList();
+
+                buildParticleList();
+
+                buildEntTextureList();
+                buildTextureList();
+
+                buildEntSoundList();
+
             }
-
-            buildEntityList();
-
-            buildEntModelList();
-            buildModelList();
-
-            buildParticleList();
-
-            buildEntTextureList();
-            buildTextureList();
-
-            buildEntSoundList();
-
-            reader.Close();
-            bsp.Close();
+            finally
+            {
+                reader.Close();
+                bsp.Close();
+            }
         }
 
         public void buildEntityList()
