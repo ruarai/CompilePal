@@ -152,7 +152,7 @@ namespace CompilePalX.Compilers
 			{
 				Process.WaitForExit();
 				Process.Close();
-				CompilePalLogger.LogLine("\nProgram completed sucesfully\n");
+				CompilePalLogger.LogLine("\nProgram completed successfully\n");
 			}
 			else
 			{
@@ -161,7 +161,7 @@ namespace CompilePalX.Compilers
 				{
 					Process.WaitForExit();
 					Process.Close();
-					CompilePalLogger.LogLine("\nProgram completed sucesfully\n");
+					CompilePalLogger.LogLine("\nProgram completed successfully\n");
 				});
 			}
 		}
