@@ -184,12 +184,14 @@ namespace CompilePalX.Compilers
 		}
 
 		//Parse args for parameters and replace them with their corresponding values
-		//Paramaters from https://developer.valvesoftware.com/wiki/Hammer_Run_Map_Expert#Parameters
+		//Paramaters from https://developer.valvesoftware.com/wiki/Command_Sequences
 		private string ParseArgs(string originalArgs, CompileContext c)
 		{
 			string args = originalArgs.Replace("$file", $"{System.IO.Path.GetFileNameWithoutExtension(c.MapFile)}");
 			args = args.Replace("$ext", $"{System.IO.Path.GetExtension(c.MapFile)}");
 			args = args.Replace("$path", $"{System.IO.Path.GetDirectoryName(c.MapFile)}");
+
+			args = args.Replace("$exedir", $"{System.IO.Path.GetDirectoryName(c.Configuration.GameEXE)}");
 			args = args.Replace("$bspdir", $"{c.Configuration.MapFolder}\\");
 			args = args.Replace("$gamedir", $"{c.Configuration.GameFolder}");
 			args = args.Replace("$bindir", $"{c.Configuration.BinFolder}");
