@@ -443,20 +443,20 @@ namespace CompilePalX.Compilers.BSPPack
 
                         if (path.Contains("*"))
                         {
-							string fullPath;
-							if (path.Contains(("|gameinfo_path|")))
+							string fullPath = path;
+							if (fullPath.Contains(("|gameinfo_path|")))
 	                        {
 		                        string newPath = path.Replace("*", "").Replace("|gameinfo_path|", "");
 
 		                        fullPath = System.IO.Path.GetFullPath(gamePath + "\\" + newPath.TrimEnd('\\'));
 	                        }
-                            if (Path.IsPathRooted(path.Replace("*", "")))
+                            if (Path.IsPathRooted(fullPath.Replace("*", "")))
                             {
-                                fullPath = path.Replace("*", "");
+                                fullPath = fullPath.Replace("*", "");
                             }
 	                        else
 	                        {
-		                        string newPath = path.Replace("*", "");
+		                        string newPath = fullPath.Replace("*", "");
 
 		                        fullPath = System.IO.Path.GetFullPath(rootPath + "\\" + newPath.TrimEnd('\\'));
 	                        }
