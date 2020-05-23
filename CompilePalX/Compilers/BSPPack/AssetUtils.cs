@@ -400,12 +400,13 @@ namespace CompilePalX.Compilers.BSPPack
             foreach (string source in sourceDirectories)
             {
                 string externalPath = source + "/" + internalPath;
+                string externalVscPath = source + "/" + internalPathVsc;
 
                 if (File.Exists(externalPath))
                 {
                     bsp.soundscape = new KeyValuePair<string, string>(internalPath, externalPath);
                     break;
-                } else if (File.Exists(internalPathVsc))
+                } else if (File.Exists(externalVscPath))
                 {
                     bsp.soundscape = new KeyValuePair<string, string>(internalPathVsc, externalPath);
                     break;
