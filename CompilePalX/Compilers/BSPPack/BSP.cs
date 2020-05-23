@@ -64,9 +64,9 @@ namespace CompilePalX.Compilers.BSPPack
                 bsp.Seek(4, SeekOrigin.Begin); //skip header
                 int bspVer = reader.ReadInt32();
 
-                // hack for detecting l4d2 maps
-                if (bspVer == 21 && reader.ReadInt32() == 0)
-                    isL4D2 = true;
+                //hack for detecting l4d2 maps
+                if (reader.ReadInt32() == 0 && bspVer == 21)
+                        isL4D2 = true;
 
                 // reset reader position
                 bsp.Seek(-4, SeekOrigin.Current);
