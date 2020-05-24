@@ -372,14 +372,6 @@ namespace CompilePalX.Compilers.UtilityProcess
 
             if (particles == null || particles.Count == 0)
             {
-                Error e = new Error()
-                {
-                    Message = "Could not find any PCFs that contained used particles!",
-                    Severity = 3,
-                    ID = 403
-                };
-
-                CompilePalLogger.LogCompileError("Could not find any PCFs that contained used particles!\n", e);
                 CompilePalLogger.LogCompileError("Could not find any PCFs that contained used particles!\n", new Error("Could not find any PCFs that contained used particles!\n", ErrorSeverity.Warning));
                 return;
             }
