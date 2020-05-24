@@ -215,6 +215,7 @@ namespace CompilePalX
         {
             UpdateHyperLink.Inlines.Add(
 	            $"An update is available. Current version is {UpdateManager.CurrentVersion}, latest version is {UpdateManager.LatestVersion}.");
+            UpdateHyperLink.NavigateUri = UpdateManager.UpdateURL;
             UpdateLabel.Visibility = Visibility.Visible;
         }
 
