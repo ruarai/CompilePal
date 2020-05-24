@@ -105,7 +105,10 @@ namespace CompilePalX
 				})
 				{
 					var folderPath = "";
-					folderDialog.ShowDialog();
+					var result = folderDialog.ShowDialog();
+                    if (result == CommonFileDialogResult.Cancel)
+                        return;
+
 					folderPath = folderDialog.FileName;
 
 					if (String.IsNullOrWhiteSpace(folderPath))
