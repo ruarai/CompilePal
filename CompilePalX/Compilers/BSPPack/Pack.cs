@@ -514,7 +514,7 @@ namespace CompilePalX.Compilers.BSPPack
             {
                 CompilePalLogger.LogCompileError($"Couldn't find gameinfo.txt at {gameInfo}", new Error($"Couldn't find gameinfo.txt at {gameInfo}", ErrorSeverity.Caution));
             }
-            return sourceDirectories;
+            return sourceDirectories.Distinct().ToList();
         }
         private static string GetInfoValue(string line)
         {
