@@ -364,7 +364,7 @@ namespace CompilePalX.Compilers.UtilityProcess
                         if (file.EndsWith(".pcf") && !excludedFiles.Contains(file.ToLower()))
                         {
                             PCF pcf = ParticleUtils.IsTargetParticle(file, map.ParticleList);
-                            if (pcf != null)
+                            if (pcf != null && !particles.Exists(p => p.FilePath == pcf.FilePath))
                                 particles.Add(pcf);
                         }
                     }
@@ -380,7 +380,7 @@ namespace CompilePalX.Compilers.UtilityProcess
             //Check for pcfs that contain the same particle name
             //List<ParticleConflict> conflictingParticles = new List<ParticleConflict>();
             List<PCF> conflictingParticles = new List<PCF>();
-            if (particles.Count != 1)
+            if (particles.Count > 1)
             {
                 for (int i = 0; i < particles.Count - 1; i++)
                 {
@@ -390,7 +390,7 @@ namespace CompilePalX.Compilers.UtilityProcess
                         //Create a list of names that intersect between the 2 lists
                         List<string> conflictingNames = particles[i].ParticleNames.Intersect(particles[j].ParticleNames).ToList();
 
-                        if (conflictingNames.Count != 0)
+                        if (conflictingNames.Count != 0 && particles[i].FilePath != particles[j].FilePath)
                         {
                             //pc.conflictingNames = conflictingNames;
                             conflictingParticles.Add(particles[i]);
@@ -404,8 +404,6 @@ namespace CompilePalX.Compilers.UtilityProcess
             //Solve conflicts
             if (conflictingParticles.Count != 0)
             {
-                //Remove duplicates
-                conflictingParticles = conflictingParticles.Distinct().ToList();
 
                 //Remove particle if it is in a particle conflict, add back when conflict is manually resolved
                 foreach (PCF conflictParticle in conflictingParticles)
