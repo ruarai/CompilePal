@@ -768,6 +768,12 @@ namespace CompilePalX
 			else
 				LaunchWindow.Instance.Focus();
 		}
+
+        private void BugReportButton_OnClick(object sender, RoutedEventArgs e)
+        {
+			Process.Start(new ProcessStartInfo("https://github.com/ruarai/CompilePal/issues/"));
+            e.Handled = true;
+        }
     }
 
 	public static class ObservableCollectionExtension
