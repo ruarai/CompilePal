@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Media;
 using CompilePalX.Compilers.BSPPack;
@@ -50,14 +51,17 @@ namespace CompilePalX.Compilers.UtilityProcess
             {
                 CompilePalLogger.LogLine("\nCompilePal - Utilities");
 
-                Keys.vmtTextureKeyWords = File.ReadAllLines(System.IO.Path.Combine(keysFolder, "texturekeys.txt")).ToList();
-                Keys.vmtMaterialKeyWords = File.ReadAllLines(System.IO.Path.Combine(keysFolder, "materialkeys.txt")).ToList();
+                Keys.vmtTextureKeyWords =
+                    File.ReadAllLines(System.IO.Path.Combine(keysFolder, "texturekeys.txt")).ToList();
+                Keys.vmtMaterialKeyWords =
+                    File.ReadAllLines(System.IO.Path.Combine(keysFolder, "materialkeys.txt")).ToList();
                 Keys.vmfSoundKeys = File.ReadAllLines(System.IO.Path.Combine(keysFolder, "vmfsoundkeys.txt")).ToList();
-                Keys.vmfMaterialKeys = File.ReadAllLines(System.IO.Path.Combine(keysFolder, "vmfmaterialkeys.txt")).ToList();
+                Keys.vmfMaterialKeys = File.ReadAllLines(System.IO.Path.Combine(keysFolder, "vmfmaterialkeys.txt"))
+                    .ToList();
                 Keys.vmfModelKeys = File.ReadAllLines(System.IO.Path.Combine(keysFolder, "vmfmodelkeys.txt")).ToList();
 
-				excludedDirectories = new List<string>();
-				excludedFiles = new List<string>();
+                excludedDirectories = new List<string>();
+                excludedFiles = new List<string>();
 
 
                 CompilePalLogger.LogLine("Finding sources of game content...");
@@ -66,46 +70,49 @@ namespace CompilePalX.Compilers.UtilityProcess
 
                 bspPath = context.CopyLocation;
 
-				//Parse parameters to get ignore directories
-				if (excludeDir)
-				{
-					char[] paramChars = GetParameterString().ToCharArray();
-					List<string> parameters = ParseParameters(paramChars);
+                //Parse parameters to get ignore directories
+                if (excludeDir)
+                {
+                    char[] paramChars = GetParameterString().ToCharArray();
+                    List<string> parameters = ParseParameters(paramChars);
 
-					//Get excluded directories from parameter list
-					foreach (string parameter in parameters)
-					{
-						if (parameter.Contains("excludedir"))
-						{
-							var @dirPath = parameter.Replace("\"", "").Replace("excludedir ", "").TrimEnd(' ');
-							//Test that directory exists
-							if (Directory.Exists(dirPath))
-								excludedDirectories.Add(dirPath);
-							else
-                                CompilePalLogger.LogCompileError($"Could not find directory: {dirPath}\n", new Error($"Could not find directory: {dirPath}\n", ErrorSeverity.Warning));
-						}
-					}
-				}
+                    //Get excluded directories from parameter list
+                    foreach (string parameter in parameters)
+                    {
+                        if (parameter.Contains("excludedir"))
+                        {
+                            var @dirPath = parameter.Replace("\"", "").Replace("excludedir ", "").TrimEnd(' ');
+                            //Test that directory exists
+                            if (Directory.Exists(dirPath))
+                                excludedDirectories.Add(dirPath);
+                            else
+                                CompilePalLogger.LogCompileError($"Could not find directory: {dirPath}\n",
+                                    new Error($"Could not find directory: {dirPath}\n", ErrorSeverity.Warning));
+                        }
+                    }
+                }
 
-				if (excludeFile)
-	            {
-					char[] paramChars = GetParameterString().ToCharArray();
-					List<string> parameters = ParseParameters(paramChars);
+                if (excludeFile)
+                {
+                    char[] paramChars = GetParameterString().ToCharArray();
+                    List<string> parameters = ParseParameters(paramChars);
 
-					//Get excluded files from parameter list
-					foreach (string parameter in parameters)
-					{
-						if (parameter.Contains("excludefile"))
-						{
-							var @filePath = parameter.Replace("\"", "").Replace("excludefile ", "").Replace('/', '\\').ToLower().TrimEnd(' ');
-							//Test that file exists
-							if (File.Exists(filePath))
-								excludedFiles.Add(filePath);
-							else
-                                CompilePalLogger.LogCompileError($"Could not find file: {filePath}\n", new Error($"Could not find file: {filePath}\n", ErrorSeverity.Warning));
-						}
-					}
-				}
+                    //Get excluded files from parameter list
+                    foreach (string parameter in parameters)
+                    {
+                        if (parameter.Contains("excludefile"))
+                        {
+                            var @filePath = parameter.Replace("\"", "").Replace("excludefile ", "").Replace('/', '\\')
+                                .ToLower().TrimEnd(' ');
+                            //Test that file exists
+                            if (File.Exists(filePath))
+                                excludedFiles.Add(filePath);
+                            else
+                                CompilePalLogger.LogCompileError($"Could not find file: {filePath}\n",
+                                    new Error($"Could not find file: {filePath}\n", ErrorSeverity.Warning));
+                        }
+                    }
+                }
 
                 if (genParticleManifest)
                 {
@@ -117,7 +124,8 @@ namespace CompilePalX.Compilers.UtilityProcess
                     CompilePalLogger.LogLine("Reading BSP...");
                     BSP map = new BSP(new FileInfo(bspPath));
 
-                    ParticleManifest manifest = new ParticleManifest(sourceDirectories, excludedDirectories, excludedFiles, map, bspPath, gameFolder);
+                    ParticleManifest manifest = new ParticleManifest(sourceDirectories, excludedDirectories,
+                        excludedFiles, map, bspPath, gameFolder);
 
 
                     //Set fields in bsppack so manifest gets detected correctly
@@ -132,7 +140,8 @@ namespace CompilePalX.Compilers.UtilityProcess
                     bool success = UpdateManifest("_particles.txt");
 
                     if (!success)
-                        CompilePalLogger.LogCompileError("Could not update manifest!\n", new Error("Could not update manifest!", ErrorSeverity.Error));
+                        CompilePalLogger.LogCompileError("Could not update manifest!\n",
+                            new Error("Could not update manifest!", ErrorSeverity.Error));
                 }
 
                 if (incLevelSounds)
@@ -142,7 +151,8 @@ namespace CompilePalX.Compilers.UtilityProcess
                     bool success = UpdateManifest("_level_sounds.txt");
 
                     if (!success)
-                        CompilePalLogger.LogCompileError("Could not update level sounds!\n", new Error("Could not update level sounds!", ErrorSeverity.Error));
+                        CompilePalLogger.LogCompileError("Could not update level sounds!\n",
+                            new Error("Could not update level sounds!", ErrorSeverity.Error));
                 }
 
                 if (incSoundscape)
@@ -159,13 +169,19 @@ namespace CompilePalX.Compilers.UtilityProcess
                     bool success = UpdateManifest("soundscapes_", directories, true);
 
                     if (!success)
-                        CompilePalLogger.LogCompileError("Could not update soundscape!\n", new Error("Could not update soundscape!", ErrorSeverity.Error));
+                        CompilePalLogger.LogCompileError("Could not update soundscape!\n",
+                            new Error("Could not update soundscape!", ErrorSeverity.Error));
                 }
 
             }
             catch (FileNotFoundException)
             {
-                CompilePalLogger.LogCompileError($"Could not find {context.CopyLocation}\n", new Error($"Could not find {context.CopyLocation}", ErrorSeverity.Error));
+                CompilePalLogger.LogCompileError($"Could not find {context.CopyLocation}\n",
+                    new Error($"Could not find {context.CopyLocation}", ErrorSeverity.Error));
+            }
+            catch (ThreadAbortException)
+            {
+
             }
             catch (Exception e)
             {
