@@ -262,26 +262,32 @@ namespace CompilePalX.Compilers.BSPPack
                     }
                     else
                     {
-                        CompilePalLogger.LogLine("Running bspzip...");
-                        PackBSP(outputFile);
-                    }
+                        CompilePalLogger.LogLine("Copying packed bsp to vmf folder...");
 
-                    CompilePalLogger.LogLine("Copying packed bsp to vmf folder...");
-
-                    if (File.Exists(context.BSPFile))
-                    {
-                        if (File.Exists(context.BSPFile + ".unpacked"))
+                        if (File.Exists(context.BSPFile))
                         {
-                            CompilePalLogger.LogLineDebug($"Deleting: {context.BSPFile}.unpacked");
-                            File.Delete(context.BSPFile + ".unpacked");
+                            if (File.Exists(context.BSPFile + ".unpacked"))
+                            {
+                                CompilePalLogger.LogLineDebug($"Deleting: {context.BSPFile}.unpacked");
+                                File.Delete(context.BSPFile + ".unpacked");
+                            }
+
+                            CompilePalLogger.LogLineDebug($"Copying {context.BSPFile} to {context.BSPFile}.unpacked");
+                            File.Copy(context.BSPFile, context.BSPFile + ".unpacked");
                         }
 
-                        CompilePalLogger.LogLineDebug($"Copying {context.BSPFile} to {context.BSPFile}.unpacked");
-                        File.Move(context.BSPFile, context.BSPFile + ".unpacked");
+
+                        CompilePalLogger.LogLine("Running bspzip...");
+                        PackBSP(outputFile);
+
+                        // don't copy if compiling directory is also the output directory
+                        if (bspPath != context.BSPFile)
+                        {
+                            CompilePalLogger.LogLineDebug($"Copying {bspPath} to {context.BSPFile}");
+                            File.Copy(bspPath, context.BSPFile);
+                        }
                     }
 
-                    CompilePalLogger.LogLineDebug($"Copying {bspPath} to {context.BSPFile}");
-                    File.Copy(bspPath, context.BSPFile);
                 }
 
                 CompilePalLogger.LogLine("Finished!");
