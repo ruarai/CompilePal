@@ -461,4 +461,8 @@
     <Error Condition="!Exists('..\packages\Fody.5.0.6\build\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Fody.5.0.6\build\Fody.targets'))" />
     <Error Condition="!Exists('..\packages\Costura.Fody.4.0.0\build\Costura.Fody.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Costura.Fody.4.0.0\build\Costura.Fody.props'))" />
   </Target>
+  <Target Name="CleanOutputDirectory"
+          AfterTargets="Clean">
+    <RemoveDir Directories="$(OUTDIR)"/>
+  </Target>
 </Project>
