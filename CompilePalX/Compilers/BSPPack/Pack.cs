@@ -262,7 +262,6 @@ namespace CompilePalX.Compilers.BSPPack
                     }
                     else
                     {
-                        CompilePalLogger.LogLine("Copying packed bsp to vmf folder...");
 
                         if (File.Exists(context.BSPFile))
                         {
@@ -280,9 +279,16 @@ namespace CompilePalX.Compilers.BSPPack
                         CompilePalLogger.LogLine("Running bspzip...");
                         PackBSP(outputFile);
 
-                        // don't copy if compiling directory is also the output directory
+                        // don't copy if vmf directory is also the output directory
                         if (bspPath != context.BSPFile)
                         {
+                            if (File.Exists(context.BSPFile))
+                            {
+                                CompilePalLogger.LogLineDebug($"Deleting: {context.BSPFile}");
+                                File.Delete(context.BSPFile);
+                            }
+
+                            CompilePalLogger.LogLine("Copying packed bsp to vmf folder...");
                             CompilePalLogger.LogLineDebug($"Copying {bspPath} to {context.BSPFile}");
                             File.Copy(bspPath, context.BSPFile);
                         }
@@ -335,7 +341,7 @@ namespace CompilePalX.Compilers.BSPPack
         {
             // unpacks the pak file and extracts it to a temp location
 
-            /* info: vbsp.exe creates files in the pak file that may have 
+            /* info: vbsp.exe creates files in the pak file that may have
              * dependencies that are not listed anywhere else, as is the
              * case for water materials. We use this method to extract the
              * pak file to a temp folder and read the dependencies of its files. */
