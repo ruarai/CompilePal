@@ -56,9 +56,9 @@ namespace CompilePalX.Compilers.BSPPack
             verbose = GetParameterString().Contains("-verbose");
             dryrun = GetParameterString().Contains("-dryrun");
             renamenav = GetParameterString().Contains("-renamenav");
-            include = Regex.IsMatch(GetParameterString(), "^-include\b"); // ensures it doesnt match -includedir
+            include = Regex.IsMatch(GetParameterString(), @"-include\b"); // ensures it doesnt match -includedir
             includeDir = GetParameterString().Contains("-includedir");
-            exclude = Regex.IsMatch(GetParameterString(), "^-exclude\b"); // ensures it doesnt match -excludedir
+            exclude = Regex.IsMatch(GetParameterString(), @"-exclude\b"); // ensures it doesnt match -excludedir
             excludeDir = GetParameterString().Contains("-excludedir");
             packvpk = GetParameterString().Contains("-vpk");
             filelist = GetParameterString().Contains("-filelist");
@@ -126,7 +126,7 @@ namespace CompilePalX.Compilers.BSPPack
                             if (File.Exists(filePath))
                                 includeFiles.Add(filePath);
                             else
-                                CompilePalLogger.LogCompileError($"Could not find file: {filePath}", new Error($"Could not find file: {filePath}",$"Could not find file: {filePath}", ErrorSeverity.Caution));
+                                CompilePalLogger.LogCompileError($"Could not find file: {filePath}\n", new Error($"Could not find file: {filePath}",$"Could not find file: {filePath}", ErrorSeverity.Caution));
                         }
                     }
                 }
