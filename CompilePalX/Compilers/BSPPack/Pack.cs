@@ -41,6 +41,7 @@ namespace CompilePalX.Compilers.BSPPack
         private static bool exclude;
         private static bool excludeDir;
         private static bool packvpk;
+        private static bool filelist;
         public static bool genParticleManifest;
 
         public static KeyValuePair<string, string> particleManifest;
@@ -60,6 +61,7 @@ namespace CompilePalX.Compilers.BSPPack
             exclude = Regex.IsMatch(GetParameterString(), "^-exclude\b"); // ensures it doesnt match -excludedir
             excludeDir = GetParameterString().Contains("-excludedir");
             packvpk = GetParameterString().Contains("-vpk");
+            filelist = GetParameterString().Contains("-filelist");
 
             char[] paramChars = GetParameterString().ToCharArray();
             List<string> parameters = ParseParameters(paramChars);
@@ -68,7 +70,6 @@ namespace CompilePalX.Compilers.BSPPack
             List<string> excludeFiles = new List<string>();
             List<string> excludeDirs = new List<string>();
 
-            outputFile = "BSPZipFiles\\files.txt";
 
             try
             {
@@ -82,6 +83,29 @@ namespace CompilePalX.Compilers.BSPPack
                 {
                     throw new FileNotFoundException();
                 }
+
+                if (filelist)
+                {
+                    var fileListParam = parameters.First(p => p.StartsWith("filelist")).Split(new[]{" "}, 2, StringSplitOptions.None);
+                    if (fileListParam.Length > 1 && !string.IsNullOrWhiteSpace(fileListParam[1]))
+                    {
+                        outputFile = fileListParam[1];
+                        if (!File.Exists(outputFile))
+                        {
+                            CompilePalLogger.LogCompileError($"Could not find file list {outputFile}, exiting pack step\n", new Error($"Could not find file list {outputFile}, exiting pack step\n", ErrorSeverity.Error));
+                            return;
+                        }
+
+                        CompilePalLogger.LogLine($"Using file list {outputFile}");
+                        PackFileList(context, outputFile);
+                        return;
+                    }
+
+                    CompilePalLogger.LogCompileError("No file list set, exiting pack step\n", new Error("No file list set, exiting  pack step", ErrorSeverity.Error));
+                    return;
+                }
+
+                outputFile = "BSPZipFiles\\files.txt";
 
                 Keys.vmtTextureKeyWords = File.ReadAllLines(System.IO.Path.Combine(keysFolder, "texturekeys.txt")).ToList();
                 Keys.vmtMaterialKeyWords = File.ReadAllLines(System.IO.Path.Combine(keysFolder, "materialkeys.txt")).ToList();
@@ -262,36 +286,7 @@ namespace CompilePalX.Compilers.BSPPack
                     }
                     else
                     {
-
-                        if (File.Exists(context.BSPFile))
-                        {
-                            if (File.Exists(context.BSPFile + ".unpacked"))
-                            {
-                                CompilePalLogger.LogLineDebug($"Deleting: {context.BSPFile}.unpacked");
-                                File.Delete(context.BSPFile + ".unpacked");
-                            }
-
-                            CompilePalLogger.LogLineDebug($"Copying {context.BSPFile} to {context.BSPFile}.unpacked");
-                            File.Copy(context.BSPFile, context.BSPFile + ".unpacked");
-                        }
-
-
-                        CompilePalLogger.LogLine("Running bspzip...");
-                        PackBSP(outputFile);
-
-                        // don't copy if vmf directory is also the output directory
-                        if (bspPath != context.BSPFile)
-                        {
-                            if (File.Exists(context.BSPFile))
-                            {
-                                CompilePalLogger.LogLineDebug($"Deleting: {context.BSPFile}");
-                                File.Delete(context.BSPFile);
-                            }
-
-                            CompilePalLogger.LogLine("Copying packed bsp to vmf folder...");
-                            CompilePalLogger.LogLineDebug($"Copying {bspPath} to {context.BSPFile}");
-                            File.Copy(bspPath, context.BSPFile);
-                        }
+                        PackFileList(context, outputFile);
                     }
 
                 }
@@ -334,6 +329,38 @@ namespace CompilePalX.Compilers.BSPPack
             {
                 CompilePalLogger.LogLine("Something broke:");
                 CompilePalLogger.LogCompileError($"{exception}\n", new Error(exception.ToString(), "CompilePal Internal Error", ErrorSeverity.FatalError));
+            }
+        }
+
+        static void PackFileList(CompileContext context, string outputFile)
+        {
+            if (File.Exists(context.BSPFile))
+            {
+                if (File.Exists(context.BSPFile + ".unpacked"))
+                {
+                    CompilePalLogger.LogLineDebug($"Deleting: {context.BSPFile}.unpacked");
+                    File.Delete(context.BSPFile + ".unpacked");
+                }
+
+                CompilePalLogger.LogLineDebug($"Copying {context.BSPFile} to {context.BSPFile}.unpacked");
+                File.Copy(context.BSPFile, context.BSPFile + ".unpacked");
+            }
+
+            CompilePalLogger.LogLine("Running bspzip...");
+            PackBSP(outputFile);
+
+            // don't copy if vmf directory is also the output directory
+            if (bspPath != context.BSPFile)
+            {
+                if (File.Exists(context.BSPFile))
+                {
+                    CompilePalLogger.LogLineDebug($"Deleting: {context.BSPFile}");
+                    File.Delete(context.BSPFile);
+                }
+
+                CompilePalLogger.LogLine("Copying packed bsp to vmf folder...");
+                CompilePalLogger.LogLineDebug($"Copying {bspPath} to {context.BSPFile}");
+                File.Copy(bspPath, context.BSPFile);
             }
         }
 

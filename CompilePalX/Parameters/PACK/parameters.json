@@ -83,5 +83,15 @@
     "CanHaveValue": true,
     "Warning": "L4D2/Portal2 only",
     "CanBeUsedMoreThanOnce": false
+  },
+  {
+    "Name": "Use File List",
+    "Parameter": " -filelist",
+    "Description": "Passes file list to BSPZIP",
+    "Value": null,
+    "ValueIsFile": true,
+    "CanHaveValue": true,
+    "Warning": "This will disable automatic packing detection",
+    "CanBeUsedMoreThanOnce": false
   }
 ]
