@@ -587,6 +587,7 @@ namespace CompilePalX.Compilers.BSPPack
             string name = bsp.file.Name.Replace(".bsp", "");
             string searchPattern = name + "*.txt";
             List<KeyValuePair<string, string>> langfiles = new List<KeyValuePair<string, string>>();
+            bool particleManifestPacked = false;
 
             foreach (string source in sourceDirectories)
             {
@@ -596,19 +597,35 @@ namespace CompilePalX.Compilers.BSPPack
                 if (dir.Exists)
                     foreach (FileInfo f in dir.GetFiles(searchPattern))
                     {
-                        // particle files if particle manifest is not being generated
-                        if (!genparticlemanifest)
+                        // pack the first particle manifest file seen if not generating one? if we generate one does it get added already?
+                        if (!genparticlemanifest && !particleManifestPacked)
+                        {
                             if (f.Name.StartsWith(name + "_particles") || f.Name.StartsWith(name + "_manifest"))
-                                bsp.particleManifest =
-                                    new KeyValuePair<string, string>(internalDir + f.Name, externalDir + f.Name);
+                            {
+                                particleManifestPacked = true;
+                                bsp.particleManifest = new KeyValuePair<string, string>(internalDir + f.Name, externalDir + f.Name);
+                                continue;
+                            }
+                        }
 
                         // soundscript
                         if (f.Name.StartsWith(name + "_level_sounds"))
-                            bsp.soundscript =
-                                new KeyValuePair<string, string>(internalDir + f.Name, externalDir + f.Name);
+                        {
+                            bsp.soundscript = new KeyValuePair<string, string>(internalDir + f.Name, externalDir + f.Name);
+                        }
                         // presumably language files
                         else
+                        {
+                            // don't pack particle manifests if we generated one
+                            if (genparticlemanifest)
+                            {
+                                if (f.Name.StartsWith(name + "_particles") || f.Name.StartsWith(name + "_manifest"))
+                                {
+                                    continue;
+                                }
+                            }
                             langfiles.Add(new KeyValuePair<string, string>(internalDir + f.Name, externalDir + f.Name));
+                        }
                     }
             }
             bsp.languages = langfiles;

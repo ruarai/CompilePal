@@ -451,14 +451,24 @@ namespace CompilePalX.Compilers.UtilityProcess
                 foreach (PCF particle in particles)
                 {
                     string internalParticlePath = particle.FilePath.Replace(baseDirectory, "");
+                    // remove custom paths
+                    if (internalParticlePath.StartsWith("custom\\"))
+                    {
+                        var chopIndex = internalParticlePath.IndexOf("particles");
+                        if(chopIndex != -1)
+                        {
+                            internalParticlePath = internalParticlePath.Substring(chopIndex, internalParticlePath.Length - chopIndex);
+                        }
+                    }
                     sw.WriteLine($"      \"file\"    \"!{internalParticlePath}\"");
                     CompilePalLogger.LogLine($"PCF added to manifest: {internalParticlePath}");
                 }
 
                 sw.WriteLine("}");
             }
-            
-            string internalDirectory = filepath.Replace(baseDirectory, "");
+
+
+            string internalDirectory = filepath.Substring(baseDirectory.Length);
 
             //Store internal/external dir so it can be packed
             particleManifest = new KeyValuePair<string, string>(internalDirectory, filepath);
