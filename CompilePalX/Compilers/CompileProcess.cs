@@ -17,7 +17,7 @@ namespace CompilePalX
     class CompileProcess
     {
         public string ParameterFolder = "./Parameters";
-	    public bool Draggable = false;
+	    public bool Draggable = true; // set to false if we ever want to disable reordering non custom compile steps
         public List<Error> CompileErrors;
 
         public CompileProcess(string name)
