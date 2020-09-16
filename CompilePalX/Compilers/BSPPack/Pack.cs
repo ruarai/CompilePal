@@ -41,7 +41,8 @@ namespace CompilePalX.Compilers.BSPPack
         private static bool exclude;
         private static bool excludeDir;
         private static bool packvpk;
-        private static bool filelist;
+        private static bool includefilelist;
+        private static bool usefilelist;
         public static bool genParticleManifest;
 
         public static KeyValuePair<string, string> particleManifest;
@@ -61,7 +62,8 @@ namespace CompilePalX.Compilers.BSPPack
             exclude = Regex.IsMatch(GetParameterString(), @"-exclude\b"); // ensures it doesnt match -excludedir
             excludeDir = GetParameterString().Contains("-excludedir");
             packvpk = GetParameterString().Contains("-vpk");
-            filelist = GetParameterString().Contains("-filelist");
+            includefilelist = GetParameterString().Contains("-includefilelist");
+            usefilelist = GetParameterString().Contains("-usefilelist");
 
             char[] paramChars = GetParameterString().ToCharArray();
             List<string> parameters = ParseParameters(paramChars);
@@ -84,9 +86,10 @@ namespace CompilePalX.Compilers.BSPPack
                     throw new FileNotFoundException();
                 }
 
-                if (filelist)
+                // manually passing in a file list
+                if (usefilelist)
                 {
-                    var fileListParam = parameters.First(p => p.StartsWith("filelist")).Split(new[]{" "}, 2, StringSplitOptions.None);
+                    var fileListParam = parameters.First(p => p.StartsWith("usefilelist")).Split(new[]{" "}, 2, StringSplitOptions.None);
                     if (fileListParam.Length > 1 && !string.IsNullOrWhiteSpace(fileListParam[1]))
                     {
                         outputFile = fileListParam[1];
@@ -193,6 +196,7 @@ namespace CompilePalX.Compilers.BSPPack
                     }
                 }
 
+
                 CompilePalLogger.LogLine("Finding sources of game content...");
                 sourceDirectories = GetSourceDirectories(gameFolder);
 
@@ -214,6 +218,43 @@ namespace CompilePalX.Compilers.BSPPack
 
                 CompilePalLogger.LogLine("Initializing pak file...");
                 PakFile pakfile = new PakFile(map, sourceDirectories, includeFiles, excludeFiles, excludeDirs, outputFile);
+
+                if (includefilelist)
+                {
+                    var fileListParams = parameters.Where(p => p.StartsWith("includefilelist")).Select(f => f.Split(new[]{" "}, 2, StringSplitOptions.None));
+                    foreach (var fileListParam in fileListParams)
+                    {
+                        if (fileListParam.Length <= 1 || string.IsNullOrWhiteSpace(fileListParam[1]))
+                        {
+                            CompilePalLogger.LogCompileError("No file list parameter set\n",
+                                new Error("No file list parameterparameter  set", ErrorSeverity.Error));
+                            continue;
+                        }
+
+                        var inputFile = fileListParam[1];
+                        if (!File.Exists(inputFile))
+                        {
+                            CompilePalLogger.LogCompileError($"Could not find file list {inputFile}\n", new Error($"Could not find file list {inputFile}\n", ErrorSeverity.Error));
+                            continue;
+                        }
+
+                        CompilePalLogger.LogDebug($"Adding files from file list {inputFile}");
+                        var filelist = File.ReadAllLines(inputFile);
+
+                        // file list format is internal path, newline, external path
+                        for (int i = 0; i < filelist.Length - 1; i += 2)
+                        {
+                            var internalPath = filelist[i];
+                            var externalPath = filelist[i + 1];
+                            if (!pakfile.AddInternalFile(internalPath, externalPath))
+                            {
+                                CompilePalLogger.LogCompileError($"Failed to pack ${externalPath}\n", new Error($"Failed to pack ${externalPath}\n", ErrorSeverity.Error));
+                            }
+                        }
+
+                        CompilePalLogger.LogLine($"Added {filelist.Length / 2} files from ${inputFile}");
+                    }
+                }
 
                 if (packvpk)
                 {
