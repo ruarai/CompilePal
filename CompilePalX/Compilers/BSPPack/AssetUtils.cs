@@ -308,21 +308,35 @@ namespace CompilePalX.Compilers.BSPPack
 
         public static List<string> findRadarDdsFiles(string fullpath)
         {
-            // finds vmt files associated with vmt file
+            // finds vmt files associated with radar overview files
 
             List<string> DDSs = new List<string>();
-            foreach (string line in File.ReadAllLines(fullpath))
-            {   
-                string param = line.Replace("\"", " ").Replace("\t", " ").Replace("_radar", "").Trim();
-                if (param.StartsWith("material "))
-                {
-                    DDSs.Add("resource/" + vmtPathParser(param) + "_radar.dds");
-                    DDSs.Add("resource/" + vmtPathParser(param) + "_radar_spectate.dds");
-                    DDSs.Add("resource/" + vmtPathParser(param) + "_lower_radar.dds");
-                    DDSs.Add("resource/" + vmtPathParser(param) + "_upper_radar.dds");
+            var overviewFile = new KV.FileData(fullpath);
+
+            // Contains no blocks, return empty list
+            if (overviewFile.headnode.subBlocks.Count == 0)
+                return DDSs;
+
+            foreach (var subblock in overviewFile.headnode.subBlocks)
+            {
+                var material = subblock.tryGetStringValue("material");
+                // failed to get material, file contains no materials
+                if (material == "")
                     break;
+
+                var verticalSections = subblock.GetFirstByName("\"verticalsections\"");
+                if (verticalSections == null)
+                    break;
+
+                foreach (var section in verticalSections.subBlocks)
+                {
+                    DDSs.Add(section.name == "\"default\""
+                        //add "t " because the vmt path parser expects a space seperated arg
+                        ? $"resource/{vmtPathParser("t " + material)}_radar.dds"
+                        : $"resource/{vmtPathParser("t " + material)}_{section.name.Replace("\"", string.Empty)}_radar.dds");
                 }
             }
+
             return DDSs;
         }
 
