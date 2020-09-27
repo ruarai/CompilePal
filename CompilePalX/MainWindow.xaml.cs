@@ -38,6 +38,7 @@ namespace CompilePalX
         public static Dispatcher ActiveDispatcher;
         private ObservableCollection<CompileProcess> CompileProcessesSubList = new ObservableCollection<CompileProcess>();
 	    private bool processModeEnabled;
+        private DispatcherTimer elapsedTimeDispatcherTimer;
 		public static MainWindow Instance { get; private set; }
 
 		public MainWindow()
@@ -87,6 +88,12 @@ namespace CompilePalX
             CompilingManager.OnFinish += CompilingManager_OnFinish;
 
 			RowDragHelper.RowSwitched += RowDragHelperOnRowSwitched;
+
+            elapsedTimeDispatcherTimer = new DispatcherTimer(new TimeSpan(0, 0, 0, 1), DispatcherPriority.Background,
+                this.TickElapsedTimer, Dispatcher.CurrentDispatcher)
+            {
+                IsEnabled = false
+            };
 
             HandleArgs();
         }
@@ -283,6 +290,14 @@ namespace CompilePalX
 
             AddMapButton.IsEnabled = false;
             RemoveMapButton.IsEnabled = false;
+
+            // hide update link so elapsed time can be shown
+            UpdateLabel.Visibility = Visibility.Collapsed;
+            TimeElapsedLabel.Visibility = Visibility.Visible;
+            // Tick elapsed timer to display the default string
+            TickElapsedTimer(null, null);
+
+            elapsedTimeDispatcherTimer.IsEnabled = true;
         }
 
         private void CompilingManager_OnFinish()
@@ -306,6 +321,9 @@ namespace CompilePalX
 
             AddMapButton.IsEnabled = true;
             RemoveMapButton.IsEnabled = true;
+
+            TimeElapsedLabel.Visibility = Visibility.Collapsed;
+            elapsedTimeDispatcherTimer.IsEnabled = false;
 
             string logName = DateTime.Now.ToString("s").Replace(":", "-") + ".txt";
             string textLog = new TextRange(CompileOutputTextbox.Document.ContentStart, CompileOutputTextbox.Document.ContentEnd).Text;
@@ -773,6 +791,11 @@ namespace CompilePalX
         {
 			Process.Start(new ProcessStartInfo("https://github.com/ruarai/CompilePal/issues/"));
             e.Handled = true;
+        }
+
+        private void TickElapsedTimer(object sender, EventArgs e)
+        {
+            TimeElapsedLabel.Content = $"Time Elapsed: {CompilingManager.GetTime().Elapsed.ToString(@"hh\:mm\:ss")}";
         }
     }
 

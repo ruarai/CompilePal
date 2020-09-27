@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -217,6 +218,11 @@ namespace CompilePalX
             CompilePalLogger.LogLineColor("Compile forcefully ended.", Brushes.OrangeRed);
 
             postCompile(null);
+        }
+
+        public static Stopwatch GetTime()
+        {
+            return compileTimeStopwatch;
         }
 
         class MapErrors
