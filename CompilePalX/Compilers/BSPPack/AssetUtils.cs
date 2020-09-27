@@ -324,25 +324,25 @@ namespace CompilePalX.Compilers.BSPPack
                 if (material == "")
                     break;
 
+                // add default radar
+                DDSs.Add($"resource/{vmtPathParser(material, false)}_radar.dds");
+
                 var verticalSections = subblock.GetFirstByName("\"verticalsections\"");
                 if (verticalSections == null)
                     break;
-
+                
+                // add multi-level radars
                 foreach (var section in verticalSections.subBlocks)
-                {
-                    DDSs.Add(section.name == "\"default\""
-                        //add "t " because the vmt path parser expects a space seperated arg
-                        ? $"resource/{vmtPathParser("t " + material)}_radar.dds"
-                        : $"resource/{vmtPathParser("t " + material)}_{section.name.Replace("\"", string.Empty)}_radar.dds");
-                }
+                    DDSs.Add($"resource/{vmtPathParser(material, false)}_{section.name.Replace("\"", string.Empty)}_radar.dds");
             }
 
             return DDSs;
         }
 
-        public static string vmtPathParser(string vmtline)
+        public static string vmtPathParser(string vmtline, bool needsSplit = true)
         {
-            vmtline = vmtline.Split(new char[] { ' ' }, 2)[1]; // removes the parameter name
+            if (needsSplit)
+                vmtline = vmtline.Split(new char[] { ' ' }, 2)[1]; // removes the parameter name
             vmtline = vmtline.Split(new string[] { "//", "\\\\" }, StringSplitOptions.None)[0]; // removes endline parameter
             vmtline = vmtline.Trim(new char[] { ' ', '/', '\\' }); // removes leading slashes
             if (vmtline.StartsWith("materials/"))
