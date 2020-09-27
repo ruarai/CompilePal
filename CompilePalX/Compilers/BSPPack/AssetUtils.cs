@@ -420,9 +420,10 @@ namespace CompilePalX.Compilers.BSPPack
                 {
                     bsp.soundscape = new KeyValuePair<string, string>(internalPath, externalPath);
                     break;
-                } else if (File.Exists(externalVscPath))
+                } 
+                if (File.Exists(externalVscPath))
                 {
-                    bsp.soundscape = new KeyValuePair<string, string>(internalPathVsc, externalPath);
+                    bsp.soundscape = new KeyValuePair<string, string>(internalPathVsc, externalVscPath);
                     break;
                 }
             }
