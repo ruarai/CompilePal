@@ -795,7 +795,8 @@ namespace CompilePalX
 
         private void TickElapsedTimer(object sender, EventArgs e)
         {
-            TimeElapsedLabel.Content = $"Time Elapsed: {CompilingManager.GetTime().Elapsed.ToString(@"hh\:mm\:ss")}";
+            var time = CompilingManager.GetTime().Elapsed;
+            TimeElapsedLabel.Content = $"Time Elapsed: {(int) time.TotalHours:00}:{time:mm}:{time:ss}";
         }
     }
 
