@@ -10,7 +10,7 @@ namespace CompilePalX.Compilers.BSPPack
     static class AssetUtils
     {
 
-        public static Tuple<List<string>, List<string>> findMdlMaterialsAndModels(string path, List<int> skins = null)
+        public static Tuple<List<string>, List<string>> findMdlMaterialsAndModels(string path, List<int> skins = null, List<string> vtxVmts = null)
         {
             List<string> materials = new List<string>();
             List<string> models = new List<string>();
@@ -43,6 +43,8 @@ namespace CompilePalX.Compilers.BSPPack
 
                 int bodypart_count = reader.ReadInt32();
                 int bodypart_index = reader.ReadInt32();
+
+                //byte rootLod = reader.ReadByte(); 
 
 				// skip to includemodel
 				mdl.Seek(96, SeekOrigin.Current);
@@ -145,56 +147,117 @@ namespace CompilePalX.Compilers.BSPPack
                         for (int j = 0; j < modelDirs.Count; j++)
                             materials.Add("materials/" + modelDirs[j] + modelVmts[i] + ".vmt");
 
-				// find included models. mdl v44 and up have same includemodel format
-	            if (ver > 44)
-	            {
-					mdl.Seek(includeModelIndex, SeekOrigin.Begin);
+                // add materials found in vtx file
+                for (int i = 0; i < vtxVmts.Count; i++)
+                    for (int j = 0; j < modelDirs.Count; j++)
+                        materials.Add($"materials/{modelDirs[j]}{vtxVmts[i]}.vmt");
 
-		            var includeOffsetStart = mdl.Position;
-					for (int j = 0; j < includeModelCount; j++)
-					{
-						var includeStreamPos = mdl.Position;
+                // find included models. mdl v44 and up have same includemodel format
+                if (ver > 44)
+                {
+                    mdl.Seek(includeModelIndex, SeekOrigin.Begin);
 
-						var labelOffset = reader.ReadInt32();
-						var includeModelPathOffset = reader.ReadInt32();
+                    var includeOffsetStart = mdl.Position;
+                    for (int j = 0; j < includeModelCount; j++)
+                    {
+                        var includeStreamPos = mdl.Position;
 
-						// skip unknown section made up of 27 ints
-						// TODO: not needed?
-						//mdl.Seek(27 * 4, SeekOrigin.Current);
+                        var labelOffset = reader.ReadInt32();
+                        var includeModelPathOffset = reader.ReadInt32();
 
-						var currentOffset = mdl.Position;
+                        // skip unknown section made up of 27 ints
+                        // TODO: not needed?
+                        //mdl.Seek(27 * 4, SeekOrigin.Current);
 
-						string label = "";
+                        var currentOffset = mdl.Position;
 
-						if (labelOffset != 0)
-						{
-							// go to label offset
-							mdl.Seek(labelOffset, SeekOrigin.Begin);
-							label = readNullTerminatedString(mdl, reader);
+                        string label = "";
 
-							// return to current offset
-							mdl.Seek(currentOffset, SeekOrigin.Begin);
-						}
+                        if (labelOffset != 0)
+                        {
+                            // go to label offset
+                            mdl.Seek(labelOffset, SeekOrigin.Begin);
+                            label = readNullTerminatedString(mdl, reader);
 
-						if (includeModelPathOffset != 0)
-						{
-							// go to model offset
-							mdl.Seek(includeModelPathOffset + includeOffsetStart, SeekOrigin.Begin);
-							models.Add(readNullTerminatedString(mdl, reader));
+                            // return to current offset
+                            mdl.Seek(currentOffset, SeekOrigin.Begin);
+                        }
 
-							// return to current offset
-							mdl.Seek(currentOffset, SeekOrigin.Begin);
-						}
+                        if (includeModelPathOffset != 0)
+                        {
+                            // go to model offset
+                            mdl.Seek(includeModelPathOffset + includeOffsetStart, SeekOrigin.Begin);
+                            models.Add(readNullTerminatedString(mdl, reader));
 
-
-					}
-	            }
-
+                            // return to current offset
+                            mdl.Seek(currentOffset, SeekOrigin.Begin);
+                        }
 
 
-				mdl.Close();
+                    }
+                }
+
+
+
+                mdl.Close();
             }
             return new Tuple<List<string>, List<string>>(materials, models);
+        }
+
+        public static List<string> FindVtxMaterials(string path)
+        {
+            List<string> vtxMaterials = new List<string>();
+            if (File.Exists(path))
+            {
+                using (FileStream vtx = new FileStream(path, FileMode.Open))
+                {
+                    BinaryReader reader = new BinaryReader(vtx);
+
+                    int version = reader.ReadInt32();
+
+                    vtx.Seek(20, SeekOrigin.Begin);
+                    int numLODs = reader.ReadInt32();
+
+                    // contains no LODs, no reason to continue parsing
+                    if (numLODs == 0)
+                        return vtxMaterials;
+
+                    int materialReplacementListOffset = reader.ReadInt32();
+
+                    // all LOD materials stored in the materialReplacementList
+                    // reading material replacement list
+                    for (int i = 0; i < numLODs; i++)
+                    {
+                        int materialReplacementStreamPosition = materialReplacementListOffset + i * 8;
+                        vtx.Seek(materialReplacementStreamPosition, SeekOrigin.Begin);
+                        int numReplacements = reader.ReadInt32();
+                        int replacementOffset = reader.ReadInt32();
+
+                        if (numReplacements == 0)
+                            continue;
+
+                        vtx.Seek(materialReplacementStreamPosition + replacementOffset, SeekOrigin.Begin);
+                        // reading material replacement
+                        for (int j = 0; j < numReplacements; j++)
+                        {
+                            long streamPositionStart = vtx.Position;
+
+                            int materialIndex = reader.ReadInt16();
+                            int nameOffset = reader.ReadInt32();
+
+                            long streamPositionEnd = vtx.Position;
+                            if (nameOffset != 0)
+                            {
+                                vtx.Seek(streamPositionStart + nameOffset, SeekOrigin.Begin);
+                                vtxMaterials.Add(readNullTerminatedString(vtx, reader));
+                                vtx.Seek(streamPositionEnd, SeekOrigin.Begin);
+                            }
+                        }
+                    }
+                }
+            }
+
+            return vtxMaterials;
         }
 
         public static List<string> findPhyGibs(string path)

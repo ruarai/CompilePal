@@ -259,6 +259,7 @@ namespace CompilePalX.Compilers.BSPPack
             if (AddInternalFile(internalPath, externalPath))
             {
                 mdlcount++;
+                List<string> vtxMaterialNames = new List<string>();
                 foreach (string reference in AssetUtils.findMdlRefs(internalPath))
                 {
                     string ext_path = FindExternalFile(reference);
@@ -266,12 +267,14 @@ namespace CompilePalX.Compilers.BSPPack
                     if (reference.EndsWith(".phy"))
                         foreach (string gib in AssetUtils.findPhyGibs(ext_path))
                             AddModel(gib);
+                    else if (reference.EndsWith(".vtx"))
+                        vtxMaterialNames.AddRange(AssetUtils.FindVtxMaterials(ext_path));
                 }
 
                 Tuple<List<string>, List<string>> mdlMatsAndModels;
                 try
                 {
-	                mdlMatsAndModels = AssetUtils.findMdlMaterialsAndModels(externalPath, skins);
+	                mdlMatsAndModels = AssetUtils.findMdlMaterialsAndModels(externalPath, skins, vtxMaterialNames);
                 }
                 catch (Exception e)
                 {
