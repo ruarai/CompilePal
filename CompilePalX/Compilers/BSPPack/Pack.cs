@@ -205,9 +205,9 @@ namespace CompilePalX.Compilers.BSPPack
                     {
                         if (parameter.Contains("excludevpk"))
                         {
-                            var filePath = parameter.Replace("\"", "").Replace("excludevpk ", "").TrimEnd(' ');
+                            var vpkPath = parameter.Replace("\"", "").Replace("excludevpk ", "").TrimEnd(' ');
 
-                            string[] vpkFileList = GetVPKFileList("C:\\Program Files (x86)\\Steam\\steamapps\\common\\Counter-Strike Global Offensive\\csgo\\pak01_dir.vpk");
+                            string[] vpkFileList = GetVPKFileList(vpkPath);
                             
                             foreach (string file in vpkFileList)
                             {
