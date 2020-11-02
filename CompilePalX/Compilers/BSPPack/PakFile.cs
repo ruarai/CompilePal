@@ -31,7 +31,8 @@ namespace CompilePalX.Compilers.BSPPack
             // exclude files that are excluded
             if (externalPath != "" && File.Exists(externalPath)
                                    && !excludedFiles.Contains(externalPath.ToLower().Replace('/', '\\'))
-                                   && !excludedDirs.Any(externalPath.ToLower().Replace('/', '\\').StartsWith))
+                                   && !excludedDirs.Any(externalPath.ToLower().Replace('/', '\\').StartsWith)
+                                   && !excludedVpkFiles.Contains(paths.Key.ToLower().Replace('\\', '/')))
             {
                 Files.Add(paths);
                 return true;
@@ -47,6 +48,7 @@ namespace CompilePalX.Compilers.BSPPack
 
         private List<string> excludedFiles;
 	    private List<string> excludedDirs;
+        private List<string> excludedVpkFiles;
 
         private List<string> sourceDirs;
         private string fileName;
@@ -59,7 +61,7 @@ namespace CompilePalX.Compilers.BSPPack
         public int effectscriptcount { get; private set; }
         public int vscriptcount { get; private set; }
 
-        public PakFile(BSP bsp, List<string> sourceDirectories, List<string> includeFiles, List<string> excludedFiles, List<string> excludedDirs, string outputFile)
+        public PakFile(BSP bsp, List<string> sourceDirectories, List<string> includeFiles, List<string> excludedFiles, List<string> excludedDirs, List<string> excludedVpkFiles, string outputFile)
         {
             mdlcount = vmtcount = pcfcount = sndcount = vehiclescriptcount = effectscriptcount = 0;
             sourceDirs = sourceDirectories;
@@ -67,6 +69,7 @@ namespace CompilePalX.Compilers.BSPPack
 
 	        this.excludedFiles = excludedFiles;
 	        this.excludedDirs = excludedDirs;
+	        this.excludedVpkFiles = excludedVpkFiles;
 
             Files = new Dictionary<string, string>();
 

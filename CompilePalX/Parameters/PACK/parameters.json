@@ -66,6 +66,16 @@
     "CanBeUsedMoreThanOnce": true
   },
   {
+    "Name": "Exclude VPK file",
+    "Parameter": " -excludevpk",
+    "Description": "Exclude files from packing that are already in the specified VPK",
+    "Value": null,
+    "ValueIsFile": true,
+    "CanHaveValue": true,
+    "Warning": "",
+    "CanBeUsedMoreThanOnce": true
+  },
+  {
     "Name": "VPK",
     "Parameter": " -vpk",
     "Description": "Pack into a VPK instead of BSP.",
