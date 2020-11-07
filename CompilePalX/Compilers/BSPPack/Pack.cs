@@ -40,6 +40,7 @@ namespace CompilePalX.Compilers.BSPPack
         private static bool includeDir;
         private static bool exclude;
         private static bool excludeDir;
+        private static bool excludevpk;
         private static bool packvpk;
         private static bool includefilelist;
         private static bool usefilelist;
@@ -61,6 +62,7 @@ namespace CompilePalX.Compilers.BSPPack
             includeDir = GetParameterString().Contains("-includedir");
             exclude = Regex.IsMatch(GetParameterString(), @"-exclude\b"); // ensures it doesnt match -excludedir
             excludeDir = GetParameterString().Contains("-excludedir");
+            excludevpk = GetParameterString().Contains("-excludevpk");
             packvpk = GetParameterString().Contains("-vpk");
             includefilelist = GetParameterString().Contains("-includefilelist");
             usefilelist = GetParameterString().Contains("-usefilelist");
@@ -71,7 +73,7 @@ namespace CompilePalX.Compilers.BSPPack
             List<string> includeFiles = new List<string>();
             List<string> excludeFiles = new List<string>();
             List<string> excludeDirs = new List<string>();
-
+            List<string> excludedVpkFiles = new List<string>();
 
             try
             {
@@ -196,6 +198,24 @@ namespace CompilePalX.Compilers.BSPPack
                     }
                 }
 
+                // exclude files that are in the specified vpk.
+                if (excludevpk)
+                {
+                    foreach (string parameter in parameters)
+                    {
+                        if (parameter.Contains("excludevpk"))
+                        {
+                            var vpkPath = parameter.Replace("\"", "").Replace("excludevpk ", "").TrimEnd(' ');
+
+                            string[] vpkFileList = GetVPKFileList(vpkPath);
+                            
+                            foreach (string file in vpkFileList)
+                            {
+                                excludedVpkFiles.Add(file.ToLower());
+                            }
+                        }
+                    }
+                }
 
                 CompilePalLogger.LogLine("Finding sources of game content...");
                 sourceDirectories = GetSourceDirectories(gameFolder);
@@ -217,7 +237,7 @@ namespace CompilePalX.Compilers.BSPPack
                 AssetUtils.findBspPakDependencies(map, unpackDir);
 
                 CompilePalLogger.LogLine("Initializing pak file...");
-                PakFile pakfile = new PakFile(map, sourceDirectories, includeFiles, excludeFiles, excludeDirs, outputFile);
+                PakFile pakfile = new PakFile(map, sourceDirectories, includeFiles, excludeFiles, excludeDirs, excludedVpkFiles, outputFile);
 
                 if (includefilelist)
                 {
@@ -486,6 +506,39 @@ namespace CompilePalX.Compilers.BSPPack
 
 
             p.WaitForExit();
+        }
+
+        static string[] GetVPKFileList(string VPKPath)
+		{
+            string arguments = $"l \"{VPKPath}\"";
+
+            var p = new Process
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    WorkingDirectory = Path.GetDirectoryName(vpk),
+                    FileName = vpk,
+                    Arguments = arguments,
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    CreateNoWindow = true,
+                }
+            };
+            
+            p.Start();
+
+            string output = p.StandardOutput.ReadToEnd();
+            string errOutput = p.StandardError.ReadToEnd();
+            if (verbose)
+            {
+                CompilePalLogger.Log(errOutput);
+            }
+
+            p.WaitForExit();
+
+            char[] delims = new[] { '\r', '\n' };
+            return output.Split(delims, StringSplitOptions.RemoveEmptyEntries);
         }
 
         static void p_OutputDataReceived(object sender, DataReceivedEventArgs e)
