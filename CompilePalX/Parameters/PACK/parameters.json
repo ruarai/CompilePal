@@ -66,7 +66,7 @@
     "CanBeUsedMoreThanOnce": true
   },
   {
-    "Name": "Exclude VPK file",
+    "Name": "Exclude VPK Files",
     "Parameter": " -excludevpk",
     "Description": "Exclude files from packing that are already in the specified VPK",
     "Value": null,
