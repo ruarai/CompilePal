@@ -133,37 +133,45 @@ namespace CompilePalX.Compilers
 				StartInfo.RedirectStandardError = true;
 			}
 
-			Process = new Process()
-			{
-				StartInfo = StartInfo
-			};
+            try
+            {
+                Process = new Process()
+                {
+                    StartInfo = StartInfo
+                };
 
-			Process.Start();
-			Process.BeginOutputReadLine();
-			Process.BeginErrorReadLine();
+                Process.Start();
+                Process.BeginOutputReadLine();
+                Process.BeginErrorReadLine();
 
-			if (ReadOutput)
-			{
-				Process.OutputDataReceived += ProcessOnOutputDataReceived;
-				Process.ErrorDataReceived += ProcessOnErrorDataReceived;
-			}
+                if (ReadOutput)
+                {
+                    Process.OutputDataReceived += ProcessOnOutputDataReceived;
+                    Process.ErrorDataReceived += ProcessOnErrorDataReceived;
+                }
 
-			if (WaitForExit)
-			{
-				Process.WaitForExit();
-				Process.Close();
-				CompilePalLogger.LogLine("\nProgram completed successfully\n");
-			}
-			else
-			{
-				// run async
-				Task.Run(() =>
-				{
-					Process.WaitForExit();
-					Process.Close();
-					CompilePalLogger.LogLine("\nProgram completed successfully\n");
-				});
-			}
+                if (WaitForExit)
+                {
+                    Process.WaitForExit();
+                    Process.Close();
+                    CompilePalLogger.LogLine("\nProgram completed successfully\n");
+                }
+                else
+                {
+                    // run async
+                    Task.Run(() =>
+                    {
+                        Process.WaitForExit();
+                        Process.Close();
+                        CompilePalLogger.LogLine("\nProgram completed successfully\n");
+                    });
+                }
+            }
+            catch (Exception e)
+            {
+                CompilePalLogger.LogCompileError($"Failed to run {Path}", new Error($"Failed to run {Path}", ErrorSeverity.Error));
+				CompilePalLogger.LogCompileError(e.ToString(), new Error(e.ToString(), ErrorSeverity.Error));
+            }
 		}
 
 		private void ProcessOnErrorDataReceived(object sender, DataReceivedEventArgs e)
