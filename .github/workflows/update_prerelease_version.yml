@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: CI
+name: 'Update Prerelease Version'
 
 # Controls when the action will run. 
 on:
@@ -22,14 +22,13 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
           
-      - name: Update version_prerelease version
-        run: echo '${{ github.event.release.tag_name }}'
+      - name: Update version_prerelease.txt version
+        run: echo '${{ github.event.release.tag_name }}' > CompilePalX/version_prerelease.txt
           
-#       - name: Update version_prerelease.txt on GitHub
-#         uses: test-room-7/action-update-file@v1.4.0
-#         with:
-#             file-path: CompilePalX/version_prerelease.txt
-#             commit-msg: Update prerelease version
-#             github-token: ${{ secrets.GITHUB_TOKEN }}        
-
+      - name: Update version_prerelease.txt on GitHub
+        uses: test-room-7/action-update-file@v1.4.0
+        with:
+            file-path: CompilePalX/version_prerelease.txt
+            commit-msg: Update prerelease version
+            github-token: ${{ secrets.GITHUB_TOKEN }}        
 
