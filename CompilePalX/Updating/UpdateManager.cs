@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
@@ -16,15 +17,40 @@ namespace CompilePalX
     {
         public static event UpdateFound OnUpdateFound;
 
-        public static int CurrentVersion;
-        public static int LatestVersion;
+        private static Version currentVersion;
+        public static string CurrentVersion => currentVersion.ToString(isPrerelease ? 2 : 1);
 
-        private const string UpdateURL = "https://raw.githubusercontent.com/ruarai/CompilePal/master/CompilePalX/version.txt";
+        private static Version latestVersion;
+        public static string LatestVersion => latestVersion.ToString(isPrerelease ? 2 : 1);
+
+        private const string LatestVersionURL = "https://raw.githubusercontent.com/ruarai/CompilePal/master/CompilePalX/version.txt";
+        private const string LatestPrereleaseVersionURL = "https://raw.githubusercontent.com/ruarai/CompilePal/master/CompilePalX/version_prerelease.txt";
+
+        private static string MajorUpdateURL = "https://github.com/ruarai/CompilePal/releases/latest";
+        // Tags must be in form: v0major.minor
+        private static string PrereleaseUpdateURL => $"https://github.com/ruarai/CompilePal/releases/tag/v0{LatestVersion}";
+        public static Uri UpdateURL => new Uri(isPrerelease ? PrereleaseUpdateURL : MajorUpdateURL);
+
+        private static bool isPrerelease = false;
+
 
         public static void CheckVersion()
         {
-            string currentVersion = File.ReadAllText(CompilePalPath.Directory + "version.txt");
-            CurrentVersion = int.Parse(currentVersion);
+            string currentVersionString = GetValidVersionString(File.ReadAllText("./version.txt"));
+            string currentPrereleaseVersionString = GetValidVersionString(File.ReadAllText("./version_prerelease.txt") + ".0.0");
+
+            currentVersion = Version.Parse(currentVersionString);
+            Version currentPrereleaseVersion = Version.Parse(currentPrereleaseVersionString);
+
+            if (currentPrereleaseVersion > currentVersion)
+            {
+	            currentVersion = currentPrereleaseVersion;
+                isPrerelease = true;
+            }
+
+            // store version info in registry
+            RegistryManager.Write("Version", currentVersionString);
+            RegistryManager.Write("PrereleaseVersion", currentPrereleaseVersionString);
 
             Thread updaterThread = new Thread(ThreadedCheck);
             updaterThread.Start();
@@ -37,11 +63,11 @@ namespace CompilePalX
                 CompilePalLogger.LogLine("Fetching update information...");
 
                 var c = new WebClient();
-                string newVersion = c.DownloadString(new Uri(UpdateURL));
+                string newVersion = GetValidVersionString(c.DownloadString(new Uri(isPrerelease ? LatestPrereleaseVersionURL : LatestVersionURL)));
 
-                LatestVersion = int.Parse(newVersion);
+                latestVersion = Version.Parse(newVersion);
 
-                if (CurrentVersion < LatestVersion)
+                if (currentVersion < latestVersion)
                 {
                     MainWindow.ActiveDispatcher.Invoke(OnUpdateFound);
 
@@ -59,6 +85,12 @@ namespace CompilePalX
                 CompilePalLogger.LogLine("Failed to find update information as an error was returned:");
                 CompilePalLogger.LogLine(e.ToString());
             }
+        }
+
+        private static string GetValidVersionString(string str)
+        {
+            // Ensures string is always in format: major.minor.build.revision
+            return str + string.Concat(Enumerable.Repeat(".0", 3 - str.Count(s => s == '.')));
         }
     }
 }

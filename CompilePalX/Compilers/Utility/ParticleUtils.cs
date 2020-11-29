@@ -54,6 +54,10 @@ namespace CompilePalX.Compilers.UtilityProcess
 
                 if (s.EndsWith(".vmt") || s.EndsWith(".vtf"))
                 {
+                    // Alien Swarm does not prepend materials/ to particles, add it just in case
+                    if (this.BinaryVersion == 5 && this.PcfVersion == 2)
+                        materialNames.Add("materials\\" + s);
+
                     materialNames.Add(s);
                 }
             }
@@ -75,7 +79,7 @@ namespace CompilePalX.Compilers.UtilityProcess
             }
             catch (FileNotFoundException e)
             {
-                CompilePalLogger.LogLine($"ParticleUtils: {filePath} not found");
+                CompilePalLogger.LogCompileError($"Could not find {filePath}\n", new Error($"Could not find {filePath}", ErrorSeverity.Error));
                 return null;
             }
 
@@ -146,33 +150,24 @@ namespace CompilePalX.Compilers.UtilityProcess
 
             }
 
-            //Test to see if any particles match a target particle
-            bool FindTargetParticle()
+            bool containsParticle = false;
+            foreach (string particleName in pcf.ParticleNames)
             {
-                foreach (string particleName in pcf.ParticleNames)
+                foreach (string targetParticle in targetParticles)
                 {
-                    foreach (string targetParticle in targetParticles)
+                    if (particleName == targetParticle)
                     {
-                        if (particleName == targetParticle)
-                        {
-                            return true;
-                        }
+                        containsParticle = true;
                     }
                 }
-
-                //If target particle is not in pcf dont read it
-                reader.Close();
-                fs.Close();
-
-                return false;
             }
 
-            bool containsParticle = FindTargetParticle();
-            if (!containsParticle)
-                return null;
-
+            //If target particle is not in pcf dont read it
             reader.Close();
             fs.Close();
+
+            if (!containsParticle)
+                return null;
 
             return pcf;
         }
@@ -187,7 +182,7 @@ namespace CompilePalX.Compilers.UtilityProcess
             }
             catch (FileNotFoundException e)
             {
-                CompilePalLogger.LogLine($"ParticleUtils: {filePath} not found");
+                CompilePalLogger.LogCompileError($"Could not find {filePath}\n", new Error($"Could not find {filePath}", ErrorSeverity.Error));
                 return null;
             }
 
@@ -265,7 +260,7 @@ namespace CompilePalX.Compilers.UtilityProcess
                 //Add materials and models to the master list
                 List<string> materialNames = pcf.GetMaterialNamesV4();
                 if (materialNames != null && materialNames.Count != 0)
-                    pcf.MaterialNames.AddRange(pcf.MaterialNames);
+                    pcf.MaterialNames.AddRange(materialNames);
 
                 List<string> modelNames = pcf.GetModelNames();
                 if (modelNames != null && modelNames.Count != 0)
@@ -339,7 +334,6 @@ namespace CompilePalX.Compilers.UtilityProcess
 
     }
 
-    //TODO add parameter for updating manifest to next version and a manual override for particles
     class ParticleManifest
     {
         //Class responsible for holding information about particles
@@ -350,7 +344,7 @@ namespace CompilePalX.Compilers.UtilityProcess
 
         public KeyValuePair<string, string> particleManifest { get; private set; }
 
-        public ParticleManifest (List<string> sourceDirectories, List<string> ignoreDirectories, BSP map, string bspPath, string gameFolder)
+        public ParticleManifest (List<string> sourceDirectories, List<string> ignoreDirectories, List<string> excludedFiles, BSP map, string bspPath, string gameFolder)
         {
             CompilePalLogger.LogLine("Generating Particle Manifest...");
 
@@ -367,10 +361,10 @@ namespace CompilePalX.Compilers.UtilityProcess
                 if (Directory.Exists(externalPath) && !ignoreDirectories.Contains(externalPath.Remove(externalPath.Length - 1, 1), StringComparer.OrdinalIgnoreCase))
                     foreach (string file in Directory.GetFiles(externalPath))
                     {
-                        if (file.EndsWith(".pcf"))
+                        if (file.EndsWith(".pcf") && !excludedFiles.Contains(file.ToLower()))
                         {
                             PCF pcf = ParticleUtils.IsTargetParticle(file, map.ParticleList);
-                            if (pcf != null)
+                            if (pcf != null && !particles.Exists(p => p.FilePath == pcf.FilePath))
                                 particles.Add(pcf);
                         }
                     }
@@ -378,14 +372,7 @@ namespace CompilePalX.Compilers.UtilityProcess
 
             if (particles == null || particles.Count == 0)
             {
-                Error e = new Error()
-                {
-                    Message = "Could not find any PCFs that contained used particles!",
-                    Severity = 3,
-                    ID = 403
-                };
-
-                CompilePalLogger.LogCompileError("Could not find any PCFs that contained used particles!\n", e);
+                CompilePalLogger.LogCompileError("Could not find any PCFs that contained used particles!\n", new Error("Could not find any PCFs that contained used particles!\n", ErrorSeverity.Warning));
                 return;
             }
                 
@@ -393,7 +380,7 @@ namespace CompilePalX.Compilers.UtilityProcess
             //Check for pcfs that contain the same particle name
             //List<ParticleConflict> conflictingParticles = new List<ParticleConflict>();
             List<PCF> conflictingParticles = new List<PCF>();
-            if (particles.Count != 1)
+            if (particles.Count > 1)
             {
                 for (int i = 0; i < particles.Count - 1; i++)
                 {
@@ -403,7 +390,7 @@ namespace CompilePalX.Compilers.UtilityProcess
                         //Create a list of names that intersect between the 2 lists
                         List<string> conflictingNames = particles[i].ParticleNames.Intersect(particles[j].ParticleNames).ToList();
 
-                        if (conflictingNames.Count != 0)
+                        if (conflictingNames.Count != 0 && particles[i].FilePath != particles[j].FilePath)
                         {
                             //pc.conflictingNames = conflictingNames;
                             conflictingParticles.Add(particles[i]);
@@ -417,8 +404,6 @@ namespace CompilePalX.Compilers.UtilityProcess
             //Solve conflicts
             if (conflictingParticles.Count != 0)
             {
-                //Remove duplicates
-                conflictingParticles = conflictingParticles.Distinct().ToList();
 
                 //Remove particle if it is in a particle conflict, add back when conflict is manually resolved
                 foreach (PCF conflictParticle in conflictingParticles)
@@ -466,7 +451,7 @@ namespace CompilePalX.Compilers.UtilityProcess
                 foreach (PCF particle in particles)
                 {
                     string internalParticlePath = particle.FilePath.Replace(baseDirectory, "");
-                    sw.WriteLine($"      \"file\"    !\"{internalParticlePath}\"");
+                    sw.WriteLine($"      \"file\"    \"!{internalParticlePath}\"");
                     CompilePalLogger.LogLine($"PCF added to manifest: {internalParticlePath}");
                 }
 

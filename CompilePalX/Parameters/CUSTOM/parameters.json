@@ -1,0 +1,16 @@
+[
+  {
+    "Name": "Run Program",
+    "Parameter": "program",
+    "Description": "Run a program with command line arguments",
+    "Value": "",
+    "ValueIsFile": true,
+    "Value2": "",
+    "Value2IsFile": false,
+    "ReadOutput": true,
+    "WaitForExit": true, 
+    "CanHaveValue": true,
+    "CanBeUsedMoreThanOnce":  true,
+    "Warning": "15"
+  }
+]

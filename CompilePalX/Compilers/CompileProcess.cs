@@ -16,7 +16,9 @@ namespace CompilePalX
 {
     class CompileProcess
     {
-        public string ParameterFolder = CompilePalPath.Directory + "Parameters";
+        public string ParameterFolder = "./Parameters";
+	    public bool Draggable = true; // set to false if we ever want to disable reordering non custom compile steps
+        public List<Error> CompileErrors;
 
         public CompileProcess(string name)
         {
@@ -51,7 +53,7 @@ namespace CompilePalX
 
 
 
-            ParameterList = ConfigurationManager.GetParameters(Metadata.Name);
+            ParameterList = ConfigurationManager.GetParameters(Metadata.Name, Metadata.DoRun);
 
         }
 
@@ -84,6 +86,7 @@ namespace CompilePalX
         public string Name { get { return Metadata.Name; } }
         public string Description { get { return Metadata.Description; } }
         public string Warning { get { return Metadata.Warning; } }
+		public bool IsDraggable { get { return Draggable; } }
 
         public Process Process;
 
@@ -105,9 +108,27 @@ namespace CompilePalX
             string parameters = string.Empty;
             foreach (var parameter in PresetDictionary[ConfigurationManager.CurrentPreset])
             {
-                parameters += parameter.Parameter;
-                if (parameter.CanHaveValue && !string.IsNullOrEmpty(parameter.Value))
-                    parameters += " " + parameter.Value;
+				parameters += parameter.Parameter;
+
+	            if (parameter.CanHaveValue && !string.IsNullOrEmpty(parameter.Value))
+	            {
+					//Handle additional parameters in CUSTOM process
+					if (parameter.Name == "Run Program")
+					{
+						//Add args
+						parameters += " " + parameter.Value;
+
+						//Read Ouput
+						if (parameter.ReadOutput)
+							parameters += " " + parameter.ReadOutput;
+					}
+					else
+						// protect filepaths in quotes, since they can contain -
+						if (parameter.ValueIsFile || parameter.Value2IsFile)
+							parameters += $" \"{parameter.Value}\"";
+						else
+							parameters += " " + parameter.Value;
+	            }
             }
 
             parameters += Metadata.BasisString;

@@ -10,7 +10,6 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
@@ -26,7 +25,7 @@ namespace CompilePalX.Compiling
 
     static class CompilePalLogger
     {
-        private static readonly string logFile = CompilePalPath.Directory + "debug.log";
+        private static readonly string logFile = "./debug.log";
         static CompilePalLogger()
         {
             File.Delete(logFile);
@@ -53,10 +52,7 @@ namespace CompilePalX.Compiling
             }
             catch { }
 
-            if (OnWrite != null)
-                return OnWrite(text, b);
-            else
-                return null;
+            return OnWrite?.Invoke(text, b);
         }
 
 
@@ -75,12 +71,37 @@ namespace CompilePalX.Compiling
             return Log(s + Environment.NewLine, formatStrings);
         }
 
+        public static void LogDebug(string s)
+        {
+            // log in debug, no op in release
+#if DEBUG
+            try
+            {
+                File.AppendAllText(logFile, s);
+            } catch { }
+#endif
+        }
+
+        public static void LogLineDebug(string s)
+        {
+            LogDebug(s + Environment.NewLine);
+        }
+
 
         public static void LogCompileError(string errorText, Error e)
         {
-            OnErrorLog(errorText, e);
+            if (errorsFound.ContainsKey(e))
+                errorsFound[e]++;
+            else
+                errorsFound.Add(e, 1);
 
+            if (errorsFound[e] < 128)
+                OnErrorLog(errorText, e);
+            else
+                Log(errorText); //Stop hyperlinking errors if we see over 128 of them
+            
             File.AppendAllText(logFile, errorText);
+            OnErrorFound(e);
         }
 
 
@@ -110,19 +131,7 @@ namespace CompilePalX.Compiling
                     if (error == null)
                         Log(line);
                     else
-                    {
-                        if (errorsFound.ContainsKey(error))
-                            errorsFound[error]++;
-                        else
-                            errorsFound.Add(error, 1);
-
-                        if (errorsFound[error] < 128)
-                            LogCompileError(line, error);
-                        else
-                            Log(line);//Stop hyperlinking errors if we see over 128 of them
-                        
-                        OnErrorFound(error);
-                    }
+                        LogCompileError(line, error);
                 }
 
                 if (suffixText.Length > 0)

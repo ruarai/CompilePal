@@ -23,7 +23,8 @@ namespace CompilePalX
             taskbarInfo = _taskbarInfo;
             ready = true;
 
-            TitleChange(string.Format("{0} {1}X {2}", defaultTitle, UpdateManager.CurrentVersion, GameConfigurationManager.GameConfiguration.Name));
+            TitleChange(
+	            $"{defaultTitle} {UpdateManager.CurrentVersion}X {GameConfigurationManager.GameConfiguration.Name}");
         }
 
 
@@ -49,18 +50,19 @@ namespace CompilePalX
 
                     if (progress >= 1)
                     {
-                        TitleChange(string.Format("{0}% - {1} {2}X", Math.Floor(progress * 100d), defaultTitle, UpdateManager.CurrentVersion));
+                        TitleChange($"{Math.Floor(progress * 100d)}% - {defaultTitle} {UpdateManager.CurrentVersion}X");
 
                         System.Media.SystemSounds.Exclamation.Play();
                     }
                     else if (progress <= 0)
                     {
                         taskbarInfo.ProgressState = TaskbarItemProgressState.None;
-                        TitleChange(string.Format("{0} {1}X {2}", defaultTitle, UpdateManager.CurrentVersion, GameConfigurationManager.GameConfiguration.Name));
+                        TitleChange(
+	                        $"{defaultTitle} {UpdateManager.CurrentVersion}X {GameConfigurationManager.GameConfiguration.Name}");
                     }
                     else
                     {
-                        TitleChange(string.Format("{0}% - {1} {2}X", Math.Floor(progress * 100d), defaultTitle, UpdateManager.CurrentVersion));
+                        TitleChange($"{Math.Floor(progress * 100d)}% - {defaultTitle} {UpdateManager.CurrentVersion}X");
                     }
                 });
 

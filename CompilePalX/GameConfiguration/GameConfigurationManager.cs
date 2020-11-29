@@ -1,41 +1,101 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace CompilePalX
 {
     static class GameConfigurationManager
     {
+        private static string mapFile = null;
         public static GameConfiguration GameConfiguration;
+        public static GameConfiguration GameConfigurationBackup;
+        public static List<GameConfiguration> GameConfigurations;
 
         public static string SubstituteValues(string text, string mapFile = "")
         {
-            text = text.Replace("$vmfFile$", string.Format("\"{0}\"", mapFile));
-            text = text.Replace("$map$", string.Format("\"{0}\"", Path.GetFileNameWithoutExtension(mapFile)));
-            text = text.Replace("$bsp$", string.Format("\"{0}\"", Path.ChangeExtension(mapFile, "bsp")));
+            text = text.Replace("$vmfFile$", $"\"{mapFile}\"");
+            text = text.Replace("$map$", $"\"{Path.GetFileNameWithoutExtension(mapFile)}\"");
+            text = text.Replace("$bsp$", $"\"{Path.ChangeExtension(mapFile, "bsp")}\"");
 
-            text = text.Replace("$mapCopyLocation$", string.Format("\"{0}\"", Path.Combine(GameConfiguration.MapFolder, Path.ChangeExtension(Path.GetFileName(mapFile), "bsp"))));
+            text = text.Replace("$mapCopyLocation$",
+	            $"\"{Path.Combine(GameConfiguration.MapFolder, Path.ChangeExtension(Path.GetFileName(mapFile), "bsp"))}\"");
 
-            text = text.Replace("$game$", string.Format("\"{0}\"", GameConfiguration.GameFolder));
-            text = text.Replace("$gameEXE$", string.Format("\"{0}\"", GameConfiguration.GameEXE));
-            text = text.Replace("$binFolder$", string.Format("\"{0}\"", GameConfiguration.BinFolder));
-            text = text.Replace("$mapFolder$", string.Format("\"{0}\"", GameConfiguration.MapFolder));
-            text = text.Replace("$gameName$", string.Format("\"{0}\"", GameConfiguration.Name));
-            text = text.Replace("$sdkFolder$", string.Format("\"{0}\"", GameConfiguration.SDKMapFolder));
-
-
-            text = text.Replace("$vbsp$", string.Format("\"{0}\"", GameConfiguration.VBSP));
-            text = text.Replace("$vvis$", string.Format("\"{0}\"", GameConfiguration.VVIS));
-            text = text.Replace("$vrad$", string.Format("\"{0}\"", GameConfiguration.VRAD));
+            text = text.Replace("$game$", $"\"{GameConfiguration.GameFolder}\"");
+            text = text.Replace("$gameEXE$", $"\"{GameConfiguration.GameEXE}\"");
+            text = text.Replace("$binFolder$", $"\"{GameConfiguration.BinFolder}\"");
+            text = text.Replace("$mapFolder$", $"\"{GameConfiguration.MapFolder}\"");
+            text = text.Replace("$gameName$", $"\"{GameConfiguration.Name}\"");
+            text = text.Replace("$sdkFolder$", $"\"{GameConfiguration.SDKMapFolder}\"");
 
 
-            text = text.Replace("$bspZip$", string.Format("\"{0}\"", GameConfiguration.BSPZip));
-            text = text.Replace("$vbspInfo$", string.Format("\"{0}\"", GameConfiguration.VBSPInfo));
+            text = text.Replace("$vbsp$", $"\"{GameConfiguration.VBSP}\"");
+            text = text.Replace("$vvis$", $"\"{GameConfiguration.VVIS}\"");
+            text = text.Replace("$vrad$", $"\"{GameConfiguration.VRAD}\"");
+
+
+            text = text.Replace("$bspZip$", $"\"{GameConfiguration.BSPZip}\"");
+            text = text.Replace("$vbspInfo$", $"\"{GameConfiguration.VBSPInfo}\"");
 
 
             return text;
+        }
+
+        /// <summary>
+        /// Modifies the current context
+        /// </summary>
+        /// <param name="val">string in the form 'COMPILE_PAL_SET VARNAME VALUE'</param>
+        public static void ModifyCurrentContext(string val)
+        {
+            val = val.Replace("COMPILE_PAL_SET ", "");
+            var firstSpace = val.IndexOf(" ");
+            var field = val.Substring(0, firstSpace);
+            var value = val.Substring(firstSpace + 1).Replace("\"", "");
+
+            switch (field)
+            {
+                case "vbsp_exe":
+                    GameConfiguration.VBSP = value;
+                    break;
+                case "vvis_exe":
+                    GameConfiguration.VVIS = value;
+                    break;
+                case "vrad_exe":
+                    GameConfiguration.VRAD = value;
+                    break;
+                case "game_exe":
+                    GameConfiguration.GameEXE = value;
+                    break;
+                case "bspdir":
+                    GameConfiguration.MapFolder = value;
+                    break;
+                case "sdkbspdir":
+                    GameConfiguration.SDKMapFolder = value;
+                    break;
+                case "bindir":
+                    GameConfiguration.BinFolder = value;
+                    break;
+                case "gamedir":
+                    GameConfiguration.GameFolder = value;
+                    break;
+                case "file":
+                    mapFile = value;
+                    break;
+            }
+        }
+
+        public static void BackupCurrentContext()
+        {
+            GameConfigurationBackup = GameConfiguration;
+        }
+
+        public static void RestoreCurrentContext()
+        {
+            GameConfiguration = GameConfigurationBackup;
+            mapFile = null;
         }
 
         public static CompileContext BuildContext(string mapFile)
@@ -43,9 +103,9 @@ namespace CompilePalX
             return new CompileContext
             {
                 Configuration = GameConfiguration,
-                MapFile = mapFile,
-                BSPFile = Path.ChangeExtension(mapFile, "bsp"),
-                CopyLocation = Path.Combine(GameConfiguration.MapFolder, Path.ChangeExtension(Path.GetFileName(mapFile), "bsp"))
+                MapFile = GameConfigurationManager.mapFile ?? mapFile,
+                BSPFile = Path.ChangeExtension(GameConfigurationManager.mapFile ?? mapFile, "bsp"),
+                CopyLocation = Path.Combine(GameConfiguration.MapFolder, Path.ChangeExtension(Path.GetFileName(GameConfigurationManager.mapFile ?? mapFile), "bsp"))
             };
         }
     }

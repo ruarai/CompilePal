@@ -27,6 +27,7 @@ namespace CompilePalX.Compilers
         {
             vbspInfo = context.Configuration.VBSPInfo;
             bspFile = context.CopyLocation;
+            CompileErrors = new List<Error>();
 
             try
             {
@@ -42,7 +43,7 @@ namespace CompilePalX.Compilers
 
                 string mapname = System.IO.Path.GetFileName(context.CopyLocation).Replace(".bsp", "");
 
-                string args = "-game \"" + context.Configuration.GameFolder + "\" -windowed -novid -nosound +mat_specular 0 %HDRevel% +map " + mapname + " -buildcubemaps";
+                string args = "-steam -game \"" + context.Configuration.GameFolder + "\" -windowed -novid -nosound +mat_specular 0 %HDRevel% +map " + mapname + " -buildcubemaps";
 
                 if (hidden)
                     args += " -noborder -x 4000 -y 2000";
@@ -67,12 +68,12 @@ namespace CompilePalX.Compilers
             }
             catch (FileNotFoundException)
             {
-                CompilePalLogger.LogLine("FAILED - Could not find " + context.CopyLocation);
+                CompilePalLogger.LogCompileError($"Could not find file: {context.CopyLocation}", new Error($"Could not find file: {context.CopyLocation}", ErrorSeverity.Error));
             }
             catch (Exception exception)
             {
                 CompilePalLogger.LogLine("Something broke:");
-                CompilePalLogger.LogLine(exception.ToString());
+                CompilePalLogger.LogCompileError($"{exception}\n", new Error(exception.ToString(), "CompilePal Internal Error", ErrorSeverity.FatalError));
             }
 
         }

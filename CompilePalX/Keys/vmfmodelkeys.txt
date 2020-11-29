@@ -8,3 +8,6 @@ team_model_0
 team_model_2
 team_model_3
 flag_model
+plymodel
+powerup_model
+swapmodel

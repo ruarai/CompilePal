@@ -1,50 +1,55 @@
-[![Download](http://i.imgur.com/UjPs7Sr.png)](https://github.com/ruarai/CompilePal/releases/latest)
+<p align="center">
+	<img
+		alt="Compile Pal"
+		src="http://i.imgur.com/jPEig83.png"
+		width="400"
+	/>
+</p>
 
-![CompilePal](http://i.imgur.com/jPEig83.png)
+<p align="center">Compile Pal is an easy to use wrapper for the Source map compiling tools.</p>
 
-Compile Pal X is the official rewrite of Compile Pal - the amazing wrapper for the source map compiling tools that makes compiling a breeze.
+![ui](https://i.imgur.com/DvAVPeR.png)
 
-Configuration
-==========
 
-Compile Pal should automatically find any game configurations - as long as the game's SDK was run last. Game Configurations are cached between sessions, and you can choose between them at launch.
+## Downloads
 
-![ui](http://i.imgur.com/D3usvmP.png)
+#### Latest Release
 
-Packing
-==========
-PACK is a feature that allows for the automatic packing of custom content into a map BSP. Thanks to the work of Maxdup, this feature is now ready to be used in production.
+[Compile Pal V27](https://github.com/ruarai/CompilePal/releases/latest)
 
-### Packable Content
-- Materials
-- Models
-- Model Skins
-- Skybox Textures
-- Sprites
-- Water Materials
-- Color Correction
-- Detail Files
-- Menu Photos
-- Soundscapes
-- Soundscripts
-- Particle Manifests
-- Much more...
+#### Experimental Releases
+Get the latest features without having to wait. Experimental releases may be unstable, use at your own risk.
 
-## Error Checking
-Compile Pal can detect and provide information relating to errors using the Interlopers error listings.
+[Compile Pal V27.13](https://github.com/ruarai/CompilePal/releases/tag/v027.13)
 
-![errors](http://i.imgur.com/JA3gH3x.png)
-![errors](http://i.imgur.com/Ckz5XyA.png)
+
+## Features
+* Packing
+* Error Checking
+* Not freezing your computer while compiling
+* Cubemaps
+* Manifest Generation
+* Nav File Generation
+* Custom Compile Steps
+* Batch Compiling
+* Much More!
+
+## Guides
+* [Quick Start](Guides/QuickStart.md)
+* [Reporting An Issue](Guides/Issues.md)
+* [Custom Compile Steps](Guides/Custom.md)
+* [Custom Compile Step Collection](Guides/CustomCollection.md)
+* [Command Line Arguments](Guides/CMDArgs.md)
+* [Registry Values](Guides/Registry.md)
 
 ## Contributing
 
-###
-
-Whilst Compile Pal is not under active development, we are accepting pull requests. Those who are knowledgeable are encouraged to work on the project! New features or bugfixes are always welcome. We also make good use of any issues [reported to us](https://github.com/ruarai/CompilePal/issues).
+New features or bugfixes are always welcome. Feel free to create a pull request. We also make good use of any issues [reported to us](https://github.com/ruarai/CompilePal/issues).
 
 ### Developers
-- Ruarai
-- Maxdup
+- [ruarai](https://github.com/ruarai)
+- [maxdup](https://github.com/maxdup)
+- [Exactol](https://github.com/Exactol)
 - iMilo
 
 

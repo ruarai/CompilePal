@@ -18,12 +18,12 @@ namespace CompilePalX
         private static List<Error> errorList = new List<Error>();
 
         //interlopers list of errors
-        private static string errorURL = "http://www.interlopers.net/includes/errorpage/errorChecker.txt";
+        private static string errorURL = "https://www.interlopers.net/includes/errorpage/errorChecker.txt";
 
         private static Regex errorDescriptionPattern = new Regex("<h4>(.*?)</h4>");
 
-        private static string errorStyle = Path.Combine(CompilePalPath.Directory + "Compiling", "errorstyle.html");
-        private static string errorCache = Path.Combine(CompilePalPath.Directory + "Compiling", "errors.txt");
+        private static string errorStyle = Path.Combine("./Compiling", "errorstyle.html");
+        private static string errorCache = Path.Combine("./Compiling", "errors.txt");
         public static void Init()
         {
             Thread t = new Thread(AsyncInit);
@@ -40,13 +40,24 @@ namespace CompilePalX
                 }
                 else
                 {
-                    WebClient c = new WebClient();
+                    ServicePointManager.Expect100Continue = true;
+                    ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
 
-                    string result = c.DownloadString(new Uri(errorURL));
+                    try
+                    {
+	                    WebClient c = new WebClient();
+	                    string result = c.DownloadString(new Uri(errorURL));
 
-                    LoadErrorData(result);
+	                    LoadErrorData(result);
+						File.WriteAllText(errorCache, result);
+                    }
+                    catch (Exception e)
+                    {
+						// fallback to cache if download fails
+						ExceptionHandler.LogException(e, false);
+						LoadErrorData(File.ReadAllText((errorCache)));
+                    }
 
-                    File.WriteAllText(errorCache, result);
                 }
             }
             catch (Exception x)
@@ -95,7 +106,10 @@ namespace CompilePalX
             {
                 if (error.RegexTrigger.IsMatch(line))
                 {
-                    return error;
+	                var err = error.Clone() as Error;
+					// remove all control chars
+	                err.ShortDescription = new string(line.Where(c => !char.IsControl(c)).ToArray());;
+                    return err;
                 }
             }
             return null;
@@ -113,7 +127,7 @@ namespace CompilePalX
         }
     }
 
-    class Error
+    class Error : ICloneable
     {
         public Regex RegexTrigger;
         public string Message;
@@ -121,6 +135,23 @@ namespace CompilePalX
         public int Severity;
 
         public int ID;
+
+        public Error() { }
+
+        public Error(string message, string shortDescription, ErrorSeverity severity, int id = -1)
+        {
+            this.Message = message;
+            this.ShortDescription = shortDescription;
+            this.Severity = (int) severity;
+            this.ID = id;
+        }
+        public Error(string message, ErrorSeverity severity, int id = -1)
+        {
+            this.Message = message;
+            this.ShortDescription = message;
+            this.Severity = (int) severity;
+            this.ID = id;
+        }
 
         public override bool Equals(object obj)
         {
@@ -132,6 +163,11 @@ namespace CompilePalX
             return ID;//ID is unique between errors
         }
 
+        public object Clone()
+        {
+	        return this.MemberwiseClone();
+        }
+
         public Brush ErrorColor => GetSeverityBrush(Severity);
 
         public static Brush GetSeverityBrush(int severity)
@@ -139,13 +175,13 @@ namespace CompilePalX
             switch (severity)
             {
                 default:
-                    return Brushes.Black;
+                    return (SolidColorBrush)(new BrushConverter().ConvertFrom("#0e5fc1")); // blue
                 case 2:
-                    return Brushes.Orange;
+                    return (SolidColorBrush)(new BrushConverter().ConvertFrom("#e19520")); // yellow orange
                 case 3:
-                    return Brushes.OrangeRed;
+                    return (SolidColorBrush)(new BrushConverter().ConvertFrom("#ce4a08")); // orange
                 case 4:
-                    return Brushes.DarkRed;
+                    return (SolidColorBrush)(new BrushConverter().ConvertFrom("#d93600")); // red
                 case 5:
                     return Brushes.Red;
             }
@@ -170,5 +206,13 @@ namespace CompilePalX
                 }
             }
         }
+    }
+
+    public enum ErrorSeverity {
+        Info = 1,
+        Caution = 2,
+        Warning = 3,
+        Error = 4,
+        FatalError = 5,
     }
 }

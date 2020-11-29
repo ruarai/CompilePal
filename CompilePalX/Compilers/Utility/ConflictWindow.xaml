@@ -18,11 +18,11 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         
-        <TextBlock Padding="10, 10, 10, 10" FontSize="25">Conflicting Particles</TextBlock>
+        <TextBlock Padding="10, 10, 10, 10" FontSize="25">Conflicting Particle Names</TextBlock>
         <RichTextBox Grid.Row="1" Padding="10, 0, 10, 0" BorderThickness="0" IsReadOnly="True">
             <FlowDocument>
-                <Paragraph Margin="0" Foreground="Gray">CompilePal was unable to determine which file was being used due to multiple files containing the same particle names</Paragraph>
-                <Paragraph Margin="0" Foreground="Gray">Please select one or multiple PCFs</Paragraph>
+                <Paragraph Margin="0" Foreground="Gray">Compile Pal was unable to determine which file was being used due to multiple files containing the same particle names</Paragraph>
+                <Paragraph Margin="0" Foreground="Gray">Please select one or multiple PCFs to add to the manifest</Paragraph>
             </FlowDocument>
         </RichTextBox>
             

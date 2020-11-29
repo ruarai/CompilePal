@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Media;
 using CompilePalX.Compilers.BSPPack;
@@ -19,37 +20,48 @@ namespace CompilePalX.Compilers.UtilityProcess
             
         }
 
-        private static bool genparticlemanifest;
-        private static bool incparticlemanifest;
-        private static bool incsoundscape;
-        private static bool inclevelsounds;
-        private static bool ignoreDir;
+        private static bool genParticleManifest;
+        private static bool incParticleManifest;
+        private static bool incSoundscape;
+        private static bool incLevelSounds;
+        private static bool excludeDir;
+	    private static bool excludeFile;
 
         private static string gameFolder;
         private static string bspPath;
         private const string keysFolder = "Keys";
 
         private List<string> sourceDirectories = new List<string>();
-        private List<string> ignoreDirectories = new List<string>();
+        private List<string> excludedDirectories = new List<string>();
+        private List<string> excludedFiles = new List<string>();
 
         public override void Run(CompileContext context)
         {
-            genparticlemanifest = GetParameterString().Contains("-particlemanifest");
-            incparticlemanifest = GetParameterString().Contains("-incparticlemanifest");
-            incsoundscape = GetParameterString().Contains("-incsoundscape");
-            inclevelsounds = GetParameterString().Contains("-inclevelsounds");
-            ignoreDir = GetParameterString().Contains("-ignoredir");
+            CompileErrors = new List<Error>();
+
+            genParticleManifest = GetParameterString().Contains("-particlemanifest");
+            incParticleManifest = GetParameterString().Contains("-incparticlemanifest");
+            incSoundscape = GetParameterString().Contains("-incsoundscape");
+            incLevelSounds = GetParameterString().Contains("-inclevelsounds");
+            excludeDir = GetParameterString().Contains("-excludedir");
+            excludeFile = GetParameterString().Contains("-excludefile");
 
             //TODO try to find a way to cut down on duplicate processes between utility and pack steps
             try
             {
                 CompilePalLogger.LogLine("\nCompilePal - Utilities");
 
-                Keys.vmtTextureKeyWords = File.ReadAllLines(System.IO.Path.Combine(keysFolder, "texturekeys.txt")).ToList();
-                Keys.vmtMaterialKeyWords = File.ReadAllLines(System.IO.Path.Combine(keysFolder, "materialkeys.txt")).ToList();
+                Keys.vmtTextureKeyWords =
+                    File.ReadAllLines(System.IO.Path.Combine(keysFolder, "texturekeys.txt")).ToList();
+                Keys.vmtMaterialKeyWords =
+                    File.ReadAllLines(System.IO.Path.Combine(keysFolder, "materialkeys.txt")).ToList();
                 Keys.vmfSoundKeys = File.ReadAllLines(System.IO.Path.Combine(keysFolder, "vmfsoundkeys.txt")).ToList();
-                Keys.vmfMaterialKeys = File.ReadAllLines(System.IO.Path.Combine(keysFolder, "vmfmaterialkeys.txt")).ToList();
+                Keys.vmfMaterialKeys = File.ReadAllLines(System.IO.Path.Combine(keysFolder, "vmfmaterialkeys.txt"))
+                    .ToList();
                 Keys.vmfModelKeys = File.ReadAllLines(System.IO.Path.Combine(keysFolder, "vmfmodelkeys.txt")).ToList();
+
+                excludedDirectories = new List<string>();
+                excludedFiles = new List<string>();
 
 
                 CompilePalLogger.LogLine("Finding sources of game content...");
@@ -59,38 +71,50 @@ namespace CompilePalX.Compilers.UtilityProcess
                 bspPath = context.CopyLocation;
 
                 //Parse parameters to get ignore directories
-                if (ignoreDir)
+                if (excludeDir)
                 {
-                    string[] parameters = GetParameterString().Split('-');
-                    
-                    //Get directories from parameter list
+                    char[] paramChars = GetParameterString().ToCharArray();
+                    List<string> parameters = ParseParameters(paramChars);
+
+                    //Get excluded directories from parameter list
                     foreach (string parameter in parameters)
-                        if (parameter.Contains("ignoredir"))
-                            ignoreDirectories.Add(parameter.Replace("ignoredir ", "").TrimEnd(' '));
-
-                    List<string> tempList = new List<string>();
-
-                    //Test and see if each directory exists, remove if invalid. Add to temp list because you cant modify a foreach list
-                    foreach (string directory in ignoreDirectories)
                     {
-                        if (Directory.Exists(directory))
+                        if (parameter.Contains("excludedir"))
                         {
-                            //Get subdirectories
-                            string[] subDirectories = Directory.GetDirectories(directory, "*", SearchOption.AllDirectories);
-                            tempList.Add(directory);
-                            tempList.AddRange(subDirectories);
+                            var @dirPath = parameter.Replace("\"", "").Replace("excludedir ", "").TrimEnd(' ');
+                            //Test that directory exists
+                            if (Directory.Exists(dirPath))
+                                excludedDirectories.Add(dirPath);
+                            else
+                                CompilePalLogger.LogCompileError($"Could not find directory: {dirPath}\n",
+                                    new Error($"Could not find directory: {dirPath}\n", ErrorSeverity.Warning));
                         }
-                            
-                            
                     }
-
-                    ignoreDirectories = tempList;
-
-                    //Remove duplicates
-                    ignoreDirectories = ignoreDirectories.Distinct().ToList();
                 }
 
-                if (genparticlemanifest)
+                if (excludeFile)
+                {
+                    char[] paramChars = GetParameterString().ToCharArray();
+                    List<string> parameters = ParseParameters(paramChars);
+
+                    //Get excluded files from parameter list
+                    foreach (string parameter in parameters)
+                    {
+                        if (parameter.Contains("excludefile"))
+                        {
+                            var @filePath = parameter.Replace("\"", "").Replace("excludefile ", "").Replace('/', '\\')
+                                .ToLower().TrimEnd(' ');
+                            //Test that file exists
+                            if (File.Exists(filePath))
+                                excludedFiles.Add(filePath);
+                            else
+                                CompilePalLogger.LogCompileError($"Could not find file: {filePath}\n",
+                                    new Error($"Could not find file: {filePath}\n", ErrorSeverity.Warning));
+                        }
+                    }
+                }
+
+                if (genParticleManifest)
                 {
                     if (!File.Exists(bspPath))
                     {
@@ -100,53 +124,38 @@ namespace CompilePalX.Compilers.UtilityProcess
                     CompilePalLogger.LogLine("Reading BSP...");
                     BSP map = new BSP(new FileInfo(bspPath));
 
-                    ParticleManifest manifest = new ParticleManifest(sourceDirectories, ignoreDirectories, map, bspPath, gameFolder);
+                    ParticleManifest manifest = new ParticleManifest(sourceDirectories, excludedDirectories,
+                        excludedFiles, map, bspPath, gameFolder);
 
 
                     //Set fields in bsppack so manifest gets detected correctly
-                    BSPPack.BSPPack.genparticlemanifest = true;
+                    BSPPack.BSPPack.genParticleManifest = true;
                     BSPPack.BSPPack.particleManifest = manifest.particleManifest;
                 }
 
-                if (incparticlemanifest)
+                if (incParticleManifest)
                 {
                     CompilePalLogger.LogLine("Attempting to update particle manifest");
 
                     bool success = UpdateManifest("_particles.txt");
 
                     if (!success)
-                    {
-                        Error e = new Error()
-                        {
-                            Message = "Could not update manifest!",
-                            Severity = 3,
-                            ID = 400
-                        };
-
-                        CompilePalLogger.LogCompileError("Could not update manifest!\n", e);
-                    }
+                        CompilePalLogger.LogCompileError("Could not update manifest!\n",
+                            new Error("Could not update manifest!", ErrorSeverity.Error));
                 }
 
-                if (inclevelsounds)
+                if (incLevelSounds)
                 {
                     CompilePalLogger.LogLine("Attempting to update level sounds");
 
                     bool success = UpdateManifest("_level_sounds.txt");
 
                     if (!success)
-                    {
-                        Error e = new Error()
-                        {
-                            Message = "Could not update level sounds!",
-                            Severity = 3,
-                            ID = 401
-                        };
-
-                        CompilePalLogger.LogCompileError("Could not update level sounds!\n", e);
-                    }
+                        CompilePalLogger.LogCompileError("Could not update level sounds!\n",
+                            new Error("Could not update level sounds!", ErrorSeverity.Error));
                 }
 
-                if (incsoundscape)
+                if (incSoundscape)
                 {
                     CompilePalLogger.LogLine("Attempting to update soundscape");
 
@@ -160,29 +169,24 @@ namespace CompilePalX.Compilers.UtilityProcess
                     bool success = UpdateManifest("soundscapes_", directories, true);
 
                     if (!success)
-                    {
-                        Error e = new Error()
-                        {
-                            Message = "Could not update soundscape!",
-                            Severity = 3,
-                            ID = 402
-                        };
-                        
-                        CompilePalLogger.LogCompileError("Could not update soundscape!\n", e);
-                    }
-                    
-                    
+                        CompilePalLogger.LogCompileError("Could not update soundscape!\n",
+                            new Error("Could not update soundscape!", ErrorSeverity.Error));
                 }
 
             }
             catch (FileNotFoundException)
             {
-                CompilePalLogger.LogLine("FAILED - Could not find " + context.CopyLocation);
+                CompilePalLogger.LogCompileError($"Could not find {context.CopyLocation}\n",
+                    new Error($"Could not find {context.CopyLocation}", ErrorSeverity.Error));
+            }
+            catch (ThreadAbortException)
+            {
+
             }
             catch (Exception e)
             {
                 CompilePalLogger.LogLine("Something broke:");
-                CompilePalLogger.LogLine(e.ToString());
+                CompilePalLogger.LogCompileError($"{e}\n", new Error(e.ToString(), "CompilePal Internal Error", ErrorSeverity.FatalError));
             }
         }
 
@@ -421,8 +425,32 @@ namespace CompilePalX.Compilers.UtilityProcess
             return null;
         }
 
+		// parses parameters that can contain '-' in their values. Ex. filepaths
+		private static List<string> ParseParameters(char[] paramChars)
+		{
+			List<string> parameters = new List<string>();
+			bool inQuote = false;
+			StringBuilder tempParam = new StringBuilder();
 
-        private struct BspFileName
+			foreach (var pChar in paramChars)
+			{
+				if (pChar == '\"')
+					inQuote = !inQuote;
+				else if (!inQuote && pChar == '-')
+				{
+					parameters.Add(tempParam.ToString());
+					tempParam.Clear();
+				}
+				else
+					tempParam.Append(pChar);
+
+			}
+
+			return parameters;
+		}
+
+
+		private struct BspFileName
         {
             public string file;
             public string subVersion;

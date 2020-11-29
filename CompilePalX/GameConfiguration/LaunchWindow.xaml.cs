@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,6 +12,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.IO;
+using System.Security.Cryptography.X509Certificates;
 using Microsoft.Win32;
 using Newtonsoft.Json;
 
@@ -21,100 +23,123 @@ namespace CompilePalX
     /// </summary>
     public partial class LaunchWindow
     {
+	    public static LaunchWindow Instance;
         public LaunchWindow()
-        {
-            string gameConfigurationFolder = CompilePalPath.Directory + "GameConfiguration";
-            string gameConfigurationsPath = Path.Combine(gameConfigurationFolder, "gameConfigs.json");
-
-            InitializeComponent();
-
-            if (!Directory.Exists(gameConfigurationFolder))
-                Directory.CreateDirectory(gameConfigurationFolder);
-
-            //Loading the last used configurations for hammer
-            RegistryKey rk = Registry.CurrentUser.OpenSubKey(@"Software\Valve\Hammer\General");
-
-            var configs = new List<GameConfiguration>();
-
-            //try loading json
-            if (File.Exists(gameConfigurationsPath))
+        {	
+            try
             {
-                string jsonLoadText = File.ReadAllText(gameConfigurationsPath);
-                configs.AddRange(JsonConvert.DeserializeObject<List<GameConfiguration>>(jsonLoadText));
-            }
+                string gameConfigurationFolder = "./GameConfiguration";
+                string gameConfigurationsPath = Path.Combine(gameConfigurationFolder, "gameConfigs.json");
 
-            //try loading from registry
-            if (rk != null)
-            {
-                string BinFolder = (string)rk.GetValue("Directory");
+                InitializeComponent();
 
+                if (!Directory.Exists(gameConfigurationFolder))
+                    Directory.CreateDirectory(gameConfigurationFolder);
 
-                string gameData = Path.Combine(BinFolder, "GameConfig.txt");
+                //Loading the last used configurations for hammer
+                RegistryKey rk = Registry.CurrentUser.OpenSubKey(@"Software\Valve\Hammer\General");
 
-                configs.AddRange(GameConfigurationParser.Parse(gameData));
-            }
+                var configs = new List<GameConfiguration>();
 
-            //finalise config loading
-            if (configs.Any())
-            {
-                //remove duplicates
-                configs = configs.GroupBy(g => g.Name).Select(grp => grp.First()).ToList();
-
-                //save
-                string jsonSaveText = JsonConvert.SerializeObject(configs, Formatting.Indented);
-                File.WriteAllText(gameConfigurationsPath, jsonSaveText);
-
-                if (configs.Count == 1)
-                    Launch(configs.First());
-
-
-                GameGrid.ItemsSource = configs;
-            }
-            else//oh noes
-            {
-                LaunchButton.IsEnabled = false;
-                WarningLabel.Content = "No Hammer configurations found. Cannot launch.";
-            }
-
-            //Handle command line args for game configs
-            string[] commandLineArgs = Environment.GetCommandLineArgs();
-            foreach (string arg in commandLineArgs)
-            {
-                try
+                //try loading json
+                if (File.Exists(gameConfigurationsPath))
                 {
-                    //If arg type is a game, continue
-                    if (arg.Substring(0, 6).ToLower() == "-game:")
+                    string jsonLoadText = File.ReadAllText(gameConfigurationsPath);
+                    configs.AddRange(JsonConvert.DeserializeObject<List<GameConfiguration>>(jsonLoadText));
+                }
+
+                //try loading from registry
+                if (rk != null)
+                {
+                    string BinFolder = (string)rk.GetValue("Directory");
+
+
+                    string gameData = Path.Combine(BinFolder, "GameConfig.txt");
+                    try
                     {
-                        //Make everything lowercase, remove arg type, and remove spaces
-                        string argGameConfig = arg.ToLower().Remove(0, 6).Replace(" ", "");
+	                    configs.AddRange(GameConfigurationParser.Parse(gameData));
+                    }
+                    catch (Exception e)
+                    {
+						ExceptionHandler.LogException(e);
+                    }
+                    
+                }
 
-                        //Search all configs to see if arg is a match
-                        foreach (GameConfiguration config in configs)
+                //finalise config loading
+                if (configs.Any())
+                {
+                    //remove duplicates
+                    configs = configs.GroupBy(g => g.Name).Select(grp => grp.First()).ToList();
+
+                    //save
+                    string jsonSaveText = JsonConvert.SerializeObject(configs, Formatting.Indented);
+                    File.WriteAllText(gameConfigurationsPath, jsonSaveText);
+                    GameConfigurationManager.GameConfigurations = configs;
+
+                    if (configs.Count == 1)
+                        Launch(configs.First());
+
+
+                    GameGrid.ItemsSource = configs;
+                }
+                else//oh noes
+                {
+                    LaunchButton.IsEnabled = false;
+                    WarningLabel.Content = "No Hammer configurations found. Cannot launch.";
+                }
+
+                //Handle command line args for game configs
+                string[] commandLineArgs = Environment.GetCommandLineArgs();
+                for (int i = 0; i < commandLineArgs.Length; i++)
+                {
+	                var arg = commandLineArgs[i];
+                    try
+                    {
+                        // look for game args
+                        if (arg == "--game")
                         {
-                            //Remove spaces and make everything lowercase
-                            string configName = config.Name.ToLower().Replace(" ", "");
+							// make sure args don't go out of bounds
+	                        if (i + 1 > commandLineArgs.Length)
+		                        break;
 
-                            //If arg matches, launch that configuration
-                            if (argGameConfig == configName)
+	                        string argGameConfig = commandLineArgs[i + 1].ToLower();
+
+                            foreach (GameConfiguration config in configs)
                             {
-                                Launch(config);
+	                            string configName = config.Name.ToLower();
+
+                                if (argGameConfig == configName)
+	                                Launch(config);
                             }
                         }
                     }
-                }
-                catch (ArgumentOutOfRangeException e)
-                {
-                    //Ignore error
+                    catch (ArgumentOutOfRangeException e)
+                    {
+                        //Ignore error
+                    }
                 }
             }
+            catch (Exception e) { ExceptionHandler.LogException(e); }
+
+            Instance = this;
         }
 
         private void Launch(GameConfiguration config)
         {
             GameConfigurationManager.GameConfiguration = config;
-            var c = new MainWindow();
-            c.Show();
+			// if main window already exists update title
+            if (MainWindow.Instance == null)
+            {
+				var c = new MainWindow();
+				c.Show();
+            }
+            else
+            {
+				MainWindow.Instance.Title = $"Compile Pal {UpdateManager.CurrentVersion}X {GameConfigurationManager.GameConfiguration.Name}";
+            }
 
+            Instance = null;
             Close();
 
         }
@@ -125,6 +150,12 @@ namespace CompilePalX
 
             if (selectedItem != null)
                 Launch(selectedItem);
+        }
+
+        protected override void OnClosing(CancelEventArgs e)
+        {
+	        Instance = null;
+	        base.OnClosing(e);
         }
     }
 }

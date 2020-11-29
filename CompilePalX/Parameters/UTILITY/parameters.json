@@ -32,10 +32,22 @@
     "Warning": "TF2 Only"
   },
   {
-    "Name": "Ignore Directory",
-    "Parameter": " -ignoredir",
-    "Description": "Skips this folder when looking for particle files",
+    "Name": "Exclude Directory",
+    "Parameter": " -excludedir",
+    "Description": "Ignores this folder when looking for particle files",
     "Value": null,
+    "ValueIsFile": true, 
+    "ValueIsFolder": true, 
+    "CanHaveValue": true,
+    "Warning": "",
+    "CanBeUsedMoreThanOnce": true
+  },
+  {
+    "Name": "Exclude File",
+    "Parameter": " -excludefile",
+    "Description": "Ignores this file when scanning particles",
+    "Value": null,
+    "ValueIsFile": true, 
     "CanHaveValue": true,
     "Warning": "",
     "CanBeUsedMoreThanOnce": true

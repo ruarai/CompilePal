@@ -23,8 +23,8 @@ namespace CompilePalX
 
         public static string CurrentPreset = "Fast";
 
-        private static readonly string ParametersFolder = CompilePalPath.Directory + "Parameters";
-        private static readonly string PresetsFolder = CompilePalPath.Directory + "Presets";
+        private static readonly string ParametersFolder = "./Parameters";
+        private static readonly string PresetsFolder = "./Presets";
         
 
         public static void AssembleParameters()
@@ -36,6 +36,7 @@ namespace CompilePalX
             CompileProcesses.Add(new NavProcess());
             CompileProcesses.Add(new ShutdownProcess());
             CompileProcesses.Add(new UtilityProcess());
+			CompileProcesses.Add(new CustomProcess());
 
             //collect new metadatas
 
@@ -107,7 +108,7 @@ namespace CompilePalX
 
                         foreach (var line in lines)
                         {
-                            var item = ParsePresetLine(line);
+	                        var item = ParsePresetLine(line);
 
                             if (process.ParameterList.Any(c => c.Parameter == item.Parameter))
                             {
@@ -115,6 +116,15 @@ namespace CompilePalX
                                 var equivalentItem = (ConfigItem)process.ParameterList.FirstOrDefault(c => c.Parameter == item.Parameter).Clone();
 
                                 equivalentItem.Value = item.Value;
+
+								//Copy extra information stored for custom programs
+	                            if (item.Parameter == "program")
+	                            {
+									equivalentItem.Value2 = item.Value2;
+									equivalentItem.WaitForExit= item.WaitForExit;
+		                            equivalentItem.Warning = item.Warning;
+	                            }
+	                            
 
                                 process.PresetDictionary[preset].Add(equivalentItem);
                             }
@@ -157,7 +167,7 @@ namespace CompilePalX
         {
             foreach (var process in CompileProcesses)
             {
-                string jsonMetadata = Path.Combine(CompilePalPath.Directory + "Parameters", process.Metadata.Name, "meta.json");
+                string jsonMetadata = Path.Combine("./Parameters", process.Metadata.Name, "meta.json");
 
                 File.WriteAllText(jsonMetadata, JsonConvert.SerializeObject(process.Metadata, Formatting.Indented));
             }
@@ -221,7 +231,7 @@ namespace CompilePalX
         }
 
 
-        public static ObservableCollection<ConfigItem> GetParameters(string processName)
+        public static ObservableCollection<ConfigItem> GetParameters(string processName, bool doRun = false)
         {
             var list = new ObservableCollection<ConfigItem>();
 
@@ -233,6 +243,18 @@ namespace CompilePalX
                 foreach (var configItem in items)
                 {
                     list.Add(configItem);
+                }
+
+                // add custom parameter to all runnable steps
+                if (doRun)
+                {
+                    list.Add(new ConfigItem()
+                    {
+                        Name = "Command Line Argument",
+                        CanHaveValue = true,
+                        CanBeUsedMoreThanOnce = true,
+                        Description = "Passes value as a command line argument",
+                    });
                 }
             }
             else
@@ -274,18 +296,36 @@ namespace CompilePalX
 
             if (pieces.Any())
             {
-                item.Parameter = pieces[0];
+                // Custom parameter stores name as first value instead of parameter, because it has no parameter
+                if (pieces[0] == "Command Line Argument")
+                    item.Name = pieces[0];
+                else
+                    item.Parameter = pieces[0];
+
                 if (pieces.Count() >= 2)
                     item.Value = pieces[1];
+				//Handle extra information stored for custom programs
+	            if (pieces.Count() >= 3)
+		            item.Value2 = pieces[2];
+	            if (pieces.Length >= 4)
+		            item.ReadOutput = Convert.ToBoolean(pieces[3]);
+	            if (pieces.Length >= 5)
+					item.WaitForExit= Convert.ToBoolean(pieces[4]);
+	            if (pieces.Length >= 6)
+		            item.Warning = pieces[5];
             }
             return item;
         }
 
-        private static string WritePresetLine(ConfigItem item)
+		private static string WritePresetLine(ConfigItem item)
         {
-            return string.Format("{0},{1}", item.Parameter, item.Value);
+			//Handle extra information stored for custom programs
+	        if (item.Name == "Run Program")
+		        return $"{item.Parameter},{item.Value},{item.Value2},{item.ReadOutput},{item.WaitForExit},{item.Warning}";
+            else if (item.Name == "Command Line Argument") // Command line arguments have no parameter value
+                return $"{item.Name},{item.Value}";
+            return $"{item.Parameter},{item.Value}";
         }
-
 
         private static ConfigItem ParseBaseLine(string line)
         {

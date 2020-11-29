@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -24,6 +25,8 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows.Media.Animation;
 using System.Windows.Media.TextFormatting;
+using CompilePalX.Compilers;
+using CompilePalX.Configuration;
 
 namespace CompilePalX
 {
@@ -34,10 +37,15 @@ namespace CompilePalX
     {
         public static Dispatcher ActiveDispatcher;
         private ObservableCollection<CompileProcess> CompileProcessesSubList = new ObservableCollection<CompileProcess>();
+	    private bool processModeEnabled;
+        private DispatcherTimer elapsedTimeDispatcherTimer;
+		public static MainWindow Instance { get; private set; }
 
-        public MainWindow()
+		public MainWindow()
         {
-            Application.Current.DispatcherUnhandledException += Current_DispatcherUnhandledException;
+	        Instance = this;
+
+			Application.Current.DispatcherUnhandledException += Current_DispatcherUnhandledException;
 
             InitializeComponent();
 
@@ -63,55 +71,74 @@ namespace CompilePalX
 
             SetSources();
 
-            CompileProcessesListBox.Items.SortDescriptions.Add(new System.ComponentModel.SortDescription("Order", System.ComponentModel.ListSortDirection.Ascending));
+            CompileProcessesListBox.Items.SortDescriptions.Add(new System.ComponentModel.SortDescription("Ordering", System.ComponentModel.ListSortDirection.Ascending));
 
             CompileProcessesListBox.SelectedIndex = 0;
             PresetConfigListBox.SelectedIndex = 0;
 
             UpdateConfigGrid();
 
+            ConfigSelectButton.Visibility = GameConfigurationManager.GameConfigurations.Count > 1
+                ? Visibility.Visible
+                : Visibility.Collapsed;
+
             CompilingManager.OnClear += CompilingManager_OnClear;
 
             CompilingManager.OnStart += CompilingManager_OnStart;
             CompilingManager.OnFinish += CompilingManager_OnFinish;
 
+			RowDragHelper.RowSwitched += RowDragHelperOnRowSwitched;
+
+            elapsedTimeDispatcherTimer = new DispatcherTimer(new TimeSpan(0, 0, 0, 1), DispatcherPriority.Background,
+                this.TickElapsedTimer, Dispatcher.CurrentDispatcher)
+            {
+                IsEnabled = false
+            };
+
             HandleArgs();
         }
 
-        private void HandleArgs(bool ignoreWipeArg = false)
+		public Task<MessageDialogResult> ShowModal(string title, string message, MessageDialogStyle style = MessageDialogStyle.Affirmative, MetroDialogSettings settings = null)
+		{
+			return this.Dispatcher.Invoke(() => this.ShowMessageAsync(title, message, style, settings));
+		}
+
+	    private void HandleArgs(bool ignoreWipeArg = false)
         {
             //Handle command line args
             string[] commandLineArgs = Environment.GetCommandLineArgs();
-            foreach (string arg in commandLineArgs)
+            for (int i = 0; i < commandLineArgs.Length; i++)
             {
+	            var arg = commandLineArgs[i];
                 try
                 {
                     if (!ignoreWipeArg)
                     {
-                        //Wipes the map list
-                        if (arg.Substring(0, 5).ToLower() == "-wipe")
+                        // wipes the map list
+                        if (arg == "--wipe")
                         {
                             CompilingManager.MapFiles.Clear();
-                            //Recursive so if the wipe arg comes after a arg path, it will readd it
+                            // recursive so that wipe doesn't clear maps added through the command line
                             HandleArgs(true);
                             break;
                         }
                     }
-                    else
-                    {
-                        //If arg type is a path, continue
-                        if (arg.Substring(0, 6).ToLower() == "-path:")
-                        {
-                            //Remove arg type
-                            string argPath = arg.Remove(0, 6);
 
-                            if (File.Exists(argPath))
-                            {
-                                if (argPath.EndsWith(".vmf") || argPath.EndsWith(".vmm") || argPath.EndsWith(".vmx"))
-                                    CompilingManager.MapFiles.Add(argPath);
-                            }
+                    // adds map
+                    if (arg == "--add")
+                    {
+                        if (i + 1 > commandLineArgs.Length)
+	                        break;
+
+                        var argPath = commandLineArgs[i + 1];
+
+                        if (File.Exists(argPath))
+                        {
+                            if (argPath.EndsWith(".vmf") || argPath.EndsWith(".vmm") || argPath.EndsWith(".vmx"))
+                                CompilingManager.MapFiles.Add(argPath);
                         }
                     }
+
                 }
                 catch (ArgumentOutOfRangeException e)
                 {
@@ -124,7 +151,6 @@ namespace CompilePalX
         {
             Dispatcher.Invoke(() =>
             {
-
                 Hyperlink errorLink = new Hyperlink();
 
                 Run text = new Run(errorText);
@@ -132,8 +158,11 @@ namespace CompilePalX
                 text.Foreground = e.ErrorColor;
 
                 errorLink.Inlines.Add(text);
-                errorLink.TargetName = e.ID.ToString();
-                errorLink.Click += errorLink_Click;
+                if (e.ID >= 0)
+                {
+                    errorLink.TargetName = e.ID.ToString();
+                    errorLink.Click += errorLink_Click;
+                }
 
                 var underline = new TextDecoration
                 {
@@ -191,7 +220,9 @@ namespace CompilePalX
 
         async void UpdateManager_OnUpdateFound()
         {
-            UpdateHyperLink.Inlines.Add(string.Format("An update is available. Current version is {0}, latest version is {1}.", UpdateManager.CurrentVersion, UpdateManager.LatestVersion));
+            UpdateHyperLink.Inlines.Add(
+	            $"An update is available. Current version is {UpdateManager.CurrentVersion}, latest version is {UpdateManager.LatestVersion}.");
+            UpdateHyperLink.NavigateUri = UpdateManager.UpdateURL;
             UpdateLabel.Visibility = Visibility.Visible;
         }
 
@@ -205,11 +236,16 @@ namespace CompilePalX
         void SetSources()
         {
             CompileProcessesListBox.ItemsSource = CompileProcessesSubList;
-
             PresetConfigListBox.ItemsSource = ConfigurationManager.KnownPresets;
 
             MapListBox.ItemsSource = CompilingManager.MapFiles;
-        }
+
+			OrderManager.Init();
+	        OrderManager.UpdateOrder();
+
+			
+			//BindingOperations.EnableCollectionSynchronization(CurrentOrder, lockObj);
+		}
 
         void ProgressManager_ProgressChange(double progress)
         {
@@ -237,6 +273,8 @@ namespace CompilePalX
         private void CompilingManager_OnStart()
         {
             ConfigDataGrid.IsEnabled = false;
+            ProcessDataGrid.IsEnabled = false;
+	        OrderGrid.IsEnabled = false;
 
             AddParameterButton.IsEnabled = false;
             RemoveParameterButton.IsEnabled = false;
@@ -252,11 +290,22 @@ namespace CompilePalX
 
             AddMapButton.IsEnabled = false;
             RemoveMapButton.IsEnabled = false;
+
+            // hide update link so elapsed time can be shown
+            UpdateLabel.Visibility = Visibility.Collapsed;
+            TimeElapsedLabel.Visibility = Visibility.Visible;
+            // Tick elapsed timer to display the default string
+            TickElapsedTimer(null, null);
+
+            elapsedTimeDispatcherTimer.IsEnabled = true;
         }
 
         private void CompilingManager_OnFinish()
         {
-            ConfigDataGrid.IsEnabled = true;
+			//If process grid is enabled, disable config grid
+            ConfigDataGrid.IsEnabled = !processModeEnabled;
+            ProcessDataGrid.IsEnabled = processModeEnabled;
+	        OrderGrid.IsEnabled = true;
 
             AddParameterButton.IsEnabled = true;
             RemoveParameterButton.IsEnabled = true;
@@ -272,6 +321,9 @@ namespace CompilePalX
 
             AddMapButton.IsEnabled = true;
             RemoveMapButton.IsEnabled = true;
+
+            TimeElapsedLabel.Visibility = Visibility.Collapsed;
+            elapsedTimeDispatcherTimer.IsEnabled = false;
 
             string logName = DateTime.Now.ToString("s").Replace(":", "-") + ".txt";
             string textLog = new TextRange(CompileOutputTextbox.Document.ContentStart, CompileOutputTextbox.Document.ContentEnd).Text;
@@ -295,21 +347,29 @@ namespace CompilePalX
         {
             if (selectedProcess != null)
             {
-                ParameterAdder c = new ParameterAdder(selectedProcess.ParameterList);
-                c.ShowDialog();
+				//Skip Paramater Adder for Custom Process
+	            if (selectedProcess.Name == "CUSTOM")
+	            {
+					selectedProcess.PresetDictionary[ConfigurationManager.CurrentPreset].Add((ConfigItem)selectedProcess.ParameterList[0].Clone());
+	            }
+	            else
+	            {
+					ParameterAdder c = new ParameterAdder(selectedProcess.ParameterList);
+					c.ShowDialog();
 
-                if (c.ChosenItem != null)
-                {
-                    if (c.ChosenItem.CanBeUsedMoreThanOnce)
-                    {
-                        selectedProcess.PresetDictionary[ConfigurationManager.CurrentPreset].Add(c.ChosenItem);
-                    } 
-                    else if (!selectedProcess.PresetDictionary[ConfigurationManager.CurrentPreset].Contains(c.ChosenItem))
-                    {
-                        selectedProcess.PresetDictionary[ConfigurationManager.CurrentPreset].Add(c.ChosenItem);
-                    }
-                }
-                    
+					if (c.ChosenItem != null)
+					{
+						if (c.ChosenItem.CanBeUsedMoreThanOnce)
+						{
+							// .clone() removes problems with parameters sometimes becoming linked
+							selectedProcess.PresetDictionary[ConfigurationManager.CurrentPreset].Add((ConfigItem)c.ChosenItem.Clone());
+						} 
+						else if (!selectedProcess.PresetDictionary[ConfigurationManager.CurrentPreset].Contains(c.ChosenItem))
+						{
+							selectedProcess.PresetDictionary[ConfigurationManager.CurrentPreset].Add(c.ChosenItem);
+						}
+					}
+	            }
 
                 AnalyticsManager.ModifyPreset();
 
@@ -319,7 +379,12 @@ namespace CompilePalX
 
         private void RemoveParameterButton_OnClickParameterButton_Click(object sender, RoutedEventArgs e)
         {
-            var selectedItem = (ConfigItem)ConfigDataGrid.SelectedItem;
+	        ConfigItem selectedItem;
+	        if (processModeEnabled)
+		        selectedItem = (ConfigItem) ProcessDataGrid.SelectedItem;
+	        else
+				selectedItem = (ConfigItem) ConfigDataGrid.SelectedItem;
+            
             if (selectedItem != null)
                 selectedProcess.PresetDictionary[ConfigurationManager.CurrentPreset].Remove(selectedItem);
 
@@ -346,7 +411,9 @@ namespace CompilePalX
             UpdateParameterTextBox();
             UpdateProcessList();
 
-        }
+			if (processModeEnabled)
+				OrderManager.UpdateOrder();
+		}
 
         private void RemoveProcessButton_Click(object sender, RoutedEventArgs e)
         {
@@ -358,7 +425,7 @@ namespace CompilePalX
             }
             UpdateProcessList();
             CompileProcessesListBox.SelectedIndex = 0;
-        }
+		}
 
         private async void AddPresetButton_Click(object sender, RoutedEventArgs e)
         {
@@ -424,7 +491,10 @@ namespace CompilePalX
         {
             UpdateConfigGrid();
             UpdateProcessList();
-        }
+
+			if (processModeEnabled)
+				OrderManager.UpdateOrder();
+		}
         private void CompileProcessesListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             UpdateConfigGrid();
@@ -435,16 +505,71 @@ namespace CompilePalX
 
         private void UpdateConfigGrid()
         {
-            ConfigDataGrid.BeginAnimation(OpacityProperty, new DoubleAnimation(0, 1, new Duration(TimeSpan.FromMilliseconds(50))));
-
             ConfigurationManager.CurrentPreset = (string)PresetConfigListBox.SelectedItem;
 
             selectedProcess = (CompileProcess)CompileProcessesListBox.SelectedItem;
+
             if (selectedProcess != null && ConfigurationManager.CurrentPreset != null && selectedProcess.PresetDictionary.ContainsKey(ConfigurationManager.CurrentPreset))
             {
-                ConfigDataGrid.ItemsSource = selectedProcess.PresetDictionary[ConfigurationManager.CurrentPreset];
+				//Switch to the process grid for custom program screen
+	            if (selectedProcess.Name == "CUSTOM")
+	            {
+					ProcessDataGrid.BeginAnimation(OpacityProperty, new DoubleAnimation(0, 1, new Duration(TimeSpan.FromMilliseconds(50))));
+					processModeEnabled = true;
 
-                UpdateParameterTextBox();
+					ProcessDataGrid.ItemsSource = selectedProcess.PresetDictionary[ConfigurationManager.CurrentPreset];
+		            
+					ConfigDataGrid.IsEnabled = false;
+		            ConfigDataGrid.Visibility = Visibility.Hidden;
+					ParametersTextBox.Visibility = Visibility.Hidden;
+
+		            ProcessDataGrid.IsEnabled = true;
+		            ProcessDataGrid.Visibility = Visibility.Visible;
+
+		            ProcessTab.IsEnabled = true;
+		            ProcessTab.Visibility = Visibility.Visible;
+
+					//Hide parameter buttons if ORDER is the current tab
+		            if ((string)(ProcessTab.SelectedItem as TabItem)?.Header == "ORDER")
+		            {
+						AddParameterButton.Visibility = Visibility.Hidden;
+						AddParameterButton.IsEnabled = false;
+
+						RemoveParameterButton.Visibility = Visibility.Hidden;
+						RemoveParameterButton.IsEnabled = false;
+					}
+				}
+	            else
+	            {
+					ConfigDataGrid.BeginAnimation(OpacityProperty, new DoubleAnimation(0, 1, new Duration(TimeSpan.FromMilliseconds(50))));
+					processModeEnabled = false;
+
+					ConfigDataGrid.IsEnabled = true;
+					ConfigDataGrid.Visibility = Visibility.Visible;
+					ParametersTextBox.Visibility = Visibility.Visible;
+
+					ProcessDataGrid.IsEnabled = false;
+					ProcessDataGrid.Visibility = Visibility.Hidden;
+
+					ProcessTab.IsEnabled = false;
+					ProcessTab.Visibility = Visibility.Hidden;
+
+					ConfigDataGrid.ItemsSource = selectedProcess.PresetDictionary[ConfigurationManager.CurrentPreset];
+
+					//Make buttons visible if they were disabled
+		            if (!AddParameterButton.IsEnabled)
+		            {
+						AddParameterButton.Visibility = Visibility.Visible;
+						AddParameterButton.IsEnabled = true;
+
+						RemoveParameterButton.Visibility = Visibility.Visible;
+						RemoveParameterButton.IsEnabled = true;
+					}
+
+					UpdateParameterTextBox();
+	            }
+
+
             }
         }
 
@@ -491,7 +616,17 @@ namespace CompilePalX
             dialog.Multiselect = true;
             dialog.Filter = "Map files (*.vmf;*.vmm)|*.vmf;*.vmm";
 
-            dialog.ShowDialog();
+            try
+            {
+                dialog.ShowDialog();
+            }
+            catch
+            {
+                CompilePalLogger.LogDebug($"AddMapButton dialog failed to open, falling back to {Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)}");
+				// if dialog fails to open it's possible its initial directory is in a non existant folder or something
+	            dialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+	            dialog.ShowDialog();
+            }
 
             foreach (var file in dialog.FileNames)
             {
@@ -519,9 +654,168 @@ namespace CompilePalX
 
         private void UpdateLabel_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-
             Process.Start("http://www.github.com/ruarai/CompilePal/releases/latest");
         }
 
+	    private void ReadOutput_OnChecked(object sender, RoutedEventArgs e)
+	    {
+		    var selectedItem = (ConfigItem) ProcessDataGrid.SelectedItem;
+
+			//Set readOuput to opposite of it's current value
+		    selectedItem.ReadOutput = !selectedItem.ReadOutput;
+
+			//UpdateParameterTextBox();
+	    }
+
+	    private void ProcessTab_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+	    {
+			if (e.Source is TabControl)
+				OrderManager.UpdateOrder();
+
+			if (OrderTab.IsSelected)
+		    {
+				AddParameterButton.Visibility = Visibility.Hidden;
+				AddParameterButton.IsEnabled = false;
+
+				RemoveParameterButton.Visibility = Visibility.Hidden;
+				RemoveParameterButton.IsEnabled = false;
+			}
+		    else
+		    {
+				AddParameterButton.Visibility = Visibility.Visible;
+				AddParameterButton.IsEnabled = true;
+
+				RemoveParameterButton.Visibility = Visibility.Visible;
+				RemoveParameterButton.IsEnabled = true;
+			}
+		}
+
+	    private void DoRun_OnClick(object sender, RoutedEventArgs e)
+	    {
+			if (processModeEnabled)
+				OrderManager.UpdateOrder();
+		}
+
+	    private void OrderGrid_OnIsEnabledChanged(object sender, DependencyPropertyChangedEventArgs e)
+	    {
+			if (processModeEnabled)
+				OrderManager.UpdateOrder();
+		}
+
+	    private void DataGridCell_OnEnter(object sender, MouseEventArgs e)
+	    {
+			//Only show drag cursor if row is draggable
+		    if ((sender as DataGridRow)?.Item is CompileProcess process && process.IsDraggable)
+			    Cursor = Cursors.SizeAll;
+	    }
+
+	    private void DataGridCell_OnExit(object sender, MouseEventArgs e)
+	    {
+		    if ((sender as DataGridRow)?.Item is CompileProcess process && process.IsDraggable)
+			    Cursor = Cursors.Arrow;
+	    }
+
+	    public void UpdateOrderGridSource<T>(ObservableCollection<T> newSrc)
+	    {
+			//Use dispatcher so this can be called from seperate thread
+			this.Dispatcher.Invoke(() =>
+			{
+				//TODO order grid doesnt seem to want to update, so have to do it manually by resetting the source
+				//Update ordergrid by resetting collection
+				OrderGrid.ItemsSource = newSrc;
+			});
+		}
+
+		private void RowDragHelperOnRowSwitched(object sender, RowSwitchEventArgs e)
+		{
+			var primaryItem = OrderGrid.Items[e.PrimaryRowIndex] as CustomProgram;
+			var displacedItem = OrderGrid.Items[e.DisplacedRowIndex] as CustomProgram;
+
+			SetOrder(primaryItem, e.PrimaryRowIndex);
+			SetOrder(displacedItem, e.DisplacedRowIndex);
+		}
+
+	    public void SetOrder<T>(T target, int newOrder)
+	    {
+			//Generic T is workaround for CustomProgram being
+		    //less accessible than this method.
+		    var program = target as CustomProgram;
+		    if (program == null)
+			    return;
+
+			var programConfig = GetConfigFromCustomProgram(program);
+
+			if (programConfig == null)
+				return;
+
+			program.CustomOrder = newOrder;
+			programConfig.Warning = newOrder.ToString();
+		}
+
+
+		//Search through ProcDataGrid to find corresponding ConfigItem
+		private ConfigItem GetConfigFromCustomProgram(CustomProgram program)
+	    {
+			foreach (var procSourceItem in ProcessDataGrid.ItemsSource)
+			{
+				if (program.Equals(procSourceItem))
+				{
+					return procSourceItem as ConfigItem;
+				}
+			}
+
+			//Return null on failure
+		    return null;
+	    }
+
+		private void UpdateHyperLink_OnRequestNavigate(object sender, RequestNavigateEventArgs e)
+		{
+			Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri));
+			e.Handled = true;
+		}
+
+		private void Settings_OnClick(object sender, RoutedEventArgs e)
+		{
+			throw new NotImplementedException();
+		}
+
+		private void ConfigBack_OnClick(object sender, RoutedEventArgs e)
+		{
+			if (LaunchWindow.Instance == null)
+				new LaunchWindow().Show();
+			else
+				LaunchWindow.Instance.Focus();
+		}
+
+        private void BugReportButton_OnClick(object sender, RoutedEventArgs e)
+        {
+			Process.Start(new ProcessStartInfo("https://github.com/ruarai/CompilePal/issues/"));
+            e.Handled = true;
+        }
+
+        private void TickElapsedTimer(object sender, EventArgs e)
+        {
+            var time = CompilingManager.GetTime().Elapsed;
+            TimeElapsedLabel.Content = $"Time Elapsed: {(int) time.TotalHours:00}:{time:mm}:{time:ss}";
+        }
     }
+
+	public static class ObservableCollectionExtension
+	{
+		public static ObservableCollection<T> AddRange<T>(this ObservableCollection<T> collection, IEnumerable<T> range)
+		{
+			foreach (var element in range)
+				collection.Add(element);
+
+			return collection;
+		}
+
+		public static ObservableCollection<T> RemoveRange<T>(this ObservableCollection<T> collection, IEnumerable<T> range)
+		{
+			foreach (var element in range)
+				collection.Remove(element);
+
+			return collection;
+		}
+	}
 }

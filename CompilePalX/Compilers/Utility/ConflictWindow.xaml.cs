@@ -38,8 +38,18 @@ namespace CompilePalX.Compilers.UtilityProcess
             pc = particleConflict;
             targetParticles = _targetParticles;
 
-            //Correlate pcfs to their filepaths in a dictionary
-            pcfDict = pc.ToDictionary(k => k.FilePath.Replace('/', '\\'), v => v);
+            // Correlate pcfs to their filepaths in a dictionary
+            pcfDict = pc.Select(p =>
+                {
+                    // Normalize filepaths
+                    p.FilePath = p.FilePath.Replace('/', '\\');
+                    return p;
+                })
+                // Remove duplicates
+                .GroupBy(p => p.FilePath)
+                .Select(group => group.First())
+                // Convert to dict
+                .ToDictionary(k => k.FilePath, v => v);
             selectedPCFS = new List<PCF>();
             InitializeComponent();
         }

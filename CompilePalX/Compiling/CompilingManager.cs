@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,6 +15,7 @@ using System.Windows.Threading;
 using CompilePalX.Compilers;
 using CompilePalX.Compiling;
 using System.Runtime.InteropServices;
+using CompilePalX.Configuration;
 
 namespace CompilePalX
 {
@@ -29,11 +31,7 @@ namespace CompilePalX
             
         private static void CompilePalLogger_OnErrorFound(Error e)
         {
-            var executable = currentCompileProcess as CompileExecutable;
-            if (executable != null)
-            {
-                executable.CompileErrors.Add(e);
-            }
+            currentCompileProcess.CompileErrors.Add(e);
 
             if (e.Severity == 5 && IsCompiling)
             {
@@ -52,7 +50,6 @@ namespace CompilePalX
         public static event CompileFinished OnFinish;
 
         public static ObservableCollection<string> MapFiles = new ObservableCollection<string>();
-
 
         private static Thread compileThread;
         private static Stopwatch compileTimeStopwatch = new Stopwatch();
@@ -82,7 +79,7 @@ namespace CompilePalX
 
             OnClear();
 
-            CompilePalLogger.LogLine(string.Format("Starting a '{0}' compile.", ConfigurationManager.CurrentPreset));
+            CompilePalLogger.LogLine($"Starting a '{ConfigurationManager.CurrentPreset}' compile.");
 
             compileThread = new Thread(CompileThreaded);
             compileThread.Start();
@@ -104,18 +101,27 @@ namespace CompilePalX
                     string cleanMapName = Path.GetFileNameWithoutExtension(mapFile);
 
                     var compileErrors = new List<Error>();
-                    CompilePalLogger.LogLine(string.Format("Starting compilation of {0}", cleanMapName));
+                    CompilePalLogger.LogLine($"Starting compilation of {cleanMapName}");
 
-                    foreach (var compileProcess in ConfigurationManager.CompileProcesses.Where(c => c.Metadata.DoRun && c.PresetDictionary.ContainsKey(ConfigurationManager.CurrentPreset)))
-                    {
+					//Update the grid so we have the most up to date order
+	                OrderManager.UpdateOrder();
+
+                    GameConfigurationManager.BackupCurrentContext();
+					foreach (var compileProcess in OrderManager.CurrentOrder)
+					{
                         currentCompileProcess = compileProcess;
                         compileProcess.Run(GameConfigurationManager.BuildContext(mapFile));
 
-                        if (compileProcess is CompileExecutable)
-                        {
-                            var executable = compileProcess as CompileExecutable;
+                        compileErrors.AddRange(currentCompileProcess.CompileErrors);
 
-                            compileErrors.AddRange(executable.CompileErrors);
+                        //Portal 2 cannot work with leaks, stop compiling if we do get a leak.
+                        if (GameConfigurationManager.GameConfiguration.Name == "Portal 2")
+                        {
+                            if (currentCompileProcess.Name == "VBSP" && currentCompileProcess.CompileErrors.Count > 0)
+                            {
+                                //we have a VBSP error, aka a leak -> stop compiling;
+                                break;
+                            }
                         }
 
                         ProgressManager.Progress += (1d / ConfigurationManager.CompileProcesses.Count(c => c.Metadata.DoRun &&
@@ -123,6 +129,8 @@ namespace CompilePalX
                     }
 
                     mapErrors.Add(new MapErrors { MapName = cleanMapName, Errors = compileErrors });
+                    
+                    GameConfigurationManager.RestoreCurrentContext();
                 }
 
                 MainWindow.ActiveDispatcher.Invoke(() => postCompile(mapErrors));
@@ -132,7 +140,8 @@ namespace CompilePalX
 
         private static void postCompile(List<MapErrors> errors)
         {
-            CompilePalLogger.LogLineColor(string.Format("'{0}' compile finished in {1}", ConfigurationManager.CurrentPreset, compileTimeStopwatch.Elapsed.ToString(@"hh\:mm\:ss")), Brushes.ForestGreen);
+            CompilePalLogger.LogLineColor(
+	            $"\n'{ConfigurationManager.CurrentPreset}' compile finished in {compileTimeStopwatch.Elapsed.ToString(@"hh\:mm\:ss")}", Brushes.ForestGreen);
 
             if (errors != null && errors.Any())
             {
@@ -209,6 +218,11 @@ namespace CompilePalX
             CompilePalLogger.LogLineColor("Compile forcefully ended.", Brushes.OrangeRed);
 
             postCompile(null);
+        }
+
+        public static Stopwatch GetTime()
+        {
+            return compileTimeStopwatch;
         }
 
         class MapErrors
