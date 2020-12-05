@@ -389,7 +389,7 @@ namespace CompilePalX.Compilers.BSPPack
 			foreach (Dictionary<string, string> ent in entityList)
 				foreach (KeyValuePair<string, string> prop in ent)
 				{
-					if (Keys.vmfSoundKeys.Contains(prop.Key))
+					if (Keys.vmfSoundKeys.Contains(prop.Key.ToLower()))
 						EntSoundList.Add("sound/" + prop.Value.Trim(special_caracters));
 					//Pack I/O triggered sounds
 					else if (prop.Value.Contains("PlayVO"))
