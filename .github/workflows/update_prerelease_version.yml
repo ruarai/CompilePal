@@ -27,5 +27,4 @@ jobs:
         with:
             file-path: CompilePalX/version_prerelease.txt
             commit-msg: Update prerelease version
-            github-token: ${{ secrets.GITHUB_TOKEN }}        
-
+            github-token: ${{ secrets.GITHUB_TOKEN }}
