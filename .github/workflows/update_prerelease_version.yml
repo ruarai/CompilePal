@@ -6,9 +6,6 @@ name: 'Update Prerelease Version'
 on:
   release:
     types: [ prereleased ]
-    
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -22,7 +19,7 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
           
-      - name: Update version_prerelease version
+      - name: Update version_prerelease.txt version
         run: echo '${{ github.event.release.tag_name }}' > CompilePalX/version_prerelease.txt
           
       - name: Update version_prerelease.txt on GitHub
@@ -30,6 +27,4 @@ jobs:
         with:
             file-path: CompilePalX/version_prerelease.txt
             commit-msg: Update prerelease version
-            github-token: ${{ secrets.GITHUB_TOKEN }}        
-
-
+            github-token: ${{ secrets.GITHUB_TOKEN }}

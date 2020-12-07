@@ -207,7 +207,12 @@ namespace CompilePalX.Compilers.BSPPack
 						AddInternalFile(internalPath, file);
 						sndcount++;
 						break;
-					default:
+                    case "res":
+						AddInternalFile(internalPath, file);
+                        foreach (string material in AssetUtils.findResMaterials(file))
+                            AddTexture(material);
+                        break;
+                    default:
 						AddInternalFile(internalPath, file);
 						break;
 		        }

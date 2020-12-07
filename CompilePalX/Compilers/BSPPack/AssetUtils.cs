@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using CompilePalX;
 
 namespace CompilePalX.Compilers.BSPPack
 {
@@ -41,13 +42,17 @@ namespace CompilePalX.Compilers.BSPPack
                 int skinrfamilyCount = reader.ReadInt32();
                 int skinreferenceIndex = reader.ReadInt32();
 
-                int bodypart_count = reader.ReadInt32();
-                int bodypart_index = reader.ReadInt32();
+                int bodypartCount = reader.ReadInt32();
+                int bodypartIndex = reader.ReadInt32();
 
-                //byte rootLod = reader.ReadByte(); 
+                // skip to keyvalues
+				mdl.Seek(72, SeekOrigin.Current);
+                int keyvalueIndex = reader.ReadInt32();
+                int keyvalueCount = reader.ReadInt32();
 
 				// skip to includemodel
-				mdl.Seek(96, SeekOrigin.Current);
+				mdl.Seek(16, SeekOrigin.Current);
+				//mdl.Seek(96, SeekOrigin.Current);
 	            int includeModelCount = reader.ReadInt32();
 	            int includeModelIndex = reader.ReadInt32();
 
@@ -79,10 +84,10 @@ namespace CompilePalX.Compilers.BSPPack
                     // load specific skins
                     List<int> material_ids = new List<int>();
 
-                    for (int i = 0; i < bodypart_count; i++)
+                    for (int i = 0; i < bodypartCount; i++)
                     // we are reading an array of mstudiobodyparts_t
                     {
-                        mdl.Seek(bodypart_index + i * 16, SeekOrigin.Begin);
+                        mdl.Seek(bodypartIndex + i * 16, SeekOrigin.Begin);
 
                         mdl.Seek(4, SeekOrigin.Current);
                         int nummodels = reader.ReadInt32();
@@ -92,7 +97,7 @@ namespace CompilePalX.Compilers.BSPPack
                         for (int j = 0; j < nummodels; j++)
                         // we are reading an array of mstudiomodel_t
                         {
-                            mdl.Seek((bodypart_index + i * 16) + modelindex + j * 148, SeekOrigin.Begin);
+                            mdl.Seek((bodypartIndex + i * 16) + modelindex + j * 148, SeekOrigin.Begin);
                             long modelFileInputOffset = mdl.Position;
 
                             mdl.Seek(72, SeekOrigin.Current);
@@ -197,6 +202,32 @@ namespace CompilePalX.Compilers.BSPPack
                     }
                 }
 
+                // find models referenced in keyvalues
+                if (keyvalueCount > 0)
+                {
+                    mdl.Seek(keyvalueIndex, SeekOrigin.Begin);
+                    string kv = new string(reader.ReadChars(keyvalueCount - 1));
+
+                    // "mdlkeyvalue" and "{" are on separate lines, merge them or it doesnt parse kv name
+                    int firstNewlineIndex = kv.IndexOf("\n", StringComparison.Ordinal);
+                    if (firstNewlineIndex > 0)
+                        kv = kv.Remove(firstNewlineIndex, 1);
+
+                    kv = KV.StringUtil.GetFormattedKVString(kv);
+                    var data = KV.DataBlock.FromString(kv);
+
+                    var mdlKvBlock = data.GetFirstByName("mdlkeyvalue");
+                    var doorDefaultsBlock = mdlKvBlock?.GetFirstByName("door_options")?.GetFirstByName("\"defaults\"");
+                    if (doorDefaultsBlock != null)
+                    {
+                        var damageModel1 = doorDefaultsBlock.TryGetStringValue("damage1");
+                        if (damageModel1 != "")
+                            models.Add($"models\\{damageModel1}.mdl");
+                        var damageModel2 = doorDefaultsBlock.TryGetStringValue("damage2");
+                        if (damageModel2 != "")
+                            models.Add($"models\\{damageModel2}.mdl");
+                    }
+                }
 
 
                 mdl.Close();
@@ -291,7 +322,7 @@ namespace CompilePalX.Compilers.BSPPack
 
                                 for (int j = 0; j < entry.Count(); j++)
                                     if (entry[j].Equals("\"model\"") || entry[j].Equals("\"ragdoll\""))
-                                        models.Add("models\\" + entry[j + 1].Trim('"') + ".mdl");
+                                        models.Add("models\\" + entry[j + 1].Trim('"') + (entry[j + 1].Trim('"').EndsWith(".mdl") ? "" : ".mdl"));
                             }
                         }
                     }
@@ -382,7 +413,7 @@ namespace CompilePalX.Compilers.BSPPack
 
             foreach (var subblock in overviewFile.headnode.subBlocks)
             {
-                var material = subblock.tryGetStringValue("material");
+                var material = subblock.TryGetStringValue("material");
                 // failed to get material, file contains no materials
                 if (material == "")
                     break;
