@@ -20,7 +20,7 @@ jobs:
       - uses: actions/checkout@v2
           
       - name: Update version.txt version
-        run: echo '${{ github.event.release.tag_name }}' > CompilePalX/version.txt
+        run: echo '${{ github.event.release.tag_name }}' | sed 's/[^0-9]*//' > CompilePalX/version.txt
           
       - name: Update version.txt on GitHub
         uses: test-room-7/action-update-file@v1.4.0
