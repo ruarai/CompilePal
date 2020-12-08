@@ -6,8 +6,6 @@ name: 'Update Version'
 on:
   release:
     types: [ released, prereleased ]
-env:
-  VERSION_FILE: ${{ github.event.release == }}
   
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
