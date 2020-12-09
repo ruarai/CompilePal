@@ -53,9 +53,9 @@ jobs:
       - name: Set Env Variables
         run: |
           if ( "${{ github.event.action }}" -eq "released" ) {
-            echo "CONFIGURATION=Debug" >> $GITHUB_ENV
+            echo "CONFIGURATION=Debug" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
           } else {
-            echo "CONFIGURATION=version_prerelease.txt" >> $GITHUB_ENV
+            echo "CONFIGURATION=version_prerelease.txt" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
           }
           
           echo "VERSION=$('${{ github.event.release.tag_name }}' -replace "[^0-9|.]")" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
