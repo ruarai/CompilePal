@@ -25,7 +25,6 @@ jobs:
           fi
           
           echo "Updating:" $VERSION_FILE
-          echo ${{ env.VERSION_FILE }}
           echo '${{ github.event.release.tag_name }}' | sed 's/[^0-9]*//' > CompilePalX/$VERSION_FILE
           
       # Updates version.txt on Github
@@ -37,6 +36,7 @@ jobs:
             github-token: ${{ secrets.GITHUB_TOKEN }}
   create-build:
     runs-on: windows-latest
+    needs: [update-version]
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
@@ -52,13 +52,13 @@ jobs:
       
       - name: Set Env Variables
         run: |
-          if [[ "${{ github.event.action }}" == "released" ]]; then
+          if ( "${{ github.event.action }}" -eq "released" ) {
             echo "CONFIGURATION=Debug" >> $GITHUB_ENV
-          else
+          } else {
             echo "CONFIGURATION=version_prerelease.txt" >> $GITHUB_ENV
-          fi
+          }
           
-          echo "VERSION=$('${{ github.event.release.tag_name }}' | sed 's/[^0-9]*//')" >> $GITHUB_ENV
+          echo "VERSION=$('${{ github.event.release.tag_name }}' -replace "[^0-9|.]")" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
       - name: Build Compile Pal
         run: msbuild CompilePalX.sln /p:Configuration=${{ env.CONFIGURATION }}
       
