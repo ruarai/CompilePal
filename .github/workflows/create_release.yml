@@ -66,18 +66,13 @@ jobs:
       - name: Build Compile Pal
         run: msbuild CompilePalX.sln /p:Configuration=${{ env.CONFIGURATION }}
       
-      - name: test
-        run: |
-          pwd
-          ls
-      
       # Package Compile Pal into zip file
       - name: Package Compile Pal
         run: |
           $compress = @{
-            Path = "bin\${{ env.CONFIGURATION }}"
+            Path = "./CompilePalX/bin/${{ env.CONFIGURATION }}"
             CompressionLevel = "Optimal"
-            DestinationPath = "bin\Compile Pal ${{ env.VERSION }}.zip"
+            DestinationPath = "./Compile Pal ${{ env.VERSION }}.zip"
           }
           Compress-Archive @compress
       
@@ -87,8 +82,8 @@ jobs:
           # The URL for uploading assets to the release
           upload_url: ${{ github.event.release.upload_url }}
           # The path to the asset you want to upload
-          asset_path: bin\Compile Pal ${{ env.VERSION }}.zip
+          asset_path: ./Compile Pal ${{ env.VERSION }}.zip
           # The name of the asset you want to upload
-          asset_name: bin\Compile Pal ${{ env.VERSION }}.zip
+          asset_name: Compile Pal ${{ env.VERSION }}.zip
           # The content-type of the asset you want to upload. See the supported Media Types here: https://www.iana.org/assignments/media-types/media-types.xhtml for more information
           asset_content_type: application/zip
