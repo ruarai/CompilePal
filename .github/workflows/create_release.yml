@@ -61,8 +61,8 @@ jobs:
           echo "Configuration: $CONFIGURATION"
           echo "Version: $VERSION"
           
-          echo "CONFIGURATION=${CONFIGURATION}" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-          echo "VERSION=${VERSION}" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          echo "CONFIGURATION=${CONFIGURATION}" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          echo "VERSION=${VERSION}" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
       - name: Build Compile Pal
         run: msbuild CompilePalX.sln /p:Configuration=${{ env.CONFIGURATION }}
       
