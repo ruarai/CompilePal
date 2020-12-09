@@ -1,25 +1,19 @@
-# This is a basic workflow to help you get started with Actions
-
-name: 'Update Version'
+# This workflow updates the version text, then builds and attaches a build to the release that triggered it
+name: 'Create Release'
 
 # Controls when the action will run. 
 on:
   release:
     types: [ released, prereleased ]
   
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
-  build:
-    
-    # The type of runner that the job will run on
+  update-version:
     runs-on: ubuntu-latest
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
           
+      # Updates the version txt, and sets which version file is used depending on whether event that triggered workflow was a release or prerelease
       - name: Update version.txt version
         run: |
           if [[ "${{ github.event.action }}" == "released" ]]; then
@@ -33,6 +27,7 @@ jobs:
           echo "Updating:" $VERSION_FILE
           echo '${{ github.event.release.tag_name }}' | sed 's/[^0-9]*//' > CompilePalX/$VERSION_FILE
           
+      # Updates version.txt on Github
       - name: Update version.txt on GitHub
         uses: test-room-7/action-update-file@v1.4.0
         with:
