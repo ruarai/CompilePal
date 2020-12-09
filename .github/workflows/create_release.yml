@@ -25,6 +25,7 @@ jobs:
           fi
           
           echo "Updating:" $VERSION_FILE
+          echo ${{ env.VERSION_FILE }}
           echo '${{ github.event.release.tag_name }}' | sed 's/[^0-9]*//' > CompilePalX/$VERSION_FILE
           
       # Updates version.txt on Github
@@ -48,13 +49,22 @@ jobs:
       
       - name: Restore NuGet Packages
         run: nuget restore CompilePalX.sln
-        
+      
+      - name: Set Env Variables
+        run: |
+          if [[ "${{ github.event.action }}" == "released" ]]; then
+            echo "CONFIGURATION=Debug" >> $GITHUB_ENV
+          else
+            echo "CONFIGURATION=version_prerelease.txt" >> $GITHUB_ENV
+          fi
+          
+          echo "VERSION=$('${{ github.event.release.tag_name }}' | sed 's/[^0-9]*//')" >> $GITHUB_ENV
       - name: Build Compile Pal
-        run: msbuild CompilePalX.sln /p:Configuration=Release
+        run: msbuild CompilePalX.sln /p:Configuration=${{ env.CONFIGURATION }}
       
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v2.2.1
         with:
           # Artifact name
-          name: Compile Pal
-          path: \bin\release\Publish
+          name: Compile Pal ${{ env.VERSION }}
+          path: bin\release\${{ env.CONFIGURATION }}
