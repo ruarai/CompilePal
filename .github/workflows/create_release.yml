@@ -71,4 +71,4 @@ jobs:
         with:
           # Artifact name
           name: Compile Pal ${{ env.VERSION }}
-          path: bin\release\${{ env.CONFIGURATION }}
+          path: bin\${{ env.CONFIGURATION }}
