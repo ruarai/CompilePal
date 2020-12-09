@@ -23,9 +23,9 @@ jobs:
       - name: Update version.txt version
         run: |
           if [[ "${{ github.event.action }}" == "released" ]]; then
-            VERSION_FILE="version.txt"
+            echo "VERSION_FILE=version.txt" >> $GITHUB_ENV
           else
-            VERSION_FILE="version_prerelease.txt"
+            echo "VERSION_FILE=version_prerelease.txt" >> $GITHUB_ENV
           fi
           
           echo "Updating:" $VERSION_FILE
@@ -34,6 +34,6 @@ jobs:
       - name: Update version.txt on GitHub
         uses: test-room-7/action-update-file@v1.4.0
         with:
-            file-path: CompilePalX/version.txt
+            file-path: CompilePalX/$VERSION_FILE
             commit-msg: Update version
             github-token: ${{ secrets.GITHUB_TOKEN }}
