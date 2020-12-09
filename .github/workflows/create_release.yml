@@ -1,5 +1,5 @@
 # This workflow updates the version text, then builds and attaches a build to the release that triggered it
-name: 'Create Release'
+name: 'Build Release'
 
 # Controls when the action will run. 
 on:
@@ -35,7 +35,7 @@ jobs:
           
       # Updates either version.txt or version_prerelease.txt depending on which event triggered workflow (release or prerelease)
       - name: Update version.txt version
-        run: echo '${{ env.VERSION }}' | > CompilePalX/${{ env.VERSION_FILE }}
+        run: echo '${{ env.VERSION }}' > CompilePalX/${{ env.VERSION_FILE }}
           
       # Setup Build Environment
       - name: Setup MSBuild
