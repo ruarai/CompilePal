@@ -22,7 +22,7 @@ jobs:
           
       - name: Update version.txt version
         run: |
-          if ["${{ github.event.action }}" == "released"]; then
+          if ["${{ github.event.action }}" = "released"]; then
             $VERSION_FILE = "version.txt"
           else
             $VERSION_FILE = "version_prerelease.txt"
