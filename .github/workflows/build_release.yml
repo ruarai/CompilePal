@@ -1,0 +1,84 @@
+# This workflow updates the version text, then builds and attaches a build to the release that triggered it
+name: 'Build Release'
+
+# Controls when the action will run. 
+on:
+  release:
+    types: [ released, prereleased ]
+  
+jobs:
+  create-build:
+    runs-on: windows-latest
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+      
+      # Setup environment variables
+      - name: Set Env Variables
+        run: |
+          if ( "${{ github.event.action }}" -eq "released" ) {
+            $CONFIGURATION="Release"
+            $VERSION_FILE="version.txt"
+          } else {
+            $CONFIGURATION="Debug"
+            $VERSION_FILE="version_prerelease.txt"
+          }
+          $VERSION=$('${{ github.event.release.tag_name }}' -replace "[^0-9|.]")
+          
+          echo "Configuration: $CONFIGURATION"
+          echo "Version: $VERSION"
+          echo "Version File: $VERSION_FILE"
+          
+          echo "CONFIGURATION=${CONFIGURATION}" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          echo "VERSION=${VERSION}" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          echo "VERSION_FILE=${VERSION_FILE}" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          
+      # Updates either version.txt or version_prerelease.txt depending on which event triggered workflow (release or prerelease)
+      - name: Update version.txt version
+        run: echo '${{ env.VERSION }}' > CompilePalX/${{ env.VERSION_FILE }}
+          
+      # Setup Build Environment
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v1
+      - name: Setup NuGet.exe for use with actions
+        uses: NuGet/setup-nuget@v1.0.5
+      - name: Restore NuGet Packages
+        run: nuget restore CompilePalX.sln
+      
+      - name: Build Compile Pal
+        run: msbuild CompilePalX.sln /p:Configuration=${{ env.CONFIGURATION }}
+      
+      # Package Compile Pal into zip file
+      - name: Package Compile Pal
+        run: |
+          Rename-Item -Path "./CompilePalX/bin/${{ env.CONFIGURATION }}" -NewName "Compile Pal ${{ env.VERSION }}"
+          
+          $compress = @{
+            Path = "./CompilePalX/bin/Compile Pal ${{ env.VERSION }}"
+            CompressionLevel = "Optimal"
+            DestinationPath = "./Compile Pal ${{ env.VERSION }}.zip"
+          }
+          Compress-Archive @compress
+      
+      # Uploads Compile Pal build artifact to the release
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1.0.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          # The URL for uploading assets to the release
+          upload_url: ${{ github.event.release.upload_url }}
+          # The path to the asset you want to upload
+          asset_path: ./Compile Pal ${{ env.VERSION }}.zip
+          # The name of the asset you want to upload
+          asset_name: Compile Pal ${{ env.VERSION }}.zip
+          # The content-type of the asset you want to upload. See the supported Media Types here: https://www.iana.org/assignments/media-types/media-types.xhtml for more information
+          asset_content_type: application/zip
+          
+      # Updates version.txt on Github
+      - name: Update version.txt on GitHub
+        uses: test-room-7/action-update-file@v1.4.0
+        with:
+            file-path: CompilePalX/${{ env.VERSION_FILE }}
+            commit-msg: Update version
+            github-token: ${{ secrets.GITHUB_TOKEN }}
