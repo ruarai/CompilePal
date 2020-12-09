@@ -52,17 +52,17 @@ jobs:
       - name: Set Env Variables
         run: |
           if ( "${{ github.event.action }}" -eq "released" ) {
-            $CONFIGURATION="Debug"
-          } else {
             $CONFIGURATION="Release"
+          } else {
+            $CONFIGURATION="Debug"
           }
           $VERSION=$('${{ github.event.release.tag_name }}' -replace "[^0-9|.]")
           
           echo "Configuration: $CONFIGURATION"
           echo "Version: $VERSION"
           
-          echo "CONFIGURATION=$CONFIGURATION" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-          echo "VERSION=$VERSION" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          echo "CONFIGURATION=${CONFIGURATION}" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          echo "VERSION=${VERSION}" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
       - name: Build Compile Pal
         run: msbuild CompilePalX.sln /p:Configuration=${{ env.CONFIGURATION }}
       
