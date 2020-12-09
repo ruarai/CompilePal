@@ -70,7 +70,7 @@ jobs:
       - name: Package Compile Pal
         run: |
           $compress = @{
-            Path = bin\${{ env.CONFIGURATION }}
+            Path = "bin\${{ env.CONFIGURATION }}"
             CompressionLevel = "Optimal"
             DestinationPath = "bin\Compile Pal ${{ env.VERSION }}.zip"
           }
