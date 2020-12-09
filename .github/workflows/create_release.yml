@@ -34,3 +34,27 @@ jobs:
             file-path: CompilePalX/${{ env.VERSION_FILE }}
             commit-msg: Update version
             github-token: ${{ secrets.GITHUB_TOKEN }}
+  create-build:
+    runs-on: windows-latest
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v1
+      
+      - name: Setup NuGet.exe for use with actions
+        uses: NuGet/setup-nuget@v1.0.5
+      
+      - name: Restore NuGet Packages
+        run: nuget restore CompilePalX.sln
+        
+      - name: Build Compile Pal
+        run: msbuild CompilePalX.sln /p:Configuration=Release
+      
+      - name: Upload a Build Artifact
+        uses: actions/upload-artifact@v2.2.1
+        with:
+          # Artifact name
+          name: Compile Pal
+          path: \bin\release\Publish
