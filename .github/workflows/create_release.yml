@@ -69,8 +69,10 @@ jobs:
       # Package Compile Pal into zip file
       - name: Package Compile Pal
         run: |
+          Rename-Item -Path "./CompilePalX/bin/${{ env.CONFIGURATION }}" -NewName "./CompilePalX/bin/Compile Pal ${{ env.VERSION }}"
+          
           $compress = @{
-            Path = "./CompilePalX/bin/${{ env.CONFIGURATION }}"
+            Path = "./CompilePalX/bin/Compile Pal ${{ env.VERSION }}"
             CompressionLevel = "Optimal"
             DestinationPath = "./Compile Pal ${{ env.VERSION }}.zip"
           }
