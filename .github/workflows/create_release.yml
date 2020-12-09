@@ -66,6 +66,12 @@ jobs:
       - name: Build Compile Pal
         run: msbuild CompilePalX.sln /p:Configuration=${{ env.CONFIGURATION }}
       
+      - name: test
+        run: |
+          pwd
+          ls
+          ls bin
+      
       # Package Compile Pal into zip file
       - name: Package Compile Pal
         run: |
