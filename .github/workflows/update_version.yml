@@ -23,9 +23,9 @@ jobs:
       - name: Update version.txt version
         run: |
           if [[ "${{ github.event.action }}" == "released" ]]; then
-            $VERSION_FILE = "version.txt"
+            $VERSION_FILE="version.txt"
           else
-            $VERSION_FILE = "version_prerelease.txt"
+            $VERSION_FILE="version_prerelease.txt"
           fi
           
           echo "Updating:" $VERSION_FILE
