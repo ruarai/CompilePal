@@ -219,6 +219,12 @@ namespace CompilePalX.Compilers.BSPPack
 
                 CompilePalLogger.LogLine("Finding sources of game content...");
                 sourceDirectories = GetSourceDirectories(gameFolder);
+                if (verbose)
+                {
+                    CompilePalLogger.LogLine("Source directories:");
+                    foreach (var sourceDirectory in sourceDirectories)
+                        CompilePalLogger.LogLine(sourceDirectory);
+                }
 
                 CompilePalLogger.LogLine("Reading BSP...");
                 BSP map = new BSP(new FileInfo(bspPath));

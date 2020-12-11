@@ -174,7 +174,7 @@ namespace CompilePalX.Compilers.BSPPack
 		        foreach (var folder in potentialSubDir)
 		        {
 			        if (fileInfo.Directory != null 
-			            && fileInfo.Directory.FullName.Contains(folder))
+			            && fileInfo.Directory.FullName.ToLower().Contains(folder.ToLower()))
 			        {
 				        baseDir = folder;
 						break;
@@ -182,13 +182,13 @@ namespace CompilePalX.Compilers.BSPPack
 		        }
 
                 // check needed for when file does not exist in any sub directory or the base directory
-                if (fileInfo.Directory != null && !fileInfo.Directory.FullName.Contains(baseDir))
+                if (fileInfo.Directory != null && !fileInfo.Directory.FullName.ToLower().Contains(baseDir.ToLower()))
                 {
                     CompilePalLogger.LogCompileError($"Failed to resolve internal path for {file}, skipping\n", new Error($"Failed to resolve internal path for {file}, skipping", ErrorSeverity.Error));
                     continue;
                 }
 
-		        string internalPath = file.Replace(baseDir + "\\", "");
+		        string internalPath = Regex.Replace(file, Regex.Escape(baseDir + "\\"), "", RegexOptions.IgnoreCase);
 
 				// try to determine file type by extension
 				switch (file.Split('.').Last())
