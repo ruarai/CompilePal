@@ -124,8 +124,10 @@
     <Compile Include="InputDialog.xaml.cs">
       <DependentUpon>InputDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="TrulyObservableCollection.cs" />
     <Compile Include="KV.cs" />
     <Compile Include="PersistenceManager.cs" />
+    <Compile Include="Properties\Annotations.cs" />
     <Compile Include="RegistryManager.cs" />
     <Compile Include="RowDragHelper.cs" />
     <Compile Include="Updating\UpdateManager.cs" />

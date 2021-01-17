@@ -135,7 +135,7 @@ namespace CompilePalX
                         if (File.Exists(argPath))
                         {
                             if (argPath.EndsWith(".vmf") || argPath.EndsWith(".vmm") || argPath.EndsWith(".vmx"))
-                                CompilingManager.MapFiles.Add(argPath);
+                                CompilingManager.MapFiles.Add(new Map(argPath));
                         }
                     }
 
@@ -630,13 +630,13 @@ namespace CompilePalX
 
             foreach (var file in dialog.FileNames)
             {
-                CompilingManager.MapFiles.Add(file);
+                CompilingManager.MapFiles.Add(new Map(file));
             }
         }
 
         private void RemoveMapButton_Click(object sender, RoutedEventArgs e)
         {
-            string selectedMap = (string)MapListBox.SelectedItem;
+            Map selectedMap = (Map)MapListBox.SelectedItem;
 
             if (selectedMap != null)
                 CompilingManager.MapFiles.Remove(selectedMap);

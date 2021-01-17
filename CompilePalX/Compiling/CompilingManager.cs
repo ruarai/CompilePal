@@ -15,6 +15,7 @@ using System.Windows.Threading;
 using CompilePalX.Compilers;
 using CompilePalX.Compiling;
 using System.Runtime.InteropServices;
+using CompilePalX.Annotations;
 using CompilePalX.Configuration;
 
 namespace CompilePalX
@@ -22,6 +23,39 @@ namespace CompilePalX
     internal delegate void CompileCleared();
     internal delegate void CompileStarted();
     internal delegate void CompileFinished();
+
+    class Map : INotifyPropertyChanged
+    {
+        private string file;
+
+        public string File
+        {
+            get => file;
+            set { file = value; OnPropertyChanged(nameof(File));  }
+        }
+
+        private bool compile;
+        public bool Compile 
+        {
+            get => compile;
+            set { compile = value; OnPropertyChanged(nameof(Compile));  }
+        }
+
+        public Map(string file, bool compile = true)
+        {
+            File = file;
+            Compile = compile;
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        [NotifyPropertyChangedInvocator]
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+    }
+
     static class CompilingManager
     {
         static CompilingManager()
@@ -49,7 +83,7 @@ namespace CompilePalX
         public static event CompileFinished OnStart;
         public static event CompileFinished OnFinish;
 
-        public static ObservableCollection<string> MapFiles = new ObservableCollection<string>();
+        public static TrulyObservableCollection<Map> MapFiles = new TrulyObservableCollection<Map>();
 
         private static Thread compileThread;
         private static Stopwatch compileTimeStopwatch = new Stopwatch();
@@ -96,8 +130,15 @@ namespace CompilePalX
                 var mapErrors = new List<MapErrors>();
 
 
-                foreach (string mapFile in MapFiles)
+                foreach (Map map in MapFiles)
                 {
+                    if (!map.Compile)
+                    {
+                        CompilePalLogger.LogDebug($"Skipping {map.File}");
+                        continue;
+                    }
+
+                    string mapFile = map.File; 
                     string cleanMapName = Path.GetFileNameWithoutExtension(mapFile);
 
                     var compileErrors = new List<Error>();

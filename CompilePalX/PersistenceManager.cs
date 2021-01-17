@@ -3,7 +3,9 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.IO;
 using System.Windows.Documents;
+using CompilePalX.Compiling;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace CompilePalX
 {
@@ -14,9 +16,21 @@ namespace CompilePalX
         {
             if (File.Exists(mapFiles))
             {
-                var list = JsonConvert.DeserializeObject<List<string>>(File.ReadAllText(mapFiles));
+                var list = JsonConvert.DeserializeObject<List<object>>(File.ReadAllText(mapFiles));
+                var mapList = new List<Map>();
 
-                CompilingManager.MapFiles = new ObservableCollection<string>(list);
+                // make this backwards compatible by allowing plain string values in maplist array (old format)
+                foreach (var item in list)
+                {
+                    if (item is string mapFile)
+                        mapList.Add(new Map(mapFile));
+                    else if (item is JObject obj)
+                        mapList.Add(obj.ToObject<Map>());
+                    else
+                        CompilePalLogger.LogDebug($"Failed to load item from mapfiles: {item}");
+                }
+
+                CompilingManager.MapFiles = new TrulyObservableCollection<Map>(mapList);
             }
 
             CompilingManager.MapFiles.CollectionChanged +=
