@@ -213,13 +213,16 @@
             </controls:MetroTabItem>
             <controls:MetroTabItem Name="OutputTab" Header="OUTPUT">
                 <Grid Background="#FFE5E5E5">
-                    <RichTextBox IsReadOnly="True" x:Name="CompileOutputTextbox" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" BorderThickness="0"  Margin="10,10,10,10" FontFamily="Segoe UI, Lucida Sans Unicode, Verdana" IsReadOnlyCaretVisible="True" Block.LineHeight="2" IsDocumentEnabled="True">
                         <RichTextBox.Document>
                             <FlowDocument>
                                 <Paragraph Name="OutputParagraph"></Paragraph>
                             </FlowDocument>
                         </RichTextBox.Document>
                     </RichTextBox>
+                    <!--Scroll to bottom button, probably not needed-->
+                    <!--<Button Click="ConfigBack_OnClick" ToolTip="Scroll To Bottom" x:Name="Tmp" HorizontalAlignment="Right" VerticalAlignment="Bottom" Background="Red" Margin="100, 100, 30, 15" Foreground="White" >
+                        <iconPacks:Material Kind="ArrowDown" />
+                    </Button>-->
                 </Grid>
 
             </controls:MetroTabItem>

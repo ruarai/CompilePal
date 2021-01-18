@@ -202,7 +202,10 @@ namespace CompilePalX
 
                 OutputParagraph.Inlines.Add(textRun);
 
-                CompileOutputTextbox.ScrollToEnd();
+                // scroll to end only if already scrolled to the bottom. 1.0 is an epsilon value for double comparison
+                if (CompileOutputTextbox.VerticalOffset + CompileOutputTextbox.ViewportHeight >= CompileOutputTextbox.ExtentHeight - 1.0)
+                    CompileOutputTextbox.ScrollToEnd();
+
                 return textRun;
             });
         }
