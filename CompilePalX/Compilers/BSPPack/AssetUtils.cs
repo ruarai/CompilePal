@@ -690,6 +690,20 @@ namespace CompilePalX.Compilers.BSPPack
                         bsp.jpg = new KeyValuePair<string, string>(internalPath + ".jpg", externalPath + extension);
             }
 
+            // csgo panorama map icons (.png)
+            internalPath = "materials/panorama/images/map_icons/screenshots/"; 
+            var panoramaMapIcons = new List<KeyValuePair<string, string>>();
+            foreach (string source in sourceDirectories)
+            {
+                string externalPath = source + "/" + internalPath;
+                string bspName = bsp.file.Name.Replace(".bsp", "");
+
+                foreach (string resolution in new[] {"360p", "1080p"})
+                    if (File.Exists($"{externalPath}{resolution}/{bspName}.png"))
+                        panoramaMapIcons.Add(new KeyValuePair<string, string>($"{internalPath}{resolution}/{bspName}.png", $"{externalPath}{resolution}/{bspName}.png"));
+            }
+            bsp.PanoramaMapIcons = panoramaMapIcons;
+
             // language files, particle manifests and soundscript file
             // (these language files are localized text files for tf2 mission briefings)
             string internalDir = "maps/";

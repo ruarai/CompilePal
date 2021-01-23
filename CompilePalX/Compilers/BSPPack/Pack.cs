@@ -371,6 +371,8 @@ namespace CompilePalX.Compilers.BSPPack
                     CompilePalLogger.LogLine(pakfile.effectscriptcount + " effect scripts found");
                 if (pakfile.vscriptcount != 0)
                     CompilePalLogger.LogLine(pakfile.vscriptcount + " vscripts found");
+                if (pakfile.panoramaMapIconCount != 0)
+                    CompilePalLogger.LogLine(pakfile.panoramaMapIconCount + " panorama map icons found");
                 string additionalFiles =
                     (map.nav.Key != default(string) ? "\n-nav file" : "") +
                     (map.soundscape.Key != default(string) ? "\n-soundscape" : "") +

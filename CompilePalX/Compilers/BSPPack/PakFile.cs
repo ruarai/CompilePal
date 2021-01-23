@@ -60,10 +60,11 @@ namespace CompilePalX.Compilers.BSPPack
         public int vehiclescriptcount { get; private set; }
         public int effectscriptcount { get; private set; }
         public int vscriptcount { get; private set; }
+        public int panoramaMapIconCount { get; private set; }
 
         public PakFile(BSP bsp, List<string> sourceDirectories, List<string> includeFiles, List<string> excludedFiles, List<string> excludedDirs, List<string> excludedVpkFiles, string outputFile)
         {
-            mdlcount = vmtcount = pcfcount = sndcount = vehiclescriptcount = effectscriptcount = 0;
+            mdlcount = vmtcount = pcfcount = sndcount = vehiclescriptcount = effectscriptcount = panoramaMapIconCount = 0;
             sourceDirs = sourceDirectories;
             fileName = outputFile;
 
@@ -158,6 +159,9 @@ namespace CompilePalX.Compilers.BSPPack
             foreach (string vscript in bsp.vscriptList)
                 if (AddInternalFile(vscript, FindExternalFile(vscript)))
                     vscriptcount++;
+            foreach (KeyValuePair<string, string> teamSelectionBackground in bsp.PanoramaMapIcons)
+                if (AddInternalFile(teamSelectionBackground.Key, teamSelectionBackground.Value))
+                    panoramaMapIconCount++;
 
 			// add all manually included files
 			// TODO right now the manually included files search for files it depends on. Not sure if this should be default behavior
