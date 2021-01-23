@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -22,11 +23,27 @@ namespace CompilePalX.Compiling
     public partial class ErrorWindow
     {
         private bool firstLoad = true;
-        public ErrorWindow(string html)
+        public ErrorWindow(Error error)
         {
             InitializeComponent();
 
             ErrorBrowser.Navigating += ErrorBrowser_Navigating;
+
+            // extract values from error message using regex and insert them into the template  
+            var html = error.Message;
+            var i = 0;
+            foreach (Group group in Regex.Match(error.ShortDescription, error.RegexTrigger.ToString()).Groups)
+            {
+                // first group is always the entire match, ignore it
+                if (i == 0)
+                {
+                    i++;
+                    continue;
+                }
+
+                html = html.Replace($"[sub:{i}]", group.Value);
+                i++;
+            }
 
             ErrorBrowser.NavigateToString(html);
         }

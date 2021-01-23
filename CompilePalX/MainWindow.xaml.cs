@@ -160,7 +160,7 @@ namespace CompilePalX
                 errorLink.Inlines.Add(text);
                 if (e.ID >= 0)
                 {
-                    errorLink.TargetName = e.ID.ToString();
+                    errorLink.DataContext = e;
                     errorLink.Click += errorLink_Click;
                 }
 
@@ -182,9 +182,9 @@ namespace CompilePalX
         static void errorLink_Click(object sender, System.Windows.RoutedEventArgs e)
         {
             var link = (Hyperlink)sender;
-            int errorCode = int.Parse(link.TargetName);
+            Error error = (Error)link.DataContext;
 
-            ErrorFinder.ShowErrorDialog(errorCode);
+            ErrorFinder.ShowErrorDialog(error);
         }
         
 

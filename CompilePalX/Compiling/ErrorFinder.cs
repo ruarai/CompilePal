@@ -115,19 +115,14 @@ namespace CompilePalX
             return null;
         }
 
-        public static void ShowErrorDialog(int errorID)
+        public static void ShowErrorDialog(Error error)
         {
-            var error = errorList.FirstOrDefault(e => e.ID == errorID);
-
-            if (error != null)
-            {
-                ErrorWindow w = new ErrorWindow(error.Message);
-                w.ShowDialog();
-            }
+            ErrorWindow w = new ErrorWindow(error);
+            w.ShowDialog();
         }
     }
 
-    class Error : ICloneable
+    public class Error : ICloneable
     {
         public Regex RegexTrigger;
         public string Message;
