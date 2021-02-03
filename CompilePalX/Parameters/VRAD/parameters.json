@@ -60,6 +60,7 @@
     "Parameter": " -lights",
     "Description": "Load a custom lights file in addition to lights.rad and map-specific lights file.",
     "Value": null,
+    "ValueIsFile": true,
     "CanHaveValue": true,
     "Warning": ""
   },
