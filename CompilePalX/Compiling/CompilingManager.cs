@@ -88,7 +88,7 @@ namespace CompilePalX
         private static Thread compileThread;
         private static Stopwatch compileTimeStopwatch = new Stopwatch();
 
-        private static bool IsCompiling;
+        public static bool IsCompiling { get; private set; }
 
         public static void ToggleCompileState()
         {

@@ -484,6 +484,17 @@ namespace CompilePalX
 
         private void MetroWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
+            // prevent users from accidentally closing during a compile
+            if (CompilingManager.IsCompiling)
+            {
+                MessageBoxResult cancelBoxResult = MessageBox.Show("Compile in progress, are you sure you want to cancel?", "Cancel Confirmation", System.Windows.MessageBoxButton.YesNo);
+                if (cancelBoxResult != MessageBoxResult.Yes)
+                {
+                    e.Cancel = true;
+                    return;
+                }
+            }
+
             ConfigurationManager.SavePresets();
             ConfigurationManager.SaveProcesses();
 
