@@ -40,7 +40,7 @@ namespace CompilePalX.Compilers
 
             var args = GameConfigurationManager.SubstituteValues(GetParameterString(), c.MapFile);
             var filename = GameConfigurationManager.SubstituteValues(Metadata.Path);
-            if (!File.Exists(filename))
+            if (!File.Exists(filename.Replace("\"", "")))
             {
                 CompilePalLogger.LogCompileError($"Failed to find executable: {filename}\n", new Error("Failed to find executable: {filename}", ErrorSeverity.FatalError));
                 return;
