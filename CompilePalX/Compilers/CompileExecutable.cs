@@ -39,8 +39,14 @@ namespace CompilePalX.Compilers
             }
 
             var args = GameConfigurationManager.SubstituteValues(GetParameterString(), c.MapFile);
+            var filename = GameConfigurationManager.SubstituteValues(Metadata.Path);
+            if (!File.Exists(filename))
+            {
+                CompilePalLogger.LogCompileError($"Failed to find executable: {filename}\n", new Error("Failed to find executable: {filename}", ErrorSeverity.FatalError));
+                return;
+            }
 
-            Process.StartInfo.FileName = GameConfigurationManager.SubstituteValues(Metadata.Path);
+            Process.StartInfo.FileName = filename;
             Process.StartInfo.Arguments = string.Join(" ", args);
             Process.StartInfo.WorkingDirectory = runningDirectory;
 
