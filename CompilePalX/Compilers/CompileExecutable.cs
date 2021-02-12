@@ -39,18 +39,21 @@ namespace CompilePalX.Compilers
             }
 
             var args = GameConfigurationManager.SubstituteValues(GetParameterString(), c.MapFile);
-            var filename = GameConfigurationManager.SubstituteValues(Metadata.Path);
-            if (!File.Exists(filename.Replace("\"", "")))
-            {
-                CompilePalLogger.LogCompileError($"Failed to find executable: {filename}\n", new Error("Failed to find executable: {filename}", ErrorSeverity.FatalError));
-                return;
-            }
 
-            Process.StartInfo.FileName = filename;
+            Process.StartInfo.FileName = GameConfigurationManager.SubstituteValues(Metadata.Path);;
             Process.StartInfo.Arguments = string.Join(" ", args);
             Process.StartInfo.WorkingDirectory = runningDirectory;
 
-            Process.Start();
+            try
+            {
+                Process.Start();
+            }
+            catch (Exception e)
+            {
+                CompilePalLogger.LogDebug(e.ToString());
+                CompilePalLogger.LogCompileError($"Failed to run executable: {Process.StartInfo.FileName}\n", new Error($"Failed to run executable: {Process.StartInfo.FileName}", ErrorSeverity.FatalError));
+                return;
+            }
             Process.PriorityClass = ProcessPriorityClass.BelowNormal;
 
             if (Metadata.ReadOutput)
