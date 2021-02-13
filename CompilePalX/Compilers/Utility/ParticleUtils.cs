@@ -448,11 +448,19 @@ namespace CompilePalX.Compilers.UtilityProcess
                 sw.WriteLine("particles_manifest");
                 sw.WriteLine("{");
 
-                foreach (PCF particle in particles)
+                foreach (string source in sourceDirectories)
                 {
-                    string internalParticlePath = particle.FilePath.Replace(baseDirectory, "");
-                    sw.WriteLine($"      \"file\"    \"!{internalParticlePath}\"");
-                    CompilePalLogger.LogLine($"PCF added to manifest: {internalParticlePath}");
+                    foreach (PCF particle in particles)
+                    {
+                        if (particle.FilePath.StartsWith(source + "\\" + internalPath))
+                        {
+                            // add 1 for the backslash between source dir and particle path
+                            string internalParticlePath = particle.FilePath.Remove(0, source.Length + 1);
+
+                            sw.WriteLine($"      \"file\"    \"!{internalParticlePath}\"");
+                            CompilePalLogger.LogLine($"PCF added to manifest: {internalParticlePath}");
+                        }
+                    }
                 }
 
                 sw.WriteLine("}");
