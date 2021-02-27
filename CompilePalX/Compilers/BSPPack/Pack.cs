@@ -631,12 +631,20 @@ namespace CompilePalX.Compilers.BSPPack
                         }
                         else
                         {
-	                        string fullPath = System.IO.Path.GetFullPath(rootPath + "\\" + path.TrimEnd('\\'));
+                            try
+                            {
+                                string fullPath = System.IO.Path.GetFullPath(rootPath + "\\" + path.TrimEnd('\\'));
 
-	                        if (verbose)
-		                        CompilePalLogger.LogLine("Found search path: {0}", fullPath);
+                                if (verbose)
+                                    CompilePalLogger.LogLine("Found search path: {0}", fullPath);
 
-	                        sourceDirectories.Add(fullPath);
+                                sourceDirectories.Add(fullPath);
+                            }
+                            catch (Exception e)
+                            {
+                                CompilePalLogger.LogDebug("Failed to find search path: " + e);
+                                CompilePalLogger.LogCompileError($"Search path invalid: {rootPath + "\\" + path.TrimEnd('\\')}", new Error($"Search path invalid: {rootPath + "\\" + path.TrimEnd('\\')}", ErrorSeverity.Caution));
+                            }
                         }
                     }
                     else
