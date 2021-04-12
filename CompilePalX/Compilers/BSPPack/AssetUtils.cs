@@ -437,9 +437,20 @@ namespace CompilePalX.Compilers.BSPPack
         {
             if (needsSplit)
                 vmtline = vmtline.Split(new char[] { ' ' }, 2)[1]; // removes the parameter name
-            vmtline = vmtline.Split(new string[] { "//", "\\\\" }, StringSplitOptions.None)[0]; // removes endline parameter
+
+            if (vmtline[0] == '"')
+            {
+                vmtline = Regex.Match(vmtline, "\"([^\"]+)\"").Groups[1].Value;
+            }
+            else
+            {
+                vmtline = Regex.Match(vmtline, "[^ ]+").Groups[0].Value;
+            }
+
             vmtline = vmtline.Trim(new char[] { ' ', '/', '\\' }); // removes leading slashes
             vmtline = vmtline.Replace('\\', '/'); // normalize slashes
+            vmtline = Regex.Replace(vmtline, "/+", "/"); // remove duplicate slashes
+
             if (vmtline.StartsWith("materials/"))
                 vmtline = vmtline.Remove(0, "materials/".Length); // removes materials/ if its the beginning of the string for consistency
             if (vmtline.EndsWith(".vmt") || vmtline.EndsWith(".vtf")) // removes extentions if present for consistency
