@@ -722,6 +722,7 @@ namespace CompilePalX.Compilers.BSPPack
             string name = bsp.file.Name.Replace(".bsp", "");
             string searchPattern = name + "*.txt";
             List<KeyValuePair<string, string>> langfiles = new List<KeyValuePair<string, string>>();
+            bool particleManifestPacked = false;
 
             foreach (string source in sourceDirectories)
             {
@@ -731,11 +732,15 @@ namespace CompilePalX.Compilers.BSPPack
                 if (dir.Exists)
                     foreach (FileInfo f in dir.GetFiles(searchPattern))
                     {
-                        // particle files if particle manifest is not being generated
-                        if (!genparticlemanifest)
+                        // only pack 1 particle manifest
+                        if (!genparticlemanifest && !particleManifestPacked)
+                        {
                             if (f.Name.StartsWith(name + "_particles") || f.Name.StartsWith(name + "_manifest"))
-                                bsp.particleManifest =
-                                    new KeyValuePair<string, string>(internalDir + f.Name, externalDir + f.Name);
+                            {
+                                particleManifestPacked = true;
+                                bsp.particleManifest = new KeyValuePair<string, string>(internalDir + f.Name, externalDir + f.Name);
+                            }
+                        }
 
                         // soundscript
                         if (f.Name.StartsWith(name + "_level_sounds"))
@@ -743,7 +748,14 @@ namespace CompilePalX.Compilers.BSPPack
                                 new KeyValuePair<string, string>(internalDir + f.Name, externalDir + f.Name);
                         // presumably language files
                         else
+                        {
+                            // don't pack existing particle manifests if we are generating one
+                            if (genparticlemanifest && (f.Name.StartsWith(name + "_particles") || f.Name.StartsWith(name + "_manifest")))
+                            {
+                                continue;
+                            }
                             langfiles.Add(new KeyValuePair<string, string>(internalDir + f.Name, externalDir + f.Name));
+                        }
                     }
             }
             bsp.languages = langfiles;
