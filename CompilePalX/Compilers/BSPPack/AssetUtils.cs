@@ -470,6 +470,12 @@ namespace CompilePalX.Compilers.BSPPack
             }
             else
             {
+                // strip c style comments like this one
+                var commentIndex = vmtline.IndexOf("//");
+                if(commentIndex > -1)
+                {
+                    vmtline = vmtline.Substring(0, commentIndex);
+                }
                 vmtline = Regex.Match(vmtline, "[^ \t]+").Groups[0].Value;
             }
 
