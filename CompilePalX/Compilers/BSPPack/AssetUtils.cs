@@ -232,6 +232,12 @@ namespace CompilePalX.Compilers.BSPPack
 
                 mdl.Close();
             }
+
+            for(int i=0;i<materials.Count;i++)
+            {
+                materials[i] = Regex.Replace(materials[i], "/+", "/"); // remove duplicate slashes
+            }
+
             return new Tuple<List<string>, List<string>>(materials, models);
         }
 
