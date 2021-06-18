@@ -54,3 +54,4 @@ $emissiveBlendFlowTexture
 %tooltexture
 srgb?$basetexture
 $iris
+$ambientoccltexture
