@@ -239,6 +239,10 @@ namespace CompilePalX.Compilers.BSPPack
 				if (ent["classname"].Contains("env_funnel"))
 					materials.Add("sprites/flare6.vmt");
 
+				// special condition for env_embers. Hardcoded to use particle/fire.vmt
+				if (ent["classname"].Contains("env_embers"))
+					materials.Add("particle/fire.vmt");
+
 				// special condition for vgui_slideshow_display. directory paramater references all textures in a folder (does not include subfolders)
 				if (ent["classname"].Contains("vgui_slideshow_display"))
 	            {
