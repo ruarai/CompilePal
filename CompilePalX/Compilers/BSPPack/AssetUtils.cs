@@ -232,6 +232,12 @@ namespace CompilePalX.Compilers.BSPPack
 
                 mdl.Close();
             }
+
+            for(int i=0;i<materials.Count;i++)
+            {
+                materials[i] = Regex.Replace(materials[i], "/+", "/"); // remove duplicate slashes
+            }
+
             return new Tuple<List<string>, List<string>>(materials, models);
         }
 
@@ -358,9 +364,9 @@ namespace CompilePalX.Compilers.BSPPack
 
                 if (Keys.vmtTextureKeyWords.Any(key => param.ToLower().StartsWith(key + " ")))
                 {
-                    vtfList.Add("materials/" + vmtPathParser(param) + ".vtf");
+                    vtfList.Add("materials/" + vmtPathParser2(line) + ".vtf");
                     if (param.ToLower().StartsWith("$envmap" + " "))
-                        vtfList.Add("materials/" + vmtPathParser(param) + ".hdr.vtf");
+                        vtfList.Add("materials/" + vmtPathParser2(line) + ".hdr.vtf");
                 }
             }
             return vtfList;
@@ -376,7 +382,7 @@ namespace CompilePalX.Compilers.BSPPack
                 string param = line.Replace("\"", " ").Replace("\t", " ").Trim();
                 if (Keys.vmtMaterialKeyWords.Any(key => param.StartsWith(key + " ")))
                 {
-                    vmtList.Add("materials/" + vmtPathParser(param) + ".vmt");
+                    vmtList.Add("materials/" + vmtPathParser2(line) + ".vmt");
                 }
             }
             return vmtList;
@@ -392,7 +398,7 @@ namespace CompilePalX.Compilers.BSPPack
                 string param = line.Replace("\"", " ").Replace("\t", " ").Trim();
                 if (param.StartsWith("image ", StringComparison.CurrentCultureIgnoreCase))
                 {
-                    string path = "materials/vgui/" + vmtPathParser(param) + ".vmt";
+                    string path = "materials/vgui/" + vmtPathParser2(line) + ".vmt";
                     path = path.Replace("/vgui/..", "");
                     vmtList.Add(path);
                 }
@@ -440,6 +446,49 @@ namespace CompilePalX.Compilers.BSPPack
             vmtline = vmtline.Split(new string[] { "//", "\\\\" }, StringSplitOptions.None)[0]; // removes endline parameter
             vmtline = vmtline.Trim(new char[] { ' ', '/', '\\' }); // removes leading slashes
             vmtline = vmtline.Replace('\\', '/'); // normalize slashes
+            if (vmtline.StartsWith("materials/"))
+                vmtline = vmtline.Remove(0, "materials/".Length); // removes materials/ if its the beginning of the string for consistency
+            if (vmtline.EndsWith(".vmt") || vmtline.EndsWith(".vtf")) // removes extentions if present for consistency
+                vmtline = vmtline.Substring(0, vmtline.Length - 4);
+            return vmtline;
+        }
+
+        // same as above but quotes are not replaced and line does not need to be trimmed, quotes are needed to tell if // are comments or not
+        public static string vmtPathParser2(string vmtline)
+        {
+            vmtline = vmtline.Trim(new char[] {' ', '\t'});
+            
+            // remove key
+            if(vmtline[0] == '"')
+            {
+                vmtline = Regex.Match(vmtline, "\"[^\"]+\"(.*)$").Groups[1].Value;
+            }
+            else
+            {
+                vmtline = Regex.Match(vmtline, "[^ \t]+(.*)$").Groups[1].Value;
+            }
+
+            vmtline = vmtline.TrimStart(new char[] { ' ', '\t' });
+            // process value
+            if (vmtline[0] == '"')
+            {
+                vmtline = Regex.Match(vmtline, "\"([^\"]+)\"").Groups[1].Value;
+            }
+            else
+            {
+                // strip c style comments like this one
+                var commentIndex = vmtline.IndexOf("//");
+                if(commentIndex > -1)
+                {
+                    vmtline = vmtline.Substring(0, commentIndex);
+                }
+                vmtline = Regex.Match(vmtline, "[^ \t]+").Groups[0].Value;
+            }
+
+            vmtline = vmtline.Trim(new char[] { ' ', '/', '\\' }); // removes leading slashes
+            vmtline = vmtline.Replace('\\', '/'); // normalize slashes
+            vmtline = Regex.Replace(vmtline, "/+", "/"); // remove duplicate slashes
+
             if (vmtline.StartsWith("materials/"))
                 vmtline = vmtline.Remove(0, "materials/".Length); // removes materials/ if its the beginning of the string for consistency
             if (vmtline.EndsWith(".vmt") || vmtline.EndsWith(".vtf")) // removes extentions if present for consistency
@@ -721,11 +770,12 @@ namespace CompilePalX.Compilers.BSPPack
                     foreach (FileInfo f in dir.GetFiles(searchPattern))
                     {
                         // particle files if particle manifest is not being generated
-                        if (!genparticlemanifest)
-                            if (f.Name.StartsWith(name + "_particles") || f.Name.StartsWith(name + "_manifest"))
-                                bsp.particleManifest =
-                                    new KeyValuePair<string, string>(internalDir + f.Name, externalDir + f.Name);
-
+                        if (f.Name.StartsWith(name + "_particles") || f.Name.StartsWith(name + "_manifest"))
+                        {
+                            if(!genparticlemanifest)
+                                bsp.particleManifest = new KeyValuePair<string, string>(internalDir + f.Name, externalDir + f.Name);
+                            continue;
+                        }
                         // soundscript
                         if (f.Name.StartsWith(name + "_level_sounds"))
                             bsp.soundscript =

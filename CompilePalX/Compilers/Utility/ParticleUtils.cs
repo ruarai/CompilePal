@@ -465,9 +465,12 @@ namespace CompilePalX.Compilers.UtilityProcess
 
                 sw.WriteLine("}");
             }
-            
-            string internalDirectory = filepath.Replace(baseDirectory, "");
 
+            string internalDirectory = filepath;
+            if(filepath.ToLower().StartsWith(baseDirectory.ToLower()))
+            {
+                internalDirectory = filepath.Substring(baseDirectory.Length);
+            }
             //Store internal/external dir so it can be packed
             particleManifest = new KeyValuePair<string, string>(internalDirectory, filepath);
         }
