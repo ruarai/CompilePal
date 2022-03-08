@@ -253,7 +253,7 @@ namespace CompilePalX.Compilers.BSPPack
                         if (fileListParam.Length <= 1 || string.IsNullOrWhiteSpace(fileListParam[1]))
                         {
                             CompilePalLogger.LogCompileError("No file list parameter set\n",
-                                new Error("No file list parameterparameter  set", ErrorSeverity.Error));
+                                new Error("No file list parameter set", ErrorSeverity.Error));
                             continue;
                         }
 

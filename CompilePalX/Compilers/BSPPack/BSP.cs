@@ -291,7 +291,7 @@ namespace CompilePalX.Compilers.BSPPack
                     var match = Regex.Match(kv.Item2, @"r_screenoverlay ([^,]+),");
                     if(match.Success)
                     {
-                        uniqueMats.Add(match.Groups[1].Value);
+                        uniqueMats.Add(match.Groups[1].Value.Replace(".vmt", ""));
                     }
                 }
             }
