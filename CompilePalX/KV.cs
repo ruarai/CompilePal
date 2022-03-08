@@ -226,6 +226,11 @@ namespace CompilePalX.KV
             while (this.values.ContainsKey(key + (++vc > 0 ? vc.ToString() : ""))) list.Add(this.values[key + (vc > 0 ? vc.ToString() : "")]);
             return list;
         }
+
+        public override string ToString()
+        {
+            return $"DataBlock<\n\tname={this.name}\n\tvalues={{{string.Join("\n\t\t", this.values)}}}\n\tsubBlocks=[\n{string.Join(", ", this.subBlocks)}\n]>";
+        }
     }
     public class FileData {
         public DataBlock headnode;

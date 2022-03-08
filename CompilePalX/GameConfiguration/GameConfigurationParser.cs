@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using CompilePalX.Compiling;
 
 namespace CompilePalX {
     class GameConfigurationParser {
@@ -16,6 +17,7 @@ namespace CompilePalX {
                 string binfolder = Path.GetDirectoryName(filename);
                 KV.DataBlock hdb = gamedb.GetFirstByName("\"Hammer\"");
 
+                CompilePalLogger.LogLine($"Gamedb: {gamedb}");
                 GameConfiguration game = new GameConfiguration
                 {
                     Name =          gamedb.name.Replace("\"", ""),
