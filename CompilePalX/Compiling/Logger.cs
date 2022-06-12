@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
@@ -29,6 +31,7 @@ namespace CompilePalX.Compiling
         static CompilePalLogger()
         {
             File.Delete(logFile);
+            Thread.CurrentThread.CurrentUICulture = new CultureInfo("en-US");
         }
         public static event LogWrite OnWrite;
         public static event LogBacktrack OnBacktrack;
