@@ -267,7 +267,9 @@ namespace CompilePalX.Compilers.BSPPack
         public void AddModel(string internalPath, List<int> skins = null)
         {
             // adds mdl files and finds its dependencies
+            CompilePalLogger.LogLineDebug($"Packing model: {internalPath}");
             string externalPath = FindExternalFile(internalPath);
+            CompilePalLogger.LogLineDebug($"External path: {internalPath}");
             if (AddInternalFile(internalPath, externalPath))
             {
                 mdlcount++;
