@@ -15,7 +15,7 @@ namespace CompilePalX {
 
             foreach (KV.DataBlock gamedb in data.headnode.GetFirstByName(new []{"\"Configs\"", "\"GameConfig.txt\""}).GetFirstByName("\"Games\"").subBlocks) {
                 string binfolder = Path.GetDirectoryName(filename);
-                KV.DataBlock hdb = gamedb.GetFirstByName("\"Hammer\"");
+                KV.DataBlock hdb = gamedb.GetFirstByName(new []{"\"Hammer\"", "\"hammer\""});
 
                 CompilePalLogger.LogLine($"Gamedb: {gamedb}");
                 GameConfiguration game = new GameConfiguration
