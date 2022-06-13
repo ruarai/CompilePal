@@ -92,13 +92,26 @@ namespace CompilePalX.Compilers
         public void FetchHDRLevels()
         {
             CompilePalLogger.LogLine("Detecting HDR levels...");
-            var startInfo = new ProcessStartInfo(vbspInfo, "\"" + bspFile + "\"");
-            startInfo.UseShellExecute = false;
-            startInfo.CreateNoWindow = true;
-            startInfo.RedirectStandardOutput = true;
+            var startInfo = new ProcessStartInfo(vbspInfo, "\"" + bspFile + "\"")
+            {
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                RedirectStandardOutput = true
+            };
 
             var p = new Process { StartInfo = startInfo };
-            p.Start();
+            try
+            {
+                p.Start();
+            }
+            catch (Exception e)
+            {
+                CompilePalLogger.LogDebug(e.ToString());
+                CompilePalLogger.LogCompileError($"Failed to run executable: {Process.StartInfo.FileName}\n", new Error($"Failed to run executable: {Process.StartInfo.FileName}", ErrorSeverity.Warning));
+                CompilePalLogger.LogLine("Could not read HDR levels, defaulting to one.");
+                return;
+            }
+
             string output = p.StandardOutput.ReadToEnd();
 
             if (p.ExitCode != 0)
