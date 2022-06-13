@@ -10,14 +10,22 @@ namespace CompilePalX
         public string VVIS { get; set; }
         public string VRAD { get; set; }
 
-        public string BSPZip {
-            get { return Path.Combine(BinFolder, "bspzip.exe"); }
+        private string _BSPZip = null;
+        public string BSPZip
+        {
+            get => _BSPZip ?? Path.Combine(BinFolder, "bspzip.exe");
+            set => _BSPZip = value;
         }
+
+        private string _VBSPInfo = null;
         public string VBSPInfo {
-            get { return Path.Combine(BinFolder, "vbspinfo.exe"); }
+            get => _VBSPInfo ?? Path.Combine(BinFolder, "vbspinfo.exe");
+            set => _VBSPInfo = value;
         }
+        private string _VPK = null;
         public string VPK {
-            get { return Path.Combine(BinFolder, "vpk.exe"); }
+            get => _VPK ?? Path.Combine(BinFolder, "vpk.exe");
+            set => _VPK = value;
         }
 
         public string GameEXE { get; set; }
