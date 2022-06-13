@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using CompilePalX.Compiling;
 
 namespace CompilePalX.Compilers.BSPPack
@@ -91,13 +92,17 @@ namespace CompilePalX.Compilers.BSPPack
                 // manually passing in a file list
                 if (usefilelist)
                 {
-                    var fileListParam = parameters.First(p => p.StartsWith("usefilelist")).Split(new[]{" "}, 2, StringSplitOptions.None);
+                    var fileListParam = parameters.First(p => p.StartsWith("usefilelist"))
+                        .Split(new[] { " " }, 2, StringSplitOptions.None);
                     if (fileListParam.Length > 1 && !string.IsNullOrWhiteSpace(fileListParam[1]))
                     {
                         outputFile = fileListParam[1];
                         if (!File.Exists(outputFile))
                         {
-                            CompilePalLogger.LogCompileError($"Could not find file list {outputFile}, exiting pack step\n", new Error($"Could not find file list {outputFile}, exiting pack step\n", ErrorSeverity.Error));
+                            CompilePalLogger.LogCompileError(
+                                $"Could not find file list {outputFile}, exiting pack step\n",
+                                new Error($"Could not find file list {outputFile}, exiting pack step\n",
+                                    ErrorSeverity.Error));
                             return;
                         }
 
@@ -106,16 +111,20 @@ namespace CompilePalX.Compilers.BSPPack
                         return;
                     }
 
-                    CompilePalLogger.LogCompileError("No file list set, exiting pack step\n", new Error("No file list set, exiting  pack step", ErrorSeverity.Error));
+                    CompilePalLogger.LogCompileError("No file list set, exiting pack step\n",
+                        new Error("No file list set, exiting  pack step", ErrorSeverity.Error));
                     return;
                 }
 
                 outputFile = "BSPZipFiles\\files.txt";
 
-                Keys.vmtTextureKeyWords = File.ReadAllLines(System.IO.Path.Combine(keysFolder, "texturekeys.txt")).ToList();
-                Keys.vmtMaterialKeyWords = File.ReadAllLines(System.IO.Path.Combine(keysFolder, "materialkeys.txt")).ToList();
+                Keys.vmtTextureKeyWords =
+                    File.ReadAllLines(System.IO.Path.Combine(keysFolder, "texturekeys.txt")).ToList();
+                Keys.vmtMaterialKeyWords =
+                    File.ReadAllLines(System.IO.Path.Combine(keysFolder, "materialkeys.txt")).ToList();
                 Keys.vmfSoundKeys = File.ReadAllLines(System.IO.Path.Combine(keysFolder, "vmfsoundkeys.txt")).ToList();
-                Keys.vmfMaterialKeys = File.ReadAllLines(System.IO.Path.Combine(keysFolder, "vmfmaterialkeys.txt")).ToList();
+                Keys.vmfMaterialKeys = File.ReadAllLines(System.IO.Path.Combine(keysFolder, "vmfmaterialkeys.txt"))
+                    .ToList();
                 Keys.vmfModelKeys = File.ReadAllLines(System.IO.Path.Combine(keysFolder, "vmfmodelkeys.txt")).ToList();
 
                 // get manually included files
@@ -131,7 +140,9 @@ namespace CompilePalX.Compilers.BSPPack
                             if (File.Exists(filePath))
                                 includeFiles.Add(filePath);
                             else
-                                CompilePalLogger.LogCompileError($"Could not find file: {filePath}\n", new Error($"Could not find file: {filePath}",$"Could not find file: {filePath}", ErrorSeverity.Caution));
+                                CompilePalLogger.LogCompileError($"Could not find file: {filePath}\n",
+                                    new Error($"Could not find file: {filePath}", $"Could not find file: {filePath}",
+                                        ErrorSeverity.Caution));
                         }
                     }
                 }
@@ -153,7 +164,8 @@ namespace CompilePalX.Compilers.BSPPack
                                     includeFiles.Add(file);
                             }
                             else
-                                CompilePalLogger.LogCompileError($"Could not find folder: {folderPath}\n", new Error($"Could not find folder: {folderPath}", ErrorSeverity.Caution));
+                                CompilePalLogger.LogCompileError($"Could not find folder: {folderPath}\n",
+                                    new Error($"Could not find folder: {folderPath}", ErrorSeverity.Caution));
                         }
                     }
                 }
@@ -173,7 +185,8 @@ namespace CompilePalX.Compilers.BSPPack
                             if (File.Exists(filePath))
                                 excludeFiles.Add(filePath);
                             else
-                                CompilePalLogger.LogCompileError($"Could not find file: {filePath}\n", new Error($"Could not find file: {filePath}", ErrorSeverity.Caution));
+                                CompilePalLogger.LogCompileError($"Could not find file: {filePath}\n",
+                                    new Error($"Could not find file: {filePath}", ErrorSeverity.Caution));
                         }
                     }
                 }
@@ -193,7 +206,8 @@ namespace CompilePalX.Compilers.BSPPack
                             if (Directory.Exists(path))
                                 excludeDirs.Add(path);
                             else
-                                CompilePalLogger.LogCompileError($"Could not find folder: {path}\n", new Error($"Could not find folder: {path}", ErrorSeverity.Caution));
+                                CompilePalLogger.LogCompileError($"Could not find folder: {path}\n",
+                                    new Error($"Could not find folder: {path}", ErrorSeverity.Caution));
                         }
                     }
                 }
@@ -208,7 +222,7 @@ namespace CompilePalX.Compilers.BSPPack
                             var vpkPath = parameter.Replace("\"", "").Replace("excludevpk ", "").TrimEnd(' ');
 
                             string[] vpkFileList = GetVPKFileList(vpkPath);
-                            
+
                             foreach (string file in vpkFileList)
                             {
                                 excludedVpkFiles.Add(file.ToLower());
@@ -243,11 +257,13 @@ namespace CompilePalX.Compilers.BSPPack
                 AssetUtils.findBspPakDependencies(map, unpackDir);
 
                 CompilePalLogger.LogLine("Initializing pak file...");
-                PakFile pakfile = new PakFile(map, sourceDirectories, includeFiles, excludeFiles, excludeDirs, excludedVpkFiles, outputFile);
+                PakFile pakfile = new PakFile(map, sourceDirectories, includeFiles, excludeFiles, excludeDirs,
+                    excludedVpkFiles, outputFile);
 
                 if (includefilelist)
                 {
-                    var fileListParams = parameters.Where(p => p.StartsWith("includefilelist")).Select(f => f.Split(new[]{" "}, 2, StringSplitOptions.None));
+                    var fileListParams = parameters.Where(p => p.StartsWith("includefilelist"))
+                        .Select(f => f.Split(new[] { " " }, 2, StringSplitOptions.None));
                     foreach (var fileListParam in fileListParams)
                     {
                         if (fileListParam.Length <= 1 || string.IsNullOrWhiteSpace(fileListParam[1]))
@@ -260,7 +276,8 @@ namespace CompilePalX.Compilers.BSPPack
                         var inputFile = fileListParam[1];
                         if (!File.Exists(inputFile))
                         {
-                            CompilePalLogger.LogCompileError($"Could not find file list {inputFile}\n", new Error($"Could not find file list {inputFile}\n", ErrorSeverity.Error));
+                            CompilePalLogger.LogCompileError($"Could not find file list {inputFile}\n",
+                                new Error($"Could not find file list {inputFile}\n", ErrorSeverity.Error));
                             continue;
                         }
 
@@ -274,7 +291,8 @@ namespace CompilePalX.Compilers.BSPPack
                             var externalPath = filelist[i + 1];
                             if (!pakfile.AddInternalFile(internalPath, externalPath))
                             {
-                                CompilePalLogger.LogCompileError($"Failed to pack ${externalPath}\n", new Error($"Failed to pack ${externalPath}\n", ErrorSeverity.Error));
+                                CompilePalLogger.LogCompileError($"Failed to pack ${externalPath}\n",
+                                    new Error($"Failed to pack ${externalPath}\n", ErrorSeverity.Error));
                             }
                         }
 
@@ -392,7 +410,13 @@ namespace CompilePalX.Compilers.BSPPack
             }
             catch (FileNotFoundException)
             {
-                CompilePalLogger.LogCompileError($"Could not find {bspPath}\n", new Error($"Could not find {bspPath}", ErrorSeverity.Error));
+                CompilePalLogger.LogCompileError($"Could not find {bspPath}\n",
+                    new Error($"Could not find {bspPath}", ErrorSeverity.Error));
+            }
+            catch (ThreadAbortException)
+            {
+                // this happens when we cancel the compile or can't run bspzip. Rethrow so it can get properly caught in the CompilingManager
+                throw;
             }
             catch (Exception exception)
             {
@@ -467,15 +491,30 @@ namespace CompilePalX.Compilers.BSPPack
             arguments = arguments.Replace("$bspold", bspPath);
             arguments = arguments.Replace("$list", outputFile);
 
-            var startInfo = new ProcessStartInfo(bspZip, arguments);
-            startInfo.UseShellExecute = false;
-            startInfo.RedirectStandardOutput = true;
-            startInfo.CreateNoWindow = true;
-            startInfo.EnvironmentVariables["VPROJECT"] = gameFolder;
+            var startInfo = new ProcessStartInfo(bspZip, arguments)
+            {
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                CreateNoWindow = true,
+                EnvironmentVariables =
+                {
+                    ["VPROJECT"] = gameFolder
+                }
+            };
 
             var p = new Process { StartInfo = startInfo };
 
-            p.Start();
+            try
+            {
+                p.Start();
+            }
+            catch (Exception e)
+            {
+                CompilePalLogger.LogDebug(e.ToString());
+                CompilePalLogger.LogCompileError($"Failed to run executable: {p.StartInfo.FileName}\n", new Error($"Failed to find executable: {p.StartInfo.FileName}", ErrorSeverity.FatalError));
+                return;
+            }
+
             string output = p.StandardOutput.ReadToEnd();
             if (verbose)
                 CompilePalLogger.Log(output);
@@ -502,7 +541,18 @@ namespace CompilePalX.Compilers.BSPPack
             };
 
             //p.StartInfo.EnvironmentVariables["VPROJECT"] = gameFolder;
-            p.Start();
+
+
+            try
+            {
+                p.Start();
+            }
+            catch (Exception e)
+            {
+                CompilePalLogger.LogDebug(e.ToString());
+                CompilePalLogger.LogCompileError($"Failed to run executable: {p.StartInfo.FileName}\n", new Error($"Failed to run executable: {p.StartInfo.FileName}", ErrorSeverity.FatalError));
+                return;
+            }
 
             string output = p.StandardOutput.ReadToEnd();
             string errOutput = p.StandardError.ReadToEnd();
