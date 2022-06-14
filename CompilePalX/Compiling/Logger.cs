@@ -31,7 +31,8 @@ namespace CompilePalX.Compiling
         static CompilePalLogger()
         {
             File.Delete(logFile);
-            Thread.CurrentThread.CurrentUICulture = new CultureInfo("en-US");
+            Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
+            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
         }
         public static event LogWrite OnWrite;
         public static event LogBacktrack OnBacktrack;
