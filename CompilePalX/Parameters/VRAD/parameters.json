@@ -118,7 +118,7 @@
     "Description": "Controls quality of static prop lighting (16 = slow, high quality, 4 = default and 0.25 = fast, low quality).",
     "Value": null,
     "CanHaveValue": true,
-    "Warning": "CS:GO Only! Note that adding -final is the same as having -StaticPropLightingScale 16."
+    "Warning": "CS:GO Only! Note that adding -final is the same as having -StaticPropSampleScale 16."
   },
   {
     "Name": "Static Prop Polys",
