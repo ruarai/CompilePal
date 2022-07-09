@@ -518,6 +518,8 @@ namespace CompilePalX.Compilers.BSPPack
             string output = p.StandardOutput.ReadToEnd();
             if (verbose)
                 CompilePalLogger.Log(output);
+            else
+                CompilePalLogger.LogDebug(output);
             p.WaitForExit();
         }
 
