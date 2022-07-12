@@ -520,7 +520,16 @@ namespace CompilePalX.Compilers.BSPPack
                 CompilePalLogger.Log(output);
             else
                 CompilePalLogger.LogDebug(output);
+
             p.WaitForExit();
+            if (p.ExitCode != 0) {
+                // this indicates an access violation. BSPZIP may have crashed because of too many files being packed
+                if (p.ExitCode == -1073741819)
+                    CompilePalLogger.LogCompileError($"BSPZIP exited with code: {p.ExitCode}, this might indicate that too many files are being packed\n", new Error($"BSPZIP exited with code: {p.ExitCode}, this might indicate that too many files are being packed\n", ErrorSeverity.FatalError));
+                else
+                    CompilePalLogger.LogCompileError($"BSPZIP exited with code: {p.ExitCode}\n", new Error($"BSPZIP exited with code: {p.ExitCode}\n", ErrorSeverity.Warning));
+            }
+
         }
 
         static void PackVPK(string targetVPK, string responseFile, string searchPath)
