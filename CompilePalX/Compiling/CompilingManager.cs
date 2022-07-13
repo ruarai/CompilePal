@@ -41,10 +41,18 @@ namespace CompilePalX
             set { compile = value; OnPropertyChanged(nameof(Compile));  }
         }
 
-        public Map(string file, bool compile = true)
+        private string preset;
+        public string Preset
+        {
+            get => preset;
+            set { preset = value; OnPropertyChanged(nameof(Preset));  }
+        }
+
+        public Map(string file, bool compile = true, string preset = null)
         {
             File = file;
             Compile = compile;
+            Preset = preset;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -113,8 +121,6 @@ namespace CompilePalX
 
             OnClear();
 
-            CompilePalLogger.LogLine($"Starting a '{ConfigurationManager.CurrentPreset}' compile.");
-
             compileThread = new Thread(CompileThreaded);
             compileThread.Start();
         }
@@ -140,8 +146,10 @@ namespace CompilePalX
 
                     string mapFile = map.File; 
                     string cleanMapName = Path.GetFileNameWithoutExtension(mapFile);
+                    ConfigurationManager.CurrentPreset = map.Preset;
 
                     var compileErrors = new List<Error>();
+                    CompilePalLogger.LogLine($"Starting a '{ConfigurationManager.CurrentPreset}' compile.");
                     CompilePalLogger.LogLine($"Starting compilation of {cleanMapName}");
 
 					//Update the grid so we have the most up to date order

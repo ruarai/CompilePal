@@ -41,6 +41,14 @@ namespace CompilePalX
         private DispatcherTimer elapsedTimeDispatcherTimer;
 		public static MainWindow Instance { get; private set; }
 
+        private int SelectedMapIndex
+        {
+            get => selectedMapIndex;
+            set => selectedMapIndex = value >= 0 ? value : 0; // prevent negative values
+        }
+
+        private int selectedMapIndex = 0;
+
 		public MainWindow()
         {
 	        Instance = this;
@@ -75,6 +83,7 @@ namespace CompilePalX
 
             CompileProcessesListBox.SelectedIndex = 0;
             PresetConfigListBox.SelectedIndex = 0;
+            MapListBox.SelectedIndex = 0;
 
             UpdateConfigGrid();
 
@@ -480,6 +489,14 @@ namespace CompilePalX
             SetSources();
             CompileProcessesListBox.SelectedIndex = 0;
             PresetConfigListBox.SelectedIndex = 0;
+
+            // update all maps referencing the deleted preset to be default
+            for (int i = 0; i < MapListBox.Items.Count; i++)
+            {
+                var map = MapListBox.Items[i] as Map;
+                if (map.Preset == selectedItem)
+                    map.Preset = (string)PresetConfigListBox.SelectedItem;
+            }
         }
 
         private void MetroWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -508,7 +525,18 @@ namespace CompilePalX
 
 			if (processModeEnabled)
 				OrderManager.UpdateOrder();
-		}
+
+            // ignore if nothing is selected
+            if (!(MapListBox.SelectedItem is Map selectedMap))
+                return;
+
+            // preset is already selected. This event gets raised when we manually change selection of the preset box when the user selects a map, this prevents a bug that deselects the map
+            if (selectedMap.Preset == (string)PresetConfigListBox.SelectedItem)
+                return;
+
+            // update map's selected preset
+            selectedMap.Preset = (string)PresetConfigListBox.SelectedItem;
+        }
         private void CompileProcessesListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             UpdateConfigGrid();
@@ -644,7 +672,7 @@ namespace CompilePalX
 
             foreach (var file in dialog.FileNames)
             {
-                CompilingManager.MapFiles.Add(new Map(file));
+                CompilingManager.MapFiles.Add(new Map(file, preset: ConfigurationManager.CurrentPreset));
             }
         }
 
@@ -703,6 +731,25 @@ namespace CompilePalX
 				RemoveParameterButton.IsEnabled = true;
 			}
 		}
+
+        private void MapListBox_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            // no maps selected, default to last selected index. When we update any bound item in the MapBox datasource it will deselect all items, this reselects it after it has been deselected
+            if (!(MapListBox.SelectedItem is Map selectedMap))
+            {
+                // a map got deleted, make sure selected map index is valid
+                if (MapListBox.Items.Count - 1 < SelectedMapIndex)
+                    SelectedMapIndex = MapListBox.Items.Count - 1;
+
+                MapListBox.SelectedIndex = SelectedMapIndex;
+                return;
+            }
+
+            // select the preset of the map
+            ConfigurationManager.CurrentPreset = selectedMap.Preset;
+            PresetConfigListBox.SelectedItem = selectedMap.Preset;
+            SelectedMapIndex = MapListBox.SelectedIndex;
+        }
 
 	    private void DoRun_OnClick(object sender, RoutedEventArgs e)
 	    {

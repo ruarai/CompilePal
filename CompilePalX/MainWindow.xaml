@@ -39,7 +39,7 @@
             <RowDefinition Height="5"></RowDefinition>
             <RowDefinition></RowDefinition>
         </Grid.RowDefinitions>
-        <ListBox x:Name="MapListBox" Grid.Row="0" Margin="10,10,95,0" BorderBrush="{DynamicResource AccentColorBrush}" BorderThickness="1">
+        <ListBox x:Name="MapListBox" Grid.Row="0" Margin="10,10,95,0" BorderBrush="{DynamicResource AccentColorBrush}" SelectionChanged="MapListBox_OnSelectionChanged" BorderThickness="1" SelectionMode="Single">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <DockPanel HorizontalAlignment="Stretch">
