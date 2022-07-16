@@ -8,7 +8,7 @@
                       IconEdgeMode="Aliased" ShowIconOnTitleBar="False"
                       Height="450" Width="800"
                       MinHeight="450" MinWidth="800"
-                      BorderBrush="{DynamicResource AccentColorBrush}" BorderThickness="1" >
+                      BorderBrush="{DynamicResource MahApps.Brushes.Accent}" BorderThickness="1" >
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="50"/>
@@ -26,7 +26,7 @@
             </FlowDocument>
         </RichTextBox>
             
-        <ListBox Grid.Row="2" x:Name="fileBox" SelectionMode="Extended" MinHeight="60" Height="200" Margin="10, 10, 10, 10" BorderBrush="{DynamicResource AccentColorBrush}" BorderThickness="1"></ListBox>
+        <ListBox Grid.Row="2" x:Name="fileBox" SelectionMode="Extended" MinHeight="60" Height="200" Margin="10, 10, 10, 10" BorderBrush="{DynamicResource MahApps.Brushes.Accent}" BorderThickness="1"></ListBox>
 
         <Grid Grid.Row="3">
             <Button Click="SelectClicked " Margin="10, 10, 10, 10" Width="100" HorizontalAlignment="Right">Select</Button>

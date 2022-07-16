@@ -14,7 +14,7 @@
             IconEdgeMode="Aliased" Icon="CompilePalIcon.ico" ShowIconOnTitleBar="False" 
             Activated="MetroWindow_Activated" 
             BorderThickness="1" 
-            BorderBrush="{DynamicResource AccentColorBrush}" 
+            BorderBrush="{DynamicResource MahApps.Brushes.Accent}" 
         >
 
     <controls:MetroWindow.LeftWindowCommands>
@@ -33,13 +33,17 @@
         </controls:WindowCommands>
     </controls:MetroWindow.RightWindowCommands>
 
+    <controls:MetroWindow.WindowButtonCommands>
+        <controls:WindowButtonCommands LightCloseButtonStyle="{StaticResource CustomLightCloseButtonStyle}"/>
+    </controls:MetroWindow.WindowButtonCommands>
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="80" MinHeight="80" MaxHeight="240"></RowDefinition>
             <RowDefinition Height="5"></RowDefinition>
             <RowDefinition></RowDefinition>
         </Grid.RowDefinitions>
-        <ListBox x:Name="MapListBox" Grid.Row="0" Margin="10,10,95,0" BorderBrush="{DynamicResource AccentColorBrush}" SelectionChanged="MapListBox_OnSelectionChanged" BorderThickness="1" SelectionMode="Single">
+        <ListBox x:Name="MapListBox" Grid.Row="0" Margin="10,10,95,0" BorderBrush="{DynamicResource MahApps.Brushes.Accent}" SelectionChanged="MapListBox_OnSelectionChanged" BorderThickness="1" SelectionMode="Single">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <DockPanel HorizontalAlignment="Stretch">
@@ -52,7 +56,7 @@
         <Button x:Name="AddMapButton"  Grid.Row="0" Content="Add Map..." Margin="0,10,10,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="75" Click="AddMapButton_Click"/>
         <Button x:Name="RemoveMapButton"  Grid.Row="0" Content="Remove" Margin="0,45,10,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="75" Click="RemoveMapButton_Click"/>
         <GridSplitter Grid.Row="1" Height="2" HorizontalAlignment="Stretch" Width="512"></GridSplitter>
-        <controls:MetroTabControl Grid.Row="2" controls:TabControlHelper.Underlined="TabItems" controls:TabControlHelper.Transition="LeftReplace" Margin="10,10,10,40">
+        <controls:MetroTabControl Grid.Row="2" controls:TabControlHelper.Underlined="SelectedTabItem" controls:TabControlHelper.Transition="LeftReplace" Margin="10,10,10,40">
             <controls:MetroTabItem Header="CONFIG">
                 <Grid Background="#FFE5E5E5">
                     <Grid.ColumnDefinitions>
