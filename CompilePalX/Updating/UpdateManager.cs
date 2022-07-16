@@ -33,8 +33,7 @@ namespace CompilePalX
 
         private static bool isPrerelease = false;
 
-
-        public static void CheckVersion()
+        static UpdateManager()
         {
             string currentVersionString = GetValidVersionString(File.ReadAllText("./version.txt"));
             string currentPrereleaseVersionString = GetValidVersionString(File.ReadAllText("./version_prerelease.txt") + ".0.0");
@@ -51,7 +50,10 @@ namespace CompilePalX
             // store version info in registry
             RegistryManager.Write("Version", currentVersionString);
             RegistryManager.Write("PrereleaseVersion", currentPrereleaseVersionString);
+        }
 
+        public static void CheckVersion()
+        {
             Thread updaterThread = new Thread(ThreadedCheck);
             updaterThread.Start();
         }

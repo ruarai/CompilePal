@@ -26,7 +26,7 @@ namespace CompilePalX
             userProperties = new Segment.Model.Properties()
                             {
                                 {"version",UpdateManager.CurrentVersion},
-                                {"game",GameConfigurationManager.GameConfiguration.Name}
+                                {"game",GameConfigurationManager.GameConfiguration?.Name}
                             };
 
             options = new Options {Context = {{"direct", true}}};
