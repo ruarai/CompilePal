@@ -696,7 +696,7 @@ namespace CompilePalX
 
         private void UpdateLabel_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            Process.Start("http://www.github.com/ruarai/CompilePal/releases/latest");
+			Process.Start(new ProcessStartInfo("http://www.github.com/ruarai/CompilePal/releases/latest") { UseShellExecute = true });
         }
 
 	    private void ReadOutput_OnChecked(object sender, RoutedEventArgs e)
@@ -831,7 +831,7 @@ namespace CompilePalX
 
 		private void UpdateHyperLink_OnRequestNavigate(object sender, RequestNavigateEventArgs e)
 		{
-			Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri));
+			Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri) { UseShellExecute = true });
 			e.Handled = true;
 		}
 
