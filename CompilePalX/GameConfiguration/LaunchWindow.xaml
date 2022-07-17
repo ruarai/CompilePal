@@ -6,7 +6,7 @@
                       BorderBrush="{DynamicResource MahApps.Brushes.Accent}" BorderThickness="1" 
                       IconEdgeMode="Aliased" Icon="..\CompilePalIcon.ico" ShowIconOnTitleBar="False" >
     <controls:MetroWindow.WindowButtonCommands>
-        <controls:WindowButtonCommands LightCloseButtonStyle="{StaticResource CustomLightCloseButtonStyle}"/>
+        <controls:WindowButtonCommands LightCloseButtonStyle="{StaticResource LightButtonStyle}" LightMinButtonStyle="{StaticResource LightButtonStyle}" LightMaxButtonStyle="{StaticResource LightButtonStyle}"/>
     </controls:MetroWindow.WindowButtonCommands>
 
     <Grid>

@@ -10,7 +10,7 @@
                       MaxHeight="500" MaxWidth="800" 
                       BorderBrush="{DynamicResource MahApps.Brushes.Accent}" BorderThickness="1" >
     <controls:MetroWindow.WindowButtonCommands>
-        <controls:WindowButtonCommands LightCloseButtonStyle="{StaticResource CustomLightCloseButtonStyle}"/>
+        <controls:WindowButtonCommands LightCloseButtonStyle="{StaticResource LightButtonStyle}" LightMinButtonStyle="{StaticResource LightButtonStyle}" LightMaxButtonStyle="{StaticResource LightButtonStyle}"/>
     </controls:MetroWindow.WindowButtonCommands>
     <Grid>
         <WebBrowser Name="ErrorBrowser" Margin="0"/>

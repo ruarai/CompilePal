@@ -52,4 +52,5 @@
     <SolidColorBrush x:Key="MahApps.Brushes.Button.Border.Focus" Color="{StaticResource MahApps.Colors.ThemeForeground}" options:Freeze="True" />
 
     <SolidColorBrush x:Key="MahApps.Brushes.WindowButtonCommands.Background.MouseOver" Color="#66DCDCDC" options:Freeze="True" />
+    <SolidColorBrush x:Key="MahApps.Brushes.WindowButtonCommands.Background.Pressed" Color="#66DCDCDC" Opacity="0.5" options:Freeze="True" />
 </ResourceDictionary>
