@@ -15,6 +15,7 @@ using System.Windows.Threading;
 using CompilePalX.Compilers;
 using CompilePalX.Compiling;
 using System.Runtime.InteropServices;
+using System.Windows.Documents.Serialization;
 using CompilePalX.Annotations;
 using CompilePalX.Configuration;
 
@@ -93,10 +94,10 @@ namespace CompilePalX
 
         public static TrulyObservableCollection<Map> MapFiles = new TrulyObservableCollection<Map>();
 
-        private static Thread compileThread;
         private static Stopwatch compileTimeStopwatch = new Stopwatch();
 
         public static bool IsCompiling { get; private set; }
+        private static CancellationTokenSource cts;
 
         public static void ToggleCompileState()
         {
@@ -121,13 +122,13 @@ namespace CompilePalX
 
             OnClear();
 
-            compileThread = new Thread(CompileThreaded);
-            compileThread.Start();
+            cts = new CancellationTokenSource();
+            Task.Run(() => CompileThreaded(cts.Token));
         }
 
         private static CompileProcess currentCompileProcess;
 
-        private static void CompileThreaded()
+        private static void CompileThreaded(CancellationToken cancellationToken)
         {
             try
             {
@@ -158,8 +159,9 @@ namespace CompilePalX
                     GameConfigurationManager.BackupCurrentContext();
 					foreach (var compileProcess in OrderManager.CurrentOrder)
 					{
+                        cancellationToken.ThrowIfCancellationRequested();
                         currentCompileProcess = compileProcess;
-                        compileProcess.Run(GameConfigurationManager.BuildContext(mapFile));
+                        compileProcess.Run(GameConfigurationManager.BuildContext(mapFile), cancellationToken);
 
                         compileErrors.AddRange(currentCompileProcess.CompileErrors);
 
@@ -182,9 +184,10 @@ namespace CompilePalX
                     GameConfigurationManager.RestoreCurrentContext();
                 }
 
-                MainWindow.ActiveDispatcher.Invoke(() => postCompile(mapErrors));
+                if (!cancellationToken.IsCancellationRequested)
+                    MainWindow.ActiveDispatcher.Invoke(() => postCompile(mapErrors));
             }
-            catch (ThreadAbortException) { ProgressManager.ErrorProgress(); }
+            catch (OperationCanceledException) { ProgressManager.ErrorProgress(); }
         }
 
         private static void postCompile(List<MapErrors> errors)
@@ -242,25 +245,12 @@ namespace CompilePalX
         {
             try
             {
-                compileThread.Abort();
+                cts.Cancel();
             }
             catch
             {
             }
             IsCompiling = false;
-
-            foreach (var compileProcess in ConfigurationManager.CompileProcesses.Where(cP => cP.Process != null))
-            {
-                try
-                {
-                    compileProcess.Cancel();
-                    compileProcess.Process.Kill();
-
-                    CompilePalLogger.LogLineColor("Killed {0}.", Brushes.OrangeRed, compileProcess.Metadata.Name);
-                }
-                catch (InvalidOperationException) { }
-                catch (Exception e) { ExceptionHandler.LogException(e); }
-            }
 
             ProgressManager.SetProgress(0);
 

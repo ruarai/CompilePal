@@ -35,7 +35,7 @@ namespace CompilePalX.Compilers.UtilityProcess
         private List<string> excludedDirectories = new List<string>();
         private List<string> excludedFiles = new List<string>();
 
-        public override void Run(CompileContext context)
+        public override void Run(CompileContext context, CancellationToken cancellationToken)
         {
             CompileErrors = new List<Error>();
 
@@ -127,6 +127,8 @@ namespace CompilePalX.Compilers.UtilityProcess
                     ParticleManifest manifest = new ParticleManifest(sourceDirectories, excludedDirectories,
                         excludedFiles, map, bspPath, gameFolder);
 
+                    if (cancellationToken.IsCancellationRequested)
+                        return;
 
                     //Set fields in bsppack so manifest gets detected correctly
                     BSPPack.BSPPack.genParticleManifest = true;
@@ -136,6 +138,8 @@ namespace CompilePalX.Compilers.UtilityProcess
                 if (incParticleManifest)
                 {
                     CompilePalLogger.LogLine("Attempting to update particle manifest");
+                    if (cancellationToken.IsCancellationRequested)
+                        return;
 
                     bool success = UpdateManifest("_particles.txt");
 
@@ -165,6 +169,9 @@ namespace CompilePalX.Compilers.UtilityProcess
                     foreach (string directory in sourceDirectories)
                         if (Directory.Exists(directory + "\\scripts\\"))
                             directories.Add(directory + "\\scripts\\");
+
+                    if (cancellationToken.IsCancellationRequested)
+                        return;
 
                     bool success = UpdateManifest("soundscapes_", directories, true);
 

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
+using System.Threading;
 using System.Windows.Media;
 using CompilePalX.Compiling;
 
@@ -21,11 +22,22 @@ namespace CompilePalX.Compilers
 
         private static string runningDirectory = "./CompileLogs";
 
-        public override void Run(CompileContext c)
+        public override void Run(CompileContext c, CancellationToken cancellationToken)
         {
             CompileErrors = new List<Error>();
-            Process = new Process();
 
+            // listen for cancellations
+            cancellationToken.Register(() =>
+            {
+                try
+                {
+                    Cancel();
+                }
+                catch (InvalidOperationException) { }
+                catch (Exception e) { ExceptionHandler.LogException(e); }
+            });
+
+            Process = new Process();
             if (Metadata.ReadOutput)
             {
                 Process.StartInfo = new ProcessStartInfo
@@ -46,6 +58,11 @@ namespace CompilePalX.Compilers
 
             try
             {
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    CompilePalLogger.LogDebug($"Cancelled {this.Metadata.Name}");
+                    return;
+                }
                 Process.Start();
             }
             catch (Exception e)
@@ -57,15 +74,21 @@ namespace CompilePalX.Compilers
             Process.PriorityClass = ProcessPriorityClass.BelowNormal;
 
             if (Metadata.ReadOutput)
-                readOutput();
+            {
+               ReadOutput(cancellationToken);
+ 
+            }
         }
 
-        private void readOutput()
+        private void ReadOutput(CancellationToken cancellationToken)
         {
             char[] buffer = new char[256];
             Task<int> read = null;
             while (true)
             {
+                if (cancellationToken.IsCancellationRequested)
+                    return;
+
                 if (read == null)
                     read = Process.StandardOutput.ReadAsync(buffer, 0, buffer.Length);
 
@@ -89,6 +112,5 @@ namespace CompilePalX.Compilers
             }
             Process.WaitForExit();
         }
-
     }
 }

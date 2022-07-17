@@ -8,7 +8,9 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Media;
 using CompilePalX.Compiling;
 using Newtonsoft.Json;
 
@@ -90,13 +92,17 @@ namespace CompilePalX
 
         public Process Process;
 
-        public virtual void Run(CompileContext context)
+        public virtual void Run(CompileContext context, CancellationToken cancellationToken)
         {
 
         }
         public virtual void Cancel()
         {
+            if (Process is null || Process.Id == 0 || Process.HasExited)
+                return;
 
+            Process.Kill();
+            CompilePalLogger.LogLineColor("Killed {0}.", Brushes.OrangeRed, this.Metadata.Name);
         }
 
         public ObservableCollection<ConfigItem> ParameterList = new ObservableCollection<ConfigItem>();
