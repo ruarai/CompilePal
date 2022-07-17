@@ -144,8 +144,8 @@
                             </DataGrid.Columns>
                         </DataGrid>
 
-                        <controls:MetroTabControl Grid.Row="0" Visibility="Hidden" controls:TabControlHelper.Underlined="TabItems" Name="ProcessTab" IsEnabled="False" SelectionChanged="ProcessTab_OnSelectionChanged" >
-                            <controls:MetroTabItem Header="PROGRAMS" Margin="5, 0, 0, 0" x:Name="ProgramTab">
+                        <controls:MetroTabControl Grid.Row="0" Visibility="Hidden" controls:TabControlHelper.Underlined="SelectedTabItem" Name="ProcessTab" IsEnabled="False" SelectionChanged="ProcessTab_OnSelectionChanged" Background="Transparent">
+                            <controls:MetroTabItem Header="PROGRAMS" Margin="5, 0, 0, 0" x:Name="ProgramTab" Background="Transparent">
                                 <DataGrid IsEnabled="False" Visibility="Visible" Name="ProcessDataGrid" Margin="10,10,10,10" AutoGenerateColumns="False" CanUserAddRows="False" ItemsSource="{Binding}">
                                     <DataGrid.Columns>
                                         <DataGridTemplateColumn Header="Program Path" CanUserSort="False">
@@ -171,7 +171,7 @@
                                 </DataGrid>
                             </controls:MetroTabItem>
 
-                            <controls:MetroTabItem Header="ORDER" Margin="5, 0, 0, 0" IsEnabledChanged="OrderGrid_OnIsEnabledChanged" x:Name="OrderTab">
+                            <controls:MetroTabItem Header="ORDER" Margin="5, 0, 0, 0" IsEnabledChanged="OrderGrid_OnIsEnabledChanged" x:Name="OrderTab" Background="Transparent">
                                 <DataGrid Name="OrderGrid" Margin="10,10,10,10" AutoGenerateColumns="False" CanUserAddRows="False" SelectionMode="Single" ItemsSource="{Binding Source={x:Static config:OrderManager.CurrentOrder}}" local:RowDragHelper.EnableRowDrag="True">
                                     <DataGrid.Columns>
                                         <DataGridTextColumn Header="Original Order" Binding="{ Binding Ordering}" IsReadOnly="True" CanUserSort="False"/>
