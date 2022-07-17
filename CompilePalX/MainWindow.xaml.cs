@@ -850,7 +850,7 @@ namespace CompilePalX
 
         private void BugReportButton_OnClick(object sender, RoutedEventArgs e)
         {
-			Process.Start(new ProcessStartInfo("https://github.com/ruarai/CompilePal/issues/"));
+			Process.Start(new ProcessStartInfo("https://github.com/ruarai/CompilePal/issues/") { UseShellExecute = true });
             e.Handled = true;
         }
 
