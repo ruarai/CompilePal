@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -58,15 +59,16 @@ namespace CompilePalX
             updaterThread.Start();
         }
 
-        static void ThreadedCheck()
+        static async void ThreadedCheck()
         {
             try
             {
                 CompilePalLogger.LogLine("Fetching update information...");
 
                 ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-                var c = new WebClient();
-                string newVersion = GetValidVersionString(c.DownloadString(new Uri(isPrerelease ? LatestPrereleaseVersionURL : LatestVersionURL)));
+                var c = new HttpClient();
+                var version = c.GetStringAsync(new Uri(isPrerelease ? LatestPrereleaseVersionURL : LatestVersionURL));
+                string newVersion = GetValidVersionString(await version);
 
                 latestVersion = Version.Parse(newVersion);
 

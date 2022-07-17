@@ -238,7 +238,7 @@
         <Button Name="CompileStartStopButton" Grid.Row="2" Content="Compile" Margin="10,10,10,10"  VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="75" Click="CompileStartStopButton_OnClick"/>
         <ProgressBar Name="CompileProgressBar" Margin="0,0,96,10" Grid.Row="2" Height="25" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="200"/>
         <Label Name="UpdateLabel" Visibility="Collapsed"  Grid.Row="2" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="10" MouseLeftButtonUp="UpdateLabel_MouseLeftButtonUp" >
-            <Hyperlink Name="UpdateHyperLink" NavigateUri="https://github.com/ruarai/CompilePal/releases/latest" RequestNavigate="UpdateHyperLink_OnRequestNavigate"/>
+            <Hyperlink Name="UpdateHyperLink" NavigateUri="https://github.com/ruarai/CompilePal/releases/latest" RequestNavigate="UpdateHyperLink_OnRequestNavigate" Foreground="#0057ee"/>
         </Label>
         <Label Name="TimeElapsedLabel" Visibility="Collapsed" Grid.Row="2" VerticalAlignment="Bottom" FontWeight="Bold" HorizontalAlignment="Left" Margin="10" />
     </Grid>
