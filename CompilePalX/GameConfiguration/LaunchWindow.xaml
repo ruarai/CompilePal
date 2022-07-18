@@ -3,8 +3,12 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
         Title="Game Selector" Height="444" Width="564"
-                      BorderBrush="{DynamicResource AccentColorBrush}" BorderThickness="1" 
+                      BorderBrush="{DynamicResource MahApps.Brushes.Accent}" BorderThickness="1" 
                       IconEdgeMode="Aliased" Icon="..\CompilePalIcon.ico" ShowIconOnTitleBar="False" >
+    <controls:MetroWindow.WindowButtonCommands>
+        <controls:WindowButtonCommands LightCloseButtonStyle="{StaticResource LightButtonStyle}" LightMinButtonStyle="{StaticResource LightButtonStyle}" LightMaxButtonStyle="{StaticResource LightButtonStyle}"/>
+    </controls:MetroWindow.WindowButtonCommands>
+
     <Grid>
         <DataGrid x:Name="GameGrid" Margin="10,10,10,40"  AutoGenerateColumns="False" CanUserAddRows="False" ItemsSource="{Binding}" MouseDoubleClick="Button_Click">
             <DataGrid.Columns>

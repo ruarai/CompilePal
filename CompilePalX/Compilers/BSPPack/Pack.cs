@@ -52,7 +52,7 @@ namespace CompilePalX.Compilers.BSPPack
         private List<string> sourceDirectories = new List<string>();
         private string outputFile = "BSPZipFiles\\files.txt";
 
-        public override void Run(CompileContext context)
+        public override void Run(CompileContext context, CancellationToken cancellationToken)
         {
             CompileErrors = new List<Error>();
 
@@ -241,6 +241,7 @@ namespace CompilePalX.Compilers.BSPPack
                 }
 
                 CompilePalLogger.LogLine("Reading BSP...");
+
                 BSP map = new BSP(new FileInfo(bspPath));
                 AssetUtils.findBspUtilityFiles(map, sourceDirectories, renamenav, genParticleManifest);
 
@@ -251,6 +252,9 @@ namespace CompilePalX.Compilers.BSPPack
                 //Set map particle manifest
                 if (genParticleManifest)
                     map.particleManifest = particleManifest;
+
+                if (cancellationToken.IsCancellationRequested)
+                    return;
 
                 string unpackDir = System.IO.Path.GetTempPath() + Guid.NewGuid();
                 UnpackBSP(unpackDir);
@@ -333,6 +337,10 @@ namespace CompilePalX.Compilers.BSPPack
                         }
                     }
 
+
+                    if (cancellationToken.IsCancellationRequested)
+                        return;
+
                     CompilePalLogger.LogLine("Running VPK...");
                     foreach (var path in sourceDirectories)
                     {
@@ -362,6 +370,8 @@ namespace CompilePalX.Compilers.BSPPack
                 }
                 else
                 {
+                    if (cancellationToken.IsCancellationRequested)
+                        return;
                     CompilePalLogger.LogLine("Writing file list...");
                     pakfile.OutputToFile();
 

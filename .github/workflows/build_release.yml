@@ -38,23 +38,23 @@ jobs:
         run: echo '${{ env.VERSION }}' > CompilePalX/${{ env.VERSION_FILE }}
           
       # Setup Build Environment
-      - name: Setup MSBuild
-        uses: microsoft/setup-msbuild@v1
-      - name: Setup NuGet.exe for use with actions
-        uses: NuGet/setup-nuget@v1.0.5
-      - name: Restore NuGet Packages
-        run: nuget restore CompilePalX.sln
+      - name: Setup .NET Core SDK 6.0.x
+        uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: '6.0.x'
+      - name: Install dependencies
+        run: dotnet restore
       
       - name: Build Compile Pal
-        run: msbuild CompilePalX.sln /p:Configuration=${{ env.CONFIGURATION }}
+        run: dotnet publish /p:PublishProfile=Publish${{ env.CONFIGURATION }}
       
       # Package Compile Pal into zip file
       - name: Package Compile Pal
         run: |
-          Rename-Item -Path "./CompilePalX/bin/${{ env.CONFIGURATION }}" -NewName "Compile Pal ${{ env.VERSION }}"
+          Rename-Item -Path "./CompilePalX/bin/${{ env.CONFIGURATION }}/Deploy" -NewName "Compile Pal ${{ env.VERSION }}"
           
           $compress = @{
-            Path = "./CompilePalX/bin/Compile Pal ${{ env.VERSION }}"
+            Path = "./CompilePalX/bin/${{ env.CONFIGURATION }}/Compile Pal ${{ env.VERSION }}"
             CompressionLevel = "Optimal"
             DestinationPath = "./Compile Pal ${{ env.VERSION }}.zip"
           }

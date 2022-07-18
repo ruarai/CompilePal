@@ -14,7 +14,7 @@
             IconEdgeMode="Aliased" Icon="CompilePalIcon.ico" ShowIconOnTitleBar="False" 
             Activated="MetroWindow_Activated" 
             BorderThickness="1" 
-            BorderBrush="{DynamicResource AccentColorBrush}" 
+            BorderBrush="{DynamicResource MahApps.Brushes.Accent}" 
         >
 
     <controls:MetroWindow.LeftWindowCommands>
@@ -33,13 +33,17 @@
         </controls:WindowCommands>
     </controls:MetroWindow.RightWindowCommands>
 
+    <controls:MetroWindow.WindowButtonCommands>
+        <controls:WindowButtonCommands LightCloseButtonStyle="{StaticResource LightButtonStyle}" LightMinButtonStyle="{StaticResource LightButtonStyle}" LightMaxButtonStyle="{StaticResource LightButtonStyle}"/>
+    </controls:MetroWindow.WindowButtonCommands>
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="80" MinHeight="80" MaxHeight="240"></RowDefinition>
             <RowDefinition Height="5"></RowDefinition>
             <RowDefinition></RowDefinition>
         </Grid.RowDefinitions>
-        <ListBox x:Name="MapListBox" Grid.Row="0" Margin="10,10,95,0" BorderBrush="{DynamicResource AccentColorBrush}" SelectionChanged="MapListBox_OnSelectionChanged" BorderThickness="1" SelectionMode="Single">
+        <ListBox x:Name="MapListBox" Grid.Row="0" Margin="10,10,95,0" BorderBrush="{DynamicResource MahApps.Brushes.Accent}" SelectionChanged="MapListBox_OnSelectionChanged" BorderThickness="1" SelectionMode="Single">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <DockPanel HorizontalAlignment="Stretch">
@@ -52,7 +56,7 @@
         <Button x:Name="AddMapButton"  Grid.Row="0" Content="Add Map..." Margin="0,10,10,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="75" Click="AddMapButton_Click"/>
         <Button x:Name="RemoveMapButton"  Grid.Row="0" Content="Remove" Margin="0,45,10,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="75" Click="RemoveMapButton_Click"/>
         <GridSplitter Grid.Row="1" Height="2" HorizontalAlignment="Stretch" Width="512"></GridSplitter>
-        <controls:MetroTabControl Grid.Row="2" controls:TabControlHelper.IsUnderlined="True" controls:TabControlHelper.Transition="LeftReplace" Margin="10,10,10,40">
+        <controls:MetroTabControl Grid.Row="2" controls:TabControlHelper.Underlined="SelectedTabItem" controls:TabControlHelper.Transition="LeftReplace" Margin="10,10,10,40">
             <controls:MetroTabItem Header="CONFIG">
                 <Grid Background="#FFE5E5E5">
                     <Grid.ColumnDefinitions>
@@ -122,26 +126,26 @@
                                                         </Style>
                                                     </local:FileInput.Style>
                                                 </local:FileInput>
+                                                <Grid.Style>
+                                                    <Style TargetType="{x:Type Grid}">
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding CanHaveValue}" Value="False">
+                                                                <Setter Property="Visibility" Value="Hidden"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Grid.Style>
                                             </Grid>
                                         </DataTemplate>
                                     </DataGridTemplateColumn.CellTemplate>
-                                    <DataGridTemplateColumn.CellStyle>
-                                        <Style TargetType="{x:Type DataGridCell}">
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding CanHaveValue}" Value="False">
-                                                    <Setter Property="Visibility" Value="Hidden" />
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </DataGridTemplateColumn.CellStyle>
                                 </DataGridTemplateColumn>
                                 <DataGridTextColumn Header="Description" Binding="{ Binding Description}" IsReadOnly="True"/>
                                 <DataGridTextColumn Header="Warnings" Binding="{ Binding Warning}" IsReadOnly="True"/>
                             </DataGrid.Columns>
                         </DataGrid>
 
-                        <controls:MetroTabControl Grid.Row="0" Visibility="Hidden" controls:TabControlHelper.IsUnderlined="True" Name="ProcessTab" IsEnabled="False" SelectionChanged="ProcessTab_OnSelectionChanged" >
-                            <controls:MetroTabItem Header="PROGRAMS" Margin="5, 0, 0, 0" x:Name="ProgramTab">
+                        <controls:MetroTabControl Grid.Row="0" Visibility="Hidden" controls:TabControlHelper.Underlined="SelectedTabItem" Name="ProcessTab" IsEnabled="False" SelectionChanged="ProcessTab_OnSelectionChanged" Background="Transparent">
+                            <controls:MetroTabItem Header="PROGRAMS" Margin="5, 0, 0, 0" x:Name="ProgramTab" Background="Transparent">
                                 <DataGrid IsEnabled="False" Visibility="Visible" Name="ProcessDataGrid" Margin="10,10,10,10" AutoGenerateColumns="False" CanUserAddRows="False" ItemsSource="{Binding}">
                                     <DataGrid.Columns>
                                         <DataGridTemplateColumn Header="Program Path" CanUserSort="False">
@@ -167,7 +171,7 @@
                                 </DataGrid>
                             </controls:MetroTabItem>
 
-                            <controls:MetroTabItem Header="ORDER" Margin="5, 0, 0, 0" IsEnabledChanged="OrderGrid_OnIsEnabledChanged" x:Name="OrderTab">
+                            <controls:MetroTabItem Header="ORDER" Margin="5, 0, 0, 0" IsEnabledChanged="OrderGrid_OnIsEnabledChanged" x:Name="OrderTab" Background="Transparent">
                                 <DataGrid Name="OrderGrid" Margin="10,10,10,10" AutoGenerateColumns="False" CanUserAddRows="False" SelectionMode="Single" ItemsSource="{Binding Source={x:Static config:OrderManager.CurrentOrder}}" local:RowDragHelper.EnableRowDrag="True">
                                     <DataGrid.Columns>
                                         <DataGridTextColumn Header="Original Order" Binding="{ Binding Ordering}" IsReadOnly="True" CanUserSort="False"/>
@@ -234,7 +238,7 @@
         <Button Name="CompileStartStopButton" Grid.Row="2" Content="Compile" Margin="10,10,10,10"  VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="75" Click="CompileStartStopButton_OnClick"/>
         <ProgressBar Name="CompileProgressBar" Margin="0,0,96,10" Grid.Row="2" Height="25" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="200"/>
         <Label Name="UpdateLabel" Visibility="Collapsed"  Grid.Row="2" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="10" MouseLeftButtonUp="UpdateLabel_MouseLeftButtonUp" >
-            <Hyperlink Name="UpdateHyperLink" NavigateUri="https://github.com/ruarai/CompilePal/releases/latest" RequestNavigate="UpdateHyperLink_OnRequestNavigate"/>
+            <Hyperlink Name="UpdateHyperLink" NavigateUri="https://github.com/ruarai/CompilePal/releases/latest" RequestNavigate="UpdateHyperLink_OnRequestNavigate" Foreground="#0057ee"/>
         </Label>
         <Label Name="TimeElapsedLabel" Visibility="Collapsed" Grid.Row="2" VerticalAlignment="Bottom" FontWeight="Bold" HorizontalAlignment="Left" Margin="10" />
     </Grid>

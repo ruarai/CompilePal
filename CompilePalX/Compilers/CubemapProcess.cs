@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace CompilePalX.Compilers
@@ -23,11 +24,22 @@ namespace CompilePalX.Compilers
         bool hidden;
         
 
-        public override void Run(CompileContext context)
+        public override void Run(CompileContext context, CancellationToken cancellationToken)
         {
             vbspInfo = context.Configuration.VBSPInfo;
             bspFile = context.CopyLocation;
             CompileErrors = new List<Error>();
+
+            // listen for cancellations
+            cancellationToken.Register(() =>
+            {
+                try
+                {
+                    Cancel();
+                }
+                catch (InvalidOperationException) { }
+                catch (Exception e) { ExceptionHandler.LogException(e); }
+            });
 
             try
             {
@@ -52,18 +64,22 @@ namespace CompilePalX.Compilers
                 {
                     CompilePalLogger.LogLine("Map requires two sets of cubemaps");
 
+                    if (cancellationToken.IsCancellationRequested) return;
                     CompilePalLogger.LogLine("Compiling LDR cubemaps...");
-                    RunCubemaps(context.Configuration.GameEXE, args.Replace("%HDRevel%", "+mat_hdr_level 0"));
+                    RunCubemaps(context.Configuration.GameEXE, args.Replace("%HDRevel%", "+mat_hdr_level 0"), cancellationToken);
 
+                    if (cancellationToken.IsCancellationRequested) return;
                     CompilePalLogger.LogLine("Compiling HDR cubemaps...");
-                    RunCubemaps(context.Configuration.GameEXE, args.Replace("%HDRevel%", "+mat_hdr_level 2"));
+                    RunCubemaps(context.Configuration.GameEXE, args.Replace("%HDRevel%", "+mat_hdr_level 2"), cancellationToken);
                 }
                 else
                 {
+                    if (cancellationToken.IsCancellationRequested) return;
                     CompilePalLogger.LogLine("Map requires one set of cubemaps");
                     CompilePalLogger.LogLine("Compiling cubemaps...");
-                    RunCubemaps(context.Configuration.GameEXE, args.Replace("%HDRevel%", ""));
+                    RunCubemaps(context.Configuration.GameEXE, args.Replace("%HDRevel%", ""), cancellationToken);
                 }
+                if (cancellationToken.IsCancellationRequested) return;
                 CompilePalLogger.LogLine("Cubemaps compiled");
             }
             catch (FileNotFoundException)
@@ -78,15 +94,15 @@ namespace CompilePalX.Compilers
 
         }
 
-        public void RunCubemaps(string gameEXE, string args)
+        public void RunCubemaps(string gameEXE, string args, CancellationToken cancellationToken)
         {
             var startInfo = new ProcessStartInfo(gameEXE, args);
             startInfo.UseShellExecute = false;
             startInfo.CreateNoWindow = false;
 
-            var p = new Process { StartInfo = startInfo };
-            p.Start();
-            p.WaitForExit();
+            Process = new Process { StartInfo = startInfo };
+            Process.Start();
+            Process.WaitForExit();
         }
 
         public void FetchHDRLevels()
@@ -99,10 +115,10 @@ namespace CompilePalX.Compilers
                 RedirectStandardOutput = true
             };
 
-            var p = new Process { StartInfo = startInfo };
+            Process = new Process { StartInfo = startInfo };
             try
             {
-                p.Start();
+                Process.Start();
             }
             catch (Exception e)
             {
@@ -112,9 +128,9 @@ namespace CompilePalX.Compilers
                 return;
             }
 
-            string output = p.StandardOutput.ReadToEnd();
+            string output = Process.StandardOutput.ReadToEnd();
 
-            if (p.ExitCode != 0)
+            if (Process.ExitCode != 0)
                 CompilePalLogger.LogLine("Could not read HDR levels, defaulting to one.");
             else{
                 Regex re = new Regex(@"^LDR\sworldlights\s+.*", RegexOptions.IgnoreCase | RegexOptions.Multiline);

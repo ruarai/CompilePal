@@ -24,7 +24,7 @@ namespace CompilePalX.Compilers
 
         bool hidden;
 
-        public override void Run(CompileContext context)
+        public override void Run(CompileContext context, CancellationToken cancellationToken)
         {
             CompileErrors = new List<Error>();
 
@@ -44,6 +44,7 @@ namespace CompilePalX.Compilers
                 string mapLog = mapname + "_nav.log";
                 mapLogPath = Path.Combine(context.Configuration.GameFolder, mapLog);
 
+                if (cancellationToken.IsCancellationRequested) return;
                 DeleteNav(mapname, context.Configuration.GameFolder);
 
                 hidden = GetParameterString().Contains("-hidden");
@@ -90,11 +91,12 @@ namespace CompilePalX.Compilers
                     {
                         Thread.Sleep(100);
                         line = tr.ReadLine();
-                    } while (line == null || !line.Contains(".nav' saved."));
-                
-                    ExitClient();
+                    } while ((line == null || !line.Contains(".nav' saved.")) && !cancellationToken.IsCancellationRequested);
                 }
+                
+                ExitClient();
 
+                if (cancellationToken.IsCancellationRequested) return;
                 CompilePalLogger.LogLine("nav file complete!");
             }
             catch (FileNotFoundException)
@@ -136,12 +138,20 @@ namespace CompilePalX.Compilers
         }
         private void CleanUp()
         {
-            if (File.Exists(mapcfg))
-                File.Delete(mapcfg);
-            if (File.Exists(mapCFGBackup))
-                System.IO.File.Move(mapCFGBackup, mapcfg);
-            if (File.Exists(mapLogPath))
-                File.Delete(mapLogPath);
+            // give time for process to release file handles
+            try
+            {
+                if (File.Exists(mapcfg))
+                    File.Delete(mapcfg);
+                if (File.Exists(mapCFGBackup))
+                    System.IO.File.Move(mapCFGBackup, mapcfg);
+                if (File.Exists(mapLogPath))
+                    File.Delete(mapLogPath);
+            }
+            catch (Exception e)
+            {
+                CompilePalLogger.LogCompileError($"Failed to cleanup temporary file: {e}\n", new Error($"Failed to cleanup temporary file: {e}\n", "CompilePal Internal Error", ErrorSeverity.Info));
+            }
         }
 
         public override void Cancel()

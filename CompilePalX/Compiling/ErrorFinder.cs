@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -30,7 +31,7 @@ namespace CompilePalX
             t.Start();
         }
 
-        static void AsyncInit()
+        static async void AsyncInit()
         {
             try
             {
@@ -45,8 +46,8 @@ namespace CompilePalX
 
                     try
                     {
-	                    WebClient c = new WebClient();
-	                    string result = c.DownloadString(new Uri(errorURL));
+	                    var c = new HttpClient();
+	                    string result = await c.GetStringAsync(new Uri(errorURL));
 
 	                    LoadErrorData(result);
 						File.WriteAllText(errorCache, result);
