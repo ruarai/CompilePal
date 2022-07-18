@@ -25,10 +25,10 @@ namespace CompilePalX
 		    TaskScheduler.UnobservedTaskException += (s, err) => { ExceptionHandler.LogException(err.Exception, false); };
 
             // set working directory
-            Directory.SetCurrentDirectory(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location));
+            Directory.SetCurrentDirectory(Path.GetDirectoryName(AppContext.BaseDirectory));
 
             // store path in registry
-            RegistryManager.Write("Path", Assembly.GetExecutingAssembly().Location);
+            RegistryManager.Write("Path", AppContext.BaseDirectory);
         }
     }
 }
