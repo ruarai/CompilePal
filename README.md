@@ -20,7 +20,7 @@
 #### Experimental Releases
 Get the latest features without having to wait. Experimental releases may be unstable, use at your own risk.
 
-[Compile Pal V27.22](https://github.com/ruarai/CompilePal/releases/tag/v027.22)
+[Compile Pal V27.23](https://github.com/ruarai/CompilePal/releases/tag/v027.23)
 
 
 ## Features
