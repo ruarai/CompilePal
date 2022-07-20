@@ -37,7 +37,7 @@ namespace CompilePalX
                     Directory.CreateDirectory(gameConfigurationFolder);
 
                 //Loading the last used configurations for hammer
-                RegistryKey rk = Registry.CurrentUser.OpenSubKey(@"Software\Valve\Hammer\General");
+                RegistryKey? rk = Registry.CurrentUser.OpenSubKey(@"Software\Valve\Hammer\General");
 
                 var configs = new List<GameConfiguration>();
 
@@ -45,7 +45,7 @@ namespace CompilePalX
                 if (File.Exists(gameConfigurationsPath))
                 {
                     string jsonLoadText = File.ReadAllText(gameConfigurationsPath);
-                    configs.AddRange(JsonConvert.DeserializeObject<List<GameConfiguration>>(jsonLoadText));
+                    configs.AddRange(JsonConvert.DeserializeObject<List<GameConfiguration>>(jsonLoadText) ?? new List<GameConfiguration>());
                 }
 
                 //try loading from registry
