@@ -10,7 +10,7 @@
     </controls:MetroWindow.WindowButtonCommands>
 
     <Grid>
-        <DataGrid x:Name="GameGrid" Margin="10,10,10,40"  AutoGenerateColumns="False" CanUserAddRows="False" ItemsSource="{Binding}" MouseDoubleClick="Button_Click">
+        <DataGrid x:Name="GameGrid" Margin="10,10,10,40"  AutoGenerateColumns="False" CanUserAddRows="False" ItemsSource="{Binding}" MouseDoubleClick="Button_Click" SelectionMode="Single">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Name" Binding="{ Binding Name}" IsReadOnly="True"/>
                 <DataGridTextColumn Header="Path" Binding="{ Binding GameFolder}" IsReadOnly="True" Width="*"/>
