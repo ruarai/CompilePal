@@ -157,5 +157,10 @@ namespace CompilePalX
 	        Instance = null;
 	        base.OnClosing(e);
         }
+
+        private void AddButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            new GameConfigurationWindow().Show();
+        }
     }
 }
