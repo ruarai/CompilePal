@@ -28,60 +28,17 @@ namespace CompilePalX
         {	
             try
             {
-                string gameConfigurationFolder = "./GameConfiguration";
-                string gameConfigurationsPath = Path.Combine(gameConfigurationFolder, "gameConfigs.json");
 
                 InitializeComponent();
 
-                if (!Directory.Exists(gameConfigurationFolder))
-                    Directory.CreateDirectory(gameConfigurationFolder);
+                GameConfigurationManager.LoadGameConfigurations();
 
-                //Loading the last used configurations for hammer
-                RegistryKey? rk = Registry.CurrentUser.OpenSubKey(@"Software\Valve\Hammer\General");
-
-                var configs = new List<GameConfiguration>();
-
-                //try loading json
-                if (File.Exists(gameConfigurationsPath))
+                if (GameConfigurationManager.GameConfigurations.Any())
                 {
-                    string jsonLoadText = File.ReadAllText(gameConfigurationsPath);
-                    configs.AddRange(JsonConvert.DeserializeObject<List<GameConfiguration>>(jsonLoadText) ?? new List<GameConfiguration>());
-                }
+                    if (GameConfigurationManager.GameConfigurations.Count == 1)
+                        Launch(GameConfigurationManager.GameConfigurations.First());
 
-                //try loading from registry
-                if (rk != null)
-                {
-                    string BinFolder = (string)rk.GetValue("Directory");
-
-
-                    string gameData = Path.Combine(BinFolder, "GameConfig.txt");
-                    try
-                    {
-	                    configs.AddRange(GameConfigurationParser.Parse(gameData));
-                    }
-                    catch (Exception e)
-                    {
-						ExceptionHandler.LogException(e);
-                    }
-                    
-                }
-
-                //finalise config loading
-                if (configs.Any())
-                {
-                    //remove duplicates
-                    configs = configs.GroupBy(g => g.Name).Select(grp => grp.First()).ToList();
-
-                    //save
-                    string jsonSaveText = JsonConvert.SerializeObject(configs, Formatting.Indented);
-                    File.WriteAllText(gameConfigurationsPath, jsonSaveText);
-                    GameConfigurationManager.GameConfigurations = configs;
-
-                    if (configs.Count == 1)
-                        Launch(configs.First());
-
-
-                    GameGrid.ItemsSource = configs;
+                    GameGrid.ItemsSource = GameConfigurationManager.GameConfigurations;
                 }
                 else//oh noes
                 {
@@ -105,7 +62,7 @@ namespace CompilePalX
 
 	                        string argGameConfig = commandLineArgs[i + 1].ToLower();
 
-                            foreach (GameConfiguration config in configs)
+                            foreach (GameConfiguration config in GameConfigurationManager.GameConfigurations)
                             {
 	                            string configName = config.Name.ToLower();
 
@@ -161,6 +118,11 @@ namespace CompilePalX
         private void AddButton_OnClick(object sender, RoutedEventArgs e)
         {
             new GameConfigurationWindow().Show();
+        }
+
+        public void RefreshGameConfigurationList()
+        {
+            this.GameGrid.Items.Refresh();
         }
     }
 }
