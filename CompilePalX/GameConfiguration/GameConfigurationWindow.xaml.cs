@@ -19,8 +19,19 @@ namespace CompilePalX;
 /// </summary>
 public partial class GameConfigurationWindow
 {
-    public GameConfigurationWindow()
+    public GameConfigurationWindow(GameConfiguration? gc = null)
     {
         InitializeComponent();
+        gc ??= new GameConfiguration();
+        this.DataContext = gc;
+    }
+
+    private void SaveButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        // TODO: validate
+        GameConfigurationManager.GameConfigurations.Add((GameConfiguration)this.DataContext);
+        GameConfigurationManager.SaveGameConfigurations();
+        LaunchWindow.Instance.RefreshGameConfigurationList();
+        Close();
     }
 }
