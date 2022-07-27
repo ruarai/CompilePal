@@ -49,8 +49,8 @@
 
     <Grid>
         <ScrollViewer VerticalScrollBarVisibility="Auto">
-            <StackPanel Orientation="Vertical" Margin="10, 10, 10, 10">
-                <TextBox Template="{StaticResource LabeledTextbox}" Text="{Binding Path=Name, Mode=TwoWay}" Tag="Name"/>
+            <StackPanel Orientation="Vertical" Margin="10, 10, 10, 10" FocusManager.FocusedElement="{Binding ElementName=Name}">
+                <TextBox Template="{StaticResource LabeledTextbox}" Text="{Binding Path=Name, Mode=TwoWay}" Tag="Name" Name="Name"/>
                 <TextBox Template="{StaticResource LabeledTextbox}" Text="{Binding Path=GameFolder, Mode=TwoWay}" Tag="Game Folder" ToolTip="Path to the game folder.&#x0a;Ex. C:\Program Files (x86)\Steam\steamapps\common\Team Fortress 2\tf" />
                 <TextBox Template="{StaticResource LabeledTextbox}" Text="{Binding Path=BinFolder, Mode=TwoWay}" Tag="Bin Folder" ToolTip="Path to the bin folder that contains the command line tools.&#x0a;Ex. C:\Program Files (x86)\Steam\steamapps\common\Team Fortress 2\bin" />
                 <TextBox Template="{StaticResource LabeledTextbox}" Text="{Binding Path=GameEXE, Mode=TwoWay}" Tag="Game EXE" ToolTip="Path to game EXE.&#x0a;Ex. C:\Program Files (x86)\Steam\steamapps\common\Team Fortress 2\hl2.exe" />

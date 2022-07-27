@@ -1,16 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.ComponentModel;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace CompilePalX;
 
@@ -19,19 +9,43 @@ namespace CompilePalX;
 /// </summary>
 public partial class GameConfigurationWindow
 {
-    public GameConfigurationWindow(GameConfiguration? gc = null)
+    private static GameConfigurationWindow? instance;
+    public static GameConfigurationWindow Instance => instance ??= new GameConfigurationWindow();
+    private int? Index;
+
+    private GameConfigurationWindow(GameConfiguration? gc = null)
     {
         InitializeComponent();
         gc ??= new GameConfiguration();
         this.DataContext = gc;
     }
 
+    public void Open(GameConfiguration? gc = null, int? index = null)
+    {
+        gc ??= new GameConfiguration();
+        this.DataContext = gc;
+        this.Index = index;
+        Show();
+        Focus();
+    }
+
+
     private void SaveButton_OnClick(object sender, RoutedEventArgs e)
     {
         // TODO: validate
-        GameConfigurationManager.GameConfigurations.Add((GameConfiguration)this.DataContext);
+        // if index is not null, this is an edit
+        if (this.Index != null)
+            GameConfigurationManager.GameConfigurations[(int)this.Index] = (GameConfiguration)this.DataContext;
+        else
+            GameConfigurationManager.GameConfigurations.Add((GameConfiguration)this.DataContext);
+
         GameConfigurationManager.SaveGameConfigurations();
         LaunchWindow.Instance.RefreshGameConfigurationList();
         Close();
+    }
+    protected override void OnClosing(CancelEventArgs e)
+    {
+        instance = null;
+        base.OnClosing(e);
     }
 }

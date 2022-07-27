@@ -135,7 +135,6 @@ namespace CompilePalX
             {
                 string binFolder = (string)rk.GetValue("Directory")!;
 
-
                 string gameData = Path.Combine(binFolder, "GameConfig.txt");
                 try
                 {
@@ -147,7 +146,7 @@ namespace CompilePalX
                 }
             }
 
-            //remove duplicates
+            // remove duplicates
             GameConfigurations = configs.GroupBy(g => g.Name).Select(grp => grp.First()).ToList();
             
             SaveGameConfigurations();

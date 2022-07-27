@@ -23,12 +23,11 @@ namespace CompilePalX
     /// </summary>
     public partial class LaunchWindow
     {
-	    public static LaunchWindow Instance;
+	    public static LaunchWindow? Instance;
         public LaunchWindow()
         {	
             try
             {
-
                 InitializeComponent();
 
                 GameConfigurationManager.LoadGameConfigurations();
@@ -103,7 +102,7 @@ namespace CompilePalX
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            var selectedItem = (GameConfiguration)GameGrid.SelectedItem;
+            var selectedItem = (GameConfiguration?)GameGrid.SelectedItem;
 
             if (selectedItem != null)
                 Launch(selectedItem);
@@ -117,12 +116,27 @@ namespace CompilePalX
 
         private void AddButton_OnClick(object sender, RoutedEventArgs e)
         {
-            new GameConfigurationWindow().Show();
+            GameConfigurationWindow.Instance.Open();
         }
 
         public void RefreshGameConfigurationList()
         {
             this.GameGrid.Items.Refresh();
+        }
+
+        private void EditButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            var configuration = (GameConfiguration)((Button)sender).DataContext;
+            int configIndex = GameConfigurationManager.GameConfigurations.IndexOf(configuration);
+            GameConfigurationWindow.Instance.Open(configuration.Clone() as GameConfiguration, configIndex);
+        }
+
+        private void DeleteButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            var configuration = (GameConfiguration)((Button)sender).DataContext;
+            GameConfigurationManager.GameConfigurations.Remove(configuration);
+            GameConfigurationManager.SaveGameConfigurations();
+            RefreshGameConfigurationList();
         }
     }
 }

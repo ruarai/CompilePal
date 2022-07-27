@@ -1,8 +1,9 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 
 namespace CompilePalX
 {
-    public class GameConfiguration
+    public class GameConfiguration : ICloneable
     {
         public string GameFolder { get; set; }
 
@@ -36,5 +37,9 @@ namespace CompilePalX
         public string? BinFolder { get; set; }
 
         public string Name { get; set; }
+        public object Clone()
+        {
+            return this.MemberwiseClone();
+        }
     }
 }

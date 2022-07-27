@@ -39,7 +39,7 @@ namespace CompilePalX
         private ObservableCollection<CompileProcess> CompileProcessesSubList = new ObservableCollection<CompileProcess>();
 	    private bool processModeEnabled;
         private DispatcherTimer elapsedTimeDispatcherTimer;
-		public static MainWindow Instance { get; private set; }
+		public static MainWindow? Instance { get; private set; }
 
         private int SelectedMapIndex
         {
@@ -86,10 +86,6 @@ namespace CompilePalX
             MapListBox.SelectedIndex = 0;
 
             UpdateConfigGrid();
-
-            ConfigSelectButton.Visibility = GameConfigurationManager.GameConfigurations.Count > 1
-                ? Visibility.Visible
-                : Visibility.Collapsed;
 
             CompilingManager.OnClear += CompilingManager_OnClear;
 

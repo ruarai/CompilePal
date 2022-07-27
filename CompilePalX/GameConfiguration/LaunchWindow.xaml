@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
         xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
-        Title="Game Selector" Height="444" Width="564"
+        Title="Game Selector" Height="444" Width="600"
                       BorderBrush="{DynamicResource MahApps.Brushes.Accent}" BorderThickness="1" 
                       IconEdgeMode="Aliased" Icon="..\CompilePalIcon.ico" ShowIconOnTitleBar="False" >
     <controls:MetroWindow.WindowButtonCommands>
@@ -20,6 +20,31 @@
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="Name" Binding="{ Binding Name}" IsReadOnly="True"/>
                     <DataGridTextColumn Header="Path" Binding="{ Binding GameFolder}" IsReadOnly="True" Width="*"/>
+                    <DataGridTemplateColumn Width="auto" CanUserResize="False">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <Button Name="EditButton" Margin="0, 0, 2, 0" Height="20" Width="25" Padding="-4" Click="EditButton_OnClick"><iconPacks:Material Kind="Pencil" Height="13" Width="13"/></Button>
+                                    <Button Name="DeleteButton" Height="20" Width="25" Padding="-4" Click="DeleteButton_OnClick"><iconPacks:Material Kind="TrashCanOutline" Height="13" Width="13"/></Button>
+                                    <StackPanel.Style>
+                                        <Style TargetType="{x:Type StackPanel}">
+                                            <Setter Property="Visibility" Value="Hidden"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType={x:Type DataGridRow}}}" Value="True">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </StackPanel.Style>
+                                </StackPanel>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                        <DataGridTemplateColumn.HeaderStyle>
+                            <Style TargetType="{x:Type DataGridColumnHeader}">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                            </Style>
+                        </DataGridTemplateColumn.HeaderStyle>
+                    </DataGridTemplateColumn>
                 </DataGrid.Columns>
             </DataGrid>
             <Button Grid.Column="1" Name="AddButton" Margin="0, -1, 0, 0" Height="20" Width="25" Padding="-4" HorizontalAlignment="Right" VerticalAlignment="Top" Click="AddButton_OnClick"><iconPacks:Material Kind="Plus" Height="13" Width="13"/></Button>
