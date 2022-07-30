@@ -111,6 +111,7 @@ namespace CompilePalX
         protected override void OnClosing(CancelEventArgs e)
         {
 	        Instance = null;
+            GameConfigurationWindow.Instance?.Close();
 	        base.OnClosing(e);
         }
 

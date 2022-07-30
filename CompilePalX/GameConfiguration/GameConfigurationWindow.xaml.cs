@@ -11,7 +11,7 @@ public partial class GameConfigurationWindow
 {
     private static GameConfigurationWindow? instance;
     public static GameConfigurationWindow Instance => instance ??= new GameConfigurationWindow();
-    private int? Index;
+    private int? index;
 
     private GameConfigurationWindow(GameConfiguration? gc = null)
     {
@@ -24,7 +24,7 @@ public partial class GameConfigurationWindow
     {
         gc ??= new GameConfiguration();
         this.DataContext = gc;
-        this.Index = index;
+        this.index = index;
         Show();
         Focus();
     }
@@ -34,13 +34,13 @@ public partial class GameConfigurationWindow
     {
         // TODO: validate
         // if index is not null, this is an edit
-        if (this.Index != null)
-            GameConfigurationManager.GameConfigurations[(int)this.Index] = (GameConfiguration)this.DataContext;
+        if (this.index != null)
+            GameConfigurationManager.GameConfigurations[(int)this.index] = (GameConfiguration)this.DataContext;
         else
             GameConfigurationManager.GameConfigurations.Add((GameConfiguration)this.DataContext);
 
         GameConfigurationManager.SaveGameConfigurations();
-        LaunchWindow.Instance.RefreshGameConfigurationList();
+        LaunchWindow.Instance?.RefreshGameConfigurationList();
         Close();
     }
     protected override void OnClosing(CancelEventArgs e)
