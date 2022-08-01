@@ -48,7 +48,7 @@ namespace CompilePalX
                 isPrerelease = true;
             }
 
-            CompilePalLogger.LogDebug($"Current version: {currentVersion}");
+            CompilePalLogger.LogDebug($"Current version: {currentVersion}\n");
 
             // store version info in registry
             RegistryManager.Write("Version", currentVersionString);
