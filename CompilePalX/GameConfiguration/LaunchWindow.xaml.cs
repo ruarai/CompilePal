@@ -13,6 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.IO;
 using System.Security.Cryptography.X509Certificates;
+using MahApps.Metro.Controls.Dialogs;
 using Microsoft.Win32;
 using Newtonsoft.Json;
 
@@ -132,9 +133,25 @@ namespace CompilePalX
             GameConfigurationWindow.Instance.Open(configuration.Clone() as GameConfiguration, configIndex);
         }
 
-        private void DeleteButton_OnClick(object sender, RoutedEventArgs e)
+        private async void DeleteButton_OnClick(object sender, RoutedEventArgs e)
         {
             var configuration = (GameConfiguration)((Button)sender).DataContext;
+
+            var dialogSettings = new MetroDialogSettings()
+            {
+                AffirmativeButtonText = "Delete",
+                NegativeButtonText = "Cancel",
+                AnimateHide = false,
+                AnimateShow = false,
+                DefaultButtonFocus = MessageDialogResult.Affirmative,
+            };
+
+            var result = await this.ShowMessageAsync($"Delete Configuration", $"Are you sure you want to delete {configuration.Name}?",
+                MessageDialogStyle.AffirmativeAndNegative, dialogSettings);
+
+            if (result != MessageDialogResult.Affirmative)
+                return;
+
             GameConfigurationManager.GameConfigurations.Remove(configuration);
             GameConfigurationManager.SaveGameConfigurations();
             RefreshGameConfigurationList();
