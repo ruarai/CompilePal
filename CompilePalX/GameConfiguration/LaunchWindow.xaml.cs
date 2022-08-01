@@ -6,16 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.IO;
-using System.Security.Cryptography.X509Certificates;
 using MahApps.Metro.Controls.Dialogs;
-using Microsoft.Win32;
-using Newtonsoft.Json;
 
 namespace CompilePalX
 {
@@ -25,6 +16,8 @@ namespace CompilePalX
     public partial class LaunchWindow
     {
 	    public static LaunchWindow? Instance;
+
+        private bool GameConfigsEmpty => !GameConfigurationManager.GameConfigurations.Any();
         public LaunchWindow()
         {	
             try
@@ -33,18 +26,12 @@ namespace CompilePalX
 
                 GameConfigurationManager.LoadGameConfigurations();
 
-                if (GameConfigurationManager.GameConfigurations.Any())
-                {
-                    if (GameConfigurationManager.GameConfigurations.Count == 1)
-                        Launch(GameConfigurationManager.GameConfigurations.First());
+                if (GameConfigurationManager.GameConfigurations.Count == 1)
+                    Launch(GameConfigurationManager.GameConfigurations.First());
 
-                    GameGrid.ItemsSource = GameConfigurationManager.GameConfigurations;
-                }
-                else//oh noes
-                {
-                    LaunchButton.IsEnabled = false;
-                    WarningLabel.Content = "No Hammer configurations found. Cannot launch.";
-                }
+                GameGrid.ItemsSource = GameConfigurationManager.GameConfigurations;
+
+                RefreshGameConfigurationList();
 
                 //Handle command line args for game configs
                 string[] commandLineArgs = Environment.GetCommandLineArgs();
@@ -124,6 +111,20 @@ namespace CompilePalX
         public void RefreshGameConfigurationList()
         {
             this.GameGrid.Items.Refresh();
+
+            // recalculate state
+            if (GameConfigsEmpty)
+            {
+                // Empty State
+                FilledState.Visibility = Visibility.Collapsed;
+                EmptyState.Visibility = Visibility.Visible;
+            }
+            else 
+            {
+                // Filled State
+                FilledState.Visibility = Visibility.Visible;
+                EmptyState.Visibility = Visibility.Collapsed;
+            }
         }
 
         private void EditButton_OnClick(object sender, RoutedEventArgs e)
