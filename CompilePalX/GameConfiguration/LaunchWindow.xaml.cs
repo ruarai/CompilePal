@@ -6,15 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.IO;
-using System.Security.Cryptography.X509Certificates;
-using Microsoft.Win32;
-using Newtonsoft.Json;
+using MahApps.Metro.Controls.Dialogs;
 
 namespace CompilePalX
 {
@@ -23,71 +15,23 @@ namespace CompilePalX
     /// </summary>
     public partial class LaunchWindow
     {
-	    public static LaunchWindow Instance;
+	    public static LaunchWindow? Instance;
+
+        private bool GameConfigsEmpty => !GameConfigurationManager.GameConfigurations.Any();
         public LaunchWindow()
         {	
             try
             {
-                string gameConfigurationFolder = "./GameConfiguration";
-                string gameConfigurationsPath = Path.Combine(gameConfigurationFolder, "gameConfigs.json");
-
                 InitializeComponent();
 
-                if (!Directory.Exists(gameConfigurationFolder))
-                    Directory.CreateDirectory(gameConfigurationFolder);
+                GameConfigurationManager.LoadGameConfigurations();
 
-                //Loading the last used configurations for hammer
-                RegistryKey rk = Registry.CurrentUser.OpenSubKey(@"Software\Valve\Hammer\General");
+                if (GameConfigurationManager.GameConfigurations.Count == 1)
+                    Launch(GameConfigurationManager.GameConfigurations.First());
 
-                var configs = new List<GameConfiguration>();
+                GameGrid.ItemsSource = GameConfigurationManager.GameConfigurations;
 
-                //try loading json
-                if (File.Exists(gameConfigurationsPath))
-                {
-                    string jsonLoadText = File.ReadAllText(gameConfigurationsPath);
-                    configs.AddRange(JsonConvert.DeserializeObject<List<GameConfiguration>>(jsonLoadText));
-                }
-
-                //try loading from registry
-                if (rk != null)
-                {
-                    string BinFolder = (string)rk.GetValue("Directory");
-
-
-                    string gameData = Path.Combine(BinFolder, "GameConfig.txt");
-                    try
-                    {
-	                    configs.AddRange(GameConfigurationParser.Parse(gameData));
-                    }
-                    catch (Exception e)
-                    {
-						ExceptionHandler.LogException(e);
-                    }
-                    
-                }
-
-                //finalise config loading
-                if (configs.Any())
-                {
-                    //remove duplicates
-                    configs = configs.GroupBy(g => g.Name).Select(grp => grp.First()).ToList();
-
-                    //save
-                    string jsonSaveText = JsonConvert.SerializeObject(configs, Formatting.Indented);
-                    File.WriteAllText(gameConfigurationsPath, jsonSaveText);
-                    GameConfigurationManager.GameConfigurations = configs;
-
-                    if (configs.Count == 1)
-                        Launch(configs.First());
-
-
-                    GameGrid.ItemsSource = configs;
-                }
-                else//oh noes
-                {
-                    LaunchButton.IsEnabled = false;
-                    WarningLabel.Content = "No Hammer configurations found. Cannot launch.";
-                }
+                RefreshGameConfigurationList();
 
                 //Handle command line args for game configs
                 string[] commandLineArgs = Environment.GetCommandLineArgs();
@@ -105,7 +49,7 @@ namespace CompilePalX
 
 	                        string argGameConfig = commandLineArgs[i + 1].ToLower();
 
-                            foreach (GameConfiguration config in configs)
+                            foreach (GameConfiguration config in GameConfigurationManager.GameConfigurations)
                             {
 	                            string configName = config.Name.ToLower();
 
@@ -146,7 +90,7 @@ namespace CompilePalX
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            var selectedItem = (GameConfiguration)GameGrid.SelectedItem;
+            var selectedItem = (GameConfiguration?)GameGrid.SelectedItem;
 
             if (selectedItem != null)
                 Launch(selectedItem);
@@ -155,7 +99,63 @@ namespace CompilePalX
         protected override void OnClosing(CancelEventArgs e)
         {
 	        Instance = null;
+            GameConfigurationWindow.Instance?.Close();
 	        base.OnClosing(e);
+        }
+
+        private void AddButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            GameConfigurationWindow.Instance.Open();
+        }
+
+        public void RefreshGameConfigurationList()
+        {
+            this.GameGrid.Items.Refresh();
+
+            // recalculate state
+            if (GameConfigsEmpty)
+            {
+                // Empty State
+                FilledState.Visibility = Visibility.Collapsed;
+                EmptyState.Visibility = Visibility.Visible;
+            }
+            else 
+            {
+                // Filled State
+                FilledState.Visibility = Visibility.Visible;
+                EmptyState.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        private void EditButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            var configuration = (GameConfiguration)((Button)sender).DataContext;
+            int configIndex = GameConfigurationManager.GameConfigurations.IndexOf(configuration);
+            GameConfigurationWindow.Instance.Open(configuration.Clone() as GameConfiguration, configIndex);
+        }
+
+        private async void DeleteButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            var configuration = (GameConfiguration)((Button)sender).DataContext;
+
+            var dialogSettings = new MetroDialogSettings()
+            {
+                AffirmativeButtonText = "Delete",
+                NegativeButtonText = "Cancel",
+                AnimateHide = false,
+                AnimateShow = false,
+                DefaultButtonFocus = MessageDialogResult.Affirmative,
+            };
+
+            var result = await this.ShowMessageAsync($"Delete Configuration", $"Are you sure you want to delete {configuration.Name}?",
+                MessageDialogStyle.AffirmativeAndNegative, dialogSettings);
+
+            if (result != MessageDialogResult.Affirmative)
+                return;
+
+            GameConfigurationManager.GameConfigurations.Remove(configuration);
+            GameConfigurationManager.SaveGameConfigurations();
+            RefreshGameConfigurationList();
         }
     }
 }

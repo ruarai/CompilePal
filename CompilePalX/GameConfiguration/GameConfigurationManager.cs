@@ -5,6 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Microsoft.Win32;
+using Newtonsoft.Json;
 
 namespace CompilePalX
 {
@@ -14,6 +16,8 @@ namespace CompilePalX
         public static GameConfiguration GameConfiguration;
         public static GameConfiguration GameConfigurationBackup;
         public static List<GameConfiguration> GameConfigurations;
+        private static string GameConfigurationFolder = "./GameConfiguration";
+        private static readonly string GameConfigurationsPath = Path.Combine(GameConfigurationFolder, "gameConfigs.json");
 
         public static string SubstituteValues(string text, string mapFile = "")
         {
@@ -107,6 +111,51 @@ namespace CompilePalX
                 BSPFile = Path.ChangeExtension(GameConfigurationManager.mapFile ?? mapFile, "bsp"),
                 CopyLocation = Path.Combine(GameConfiguration.MapFolder, Path.ChangeExtension(Path.GetFileName(GameConfigurationManager.mapFile ?? mapFile), "bsp"))
             };
+        }
+
+        public static void LoadGameConfigurations()
+        {
+            if (!Directory.Exists(GameConfigurationFolder))
+                Directory.CreateDirectory(GameConfigurationFolder);
+
+            //Loading the last used configurations for hammer
+            RegistryKey? rk = Registry.CurrentUser.OpenSubKey(@"Software\Valve\Hammer\General");
+
+            var configs = new List<GameConfiguration>();
+
+            //try loading json
+            if (File.Exists(GameConfigurationsPath))
+            {
+                string jsonLoadText = File.ReadAllText(GameConfigurationsPath);
+                configs.AddRange(JsonConvert.DeserializeObject<List<GameConfiguration>>(jsonLoadText) ?? new List<GameConfiguration>());
+            }
+
+            //try loading from registry
+            if (rk != null)
+            {
+                string binFolder = (string)rk.GetValue("Directory")!;
+
+                string gameData = Path.Combine(binFolder, "GameConfig.txt");
+                try
+                {
+                    configs.AddRange(GameConfigurationParser.Parse(gameData));
+                }
+                catch (Exception e)
+                {
+                    ExceptionHandler.LogException(e);
+                }
+            }
+
+            // remove duplicates
+            GameConfigurations = configs.GroupBy(g => g.Name).Select(grp => grp.First()).ToList();
+            
+            SaveGameConfigurations();
+        }
+
+        public static void SaveGameConfigurations()
+        {
+            string jsonSaveText = JsonConvert.SerializeObject(GameConfigurations, Formatting.Indented);
+            File.WriteAllText(GameConfigurationsPath, jsonSaveText);
         }
     }
 }

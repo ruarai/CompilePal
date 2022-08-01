@@ -2,21 +2,67 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
-        Title="Game Selector" Height="444" Width="564"
+        xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+        Title="Game Selector" Height="444" Width="600"
                       BorderBrush="{DynamicResource MahApps.Brushes.Accent}" BorderThickness="1" 
                       IconEdgeMode="Aliased" Icon="..\CompilePalIcon.ico" ShowIconOnTitleBar="False" >
     <controls:MetroWindow.WindowButtonCommands>
         <controls:WindowButtonCommands LightCloseButtonStyle="{StaticResource LightButtonStyle}" LightMinButtonStyle="{StaticResource LightButtonStyle}" LightMaxButtonStyle="{StaticResource LightButtonStyle}"/>
     </controls:MetroWindow.WindowButtonCommands>
+    <controls:MetroWindow.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+    </controls:MetroWindow.Resources>
 
     <Grid>
-        <DataGrid x:Name="GameGrid" Margin="10,10,10,40"  AutoGenerateColumns="False" CanUserAddRows="False" ItemsSource="{Binding}" MouseDoubleClick="Button_Click">
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="Name" Binding="{ Binding Name}" IsReadOnly="True"/>
-                <DataGridTextColumn Header="Path" Binding="{ Binding GameFolder}" IsReadOnly="True" Width="*"/>
-            </DataGrid.Columns>
-        </DataGrid>
-        <Button Name="LaunchButton" Content="Launch" Margin="0,0,10,10" Height="25" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="75" Click="Button_Click"/>
-        <Label Name="WarningLabel" Content="" Margin="10,0,0,10" HorizontalAlignment="Left"   VerticalAlignment="Bottom"/>
+        <StackPanel Margin="10, 0, 10, 40" VerticalAlignment="Center" HorizontalAlignment="Center" x:Name="EmptyState">
+            <Grid HorizontalAlignment="Center" Margin="0, -40, 0, 20">
+                <iconPacks:Material Kind="HelpRhombus" Height="40" Width="40"/>
+            </Grid>
+            <TextBlock HorizontalAlignment="Center" FontWeight="Bold" FontSize="14">No Game Configurations Found</TextBlock>
+            <TextBlock HorizontalAlignment="Center" Margin="0, 5, 0,10">Launch Hammer for the game you want to compile for and restart Compile Pal</TextBlock>
+            <TextBlock HorizontalAlignment="Center" FontWeight="Bold" FontSize="14">Or</TextBlock>
+            <Button Margin="0, 10, 0, 0" Click="AddButton_OnClick">Add Game</Button>
+        </StackPanel>
+        <Grid x:Name="FilledState">
+            <Grid Margin="10, 10, 10, 40">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <DataGrid x:Name="GameGrid" Margin="0,0,5,0" HorizontalContentAlignment="Stretch" AutoGenerateColumns="False" CanUserAddRows="False" ItemsSource="{Binding}" MouseDoubleClick="Button_Click" SelectionMode="Single">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Name" Binding="{ Binding Name}" IsReadOnly="True"/>
+                        <DataGridTextColumn Header="Path" Binding="{ Binding GameFolder}" IsReadOnly="True" Width="*"/>
+                        <DataGridTemplateColumn Width="auto" CanUserResize="False">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Button Name="EditButton" Margin="0, 0, 2, 0" Height="20" Width="25" Padding="-4" Click="EditButton_OnClick"><iconPacks:Material Kind="Pencil" Height="13" Width="13"/></Button>
+                                        <Button Name="DeleteButton" Height="20" Width="25" Padding="-4" Click="DeleteButton_OnClick"><iconPacks:Material Kind="TrashCanOutline" Height="13" Width="13"/></Button>
+                                        <StackPanel.Style>
+                                            <Style TargetType="{x:Type StackPanel}">
+                                                <Setter Property="Visibility" Value="Hidden"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType={x:Type DataGridRow}}}" Value="True">
+                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </StackPanel.Style>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                            <DataGridTemplateColumn.HeaderStyle>
+                                <Style TargetType="{x:Type DataGridColumnHeader}">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </Style>
+                            </DataGridTemplateColumn.HeaderStyle>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+                <Button Grid.Column="1" Name="AddButton" Margin="0, -1, 0, 0" Height="20" Width="25" Padding="-4" HorizontalAlignment="Right" VerticalAlignment="Top" Click="AddButton_OnClick"><iconPacks:Material Kind="Plus" Height="13" Width="13"/></Button>
+            </Grid>
+            <Button Name="LaunchButton" Content="Launch" Margin="0,0,10,10" Height="25" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="75" Click="Button_Click" />
+        </Grid>
     </Grid>
 </controls:MetroWindow>
