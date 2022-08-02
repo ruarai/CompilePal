@@ -53,7 +53,7 @@
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
-        <Button x:Name="AddMapButton"  Grid.Row="0" Content="Add Map..." Margin="0,10,10,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="75" Click="AddMapButton_Click"/>
+        <Button x:Name="AddMapButton"  Grid.Row="0" Content="Add Map" Margin="0,10,10,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="75" Click="AddMapButton_Click"/>
         <Button x:Name="RemoveMapButton"  Grid.Row="0" Content="Remove" Margin="0,45,10,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="75" Click="RemoveMapButton_Click"/>
         <GridSplitter Grid.Row="1" Height="2" HorizontalAlignment="Stretch" Width="512"></GridSplitter>
         <controls:MetroTabControl Grid.Row="2" controls:TabControlHelper.Underlined="SelectedTabItem" controls:TabControlHelper.Transition="LeftReplace" Margin="10,10,10,40">
@@ -66,13 +66,13 @@
                     </Grid.ColumnDefinitions>
                     <DockPanel Grid.Column="0" Margin="10,10,0,10" Background="White">
                         <Button x:Name="RemovePresetButton" Content="Remove" Margin="5,0,5,5" VerticalAlignment="Bottom" Click="RemovePresetButton_Click" DockPanel.Dock="Bottom"/>
-                        <Button x:Name="ClonePresetButton" Content="Clone..." Margin="5,0,5,5" VerticalAlignment="Bottom" Click="ClonePresetButton_OnClick" DockPanel.Dock="Bottom"/>
-                        <Button x:Name="AddPresetButton" Content="Add..." Margin="5,0,5,5" VerticalAlignment="Bottom"  Click="AddPresetButton_Click" DockPanel.Dock="Bottom"/>
+                        <Button x:Name="ClonePresetButton" Content="Clone" Margin="5,0,5,5" VerticalAlignment="Bottom" Click="ClonePresetButton_OnClick" DockPanel.Dock="Bottom"/>
+                        <Button x:Name="AddPresetButton" Content="Add Preset" Margin="5,0,5,5" VerticalAlignment="Bottom"  Click="AddPresetButton_Click" DockPanel.Dock="Bottom"/>
                         <ListBox Name="PresetConfigListBox" Margin="0,0,0,5" SelectionChanged="PresetConfigListBox_SelectionChanged" />
                     </DockPanel>
                     <DockPanel Grid.Column="1" Margin="10,10,0,10" Background="White">
                         <Button x:Name="RemoveProcessesButton" Content="Remove" DockPanel.Dock="Bottom" Margin="5,0,5,5" Grid.Row="1" Click="RemoveProcessButton_Click"/>
-                        <Button x:Name="AddProcessesButton" Content="Add..." DockPanel.Dock="Bottom" Margin="5,0,5,5" Grid.Row="2" Click="AddProcessButton_Click"/>
+                        <Button x:Name="AddProcessesButton" Content="Add Process" DockPanel.Dock="Bottom" Margin="5,0,5,5" Grid.Row="2" Click="AddProcessButton_Click"/>
                         <ListBox x:Name ="CompileProcessesListBox" Margin="0,0,0,5" Grid.Row="0" SelectionChanged="CompileProcessesListBox_SelectionChanged">
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
@@ -212,7 +212,7 @@
 
                         <Grid Grid.Row="1">
                             <TextBox Name="ParametersTextBox" Margin="10,0,180,0" VerticalAlignment="Top" IsEnabled="False"/>
-                            <Button Content="Add..." Margin="10,0" Grid.Row="1" Width="80" HorizontalAlignment="Right" VerticalAlignment="Top" Name="AddParameterButton" Click="AddParameterButton_Click"/>
+                            <Button Content="Add" Margin="10,0" Grid.Row="1" Width="80" HorizontalAlignment="Right" VerticalAlignment="Top" Name="AddParameterButton" Click="AddParameterButton_Click"/>
                             <Button Content="Remove" Margin="0,0,95,0" Grid.Row="1" Width="80" HorizontalAlignment="Right" VerticalAlignment="Top" Name="RemoveParameterButton" Click="RemoveParameterButton_OnClickParameterButton_Click"/>
                         </Grid>
                     </Grid>
