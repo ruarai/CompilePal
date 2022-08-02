@@ -19,7 +19,7 @@ namespace CompilePalX
 
         private bool GameConfigsEmpty => !GameConfigurationManager.GameConfigurations.Any();
         public LaunchWindow()
-        {	
+        {
             try
             {
                 InitializeComponent();
@@ -119,7 +119,7 @@ namespace CompilePalX
                 FilledState.Visibility = Visibility.Collapsed;
                 EmptyState.Visibility = Visibility.Visible;
             }
-            else 
+            else
             {
                 // Filled State
                 FilledState.Visibility = Visibility.Visible;
@@ -165,6 +165,13 @@ namespace CompilePalX
                 if (MainWindow.Instance != null)
                     MainWindow.Instance.Close();
             }
+        }
+
+        private void RefreshButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            GameConfigurationManager.LoadGameConfigurations();
+            GameGrid.ItemsSource = GameConfigurationManager.GameConfigurations;
+            RefreshGameConfigurationList();
         }
     }
 }

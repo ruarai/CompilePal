@@ -4,7 +4,7 @@
         xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
         xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
         Title="Game Selector" Height="444" Width="600"
-                      BorderBrush="{DynamicResource MahApps.Brushes.Accent}" BorderThickness="1" 
+                      BorderBrush="{DynamicResource MahApps.Brushes.Accent}" BorderThickness="1"
                       IconEdgeMode="Aliased" Icon="..\CompilePalIcon.ico" ShowIconOnTitleBar="False" >
     <controls:MetroWindow.WindowButtonCommands>
         <controls:WindowButtonCommands LightCloseButtonStyle="{StaticResource LightButtonStyle}" LightMinButtonStyle="{StaticResource LightButtonStyle}" LightMaxButtonStyle="{StaticResource LightButtonStyle}"/>
@@ -19,7 +19,7 @@
                 <iconPacks:Material Kind="HelpRhombus" Height="40" Width="40"/>
             </Grid>
             <TextBlock HorizontalAlignment="Center" FontWeight="Bold" FontSize="14">No Game Configurations Found</TextBlock>
-            <TextBlock HorizontalAlignment="Center" Margin="0, 5, 0,10">Launch Hammer for the game you want to compile for and restart Compile Pal</TextBlock>
+            <TextBlock HorizontalAlignment="Center" Margin="0, 5, 0,10">Launch Hammer for the game you want to compile for and click <Hyperlink Foreground="DodgerBlue" Click="RefreshButton_OnClick">refresh</Hyperlink></TextBlock>
             <TextBlock HorizontalAlignment="Center" FontWeight="Bold" FontSize="14">Or</TextBlock>
             <Button Margin="0, 10, 0, 0" Click="AddButton_OnClick">Add Game</Button>
         </StackPanel>
