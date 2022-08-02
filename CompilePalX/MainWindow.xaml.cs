@@ -511,7 +511,9 @@ namespace CompilePalX
             ConfigurationManager.SavePresets();
             ConfigurationManager.SaveProcesses();
 
-            Environment.Exit(0);//hack because wpf is weird
+            // prevent closing if launch window is open
+            if (LaunchWindow.Instance == null)
+                Environment.Exit(0);//hack because wpf is weird
         }
 
         private void PresetConfigListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)

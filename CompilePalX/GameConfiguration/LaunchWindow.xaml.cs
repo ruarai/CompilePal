@@ -81,7 +81,6 @@ namespace CompilePalX
             else
             {
 				MainWindow.Instance.Title = $"Compile Pal {UpdateManager.CurrentVersion}X {GameConfigurationManager.GameConfiguration.Name}";
-                MainWindow.Instance.Show();
             }
 
             Instance = null;
@@ -158,11 +157,13 @@ namespace CompilePalX
             GameConfigurationManager.SaveGameConfigurations();
             RefreshGameConfigurationList();
 
-            if (GameConfigurationManager.GameConfiguration.Equals(configuration))
+            // deselect deleted game config
+            if (GameConfigurationManager.GameConfiguration != null && GameConfigurationManager.GameConfiguration.Equals(configuration))
             {
                 GameConfigurationManager.GameConfiguration = null;
+                // if game config is already opened in the main window, close it
                 if (MainWindow.Instance != null)
-                    MainWindow.Instance.Hide();
+                    MainWindow.Instance.Close();
             }
         }
     }
