@@ -37,8 +37,8 @@
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <StackPanel Orientation="Horizontal">
-                                        <Button Name="EditButton" Margin="0, 0, 2, 0" Height="20" Width="25" Padding="-4" Click="EditButton_OnClick"><iconPacks:Material Kind="Pencil" Height="13" Width="13"/></Button>
-                                        <Button Name="DeleteButton" Height="20" Width="25" Padding="-4" Click="DeleteButton_OnClick"><iconPacks:Material Kind="TrashCanOutline" Height="13" Width="13"/></Button>
+                                        <Button Name="EditButton" Margin="0, 0, 2, 0" Height="20" Width="25" Padding="-4" Click="EditButton_OnClick" ToolTip="Edit Game Configuration"><iconPacks:Material Kind="Pencil" Height="13" Width="13"/></Button>
+                                        <Button Name="DeleteButton" Height="20" Width="25" Padding="-4" Click="DeleteButton_OnClick" ToolTip="Delete Game Configuration"><iconPacks:Material Kind="TrashCanOutline" Height="13" Width="13"/></Button>
                                         <StackPanel.Style>
                                             <Style TargetType="{x:Type StackPanel}">
                                                 <Setter Property="Visibility" Value="Hidden"/>
@@ -60,7 +60,7 @@
                         </DataGridTemplateColumn>
                     </DataGrid.Columns>
                 </DataGrid>
-                <Button Grid.Column="1" Name="AddButton" Margin="0, -1, 0, 0" Height="20" Width="25" Padding="-4" HorizontalAlignment="Right" VerticalAlignment="Top" Click="AddButton_OnClick"><iconPacks:Material Kind="Plus" Height="13" Width="13"/></Button>
+                <Button Grid.Column="1" Name="AddButton" Margin="0, -1, 0, 0" Height="20" Width="25" Padding="-4" HorizontalAlignment="Right" VerticalAlignment="Top" Click="AddButton_OnClick" ToolTip="Add Game Configuration"><iconPacks:Material Kind="Plus" Height="13" Width="13"/></Button>
             </Grid>
             <Button Name="LaunchButton" Content="Launch" Margin="0,0,10,10" Height="25" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="75" Click="Button_Click" />
         </Grid>
