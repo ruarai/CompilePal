@@ -157,5 +157,12 @@ namespace CompilePalX
             GameConfigurationManager.SaveGameConfigurations();
             RefreshGameConfigurationList();
         }
+
+        private void RefreshButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            GameConfigurationManager.LoadGameConfigurations();
+            GameGrid.ItemsSource = GameConfigurationManager.GameConfigurations;
+            RefreshGameConfigurationList();
+        }
     }
 }
