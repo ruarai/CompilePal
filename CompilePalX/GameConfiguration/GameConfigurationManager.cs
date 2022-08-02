@@ -12,8 +12,8 @@ namespace CompilePalX
 {
     static class GameConfigurationManager
     {
-        private static string mapFile = null;
-        public static GameConfiguration GameConfiguration;
+        private static string? mapFile = null;
+        public static GameConfiguration? GameConfiguration;
         public static GameConfiguration GameConfigurationBackup;
         public static List<GameConfiguration> GameConfigurations;
         private static string GameConfigurationFolder = "./GameConfiguration";

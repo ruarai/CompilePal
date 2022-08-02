@@ -81,6 +81,7 @@ namespace CompilePalX
             else
             {
 				MainWindow.Instance.Title = $"Compile Pal {UpdateManager.CurrentVersion}X {GameConfigurationManager.GameConfiguration.Name}";
+                MainWindow.Instance.Show();
             }
 
             Instance = null;
@@ -147,7 +148,7 @@ namespace CompilePalX
                 DefaultButtonFocus = MessageDialogResult.Affirmative,
             };
 
-            var result = await this.ShowMessageAsync($"Delete Configuration", $"Are you sure you want to delete {configuration.Name}?",
+            var result = await this.ShowMessageAsync($"Delete Game", $"Are you sure you want to delete {configuration.Name}?",
                 MessageDialogStyle.AffirmativeAndNegative, dialogSettings);
 
             if (result != MessageDialogResult.Affirmative)
@@ -156,6 +157,13 @@ namespace CompilePalX
             GameConfigurationManager.GameConfigurations.Remove(configuration);
             GameConfigurationManager.SaveGameConfigurations();
             RefreshGameConfigurationList();
+
+            if (GameConfigurationManager.GameConfiguration.Equals(configuration))
+            {
+                GameConfigurationManager.GameConfiguration = null;
+                if (MainWindow.Instance != null)
+                    MainWindow.Instance.Hide();
+            }
         }
     }
 }

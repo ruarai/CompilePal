@@ -3,7 +3,7 @@ using System.IO;
 
 namespace CompilePalX
 {
-    public class GameConfiguration : ICloneable
+    public class GameConfiguration : ICloneable, IEquatable<GameConfiguration>
     {
         public string GameFolder { get; set; }
 
@@ -40,6 +40,39 @@ namespace CompilePalX
         public object Clone()
         {
             return this.MemberwiseClone();
+        }
+
+        public bool Equals(GameConfiguration? other)
+        {
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+            return _BSPZip == other._BSPZip && _VBSPInfo == other._VBSPInfo && _VPK == other._VPK && GameFolder == other.GameFolder && VBSP == other.VBSP && VVIS == other.VVIS && VRAD == other.VRAD && GameEXE == other.GameEXE && MapFolder == other.MapFolder && SDKMapFolder == other.SDKMapFolder && BinFolder == other.BinFolder && Name == other.Name;
+        }
+
+        public override bool Equals(object? obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((GameConfiguration)obj);
+        }
+
+        public override int GetHashCode()
+        {
+            var hashCode = new HashCode();
+            hashCode.Add(_BSPZip);
+            hashCode.Add(_VBSPInfo);
+            hashCode.Add(_VPK);
+            hashCode.Add(GameFolder);
+            hashCode.Add(VBSP);
+            hashCode.Add(VVIS);
+            hashCode.Add(VRAD);
+            hashCode.Add(GameEXE);
+            hashCode.Add(MapFolder);
+            hashCode.Add(SDKMapFolder);
+            hashCode.Add(BinFolder);
+            hashCode.Add(Name);
+            return hashCode.ToHashCode();
         }
     }
 }
