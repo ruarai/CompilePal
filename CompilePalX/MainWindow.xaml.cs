@@ -676,9 +676,7 @@ namespace CompilePalX
 
         private void RemoveMapButton_Click(object sender, RoutedEventArgs e)
         {
-            Map selectedMap = (Map)MapListBox.SelectedItem;
-
-            if (selectedMap != null)
+            if (MapListBox.SelectedItem is Map selectedMap)
                 CompilingManager.MapFiles.Remove(selectedMap);
         }
 
