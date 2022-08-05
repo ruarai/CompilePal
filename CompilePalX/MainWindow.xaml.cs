@@ -857,6 +857,11 @@ namespace CompilePalX
             var time = CompilingManager.GetTime().Elapsed;
             TimeElapsedLabel.Content = $"Time Elapsed: {(int) time.TotalHours:00}:{time:mm}:{time:ss}";
         }
+
+        private void CopyButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            Clipboard.SetText(new TextRange(CompileOutputTextbox.Document.ContentStart, CompileOutputTextbox.Document.ContentEnd).Text);
+        }
     }
 
 	public static class ObservableCollectionExtension

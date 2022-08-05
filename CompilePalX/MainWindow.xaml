@@ -227,16 +227,17 @@
                             </FlowDocument>
                         </RichTextBox.Document>
                     </RichTextBox>
-                    <!--Scroll to bottom button, probably not needed-->
-                    <!--<Button Click="ConfigBack_OnClick" ToolTip="Scroll To Bottom" x:Name="Tmp" HorizontalAlignment="Right" VerticalAlignment="Bottom" Background="Red" Margin="100, 100, 30, 15" Foreground="White" >
-                        <iconPacks:Material Kind="ArrowDown" />
-                    </Button>-->
                 </Grid>
 
             </controls:MetroTabItem>
         </controls:MetroTabControl>
-        <Button Name="CompileStartStopButton" Grid.Row="2" Content="Compile" Margin="10,10,10,10"  VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="75" Click="CompileStartStopButton_OnClick"/>
-        <ProgressBar Name="CompileProgressBar" Margin="0,0,96,10" Grid.Row="2" Height="25" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="200"/>
+        <StackPanel Grid.Row="2" VerticalAlignment="Bottom" HorizontalAlignment="Right" Orientation="Horizontal" Margin="10,0,10,0">
+            <ProgressBar Name="CompileProgressBar" Margin="0,0,0,7" Height="27" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="200"/>
+            <Button Name="CopyButton" Margin="5,10,0,6" Width="35" Click="CopyButton_OnClick" ToolTip="Copy Output">
+                <iconPacks:Material Height="15" Kind="ContentCopy" />
+            </Button>
+            <Button Name="CompileStartStopButton" Content="Compile" Margin="5,10,0,6" Width="75" Click="CompileStartStopButton_OnClick"/>
+        </StackPanel>
         <Label Name="UpdateLabel" Visibility="Collapsed"  Grid.Row="2" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="10" MouseLeftButtonUp="UpdateLabel_MouseLeftButtonUp" >
             <Hyperlink Name="UpdateHyperLink" NavigateUri="https://github.com/ruarai/CompilePal/releases/latest" RequestNavigate="UpdateHyperLink_OnRequestNavigate" Foreground="DodgerBlue"/>
         </Label>
