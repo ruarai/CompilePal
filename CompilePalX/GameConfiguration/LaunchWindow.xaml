@@ -58,7 +58,7 @@
                     </DataGrid.Columns>
                 </DataGrid>
                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top" Margin="0, -1, 0, 0" HorizontalAlignment="Right">
-                    <Button Name="RefreshButton" Margin="0, 0, 2, 0" Height="20" Width="25" Padding="-4" VerticalAlignment="Top" Click="RefreshButton_OnClick" ToolTip="Refresh Game Configurations"><iconPacks:Material Kind="Refresh" Height="13" Width="13"/></Button>
+                    <Button Name="RefreshButton" Margin="0, 0, 5, 0" Height="20" Width="25" Padding="-4" VerticalAlignment="Top" Click="RefreshButton_OnClick" ToolTip="Refresh Game Configurations"><iconPacks:Material Kind="Refresh" Height="13" Width="13"/></Button>
                     <Button Name="AddButton" Height="20" Width="25" Padding="-4" VerticalAlignment="Top" Click="AddButton_OnClick" ToolTip="Add Game Configuration"><iconPacks:Material Kind="Plus" Height="13" Width="13"/></Button>
                 </StackPanel>
             </Grid>
