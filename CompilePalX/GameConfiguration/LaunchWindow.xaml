@@ -62,7 +62,7 @@
                 </DataGrid>
                 <Button Grid.Column="1" Name="AddButton" Margin="0, -1, 0, 0" Height="20" Width="25" Padding="-4" HorizontalAlignment="Right" VerticalAlignment="Top" Click="AddButton_OnClick" ToolTip="Add Game Configuration"><iconPacks:Material Kind="Plus" Height="13" Width="13"/></Button>
             </Grid>
-            <Button Name="LaunchButton" Content="Launch" Margin="0,0,10,10" Height="25" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="75" Click="Button_Click" />
+            <Button Name="LaunchButton" Content="Launch" Margin="0,0,10,10" Height="25" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="75" Click="Button_Click" IsEnabled="{Binding ElementName=GameGrid, Path=SelectedItems.Count}"/>
         </Grid>
     </Grid>
 </controls:MetroWindow>
