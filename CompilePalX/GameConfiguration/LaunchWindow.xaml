@@ -3,15 +3,12 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
         xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
-        Title="Game Selector" Height="444" Width="600"
+        Title="Game Selector" Height="444" Width="640"
                       BorderBrush="{DynamicResource MahApps.Brushes.Accent}" BorderThickness="1"
                       IconEdgeMode="Aliased" Icon="..\CompilePalIcon.ico" ShowIconOnTitleBar="False" >
     <controls:MetroWindow.WindowButtonCommands>
         <controls:WindowButtonCommands LightCloseButtonStyle="{StaticResource LightButtonStyle}" LightMinButtonStyle="{StaticResource LightButtonStyle}" LightMaxButtonStyle="{StaticResource LightButtonStyle}"/>
     </controls:MetroWindow.WindowButtonCommands>
-    <controls:MetroWindow.Resources>
-        <BooleanToVisibilityConverter x:Key="BoolToVis" />
-    </controls:MetroWindow.Resources>
 
     <Grid>
         <StackPanel Margin="10, 0, 10, 40" VerticalAlignment="Center" HorizontalAlignment="Center" x:Name="EmptyState">
@@ -60,7 +57,10 @@
                         </DataGridTemplateColumn>
                     </DataGrid.Columns>
                 </DataGrid>
-                <Button Grid.Column="1" Name="AddButton" Margin="0, -1, 0, 0" Height="20" Width="25" Padding="-4" HorizontalAlignment="Right" VerticalAlignment="Top" Click="AddButton_OnClick" ToolTip="Add Game Configuration"><iconPacks:Material Kind="Plus" Height="13" Width="13"/></Button>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top" Margin="0, -1, 0, 0" HorizontalAlignment="Right">
+                    <Button Name="RefreshButton" Margin="0, 0, 2, 0" Height="20" Width="25" Padding="-4" VerticalAlignment="Top" Click="RefreshButton_OnClick" ToolTip="Refresh Game Configurations"><iconPacks:Material Kind="Refresh" Height="13" Width="13"/></Button>
+                    <Button Name="AddButton" Height="20" Width="25" Padding="-4" VerticalAlignment="Top" Click="AddButton_OnClick" ToolTip="Add Game Configuration"><iconPacks:Material Kind="Plus" Height="13" Width="13"/></Button>
+                </StackPanel>
             </Grid>
             <Button Name="LaunchButton" Content="Launch" Margin="0,0,10,10" Height="25" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="75" Click="Button_Click" IsEnabled="{Binding ElementName=GameGrid, Path=SelectedItems.Count}"/>
         </Grid>
