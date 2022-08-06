@@ -112,7 +112,7 @@ namespace CompilePalX
         public string GetParameterString()
         {
             string parameters = string.Empty;
-            foreach (var parameter in PresetDictionary[ConfigurationManager.CurrentPreset])
+            foreach (var parameter in PresetDictionary[ConfigurationManager.CurrentPreset.Name])
             {
 				parameters += parameter.Parameter;
 

@@ -18,12 +18,37 @@ using System.Runtime.InteropServices;
 using System.Windows.Documents.Serialization;
 using CompilePalX.Annotations;
 using CompilePalX.Configuration;
+using Newtonsoft.Json;
 
 namespace CompilePalX
 {
     internal delegate void CompileCleared();
     internal delegate void CompileStarted();
     internal delegate void CompileFinished();
+
+    /// <summary>
+    /// Allows maps with old format (plain string preset names) to be converted
+    /// </summary>
+    class MapPresetConverter : JsonConverter
+    {
+        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
+        {
+            writer.WriteValue(value);
+        }
+
+        public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
+        {
+            if (objectType == typeof(string)) 
+                return new Preset() {Name = (string) reader.Value ?? throw new InvalidCastException()};
+
+            return reader.Value;
+        }
+
+        public override bool CanConvert(Type objectType)
+        {
+            return objectType == typeof(Preset);
+        }
+    }
 
     class Map : INotifyPropertyChanged
     {
@@ -42,14 +67,14 @@ namespace CompilePalX
             set { compile = value; OnPropertyChanged(nameof(Compile));  }
         }
 
-        private string preset;
-        public string Preset
+        private Preset? preset;
+        public Preset? Preset
         {
             get => preset;
             set { preset = value; OnPropertyChanged(nameof(Preset));  }
         }
 
-        public Map(string file, bool compile = true, string preset = null)
+        public Map(string file, bool compile = true, string? preset = null)
         {
             File = file;
             Compile = compile;
@@ -147,7 +172,7 @@ namespace CompilePalX
 
                     string mapFile = map.File; 
                     string cleanMapName = Path.GetFileNameWithoutExtension(mapFile);
-                    ConfigurationManager.CurrentPreset = map.Preset;
+                    ConfigurationManager.CurrentPreset = ConfigurationManager.KnownPresets.First((preset) => preset.Name == map.Preset);
 
                     var compileErrors = new List<Error>();
                     CompilePalLogger.LogLine($"Starting a '{ConfigurationManager.CurrentPreset}' compile.");
@@ -176,7 +201,7 @@ namespace CompilePalX
                         }
 
                         ProgressManager.Progress += (1d / ConfigurationManager.CompileProcesses.Count(c => c.Metadata.DoRun &&
-                            c.PresetDictionary.ContainsKey(ConfigurationManager.CurrentPreset))) / MapFiles.Count;
+                            c.PresetDictionary.ContainsKey(ConfigurationManager.CurrentPreset.Name))) / MapFiles.Count;
                     }
 
                     mapErrors.Add(new MapErrors { MapName = cleanMapName, Errors = compileErrors });

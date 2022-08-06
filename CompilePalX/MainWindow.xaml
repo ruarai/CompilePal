@@ -6,6 +6,7 @@
             xmlns:local="clr-namespace:CompilePalX"
             xmlns:config="clr-namespace:CompilePalX.Configuration"
             xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+            xmlns:compilePalX="clr-namespace:CompilePalX"
 
             Title="Compile Pal X"
             MinHeight="550" MinWidth="790"
@@ -36,6 +37,10 @@
     <controls:MetroWindow.WindowButtonCommands>
         <controls:WindowButtonCommands LightCloseButtonStyle="{StaticResource LightButtonStyle}" LightMinButtonStyle="{StaticResource LightButtonStyle}" LightMaxButtonStyle="{StaticResource LightButtonStyle}"/>
     </controls:MetroWindow.WindowButtonCommands>
+
+    <controls:MetroWindow.Resources>
+        <local:CaseConverter x:Key="CaseConverter"/>
+    </controls:MetroWindow.Resources>
 
     <Grid>
         <Grid.RowDefinitions>
@@ -68,7 +73,22 @@
                         <Button x:Name="RemovePresetButton" Content="Remove" Margin="5,0,5,5" VerticalAlignment="Bottom" Click="RemovePresetButton_Click" DockPanel.Dock="Bottom"/>
                         <Button x:Name="ClonePresetButton" Content="Clone" Margin="5,0,5,5" VerticalAlignment="Bottom" Click="ClonePresetButton_OnClick" DockPanel.Dock="Bottom"/>
                         <Button x:Name="AddPresetButton" Content="Add Preset" Margin="5,0,5,5" VerticalAlignment="Bottom"  Click="AddPresetButton_Click" DockPanel.Dock="Bottom"/>
-                        <ListBox Name="PresetConfigListBox" Margin="0,0,0,5" SelectionChanged="PresetConfigListBox_SelectionChanged" />
+                        <ListBox Name="PresetConfigListBox" Margin="0,0,0,5" SelectionChanged="PresetConfigListBox_SelectionChanged" SelectionMode="Single" DisplayMemberPath="Name">
+                            <ListBox.GroupStyle>
+                                <GroupStyle>
+                                    <GroupStyle.HeaderTemplate>
+                                        <DataTemplate>
+                                            <TextBlock x:Name="PresetHeaderBlock" FontWeight="Bold" FontSize="14" Text="{Binding Name, Converter={StaticResource CaseConverter}}" Margin="5, 2, 5, 0"/>
+                                            <DataTemplate.Triggers>
+                                                <DataTrigger Binding="{Binding Name}" Value="{x:Null}">
+                                                    <Setter TargetName="PresetHeaderBlock" Property="Text" Value="Global"/>
+                                                </DataTrigger>
+                                            </DataTemplate.Triggers>
+                                        </DataTemplate>
+                                    </GroupStyle.HeaderTemplate>
+                                </GroupStyle>
+                            </ListBox.GroupStyle>
+                        </ListBox>
                     </DockPanel>
                     <DockPanel Grid.Column="1" Margin="10,10,0,10" Background="White">
                         <Button x:Name="RemoveProcessesButton" Content="Remove" DockPanel.Dock="Bottom" Margin="5,0,5,5" Grid.Row="1" Click="RemoveProcessButton_Click"/>
