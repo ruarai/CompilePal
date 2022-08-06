@@ -26,7 +26,15 @@
   {
     "Name": "No T-Junc",
     "Parameter": " -notjunc",
-    "Description": "Don't fix t-junctions.",
+    "Description": "Don't fixup any t-junctions.",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": ""
+  },
+  {
+    "Name": "Allow Detail Cracks",
+    "Parameter": " -allowdetailcracks",
+    "Description": "Don't fixup t-junctions on func_detail.",
     "Value": null,
     "CanHaveValue": false,
     "Warning": ""
