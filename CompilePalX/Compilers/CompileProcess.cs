@@ -106,36 +106,37 @@ namespace CompilePalX
         }
 
         public ObservableCollection<ConfigItem> ParameterList = new ObservableCollection<ConfigItem>();
-        public ObservableDictionary<string, ObservableCollection<ConfigItem>> PresetDictionary = new ObservableDictionary<string, ObservableCollection<ConfigItem>>();
+        public ObservableDictionary<Preset, ObservableCollection<ConfigItem>> PresetDictionary = new ObservableDictionary<Preset, ObservableCollection<ConfigItem>>();
 
 
         public string GetParameterString()
         {
             string parameters = string.Empty;
-            foreach (var parameter in PresetDictionary[ConfigurationManager.CurrentPreset])
-            {
-				parameters += parameter.Parameter;
+            if (ConfigurationManager.CurrentPreset != null)
+                foreach (var parameter in PresetDictionary[ConfigurationManager.CurrentPreset])
+                {
+                    parameters += parameter.Parameter;
 
-	            if (parameter.CanHaveValue && !string.IsNullOrEmpty(parameter.Value))
-	            {
-					//Handle additional parameters in CUSTOM process
-					if (parameter.Name == "Run Program")
-					{
-						//Add args
-						parameters += " " + parameter.Value;
+                    if (parameter.CanHaveValue && !string.IsNullOrEmpty(parameter.Value))
+                    {
+                        //Handle additional parameters in CUSTOM process
+                        if (parameter.Name == "Run Program")
+                        {
+                            //Add args
+                            parameters += " " + parameter.Value;
 
-						//Read Ouput
-						if (parameter.ReadOutput)
-							parameters += " " + parameter.ReadOutput;
-					}
-					else
-						// protect filepaths in quotes, since they can contain -
-						if (parameter.ValueIsFile || parameter.Value2IsFile)
-							parameters += $" \"{parameter.Value}\"";
-						else
-							parameters += " " + parameter.Value;
-	            }
-            }
+                            //Read Ouput
+                            if (parameter.ReadOutput)
+                                parameters += " " + parameter.ReadOutput;
+                        }
+                        else
+                            // protect filepaths in quotes, since they can contain -
+                        if (parameter.ValueIsFile || parameter.Value2IsFile)
+                            parameters += $" \"{parameter.Value}\"";
+                        else
+                            parameters += " " + parameter.Value;
+                    }
+                }
 
             parameters += Metadata.BasisString;
 

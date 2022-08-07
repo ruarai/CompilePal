@@ -6,6 +6,7 @@
             xmlns:local="clr-namespace:CompilePalX"
             xmlns:config="clr-namespace:CompilePalX.Configuration"
             xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+            xmlns:compilePalX="clr-namespace:CompilePalX"
 
             Title="Compile Pal X"
             MinHeight="550" MinWidth="790"
@@ -36,6 +37,18 @@
     <controls:MetroWindow.WindowButtonCommands>
         <controls:WindowButtonCommands LightCloseButtonStyle="{StaticResource LightButtonStyle}" LightMinButtonStyle="{StaticResource LightButtonStyle}" LightMaxButtonStyle="{StaticResource LightButtonStyle}"/>
     </controls:MetroWindow.WindowButtonCommands>
+
+    <controls:MetroWindow.Resources>
+        <Style x:Key="GroupListBoxStyle" TargetType="ListBoxItem" BasedOn="{StaticResource {x:Type ListBoxItem}}">
+            <Setter Property="Margin" Value="-5, 0, 0, 0" />
+            <Setter Property="Padding" Value="10, 0, 0, 0" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Items.Groups.Count, RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}" Value="1">
+                    <Setter Property="Padding" Value="5, 0, 0, 0" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </controls:MetroWindow.Resources>
 
     <Grid>
         <Grid.RowDefinitions>
@@ -68,7 +81,30 @@
                         <Button x:Name="RemovePresetButton" Content="Remove" Margin="5,0,5,5" VerticalAlignment="Bottom" Click="RemovePresetButton_Click" DockPanel.Dock="Bottom"/>
                         <Button x:Name="ClonePresetButton" Content="Clone" Margin="5,0,5,5" VerticalAlignment="Bottom" Click="ClonePresetButton_OnClick" DockPanel.Dock="Bottom"/>
                         <Button x:Name="AddPresetButton" Content="Add Preset" Margin="5,0,5,5" VerticalAlignment="Bottom"  Click="AddPresetButton_Click" DockPanel.Dock="Bottom"/>
-                        <ListBox Name="PresetConfigListBox" Margin="0,0,0,5" SelectionChanged="PresetConfigListBox_SelectionChanged" />
+                        <ListBox Name="PresetConfigListBox" Margin="0,0,0,5" SelectionChanged="PresetConfigListBox_SelectionChanged" SelectionMode="Single" ItemContainerStyle="{StaticResource GroupListBoxStyle}">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Name}" Margin="0, 0, 5, 0"/>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                            <ListBox.GroupStyle>
+                                <GroupStyle>
+                                    <GroupStyle.HeaderTemplate>
+                                        <DataTemplate>
+                                            <TextBlock x:Name="PresetHeaderBlock" FontWeight="Bold" FontSize="14" Text="{Binding Name}" Margin="5, 2, 5, 0"/>
+                                            <DataTemplate.Triggers>
+                                                <DataTrigger Binding="{Binding Name}" Value="{x:Null}">
+                                                    <Setter TargetName="PresetHeaderBlock" Property="Text" Value="Global"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Items.Groups.Count, RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}" Value="1">
+                                                    <Setter TargetName="PresetHeaderBlock" Property="Visibility" Value="Collapsed"/>
+                                                </DataTrigger>
+                                            </DataTemplate.Triggers>
+                                        </DataTemplate>
+                                    </GroupStyle.HeaderTemplate>
+                                </GroupStyle>
+                            </ListBox.GroupStyle>
+                        </ListBox>
                     </DockPanel>
                     <DockPanel Grid.Column="1" Margin="10,10,0,10" Background="White">
                         <Button x:Name="RemoveProcessesButton" Content="Remove" DockPanel.Dock="Bottom" Margin="5,0,5,5" Grid.Row="1" Click="RemoveProcessButton_Click"/>

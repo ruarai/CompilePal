@@ -23,10 +23,13 @@ using MahApps.Metro.Controls.Dialogs;
 using Microsoft.Win32;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Globalization;
+using System.Text.RegularExpressions;
 using System.Windows.Media.Animation;
 using System.Windows.Media.TextFormatting;
 using CompilePalX.Compilers;
 using CompilePalX.Configuration;
+using Path = System.IO.Path;
 
 namespace CompilePalX
 {
@@ -40,6 +43,7 @@ namespace CompilePalX
 	    private bool processModeEnabled;
         private DispatcherTimer elapsedTimeDispatcherTimer;
 		public static MainWindow? Instance { get; private set; }
+        public ObservableCollection<Preset> Presets;
 
         private int SelectedMapIndex
         {
@@ -80,6 +84,7 @@ namespace CompilePalX
             SetSources();
 
             CompileProcessesListBox.Items.SortDescriptions.Add(new System.ComponentModel.SortDescription("Ordering", System.ComponentModel.ListSortDirection.Ascending));
+
 
             CompileProcessesListBox.SelectedIndex = 0;
             PresetConfigListBox.SelectedIndex = 0;
@@ -240,11 +245,38 @@ namespace CompilePalX
             ExceptionHandler.LogException(e.Exception);
         }
 
+        Map? GetCurrentMap()
+        {
+            return this.MapListBox.SelectedItem as Map;
+        }
 
         void SetSources()
         {
             CompileProcessesListBox.ItemsSource = CompileProcessesSubList;
-            PresetConfigListBox.ItemsSource = ConfigurationManager.KnownPresets;
+
+            // group presets by map
+            ICollectionView presetView = CollectionViewSource.GetDefaultView(ConfigurationManager.KnownPresets);
+            using (presetView.DeferRefresh())
+            {
+                presetView.GroupDescriptions.Clear();
+                presetView.GroupDescriptions.Add(new PropertyGroupDescription("Map"));
+                presetView.SortDescriptions.Add(new SortDescription("Map", ListSortDirection.Descending));
+                presetView.SortDescriptions.Add(new SortDescription("Name", ListSortDirection.Ascending));
+                // filter out maps that don't match the currently selected map (presets with null maps are global
+                presetView.Filter = (o) =>
+                {
+                    if (o is not Preset preset) return false;;
+
+                    var map = GetCurrentMap();
+
+                    // if no map is selected, show only global presets
+                    if (map == null)
+                        return preset.Map == null;
+
+                    return preset.IsValidMap(map.MapName);
+                };
+            }
+            PresetConfigListBox.ItemsSource = presetView;
 
             MapListBox.ItemsSource = CompilingManager.MapFiles;
 
@@ -435,49 +467,65 @@ namespace CompilePalX
             CompileProcessesListBox.SelectedIndex = 0;
 		}
 
-        private async void AddPresetButton_Click(object sender, RoutedEventArgs e)
+        private void AddPresetButton_Click(object sender, RoutedEventArgs e)
         {
-            var dialog = new InputDialog("Preset Name");
+            var dialog = new PresetDialog("Add Preset", MapListBox.SelectedItem as Map);
             dialog.ShowDialog();
 
             if (dialog.Result)
             {
                 string presetName = dialog.Text;
+                bool isMapSpecific = dialog.IsMapSpecific;
 
-                ConfigurationManager.NewPreset(presetName);
+                string? map = null;
+                if (isMapSpecific)
+                {
+                    var m = MapListBox.SelectedItem as Map;
+                    map = m?.MapName;
+                }
+
+                var preset = ConfigurationManager.NewPreset(presetName, map);
 
                 AnalyticsManager.NewPreset();
 
                 SetSources();
                 CompileProcessesListBox.SelectedIndex = 0;
-                PresetConfigListBox.SelectedItem = presetName;
+                PresetConfigListBox.SelectedItem = preset;
             }
         }
-        private async void ClonePresetButton_OnClick(object sender, RoutedEventArgs e)
+        private void ClonePresetButton_OnClick(object sender, RoutedEventArgs e)
         {
             if (ConfigurationManager.CurrentPreset != null)
             {
-                var dialog = new InputDialog("Preset Name");
+                var dialog = new PresetDialog("Clone Preset", MapListBox.SelectedItem as Map);
                 dialog.ShowDialog();
 
                 if (dialog.Result)
                 {
                     string presetName = dialog.Text;
+                    bool isMapSpecific = dialog.IsMapSpecific;
 
-                    ConfigurationManager.ClonePreset(presetName);
+                    string? map = null;
+                    if (isMapSpecific)
+                    {
+                        var m = MapListBox.SelectedItem as Map;
+                        map = m?.MapName;
+                    }
+
+                    var preset = ConfigurationManager.ClonePreset(presetName, map);
 
                     AnalyticsManager.NewPreset();
 
                     SetSources();
                     CompileProcessesListBox.SelectedIndex = 0;
-                    PresetConfigListBox.SelectedItem = presetName;
+                    PresetConfigListBox.SelectedItem = preset;
                 }
             }
         }
 
         private void RemovePresetButton_Click(object sender, RoutedEventArgs e)
         {
-            var selectedItem = (string)PresetConfigListBox.SelectedItem;
+            var selectedItem = (Preset)PresetConfigListBox.SelectedItem;
 
             if (selectedItem != null)
                 ConfigurationManager.RemovePreset(selectedItem);
@@ -490,8 +538,8 @@ namespace CompilePalX
             for (int i = 0; i < MapListBox.Items.Count; i++)
             {
                 var map = MapListBox.Items[i] as Map;
-                if (map.Preset == selectedItem)
-                    map.Preset = (string)PresetConfigListBox.SelectedItem;
+                if (map.Preset != null && map.Preset.Equals(selectedItem))
+                    map.Preset = (Preset) PresetConfigListBox.SelectedItem;
             }
         }
 
@@ -525,15 +573,23 @@ namespace CompilePalX
 				OrderManager.UpdateOrder();
 
             // ignore if nothing is selected
-            if (!(MapListBox.SelectedItem is Map selectedMap))
+            if (MapListBox.SelectedItem is not Map selectedMap)
+            {
+                // if the only map is removed and the preset becomes deselected because it is map specific, select the first preset
+                if (MapListBox.Items.Count == 0 && PresetConfigListBox.SelectedItem == null)
+                    PresetConfigListBox.SelectedIndex = 0;
                 return;
+            }
 
             // preset is already selected. This event gets raised when we manually change selection of the preset box when the user selects a map, this prevents a bug that deselects the map
-            if (selectedMap.Preset == (string)PresetConfigListBox.SelectedItem)
+            if (selectedMap.Preset != null && selectedMap.Preset.Equals((Preset)PresetConfigListBox.SelectedItem))
                 return;
 
             // update map's selected preset
-            selectedMap.Preset = (string)PresetConfigListBox.SelectedItem;
+            if (PresetConfigListBox.SelectedItem is Preset preset)
+                selectedMap.Preset = preset;
+            else
+                PresetConfigListBox.SelectedIndex = 0;
         }
         private void CompileProcessesListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -545,7 +601,7 @@ namespace CompilePalX
 
         private void UpdateConfigGrid()
         {
-            ConfigurationManager.CurrentPreset = (string)PresetConfigListBox.SelectedItem;
+            ConfigurationManager.CurrentPreset = (Preset)PresetConfigListBox.SelectedItem;
 
             selectedProcess = (CompileProcess)CompileProcessesListBox.SelectedItem;
 
@@ -670,7 +726,8 @@ namespace CompilePalX
 
             foreach (var file in dialog.FileNames)
             {
-                CompilingManager.MapFiles.Add(new Map(file, preset: ConfigurationManager.CurrentPreset));
+                // use current preset if it matches the map, otherwise default to first
+                CompilingManager.MapFiles.Add(new Map(file, preset: ConfigurationManager.CurrentPreset != null && ConfigurationManager.CurrentPreset.IsValidMap(file) ? ConfigurationManager.CurrentPreset : ConfigurationManager.KnownPresets.FirstOrDefault()));
             }
         }
 
@@ -730,6 +787,7 @@ namespace CompilePalX
 
         private void MapListBox_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+
             // no maps selected, default to last selected index. When we update any bound item in the MapBox datasource it will deselect all items, this reselects it after it has been deselected
             if (!(MapListBox.SelectedItem is Map selectedMap))
             {
@@ -738,13 +796,18 @@ namespace CompilePalX
                     SelectedMapIndex = MapListBox.Items.Count - 1;
 
                 MapListBox.SelectedIndex = SelectedMapIndex;
+                // refresh preset config listbox to filter the presets
+                CollectionViewSource.GetDefaultView(ConfigurationManager.KnownPresets).Refresh();
                 return;
             }
 
             // select the preset of the map
             ConfigurationManager.CurrentPreset = selectedMap.Preset;
-            PresetConfigListBox.SelectedItem = selectedMap.Preset;
+            PresetConfigListBox.SelectedItem = ConfigurationManager.CurrentPreset;
             SelectedMapIndex = MapListBox.SelectedIndex;
+
+            // refresh preset config listbox to filter the presets
+            CollectionViewSource.GetDefaultView(ConfigurationManager.KnownPresets).Refresh();
         }
 
 	    private void DoRun_OnClick(object sender, RoutedEventArgs e)

@@ -15,9 +15,11 @@ using System.Windows.Threading;
 using CompilePalX.Compilers;
 using CompilePalX.Compiling;
 using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 using System.Windows.Documents.Serialization;
 using CompilePalX.Annotations;
 using CompilePalX.Configuration;
+using Newtonsoft.Json;
 
 namespace CompilePalX
 {
@@ -25,7 +27,7 @@ namespace CompilePalX
     internal delegate void CompileStarted();
     internal delegate void CompileFinished();
 
-    class Map : INotifyPropertyChanged
+    public class Map : INotifyPropertyChanged
     {
         private string file;
 
@@ -35,6 +37,18 @@ namespace CompilePalX
             set { file = value; OnPropertyChanged(nameof(File));  }
         }
 
+        /// <summary>
+        /// Map name without version identifiers
+        /// </summary>
+        public string MapName {
+            get {
+                string fullMapName = Path.GetFileNameWithoutExtension(file);
+
+                // try removing version identifier
+                return Regex.Replace(fullMapName, @"_[^_]+\d$", "");
+            }
+        }
+
         private bool compile;
         public bool Compile 
         {
@@ -42,14 +56,14 @@ namespace CompilePalX
             set { compile = value; OnPropertyChanged(nameof(Compile));  }
         }
 
-        private string preset;
-        public string Preset
+        private Preset? preset;
+        public Preset? Preset
         {
             get => preset;
             set { preset = value; OnPropertyChanged(nameof(Preset));  }
         }
 
-        public Map(string file, bool compile = true, string preset = null)
+        public Map(string file, bool compile = true, Preset? preset = null)
         {
             File = file;
             Compile = compile;
@@ -150,7 +164,7 @@ namespace CompilePalX
                     ConfigurationManager.CurrentPreset = map.Preset;
 
                     var compileErrors = new List<Error>();
-                    CompilePalLogger.LogLine($"Starting a '{ConfigurationManager.CurrentPreset}' compile.");
+                    CompilePalLogger.LogLine($"Starting a '{ConfigurationManager.CurrentPreset?.Name}' compile.");
                     CompilePalLogger.LogLine($"Starting compilation of {cleanMapName}");
 
 					//Update the grid so we have the most up to date order
