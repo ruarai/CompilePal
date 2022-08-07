@@ -73,12 +73,17 @@
                         <Button x:Name="RemovePresetButton" Content="Remove" Margin="5,0,5,5" VerticalAlignment="Bottom" Click="RemovePresetButton_Click" DockPanel.Dock="Bottom"/>
                         <Button x:Name="ClonePresetButton" Content="Clone" Margin="5,0,5,5" VerticalAlignment="Bottom" Click="ClonePresetButton_OnClick" DockPanel.Dock="Bottom"/>
                         <Button x:Name="AddPresetButton" Content="Add Preset" Margin="5,0,5,5" VerticalAlignment="Bottom"  Click="AddPresetButton_Click" DockPanel.Dock="Bottom"/>
-                        <ListBox Name="PresetConfigListBox" Margin="0,0,0,5" SelectionChanged="PresetConfigListBox_SelectionChanged" SelectionMode="Single" DisplayMemberPath="Name">
+                        <ListBox Name="PresetConfigListBox" Margin="0,0,0,5" SelectionChanged="PresetConfigListBox_SelectionChanged" SelectionMode="Single">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Name}" Margin="0, 0, 5, 0"/>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
                             <ListBox.GroupStyle>
                                 <GroupStyle>
                                     <GroupStyle.HeaderTemplate>
                                         <DataTemplate>
-                                            <TextBlock x:Name="PresetHeaderBlock" FontWeight="Bold" FontSize="14" Text="{Binding Name, Converter={StaticResource CaseConverter}}" Margin="5, 2, 5, 0"/>
+                                            <TextBlock x:Name="PresetHeaderBlock" FontWeight="Bold" FontSize="14" Text="{Binding Name}" Margin="5, 2, 5, 0"/>
                                             <DataTemplate.Triggers>
                                                 <DataTrigger Binding="{Binding Name}" Value="{x:Null}">
                                                     <Setter TargetName="PresetHeaderBlock" Property="Text" Value="Global"/>
