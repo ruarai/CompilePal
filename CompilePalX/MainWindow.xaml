@@ -39,7 +39,15 @@
     </controls:MetroWindow.WindowButtonCommands>
 
     <controls:MetroWindow.Resources>
-        <local:CaseConverter x:Key="CaseConverter"/>
+        <Style x:Key="GroupListBoxStyle" TargetType="ListBoxItem" BasedOn="{StaticResource {x:Type ListBoxItem}}">
+            <Setter Property="Margin" Value="-5, 0, 0, 0" />
+            <Setter Property="Padding" Value="10, 0, 0, 0" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Items.Groups.Count, RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}" Value="1">
+                    <Setter Property="Padding" Value="5, 0, 0, 0" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
     </controls:MetroWindow.Resources>
 
     <Grid>
@@ -73,7 +81,7 @@
                         <Button x:Name="RemovePresetButton" Content="Remove" Margin="5,0,5,5" VerticalAlignment="Bottom" Click="RemovePresetButton_Click" DockPanel.Dock="Bottom"/>
                         <Button x:Name="ClonePresetButton" Content="Clone" Margin="5,0,5,5" VerticalAlignment="Bottom" Click="ClonePresetButton_OnClick" DockPanel.Dock="Bottom"/>
                         <Button x:Name="AddPresetButton" Content="Add Preset" Margin="5,0,5,5" VerticalAlignment="Bottom"  Click="AddPresetButton_Click" DockPanel.Dock="Bottom"/>
-                        <ListBox Name="PresetConfigListBox" Margin="0,0,0,5" SelectionChanged="PresetConfigListBox_SelectionChanged" SelectionMode="Single">
+                        <ListBox Name="PresetConfigListBox" Margin="0,0,0,5" SelectionChanged="PresetConfigListBox_SelectionChanged" SelectionMode="Single" ItemContainerStyle="{StaticResource GroupListBoxStyle}">
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
                                     <TextBlock Text="{Binding Name}" Margin="0, 0, 5, 0"/>
@@ -96,12 +104,6 @@
                                     </GroupStyle.HeaderTemplate>
                                 </GroupStyle>
                             </ListBox.GroupStyle>
-                            <ListBox.Resources>
-                                <Style TargetType="{x:Type ListBoxItem}" BasedOn="{StaticResource MahApps.Styles.ListBoxItem}">
-                                    <Setter Property="Margin" Value="-5, 0, 0, 0" />
-                                    <Setter Property="Padding" Value="10, 0, 0, 0" />
-                                </Style>
-                            </ListBox.Resources>
                         </ListBox>
                     </DockPanel>
                     <DockPanel Grid.Column="1" Margin="10,10,0,10" Background="White">
