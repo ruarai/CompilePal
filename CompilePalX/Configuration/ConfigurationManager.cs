@@ -178,7 +178,7 @@ namespace CompilePalX
                     }
                 }
 
-                CompilePalLogger.LogLine($"Added preset {preset.Name} {(preset.Map != null ? $"for map {preset.Map}" : "")}for processes {string.Join(", ", CompileProcesses)}");
+                CompilePalLogger.LogLine($"Added preset {preset.Name} {(preset.Map != null ? $"for map {preset.Map} " : "")}for processes {string.Join(", ", CompileProcesses)}");
                 CurrentPreset = preset;
                 KnownPresets.Add(preset);
 
