@@ -175,7 +175,7 @@ namespace CompilePalX
                     ConfigurationManager.CurrentPreset = map.Preset;
 
                     var compileErrors = new List<Error>();
-                    CompilePalLogger.LogLine($"Starting a '{ConfigurationManager.CurrentPreset}' compile.");
+                    CompilePalLogger.LogLine($"Starting a '{ConfigurationManager.CurrentPreset?.Name}' compile.");
                     CompilePalLogger.LogLine($"Starting compilation of {cleanMapName}");
 
 					//Update the grid so we have the most up to date order
