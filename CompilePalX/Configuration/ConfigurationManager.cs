@@ -40,6 +40,17 @@ namespace CompilePalX
         {
             return HashCode.Combine(Name, Map);
         }
+
+        /// <summary>
+        /// Returns whether a map can use the preset
+        /// </summary>
+        /// <param name="m"></param>
+        /// <returns></returns>
+        public bool IsValidMap(string file)
+        {
+            // presets with no map are global
+            return this.Map == null || file.Contains(Map);
+        }
     }
 
     static class ConfigurationManager
@@ -121,12 +132,23 @@ namespace CompilePalX
             foreach (string presetPath in presets)
             {
                 string presetName = Path.GetFileName(presetPath);
+
+                // try reading preset metadata
+                string metadataFile = Path.Combine(presetPath, "meta.json");
+
+                Preset preset;
+                if (File.Exists(metadataFile))
+                    preset = JsonConvert.DeserializeObject<Preset>(File.ReadAllText(metadataFile)) ?? new Preset() { Name = presetName };
+                else
+                    // legacy presets don't have metadata, use folder name as preset name
+                    preset = new Preset() { Name = presetName };
+
                 foreach (var process in CompileProcesses)
                 {
                     string file = Path.Combine(presetPath, process.PresetFile);
                     if (File.Exists(file))
                     {
-                        process.PresetDictionary.Add(presetName, new ObservableCollection<ConfigItem>());
+                        process.PresetDictionary.Add(preset, new ObservableCollection<ConfigItem>());
                         //read the list of preset parameters
                         var lines = File.ReadAllLines(file);
 
@@ -150,19 +172,11 @@ namespace CompilePalX
 	                            }
 	                            
 
-                                process.PresetDictionary[presetName].Add(equivalentItem);
+                                process.PresetDictionary[preset].Add(equivalentItem);
                             }
                         }
                     }
                 }
-                // try getting preset metadata
-                string metadataFile = Path.Combine(presetPath, "meta.json");
-
-                Preset preset;
-                if (File.Exists(metadataFile))
-                    preset = JsonConvert.DeserializeObject<Preset>(File.ReadAllText(metadataFile)) ?? new Preset() { Name = presetName };
-                else
-                    preset = new Preset() { Name = presetName };
 
                 CompilePalLogger.LogLine($"Added preset {preset.Name} {(preset.Map != null ? $"for map {preset.Map}" : "")}for processes {string.Join(", ", CompileProcesses)}");
                 CurrentPreset = preset;
@@ -179,10 +193,10 @@ namespace CompilePalX
 
                 foreach (var compileProcess in CompileProcesses)
                 {
-                    if (compileProcess.PresetDictionary.ContainsKey(knownPreset.Name))
+                    if (compileProcess.PresetDictionary.ContainsKey(knownPreset))
                     {
                         var lines = new List<string>();
-                        foreach (var item in compileProcess.PresetDictionary[knownPreset.Name])
+                        foreach (var item in compileProcess.PresetDictionary[knownPreset])
                         {
                             string line = WritePresetLine(item);
                             lines.Add(line);
@@ -297,7 +311,7 @@ namespace CompilePalX
             if (CurrentPreset == null)
                 return;
 
-            string presetPath = Path.Combine(PresetsFolder, CurrentPreset.Name, name.ToLower() + ".csv");
+            string presetPath = Path.Combine(GetPresetFolder(CurrentPreset), name.ToLower() + ".csv");
             if (File.Exists(presetPath))
             {
                 File.Delete(presetPath);

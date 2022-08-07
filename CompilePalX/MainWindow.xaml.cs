@@ -245,6 +245,10 @@ namespace CompilePalX
             ExceptionHandler.LogException(e.Exception);
         }
 
+        Map? GetCurrentMap()
+        {
+            return this.MapListBox.SelectedItem as Map;
+        }
 
         void SetSources()
         {
@@ -258,6 +262,19 @@ namespace CompilePalX
                 presetView.GroupDescriptions.Add(new PropertyGroupDescription("Map"));
                 presetView.SortDescriptions.Add(new SortDescription("Map", ListSortDirection.Descending));
                 presetView.SortDescriptions.Add(new SortDescription("Name", ListSortDirection.Ascending));
+                // filter out maps that don't match the currently selected map (presets with null maps are global
+                presetView.Filter = (o) =>
+                {
+                    if (o is not Preset preset) return false;;
+
+                    var map = GetCurrentMap();
+
+                    // if no map is selected, show only global presets
+                    if (map == null)
+                        return preset.Map == null;
+
+                    return preset.IsValidMap(map.File);
+                };
             }
             PresetConfigListBox.ItemsSource = presetView;
 
@@ -373,7 +390,7 @@ namespace CompilePalX
 				//Skip Paramater Adder for Custom Process
 	            if (selectedProcess.Name == "CUSTOM")
 	            {
-					selectedProcess.PresetDictionary[ConfigurationManager.CurrentPreset.Name].Add((ConfigItem)selectedProcess.ParameterList[0].Clone());
+					selectedProcess.PresetDictionary[ConfigurationManager.CurrentPreset].Add((ConfigItem)selectedProcess.ParameterList[0].Clone());
 	            }
 	            else
 	            {
@@ -385,11 +402,11 @@ namespace CompilePalX
 						if (c.ChosenItem.CanBeUsedMoreThanOnce)
 						{
 							// .clone() removes problems with parameters sometimes becoming linked
-							selectedProcess.PresetDictionary[ConfigurationManager.CurrentPreset.Name].Add((ConfigItem)c.ChosenItem.Clone());
+							selectedProcess.PresetDictionary[ConfigurationManager.CurrentPreset].Add((ConfigItem)c.ChosenItem.Clone());
 						} 
-						else if (!selectedProcess.PresetDictionary[ConfigurationManager.CurrentPreset.Name].Contains(c.ChosenItem))
+						else if (!selectedProcess.PresetDictionary[ConfigurationManager.CurrentPreset].Contains(c.ChosenItem))
 						{
-							selectedProcess.PresetDictionary[ConfigurationManager.CurrentPreset.Name].Add(c.ChosenItem);
+							selectedProcess.PresetDictionary[ConfigurationManager.CurrentPreset].Add(c.ChosenItem);
 						}
 					}
 	            }
@@ -409,7 +426,7 @@ namespace CompilePalX
 				selectedItem = (ConfigItem) ConfigDataGrid.SelectedItem;
             
             if (selectedItem != null)
-                selectedProcess.PresetDictionary[ConfigurationManager.CurrentPreset.Name].Remove(selectedItem);
+                selectedProcess.PresetDictionary[ConfigurationManager.CurrentPreset].Remove(selectedItem);
 
             UpdateParameterTextBox();
         }
@@ -423,9 +440,9 @@ namespace CompilePalX
             {
                 CompileProcess ChosenProcess = (CompileProcess)c.ProcessDataGrid.SelectedItem;
                 ChosenProcess.Metadata.DoRun = true;
-                if (!ChosenProcess.PresetDictionary.ContainsKey(ConfigurationManager.CurrentPreset.Name))
+                if (!ChosenProcess.PresetDictionary.ContainsKey(ConfigurationManager.CurrentPreset))
                 {
-                    ChosenProcess.PresetDictionary.Add(ConfigurationManager.CurrentPreset.Name, new ObservableCollection<ConfigItem>());
+                    ChosenProcess.PresetDictionary.Add(ConfigurationManager.CurrentPreset, new ObservableCollection<ConfigItem>());
                 }
             }
 
@@ -443,7 +460,7 @@ namespace CompilePalX
             if (CompileProcessesListBox.SelectedItem != null)
             {
                 CompileProcess removed = (CompileProcess)CompileProcessesListBox.SelectedItem;
-                removed.PresetDictionary.Remove(ConfigurationManager.CurrentPreset.Name);
+                removed.PresetDictionary.Remove(ConfigurationManager.CurrentPreset);
                 ConfigurationManager.RemoveProcess(CompileProcessesListBox.SelectedItem.ToString());
             }
             UpdateProcessList();
@@ -525,8 +542,8 @@ namespace CompilePalX
             for (int i = 0; i < MapListBox.Items.Count; i++)
             {
                 var map = MapListBox.Items[i] as Map;
-                if (map.Preset == selectedItem?.Name)
-                    map.Preset = ((Preset)PresetConfigListBox.SelectedItem).Name;
+                if (map.Preset != null && map.Preset.Equals(selectedItem))
+                    map.Preset = (Preset) PresetConfigListBox.SelectedItem;
             }
         }
 
@@ -561,14 +578,19 @@ namespace CompilePalX
 
             // ignore if nothing is selected
             if (MapListBox.SelectedItem is not Map selectedMap)
+            {
+                // if the only map is removed and the preset becomes deselected because it is map specific, select the first preset
+                if (MapListBox.Items.Count == 0 && PresetConfigListBox.SelectedItem == null)
+                    PresetConfigListBox.SelectedIndex = 0;
                 return;
+            }
 
             // preset is already selected. This event gets raised when we manually change selection of the preset box when the user selects a map, this prevents a bug that deselects the map
-            if (selectedMap.Preset == ((Preset)PresetConfigListBox.SelectedItem)?.Name)
+            if (selectedMap.Preset != null && selectedMap.Preset.Equals((Preset)PresetConfigListBox.SelectedItem))
                 return;
 
             // update map's selected preset
-            selectedMap.Preset = (PresetConfigListBox.SelectedItem as Preset)?.Name;
+            selectedMap.Preset = PresetConfigListBox.SelectedItem as Preset;
         }
         private void CompileProcessesListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -580,12 +602,11 @@ namespace CompilePalX
 
         private void UpdateConfigGrid()
         {
-            //ConfigurationManager.CurrentPreset = new Preset() { Name = "Fast" };
             ConfigurationManager.CurrentPreset = (Preset)PresetConfigListBox.SelectedItem;
 
             selectedProcess = (CompileProcess)CompileProcessesListBox.SelectedItem;
 
-            if (selectedProcess != null && ConfigurationManager.CurrentPreset != null && selectedProcess.PresetDictionary.ContainsKey(ConfigurationManager.CurrentPreset.Name))
+            if (selectedProcess != null && ConfigurationManager.CurrentPreset != null && selectedProcess.PresetDictionary.ContainsKey(ConfigurationManager.CurrentPreset))
             {
 				//Switch to the process grid for custom program screen
 	            if (selectedProcess.Name == "CUSTOM")
@@ -593,7 +614,7 @@ namespace CompilePalX
 					ProcessDataGrid.BeginAnimation(OpacityProperty, new DoubleAnimation(0, 1, new Duration(TimeSpan.FromMilliseconds(50))));
 					processModeEnabled = true;
 
-					ProcessDataGrid.ItemsSource = selectedProcess.PresetDictionary[ConfigurationManager.CurrentPreset.Name];
+					ProcessDataGrid.ItemsSource = selectedProcess.PresetDictionary[ConfigurationManager.CurrentPreset];
 		            
 					ConfigDataGrid.IsEnabled = false;
 		            ConfigDataGrid.Visibility = Visibility.Hidden;
@@ -630,7 +651,7 @@ namespace CompilePalX
 					ProcessTab.IsEnabled = false;
 					ProcessTab.Visibility = Visibility.Hidden;
 
-					ConfigDataGrid.ItemsSource = selectedProcess.PresetDictionary[ConfigurationManager.CurrentPreset.Name];
+					ConfigDataGrid.ItemsSource = selectedProcess.PresetDictionary[ConfigurationManager.CurrentPreset];
 
 					//Make buttons visible if they were disabled
 		            if (!AddParameterButton.IsEnabled)
@@ -663,7 +684,7 @@ namespace CompilePalX
             foreach (CompileProcess p in ConfigurationManager.CompileProcesses)
             {
                 if (ConfigurationManager.CurrentPreset != null)
-                    if (p.PresetDictionary.ContainsKey(ConfigurationManager.CurrentPreset.Name))
+                    if (p.PresetDictionary.ContainsKey(ConfigurationManager.CurrentPreset))
                         CompileProcessesSubList.Add(p);
             }
 
@@ -706,7 +727,8 @@ namespace CompilePalX
 
             foreach (var file in dialog.FileNames)
             {
-                CompilingManager.MapFiles.Add(new Map(file, preset: ConfigurationManager.CurrentPreset?.Name));
+                // use current preset if it matches the map
+                CompilingManager.MapFiles.Add(new Map(file, preset: ConfigurationManager.CurrentPreset != null && ConfigurationManager.CurrentPreset.IsValidMap(file) ? ConfigurationManager.CurrentPreset : null));
             }
         }
 
@@ -766,6 +788,9 @@ namespace CompilePalX
 
         private void MapListBox_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            // refresh preset config listbox to filter the presets
+            CollectionViewSource.GetDefaultView(ConfigurationManager.KnownPresets).Refresh();
+
             // no maps selected, default to last selected index. When we update any bound item in the MapBox datasource it will deselect all items, this reselects it after it has been deselected
             if (!(MapListBox.SelectedItem is Map selectedMap))
             {
@@ -778,7 +803,7 @@ namespace CompilePalX
             }
 
             // select the preset of the map
-            ConfigurationManager.CurrentPreset = ConfigurationManager.KnownPresets.FirstOrDefault((preset) => preset.Name == selectedMap.Preset);
+            ConfigurationManager.CurrentPreset = selectedMap.Preset;
             PresetConfigListBox.SelectedItem = ConfigurationManager.CurrentPreset;
             SelectedMapIndex = MapListBox.SelectedIndex;
         }

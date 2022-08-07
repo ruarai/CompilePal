@@ -50,7 +50,7 @@ namespace CompilePalX
         }
     }
 
-    class Map : INotifyPropertyChanged
+    public class Map : INotifyPropertyChanged
     {
         private string file;
 
@@ -74,7 +74,7 @@ namespace CompilePalX
             set { preset = value; OnPropertyChanged(nameof(Preset));  }
         }
 
-        public Map(string file, bool compile = true, string? preset = null)
+        public Map(string file, bool compile = true, Preset? preset = null)
         {
             File = file;
             Compile = compile;
@@ -172,7 +172,7 @@ namespace CompilePalX
 
                     string mapFile = map.File; 
                     string cleanMapName = Path.GetFileNameWithoutExtension(mapFile);
-                    ConfigurationManager.CurrentPreset = ConfigurationManager.KnownPresets.First((preset) => preset.Name == map.Preset);
+                    ConfigurationManager.CurrentPreset = map.Preset;
 
                     var compileErrors = new List<Error>();
                     CompilePalLogger.LogLine($"Starting a '{ConfigurationManager.CurrentPreset}' compile.");
@@ -201,7 +201,7 @@ namespace CompilePalX
                         }
 
                         ProgressManager.Progress += (1d / ConfigurationManager.CompileProcesses.Count(c => c.Metadata.DoRun &&
-                            c.PresetDictionary.ContainsKey(ConfigurationManager.CurrentPreset.Name))) / MapFiles.Count;
+                            c.PresetDictionary.ContainsKey(ConfigurationManager.CurrentPreset))) / MapFiles.Count;
                     }
 
                     mapErrors.Add(new MapErrors { MapName = cleanMapName, Errors = compileErrors });
