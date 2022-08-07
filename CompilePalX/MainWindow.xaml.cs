@@ -273,7 +273,7 @@ namespace CompilePalX
                     if (map == null)
                         return preset.Map == null;
 
-                    return preset.IsValidMap(map.File);
+                    return preset.IsValidMap(map.MapName);
                 };
             }
             PresetConfigListBox.ItemsSource = presetView;
@@ -480,10 +480,8 @@ namespace CompilePalX
                 string? map = null;
                 if (isMapSpecific)
                 {
-                    string fullMapName = Path.GetFileNameWithoutExtension(((Map)MapListBox.SelectedItem).File);
-
-                    // try removing version identifier
-                    map = Regex.Replace(fullMapName, @"_[^_]+\d$", "");
+                    var m = MapListBox.SelectedItem as Map;
+                    map = m?.MapName;
                 }
 
                 var preset = ConfigurationManager.NewPreset(presetName, map);
@@ -510,10 +508,8 @@ namespace CompilePalX
                     string? map = null;
                     if (isMapSpecific)
                     {
-                        string fullMapName = Path.GetFileNameWithoutExtension(((Map)MapListBox.SelectedItem).File);
-
-                        // try removing version identifier
-                        map = Regex.Replace(fullMapName, @"_[^_]+\d$", "");
+                        var m = MapListBox.SelectedItem as Map;
+                        map = m?.MapName;
                     }
 
                     var preset = ConfigurationManager.ClonePreset(presetName, map);
@@ -730,8 +726,8 @@ namespace CompilePalX
 
             foreach (var file in dialog.FileNames)
             {
-                // use current preset if it matches the map
-                CompilingManager.MapFiles.Add(new Map(file, preset: ConfigurationManager.CurrentPreset != null && ConfigurationManager.CurrentPreset.IsValidMap(file) ? ConfigurationManager.CurrentPreset : null));
+                // use current preset if it matches the map, otherwise default to first
+                CompilingManager.MapFiles.Add(new Map(file, preset: ConfigurationManager.CurrentPreset != null && ConfigurationManager.CurrentPreset.IsValidMap(file) ? ConfigurationManager.CurrentPreset : ConfigurationManager.KnownPresets[0]));
             }
         }
 
@@ -809,6 +805,7 @@ namespace CompilePalX
             ConfigurationManager.CurrentPreset = selectedMap.Preset;
             PresetConfigListBox.SelectedItem = ConfigurationManager.CurrentPreset;
             SelectedMapIndex = MapListBox.SelectedIndex;
+
             // refresh preset config listbox to filter the presets
             CollectionViewSource.GetDefaultView(ConfigurationManager.KnownPresets).Refresh();
         }

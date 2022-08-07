@@ -44,12 +44,12 @@ namespace CompilePalX
         /// <summary>
         /// Returns whether a map can use the preset
         /// </summary>
-        /// <param name="m"></param>
+        /// <param name="mapName"></param>
         /// <returns></returns>
-        public bool IsValidMap(string file)
+        public bool IsValidMap(string mapName)
         {
             // presets with no map are global
-            return this.Map == null || file.Contains(Map);
+            return this.Map == null || mapName == Map;
         }
     }
 

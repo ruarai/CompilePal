@@ -15,6 +15,7 @@ using System.Windows.Threading;
 using CompilePalX.Compilers;
 using CompilePalX.Compiling;
 using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 using System.Windows.Documents.Serialization;
 using CompilePalX.Annotations;
 using CompilePalX.Configuration;
@@ -58,6 +59,18 @@ namespace CompilePalX
         {
             get => file;
             set { file = value; OnPropertyChanged(nameof(File));  }
+        }
+
+        /// <summary>
+        /// Map name without version identifiers
+        /// </summary>
+        public string MapName {
+            get {
+                string fullMapName = Path.GetFileNameWithoutExtension(file);
+
+                // try removing version identifier
+                return Regex.Replace(fullMapName, @"_[^_]+\d$", "");
+            }
         }
 
         private bool compile;
