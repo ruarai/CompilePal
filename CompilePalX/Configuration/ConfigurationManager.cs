@@ -286,11 +286,6 @@ namespace CompilePalX
             return preset;
         }
 
-        //public static Preset? GetPreset(string presetName)
-        //{
-        //    return KnownPresets.FirstOrDefault((preset) => preset.Name == presetName);
-        //}
-
         private static string GetPresetFolder(Preset preset)
         {
             return preset.Map != null ? Path.Combine(PresetsFolder, $"{preset.Name}_{preset.Map}") : Path.Combine(PresetsFolder, preset.Name);
