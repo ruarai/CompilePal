@@ -590,7 +590,10 @@ namespace CompilePalX
                 return;
 
             // update map's selected preset
-            selectedMap.Preset = PresetConfigListBox.SelectedItem as Preset;
+            if (PresetConfigListBox.SelectedItem is Preset preset)
+                selectedMap.Preset = preset;
+            else
+                PresetConfigListBox.SelectedIndex = 0;
         }
         private void CompileProcessesListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -788,8 +791,6 @@ namespace CompilePalX
 
         private void MapListBox_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            // refresh preset config listbox to filter the presets
-            CollectionViewSource.GetDefaultView(ConfigurationManager.KnownPresets).Refresh();
 
             // no maps selected, default to last selected index. When we update any bound item in the MapBox datasource it will deselect all items, this reselects it after it has been deselected
             if (!(MapListBox.SelectedItem is Map selectedMap))
@@ -799,6 +800,8 @@ namespace CompilePalX
                     SelectedMapIndex = MapListBox.Items.Count - 1;
 
                 MapListBox.SelectedIndex = SelectedMapIndex;
+                // refresh preset config listbox to filter the presets
+                CollectionViewSource.GetDefaultView(ConfigurationManager.KnownPresets).Refresh();
                 return;
             }
 
@@ -806,6 +809,8 @@ namespace CompilePalX
             ConfigurationManager.CurrentPreset = selectedMap.Preset;
             PresetConfigListBox.SelectedItem = ConfigurationManager.CurrentPreset;
             SelectedMapIndex = MapListBox.SelectedIndex;
+            // refresh preset config listbox to filter the presets
+            CollectionViewSource.GetDefaultView(ConfigurationManager.KnownPresets).Refresh();
         }
 
 	    private void DoRun_OnClick(object sender, RoutedEventArgs e)
