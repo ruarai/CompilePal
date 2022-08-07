@@ -469,7 +469,7 @@ namespace CompilePalX
 
         private void AddPresetButton_Click(object sender, RoutedEventArgs e)
         {
-            var dialog = new PresetDialog("Add Preset", MapListBox.SelectedItem != null);
+            var dialog = new PresetDialog("Add Preset", MapListBox.SelectedItem as Map);
             dialog.ShowDialog();
 
             if (dialog.Result)
@@ -497,7 +497,7 @@ namespace CompilePalX
         {
             if (ConfigurationManager.CurrentPreset != null)
             {
-                var dialog = new PresetDialog("Clone Preset", MapListBox.SelectedItem != null);
+                var dialog = new PresetDialog("Clone Preset", MapListBox.SelectedItem as Map);
                 dialog.ShowDialog();
 
                 if (dialog.Result)
