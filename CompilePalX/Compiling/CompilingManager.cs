@@ -27,30 +27,6 @@ namespace CompilePalX
     internal delegate void CompileStarted();
     internal delegate void CompileFinished();
 
-    /// <summary>
-    /// Allows maps with old format (plain string preset names) to be converted
-    /// </summary>
-    class MapPresetConverter : JsonConverter
-    {
-        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
-        {
-            writer.WriteValue(value);
-        }
-
-        public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
-        {
-            if (objectType == typeof(string)) 
-                return new Preset() {Name = (string) reader.Value ?? throw new InvalidCastException()};
-
-            return reader.Value;
-        }
-
-        public override bool CanConvert(Type objectType)
-        {
-            return objectType == typeof(Preset);
-        }
-    }
-
     public class Map : INotifyPropertyChanged
     {
         private string file;
