@@ -96,6 +96,12 @@
                                     </GroupStyle.HeaderTemplate>
                                 </GroupStyle>
                             </ListBox.GroupStyle>
+                            <ListBox.Resources>
+                                <Style TargetType="{x:Type ListBoxItem}" BasedOn="{StaticResource MahApps.Styles.ListBoxItem}">
+                                    <Setter Property="Margin" Value="-5, 0, 0, 0" />
+                                    <Setter Property="Padding" Value="10, 0, 0, 0" />
+                                </Style>
+                            </ListBox.Resources>
                         </ListBox>
                     </DockPanel>
                     <DockPanel Grid.Column="1" Margin="10,10,0,10" Background="White">
