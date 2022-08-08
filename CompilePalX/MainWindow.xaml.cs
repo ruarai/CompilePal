@@ -788,6 +788,8 @@ namespace CompilePalX
 
         private void MapListBox_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            // clear config datagrid so no stale data is shown
+            ConfigDataGrid.ItemsSource = null;
 
             // no maps selected, default to last selected index. When we update any bound item in the MapBox datasource it will deselect all items, this reselects it after it has been deselected
             if (!(MapListBox.SelectedItem is Map selectedMap))
