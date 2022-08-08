@@ -26,6 +26,8 @@ namespace CompilePalX.Compilers
 
         public override void Run(CompileContext context, CancellationToken cancellationToken)
         {
+            if (!CanRun(context)) return;
+
             CompileErrors = new List<Error>();
 
             try

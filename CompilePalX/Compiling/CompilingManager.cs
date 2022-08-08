@@ -49,6 +49,8 @@ namespace CompilePalX
             }
         }
 
+        public bool IsBSP => Path.GetExtension(file) == ".bsp";
+
         private bool compile;
         public bool Compile 
         {
@@ -175,7 +177,7 @@ namespace CompilePalX
 					{
                         cancellationToken.ThrowIfCancellationRequested();
                         currentCompileProcess = compileProcess;
-                        compileProcess.Run(GameConfigurationManager.BuildContext(mapFile), cancellationToken);
+                        compileProcess.Run(GameConfigurationManager.BuildContext(map), cancellationToken);
 
                         compileErrors.AddRange(currentCompileProcess.CompileErrors);
 
@@ -207,7 +209,7 @@ namespace CompilePalX
         private static void postCompile(List<MapErrors> errors)
         {
             CompilePalLogger.LogLineColor(
-	            $"\n'{ConfigurationManager.CurrentPreset}' compile finished in {compileTimeStopwatch.Elapsed.ToString(@"hh\:mm\:ss")}", Brushes.ForestGreen);
+	            $"\n'{ConfigurationManager.CurrentPreset.Name}' compile finished in {compileTimeStopwatch.Elapsed.ToString(@"hh\:mm\:ss")}", Brushes.ForestGreen);
 
             if (errors != null && errors.Any())
             {

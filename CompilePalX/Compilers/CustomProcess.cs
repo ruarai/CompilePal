@@ -82,6 +82,8 @@ namespace CompilePalX.Compilers
 
 		public override void Run(CompileContext c, CancellationToken cancellationToken)
 		{
+            if (!CanRun(c)) return;
+
             CompileErrors = new List<Error>();
 
 			CompilePalLogger.LogLine("\nCompilePal - " + Path);

@@ -7,5 +7,6 @@
   "Description": "BSPzip.exe's BSP Compression.",
   "Warning": "Only supported in TF2/CS:S.",
   "PresetDefault": false,
-  "BasisString": " -repack -compress $mapCopyLocation$"
+  "BasisString": " -repack -compress $mapCopyLocation$",
+  "SupportsBSP": true
 }

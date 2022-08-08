@@ -112,12 +112,39 @@
                         <ListBox x:Name ="CompileProcessesListBox" Margin="0,0,0,5" Grid.Row="0" SelectionChanged="CompileProcessesListBox_SelectionChanged">
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
-                                    <DockPanel HorizontalAlignment="Stretch">
+                                    <DockPanel Name="ProcessDockPanel"  HorizontalAlignment="Stretch">
                                         <TextBlock Text="{Binding}" Margin="0, 0, 5, 0"/>
-                                        <CheckBox IsChecked="{Binding DoRun, Mode=TwoWay}" HorizontalAlignment="Right" Click="DoRun_OnClick"/>
+                                        <CheckBox x:Name="ProcessCheckbox"  IsChecked="{Binding DoRun, Mode=TwoWay}" HorizontalAlignment="Right" Click="DoRun_OnClick" controls:CheckBoxHelper.CheckBackgroundFillUncheckedDisabled="LightGray" ToolTipService.ShowOnDisabled="True"/>
                                     </DockPanel>
+                                    <DataTemplate.Triggers>
+                                        <MultiDataTrigger>
+                                            <MultiDataTrigger.Conditions>
+                                                <Condition Binding="{Binding Path=SelectedItem.IsBSP, ElementName=MapListBox}" Value="True"/>
+                                                <Condition Binding="{Binding SupportsBSP}" Value="False"/>
+                                            </MultiDataTrigger.Conditions>
+                                            <MultiDataTrigger.Setters>
+                                                <Setter TargetName="ProcessCheckbox" Property="IsChecked" Value="False"/>
+                                                <Setter TargetName="ProcessCheckbox" Property="ToolTip" Value="This process does not support BSP files"/>
+                                            </MultiDataTrigger.Setters>
+                                        </MultiDataTrigger>
+                                    </DataTemplate.Triggers>
                                 </DataTemplate>
                             </ListBox.ItemTemplate>
+                            <ListBox.ItemContainerStyle>
+                                <Style TargetType="ListBoxItem" BasedOn="{StaticResource {x:Type ListBoxItem}}">
+                                    <Style.Triggers>
+                                        <MultiDataTrigger>
+                                            <MultiDataTrigger.Conditions>
+                                                <Condition Binding="{Binding Path=SelectedItem.IsBSP, ElementName=MapListBox}" Value="True"/>
+                                                <Condition Binding="{Binding SupportsBSP}" Value="False"/>
+                                            </MultiDataTrigger.Conditions>
+                                            <MultiDataTrigger.Setters>
+                                                <Setter Property="IsEnabled" Value="False"/>
+                                            </MultiDataTrigger.Setters>
+                                        </MultiDataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ListBox.ItemContainerStyle>
                         </ListBox>
                     </DockPanel>
                     <Grid Grid.Column="2">

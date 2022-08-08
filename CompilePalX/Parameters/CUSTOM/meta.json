@@ -7,5 +7,6 @@
   "Description": "Run custom build steps.",
   "Warning": "",
   "PresetDefault": false,
-  "BasisString": ""
+  "BasisString": "",
+  "SupportsBSP": true
 }

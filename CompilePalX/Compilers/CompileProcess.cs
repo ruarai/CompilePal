@@ -11,6 +11,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Media;
+using CompilePalX.Annotations;
 using CompilePalX.Compiling;
 using Newtonsoft.Json;
 
@@ -89,9 +90,19 @@ namespace CompilePalX
         public string Description { get { return Metadata.Description; } }
         public string Warning { get { return Metadata.Warning; } }
 		public bool IsDraggable { get { return Draggable; } }
+		[UsedImplicitly] public bool SupportsBSP => Metadata.SupportsBSP;
 
         public Process Process;
 
+        public virtual bool CanRun(CompileContext context)
+        {
+            if (context.Map.IsBSP && !SupportsBSP)
+            {
+                CompilePalLogger.LogLineDebug($"Map is BSP, skipping process {Name}");
+                return false;
+            }
+            return true;
+        }
         public virtual void Run(CompileContext context, CancellationToken cancellationToken)
         {
 
@@ -165,11 +176,13 @@ namespace CompilePalX
         public bool PresetDefault { get; set; }
 
         public string BasisString { get; set; }
+        public bool SupportsBSP { get; set; } = false;
     }
 
     class CompileContext
     {
         public string MapFile;
+        public Map Map;
         public GameConfiguration Configuration;
         public string BSPFile;
         public string CopyLocation;

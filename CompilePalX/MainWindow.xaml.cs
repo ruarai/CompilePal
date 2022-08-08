@@ -711,7 +711,7 @@ namespace CompilePalX
                 dialog.InitialDirectory = GameConfigurationManager.GameConfiguration.SDKMapFolder;
 
             dialog.Multiselect = true;
-            dialog.Filter = "Map files (*.vmf;*.vmm)|*.vmf;*.vmm";
+            dialog.Filter = "Map Files (*.vmf;*.vmm;*.bsp)|*.vmf;*.vmm;*.bsp|All Files (*.*)|*.*";
 
             try
             {

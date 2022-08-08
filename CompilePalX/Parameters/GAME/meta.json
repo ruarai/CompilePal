@@ -7,5 +7,6 @@
   "Description": "Launch the game with your map.",
   "Warning": "",
   "PresetDefault": false,
-  "BasisString": " -game $game$ +map $map$"
+  "BasisString": " -game $game$ +map $map$",
+  "SupportsBSP": true
 }

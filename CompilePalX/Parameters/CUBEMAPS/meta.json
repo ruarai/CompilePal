@@ -7,5 +7,6 @@
   "Description": "Builds cubemaps automatically.",
   "Warning": "Game client must be closed in order to work.",
   "PresetDefault": false,
-  "BasisString": " "
+  "BasisString": " ",
+  "SupportsBSP": true 
 }

@@ -102,14 +102,15 @@ namespace CompilePalX
             mapFile = null;
         }
 
-        public static CompileContext BuildContext(string mapFile)
+        public static CompileContext BuildContext(Map map)
         {
             return new CompileContext
             {
                 Configuration = GameConfiguration,
-                MapFile = GameConfigurationManager.mapFile ?? mapFile,
-                BSPFile = Path.ChangeExtension(GameConfigurationManager.mapFile ?? mapFile, "bsp"),
-                CopyLocation = Path.Combine(GameConfiguration.MapFolder, Path.ChangeExtension(Path.GetFileName(GameConfigurationManager.mapFile ?? mapFile), "bsp"))
+                MapFile = GameConfigurationManager.mapFile ?? map.File,
+                Map = map,
+                BSPFile = Path.ChangeExtension(GameConfigurationManager.mapFile ?? map.File, "bsp"),
+                CopyLocation = map.IsBSP ? map.File : Path.Combine(GameConfiguration.MapFolder, Path.ChangeExtension(Path.GetFileName(GameConfigurationManager.mapFile ?? map.File), "bsp"))
             };
         }
 

@@ -7,5 +7,6 @@
   "Description": "Runs the Windows shutdown command.",
   "Warning": "",
   "PresetDefault": false,
-  "BasisString": " -s"
+  "BasisString": " -s",
+  "SupportsBSP": true
 }
