@@ -20,15 +20,18 @@ namespace CompilePalX {
                 CompilePalLogger.LogLine($"Gamedb: {gamedb}");
                 GameConfiguration game = new GameConfiguration
                 {
-                    Name =          gamedb.name.Replace("\"", ""),
-                    BinFolder =     binfolder,
-                    GameFolder = GetFullPath(gamedb.TryGetStringValue("GameDir"),    binfolder),
-                    GameEXE = GetFullPath(hdb.TryGetStringValue("GameExe"),       binfolder),
-                    SDKMapFolder = GetFullPath(hdb.TryGetStringValue("MapDir"),        binfolder),
-                    VBSP = GetFullPath(hdb.TryGetStringValue("BSP"),           binfolder),
-                    VVIS = GetFullPath(hdb.TryGetStringValue("Vis"),           binfolder),
-                    VRAD = GetFullPath(hdb.TryGetStringValue("Light"),         binfolder),
-                    MapFolder = GetFullPath(hdb.TryGetStringValue("BSPDir"),        binfolder)
+                    Name = gamedb.name.Replace("\"", ""),
+                    BinFolder = binfolder,
+                    GameFolder = GetFullPath(gamedb.TryGetStringValue("GameDir"), binfolder),
+                    GameEXE = GetFullPath(hdb.TryGetStringValue("GameExe"), binfolder),
+                    SDKMapFolder = GetFullPath(hdb.TryGetStringValue("MapDir"), binfolder),
+                    VBSP = GetFullPath(hdb.TryGetStringValue("BSP"), binfolder),
+                    VVIS = GetFullPath(hdb.TryGetStringValue("Vis"), binfolder),
+                    VRAD = GetFullPath(hdb.TryGetStringValue("Light"), binfolder),
+                    MapFolder = GetFullPath(hdb.TryGetStringValue("BSPDir"), binfolder),
+                    BSPZip = Path.Combine(binfolder, "bspzip.exe"),
+                    VBSPInfo = Path.Combine(binfolder, "vbspinfo.exe"),
+                    VPK = Path.Combine(binfolder, "vpk.exe"),
                 };
 
                 gameInfos.Add(game);
