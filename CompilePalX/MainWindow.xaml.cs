@@ -562,6 +562,7 @@ namespace CompilePalX
             // prevent closing if launch window is open
             if (LaunchWindow.Instance == null)
                 Environment.Exit(0);//hack because wpf is weird
+            Instance = null;
         }
 
         private void PresetConfigListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
