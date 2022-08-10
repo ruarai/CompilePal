@@ -25,8 +25,8 @@ My Plugin/
   "Description": "string",
   "Warning": "string",
   "Path": "string",
+  "Arguments": "string",
   "BasisString": "string",
-  "PrependBasisString": "bool",
   "Order": "float",
   "DoRun": "bool",
   "ReadOutput": "bool",
@@ -39,8 +39,8 @@ My Plugin/
 | Description | Description shown in the process adder dialog.
 | Warning | Warning shown in the process adder dialog.
 | Path    | Path to a program, relative to the Compile Pal folder. Can be templated, see [Variable Substitution](#Variable-Substitution).
-| BasisString | The base arguments passed to the program. Can be templated, see [Variable Substitution](#Variable-Substitution).
-| PrependBasisString | Controls whether `BasisString` comes before additional arguments or after. Defaults to `false`.
+| Arguments | The first arguments passed to the program. Can be templated, see [Variable Substitution](#Variable-Substitution).
+| BasisString | The last arguments passed to the program. Can be templated, see [Variable Substitution](#Variable-Substitution). Order of arguments is `Arguments` → `Arguments selected by user` → `BasisString`.
 | Order   | Determines when your step should run. For example, an Order of 1.5 would run between VBSP and VVIS. For the complete ordering, look at the existing compile steps in the `Parameters` folder.
 | DoRun		| This should always be true. This indicates that the step is an external program and not a built-in compile step.
 | ReadOutput | Controls whether program output is shown in the compile log.
@@ -102,12 +102,11 @@ For examples, download [PLUGIN DEMO.zip](https://github.com/ruarai/CompilePal/fi
 It is recomended to package your application inside the plugin folder to make it easier to point to. For example, `Path` can be set to `Parameters\\My Plugin\\plugin.exe`.
 
 ### Python Plugins
-Setting the `Path` to `python` or `python3` is not portable. Use the [Python Launcher](https://docs.python.org/3/using/windows.html#python-launcher-for-windows) `py` (requires Python >= 3.3), passing the python version in the `BasisString`, Ex.
+Setting the `Path` to `python` or `python3` is not portable. Use the [Python Launcher](https://docs.python.org/3/using/windows.html#python-launcher-for-windows) `py` (requires Python >= 3.3), passing the python version in the `Arguments`, Ex.
 ```json
 {
 	"Path": "py",
-	"BasisString": "-3 my_plugin.py",
-	"PrependBasisString": true
+	"Arguments": "-3 my_plugin.py",
 }
 ```
 
