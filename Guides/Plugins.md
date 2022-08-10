@@ -6,6 +6,8 @@ Compile Pal's plugin based architecture allows developers to create their own co
 ## Installation
 Plugins can be installed by copying the plugin folder into the Compile Pal/Parameters folder.
 
+***USE PLUGINS AT YOUR OWN RISK, DO NOT INSTALL PLUGINS FROM UNTRUSTED SOURCES***
+
 ## Structure
 Plugins consist of a folder that contains a `meta.json` and `parameters.json` file.
 ```
