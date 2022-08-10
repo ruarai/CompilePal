@@ -58,6 +58,8 @@ namespace CompilePalX.Compilers
             Process.StartInfo.Arguments = string.Join(" ", args);
             Process.StartInfo.WorkingDirectory = runningDirectory;
 
+            CompilePalLogger.LogLineDebug($"Running '{Process.StartInfo.FileName}' with args '{Process.StartInfo.Arguments}'");
+
             try
             {
                 if (cancellationToken.IsCancellationRequested)
