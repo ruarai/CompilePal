@@ -20,7 +20,7 @@ namespace CompilePalX.Compilers
                 Directory.CreateDirectory(runningDirectory);
         }
 
-        private static string runningDirectory = "./CompileLogs";
+        private static string runningDirectory = ".";
 
         public override void Run(CompileContext c, CancellationToken cancellationToken)
         {
