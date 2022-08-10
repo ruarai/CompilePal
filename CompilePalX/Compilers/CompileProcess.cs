@@ -177,7 +177,7 @@ namespace CompilePalX
         public string Description { get; set; }
         public string Warning { get; set; }
 
-        public bool PresetDefault { get; set; }
+        public bool PresetDefault { get; set; } = false;
 
         public string BasisString { get; set; }
         public bool SupportsBSP { get; set; } = false;
