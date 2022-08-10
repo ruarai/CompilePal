@@ -26,11 +26,12 @@ namespace CompilePalX.Compilers
 
         public override void Run(CompileContext context, CancellationToken cancellationToken)
         {
+            CompileErrors = new List<Error>();
+
             if (!CanRun(context)) return;
 
             vbspInfo = context.Configuration.VBSPInfo;
             bspFile = context.CopyLocation;
-            CompileErrors = new List<Error>();
 
             // listen for cancellations
             cancellationToken.Register(() =>

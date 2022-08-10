@@ -37,9 +37,9 @@ namespace CompilePalX.Compilers.UtilityProcess
 
         public override void Run(CompileContext context, CancellationToken cancellationToken)
         {
-            if (!CanRun(context)) return;
-
             CompileErrors = new List<Error>();
+
+            if (!CanRun(context)) return;
 
             genParticleManifest = GetParameterString().Contains("-particlemanifest");
             incParticleManifest = GetParameterString().Contains("-incparticlemanifest");

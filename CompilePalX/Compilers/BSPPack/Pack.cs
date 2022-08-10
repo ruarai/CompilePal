@@ -54,9 +54,9 @@ namespace CompilePalX.Compilers.BSPPack
 
         public override void Run(CompileContext context, CancellationToken cancellationToken)
         {
-            if (!CanRun(context)) return;
-
             CompileErrors = new List<Error>();
+
+            if (!CanRun(context)) return;
 
             verbose = GetParameterString().Contains("-verbose");
             dryrun = GetParameterString().Contains("-dryrun");
