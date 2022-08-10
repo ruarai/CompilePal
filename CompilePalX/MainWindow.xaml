@@ -178,9 +178,15 @@
                                                     <local:FileInput.Style>
                                                         <Style TargetType="{x:Type local:FileInput}">
                                                             <Style.Triggers>
-                                                                <DataTrigger Binding="{Binding ValueIsFile}" Value="False">
-                                                                    <Setter Property="Visibility" Value="Hidden"/>
-                                                                </DataTrigger>
+                                                                <MultiDataTrigger>
+                                                                    <MultiDataTrigger.Conditions>
+                                                                        <Condition Binding="{Binding ValueIsFile}" Value="False"/>
+                                                                        <Condition Binding="{Binding ValueIsFolder}" Value="False"/>
+                                                                    </MultiDataTrigger.Conditions>
+                                                                    <MultiDataTrigger.Setters>
+                                                                        <Setter Property="Visibility" Value="Hidden"/>
+                                                                    </MultiDataTrigger.Setters>
+                                                                </MultiDataTrigger>
                                                                 <DataTrigger Binding="{Binding ValueIsFolder}" Value="True">
                                                                     <Setter Property="Hint" Value="Choose Folder"/>
                                                                 </DataTrigger>
