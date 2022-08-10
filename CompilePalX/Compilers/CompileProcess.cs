@@ -91,6 +91,7 @@ namespace CompilePalX
         public string Warning { get { return Metadata.Warning; } }
 		public bool IsDraggable { get { return Draggable; } }
 		[UsedImplicitly] public bool SupportsBSP => Metadata.SupportsBSP;
+        public bool PrependBasisString => Metadata.PrependBasisString;
 
         public Process Process;
 
@@ -122,7 +123,9 @@ namespace CompilePalX
 
         public string GetParameterString()
         {
-            string parameters = string.Empty;
+            // sometimes we always want the basis string to go first
+            string parameters = Metadata.PrependBasisString ? Metadata.BasisString : String.Empty;
+
             if (ConfigurationManager.CurrentPreset != null)
                 foreach (var parameter in PresetDictionary[ConfigurationManager.CurrentPreset])
                 {
@@ -149,7 +152,8 @@ namespace CompilePalX
                     }
                 }
 
-            parameters += Metadata.BasisString;
+            if (!Metadata.PrependBasisString)
+                parameters += Metadata.BasisString;
 
             return parameters;
         }
@@ -177,6 +181,7 @@ namespace CompilePalX
 
         public string BasisString { get; set; }
         public bool SupportsBSP { get; set; } = false;
+        public bool PrependBasisString { get; set; } = false;
     }
 
     class CompileContext
