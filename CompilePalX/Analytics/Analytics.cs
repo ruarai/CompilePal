@@ -19,6 +19,10 @@ namespace CompilePalX
         private const bool debuggerCheckOverride = false;
 
         public static bool Enabled = true;
+
+        private static Client client;
+        private static Client legacyClient; // don't know who has access to this client. Keep sending it analytics in case it's still being used
+
         static AnalyticsManager()
         {
             anonymousUserID = getUniqueComputerID();
@@ -73,52 +77,42 @@ namespace CompilePalX
         }
         public static void Launch()
         {
-            if (enabled)
-            {
-                Analytics.Initialize("5IMRGFe2K7JV76e1NzyC40oBADmta5Oh");
+            if (!enabled) return;
 
-                Analytics.Client.Track(anonymousUserID, "Launch", userProperties,options );
-            }
+            client = new Client("KPCewjPBrksT73NkIGqh5pkXBvmrnKAT");
+            legacyClient= new Client("5IMRGFe2K7JV76e1NzyC40oBADmta5Oh");
+            Track(anonymousUserID, "Launch", userProperties,options );
         }
         public static void Compile()
         {
-            if (enabled)
-            {
-                Analytics.Client.Track(anonymousUserID, "Compile", userProperties, options);
-            }
+            Track(anonymousUserID, "Compile", userProperties, options);
         }
         public static void NewPreset()
         {
-            if (enabled)
-            {
-                Analytics.Client.Track(anonymousUserID, "NewPreset", userProperties, options);
-            }
+            Track(anonymousUserID, "NewPreset", userProperties, options);
         }
         public static void ModifyPreset()
         {
-            if (enabled)
-            {
-                Analytics.Client.Track(anonymousUserID, "ModifyPreset", userProperties, options);
-            }
+            Track(anonymousUserID, "ModifyPreset", userProperties, options);
         }
         public static void Error()
         {
-            if (enabled)
-            {
-                Analytics.Client.Track(anonymousUserID, "Error", userProperties, options);
-            }
+            Track(anonymousUserID, "Error", userProperties, options);
         }
         public static void CompileError()
         {
+            Track(anonymousUserID, "CompileError", userProperties, options);
+        }
+
+        private static void Track(string userId, string eventName, IDictionary<string, object> properties, Options options)
+        {
             if (enabled)
             {
-                Analytics.Client.Track(anonymousUserID, "CompileError", userProperties, options);
+                client.Track(userId, eventName, properties, options);
+                legacyClient.Track(userId, eventName, properties, options);
             }
         }
 
-        private static bool enabled
-        {
-            get { return (!System.Diagnostics.Debugger.IsAttached || debuggerCheckOverride) && Enabled; }
-        }
+        private static bool enabled => (!System.Diagnostics.Debugger.IsAttached || debuggerCheckOverride) && Enabled;
     }
 }
