@@ -17,6 +17,8 @@ namespace CompilePalX
         public string SDKMapFolder { get; set; }
         public string BinFolder { get; set; }
         public string Name { get; set; }
+        public string GameInfoPath => Path.Combine(GameFolder, "gameinfo.txt");
+        public int? SteamAppID { get; set; }
         public object Clone()
         {
             return this.MemberwiseClone();
@@ -26,7 +28,7 @@ namespace CompilePalX
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
-            return BSPZip == other.BSPZip && VBSPInfo == other.VBSPInfo && VPK == other.VPK && GameFolder == other.GameFolder && VBSP == other.VBSP && VVIS == other.VVIS && VRAD == other.VRAD && GameEXE == other.GameEXE && MapFolder == other.MapFolder && SDKMapFolder == other.SDKMapFolder && BinFolder == other.BinFolder && Name == other.Name;
+            return BSPZip == other.BSPZip && VBSPInfo == other.VBSPInfo && VPK == other.VPK && GameFolder == other.GameFolder && VBSP == other.VBSP && VVIS == other.VVIS && VRAD == other.VRAD && GameEXE == other.GameEXE && MapFolder == other.MapFolder && SDKMapFolder == other.SDKMapFolder && BinFolder == other.BinFolder && Name == other.Name && SteamAppID == other.SteamAppID;
         }
 
         public override bool Equals(object? obj)
@@ -52,6 +54,7 @@ namespace CompilePalX
             hashCode.Add(SDKMapFolder);
             hashCode.Add(BinFolder);
             hashCode.Add(Name);
+            hashCode.Add(SteamAppID);
             return hashCode.ToHashCode();
         }
     }

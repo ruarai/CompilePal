@@ -259,6 +259,7 @@ namespace CompilePalX
             using (presetView.DeferRefresh())
             {
                 presetView.GroupDescriptions.Clear();
+                presetView.SortDescriptions.Clear();
                 presetView.GroupDescriptions.Add(new PropertyGroupDescription("Map"));
                 presetView.SortDescriptions.Add(new SortDescription("Map", ListSortDirection.Descending));
                 presetView.SortDescriptions.Add(new SortDescription("Name", ListSortDirection.Ascending));

@@ -92,6 +92,29 @@ namespace CompilePalX
 		public bool IsDraggable { get { return Draggable; } }
 		[UsedImplicitly] public bool SupportsBSP => Metadata.SupportsBSP;
 
+        public bool Compatible
+        {
+            get
+            {
+                // current game configuration has no SteamAppID
+                if (GameConfigurationManager.GameConfiguration != null && GameConfigurationManager.GameConfiguration.SteamAppID == null)
+                    return true;
+
+                int currentAppID = (int)GameConfigurationManager.GameConfiguration!.SteamAppID!;
+
+                // supported game ID list should take precedence. If defined, check that current GameConfiguration SteamID is in whitelist
+                if (Metadata.CompatibleGames != null)
+                    return Metadata.CompatibleGames.Contains(currentAppID);
+
+                // If defined, check that current GameConfiguration SteamID is not in blacklist
+                if (Metadata.IncompatibleGames != null)
+                    return !Metadata.IncompatibleGames.Contains(currentAppID);
+
+                // process does not define which games are supported
+                return true;
+            }
+        }
+
         public Process Process;
 
         public virtual bool CanRun(CompileContext context)
@@ -176,6 +199,8 @@ namespace CompilePalX
         public bool PresetDefault { get; set; } = false;
         public string BasisString { get; set; }
         public bool SupportsBSP { get; set; } = false;
+        public HashSet<int>? IncompatibleGames { get; set; }
+        public HashSet<int>? CompatibleGames { get; set; }
     }
 
     class CompileContext

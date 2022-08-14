@@ -8,5 +8,8 @@
   "Warning": "",
   "PresetDefault": false,
   "BasisString": " -game $game$ -bsp $bsp$ -bspZip $bspZip$ -keys $keys$",
-  "SupportsBSP": true 
+  "SupportsBSP": true,
+  "CompatibleGames": [
+    123
+  ] 
 }
