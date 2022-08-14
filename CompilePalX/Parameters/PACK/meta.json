@@ -9,7 +9,7 @@
   "PresetDefault": false,
   "BasisString": " -game $game$ -bsp $bsp$ -bspZip $bspZip$ -keys $keys$",
   "SupportsBSP": true,
-  "CompatibleGames": [
-    123
+  "IncompatibleGames": [
+    4000 // garrysmod
   ] 
 }

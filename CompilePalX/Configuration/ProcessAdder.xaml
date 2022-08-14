@@ -24,7 +24,7 @@
                                         <Grid>
                                             <Expander IsExpanded="False" x:Name="GroupExpander">
                                                 <Expander.Header>
-                                                    <DockPanel ToolTip="Processes may be incompatible with the current game" IsHitTestVisible="False">
+                                                    <DockPanel ToolTip="Processes may be incompatible with the current game">
                                                         <iconPacks:PackIconMaterial Kind="Alert" Foreground="#ffc700" VerticalAlignment="Center" />
                                                         <TextBlock Text="{Binding Name}" FontWeight="SemiBold" Foreground="White" FontSize="14" Margin="5, 2, 5, 0" Visibility="Visible"/>
                                                     </DockPanel>
@@ -40,7 +40,7 @@
                                             <ItemsPresenter x:Name="Presenter" Visibility="Collapsed"/>
                                         </Grid>
                                         <ControlTemplate.Triggers>
-                                            <DataTrigger Binding="{Binding Name}" Value="Compatible">
+                                            <DataTrigger Binding="{Binding Name}" Value="IsCompatible">
                                                 <Setter TargetName="GroupExpander" Property="Visibility" Value="Collapsed"/>
                                                 <Setter TargetName="Presenter" Property="Visibility" Value="Visible"/>
                                             </DataTrigger>
@@ -55,27 +55,6 @@
                             <TextBlock x:Name="PresetHeaderBlock" FontWeight="Bold" FontSize="14" Margin="5, 2, 5, 0" Visibility="Visible"/>
                         </DataTemplate>
                     </GroupStyle.HeaderTemplate>
-                                <!--<GroupStyle.HeaderTemplate>
-                        <DataTemplate>
-                            <TextBlock x:Name="PresetHeaderBlock" FontWeight="Bold" FontSize="14" Margin="5, 2, 5, 0" Visibility="Visible"/>
-                            <DataTemplate.Triggers>
-                                <DataTrigger Binding="{Binding Supported}" Value="true">
-                                    <Setter TargetName="PresetHeaderBlock" Property="Text" Value=""/>
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding Supported}" Value="false">
-                                    <Setter TargetName="PresetHeaderBlock" Property="Text" Value="Unsupported"/>
-                                </DataTrigger>
-                            </DataTemplate.Triggers>
-                            --><!--<DataTemplate.Triggers>
-                                <DataTrigger Binding="{Binding Name}" Value="{x:Null}">
-                                    <Setter TargetName="PresetHeaderBlock" Property="Text" Value="Global"/>
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding Items.Groups.Count, RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}" Value="1">
-                                    <Setter TargetName="PresetHeaderBlock" Property="Visibility" Value="Collapsed"/>
-                                </DataTrigger>
-                            </DataTemplate.Triggers>--><!--
-                        </DataTemplate>
-                    </GroupStyle.HeaderTemplate>-->
                 </GroupStyle>
             </DataGrid.GroupStyle>
         </DataGrid>

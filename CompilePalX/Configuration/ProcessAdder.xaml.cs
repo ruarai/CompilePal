@@ -31,26 +31,13 @@ namespace CompilePalX
                 this.SteamAppID = steamAppID;
             }
 
-            // Split processes into 2 groups, Compatible and Incompatible
+            // Split processes into 2 groups, IsCompatible and Incompatible
             public override object GroupNameFromItem(object item, int level, CultureInfo culture)
             {
                 // should never happen
-                if (item is not CompileProcess p) return "Compatible";
+                if (item is not CompileProcess p) return "IsCompatible";
 
-                // current game configuration has no SteamAppID
-                if (this.SteamAppID == null)
-                    return "Compatible";
-
-                // supported game ID list should take precedence. If defined, check that current GameConfiguration SteamID is in whitelist
-                if (p.Metadata.CompatibleGames != null)
-                    return p.Metadata.CompatibleGames.Contains((int)this.SteamAppID) ? "Compatible" : "Incompatible";
-
-                // If defined, check that current GameConfiguration SteamID is not in blacklist
-                if (p.Metadata.IncompatibleGames != null)
-                    return !p.Metadata.IncompatibleGames.Contains((int)this.SteamAppID) ? "Compatible" : "Incompatible";
-
-                // process does not define which games are supported
-                return "Compatible";
+                return p.IsCompatible ? "IsCompatible" : "Incompatible";
             }
         }
         public string ChosenItem;
@@ -63,7 +50,6 @@ namespace CompilePalX
             {
                 processView.GroupDescriptions.Clear();
                 processView.GroupDescriptions.Add(new SteamIDPropertyGroup(GameConfigurationManager.GameConfiguration?.SteamAppID));
-                //processView.SortDescriptions.Add(new SortDescription("Group", ListSortDirection.Descending));
             }
             ProcessDataGrid.DataContext = processView;
         }

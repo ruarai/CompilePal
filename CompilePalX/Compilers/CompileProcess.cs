@@ -92,7 +92,7 @@ namespace CompilePalX
 		public bool IsDraggable { get { return Draggable; } }
 		[UsedImplicitly] public bool SupportsBSP => Metadata.SupportsBSP;
 
-        public bool Compatible
+        public bool IsCompatible
         {
             get
             {
