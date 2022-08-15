@@ -51,6 +51,7 @@
         <ScrollViewer VerticalScrollBarVisibility="Auto">
             <StackPanel Orientation="Vertical" Margin="20, 10, 20, 20" FocusManager.FocusedElement="{Binding ElementName=Name}">
                 <TextBox Template="{StaticResource LabeledTextbox}" Text="{Binding Path=Name, Mode=TwoWay}" Tag="Name" Name="Name"/>
+                <TextBox Template="{StaticResource LabeledTextbox}" Text="{Binding Path=SteamAppID, Mode=TwoWay}" Tag="App ID" ToolTip="Steam App ID. Used to determine which processes/parameters are compatible with the current game. Can be found on https://steamdb.info/apps/"/>
                 <TextBox Template="{StaticResource LabeledTextbox}" Text="{Binding Path=GameFolder, Mode=TwoWay}" Tag="Game Folder" ToolTip="Path to the game folder.&#x0a;Ex. C:\Program Files (x86)\Steam\steamapps\common\Team Fortress 2\tf" />
                 <TextBox Template="{StaticResource LabeledTextbox}" Text="{Binding Path=BinFolder, Mode=TwoWay}" Tag="Bin Folder" ToolTip="Path to the bin folder that contains the command line tools.&#x0a;Ex. C:\Program Files (x86)\Steam\steamapps\common\Team Fortress 2\bin" />
                 <TextBox Template="{StaticResource LabeledTextbox}" Text="{Binding Path=GameEXE, Mode=TwoWay}" Tag="Game EXE" ToolTip="Path to game EXE.&#x0a;Ex. C:\Program Files (x86)\Steam\steamapps\common\Team Fortress 2\hl2.exe" />

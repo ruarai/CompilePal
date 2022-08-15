@@ -10,6 +10,6 @@
   "BasisString": " -game $game$ -bsp $bsp$ -bspZip $bspZip$ -keys $keys$",
   "SupportsBSP": true,
   "IncompatibleGames": [
-    4000 // garrysmod
+    4000 // gmod. Certain distributions dont have bspzip.exe
   ] 
 }

@@ -17,7 +17,7 @@ namespace CompilePalX
         public string SDKMapFolder { get; set; }
         public string BinFolder { get; set; }
         public string Name { get; set; }
-        public string GameInfoPath => Path.Combine(GameFolder, "gameinfo.txt");
+        public string GameInfoPath => Path.Combine(GameFolder ?? "", "gameinfo.txt");
         public int? SteamAppID { get; set; }
         public object Clone()
         {

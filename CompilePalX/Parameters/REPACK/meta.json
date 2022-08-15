@@ -5,8 +5,12 @@
   "DoRun": false,
   "ReadOutput": true,
   "Description": "BSPzip.exe's BSP Compression.",
-  "Warning": "Only supported in TF2/CS:S.",
+  "Warning": "",
   "PresetDefault": false,
   "BasisString": " -repack -compress $mapCopyLocation$",
-  "SupportsBSP": true
+  "SupportsBSP": true,
+  "CompatibleGames": [
+    400, // tf2
+    240 // cs:s
+  ] 
 }
