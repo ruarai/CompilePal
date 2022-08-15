@@ -148,7 +148,7 @@ namespace CompilePalX
             }
 
             // remove duplicates
-            GameConfigurations = configs.GroupBy(g => g.Name).Select(grp => grp.First()).ToList();
+            GameConfigurations = configs.GroupBy(g => (g.Name, g.GameFolder)).Select(grp => grp.First()).ToList();
             
             SaveGameConfigurations();
         }

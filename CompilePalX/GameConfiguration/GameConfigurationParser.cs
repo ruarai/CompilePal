@@ -63,12 +63,19 @@ namespace CompilePalX {
             foreach (var line in File.ReadLines(config.GameInfoPath))
             {
                 // ignore commented out lines
-                if (line.Contains("//") || string.IsNullOrWhiteSpace(line))
+                if (line.TrimStart().StartsWith("//") || string.IsNullOrWhiteSpace(line))
                     continue;
 
                 if (!line.Contains("SteamAppId")) continue;
 
-                Int32.TryParse(line.Replace("SteamAppId", ""), out int appID);
+                // sometimes gameinfo contains tabs, replace with spaces and filter them out
+                var splitLine = line.Replace('\t', ' ').Split(' ').Where(c => c != String.Empty).ToList();
+
+                // bad format
+                if (splitLine.Count < 2)
+                    continue;
+
+                Int32.TryParse(splitLine[1], out int appID);
                 return appID;
             }
 
