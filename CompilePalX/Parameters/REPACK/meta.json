@@ -10,7 +10,7 @@
   "BasisString": " -repack -compress $mapCopyLocation$",
   "SupportsBSP": true,
   "CompatibleGames": [
-    400, // tf2
+    440, // tf2
     240 // cs:s
   ] 
 }
