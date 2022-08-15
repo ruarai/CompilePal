@@ -288,6 +288,13 @@ namespace CompilePalX
 			//BindingOperations.EnableCollectionSynchronization(CurrentOrder, lockObj);
 		}
 
+        public void RefreshSources()
+        {
+            PresetConfigListBox.Items.Refresh();
+            ConfigDataGrid.Items.Refresh();
+            CompileProcessesListBox.Items.Refresh();
+        }
+
         void ProgressManager_ProgressChange(double progress)
         {
             CompileProgressBar.Value = progress;
