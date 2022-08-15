@@ -78,9 +78,11 @@ namespace CompilePalX.Compilers
             Process.PriorityClass = ProcessPriorityClass.BelowNormal;
 
             if (Metadata.ReadOutput)
-            {
-               ReadOutput(cancellationToken);
- 
+            { 
+                ReadOutput(cancellationToken);
+                if (Process.ExitCode != 0)
+                    CompilePalLogger.LogCompileError($"{Name} exited with code: {Process.ExitCode}\n", new Error($"{Name} exited with code: {Process.ExitCode}\n", ErrorSeverity.Warning));
+
             }
         }
 
