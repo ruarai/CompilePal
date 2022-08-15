@@ -113,7 +113,8 @@
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
                                     <DockPanel Name="ProcessDockPanel"  HorizontalAlignment="Stretch">
-                                        <iconPacks:PackIconMaterial Kind="Alert" Foreground="Orange" Margin="0, 0, 5, 0" ToolTip="This process is potentially incompatible with the current game">
+                                        <TextBlock VerticalAlignment="Center" Text="{Binding}" Margin="0, 0, 5, 0"/>
+                                        <iconPacks:PackIconMaterial VerticalAlignment="Center" Kind="Alert" Foreground="Orange" Margin="0, 0, 5, 0" ToolTip="This process is potentially incompatible with the current game">
                                             <iconPacks:PackIconMaterial.Style>
                                                 <Style TargetType="iconPacks:PackIconMaterial">
                                                     <Setter Property="Visibility" Value="Collapsed"/>
@@ -125,7 +126,6 @@
                                                 </Style>
                                             </iconPacks:PackIconMaterial.Style>
                                         </iconPacks:PackIconMaterial>
-                                        <TextBlock Text="{Binding}" Margin="0, 0, 5, 0"/>
                                         <CheckBox x:Name="ProcessCheckbox"  IsChecked="{Binding DoRun, Mode=TwoWay}" HorizontalAlignment="Right" Click="DoRun_OnClick" controls:CheckBoxHelper.CheckBackgroundFillUncheckedDisabled="LightGray" ToolTipService.ShowOnDisabled="True"/>
                                     </DockPanel>
                                     <DataTemplate.Triggers>
