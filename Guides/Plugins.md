@@ -30,7 +30,9 @@ My Plugin/
   "Order": "float",
   "DoRun": "bool",
   "ReadOutput": "bool",
-  "SupportsBSP": "bool"
+  "SupportsBSP": "bool",
+  "CompatibleGames": "int[]",
+  "IncompatibleGames": "int[]"
 }
 ```
 | Field | Description |
@@ -45,6 +47,8 @@ My Plugin/
 | DoRun		| This should always be true. This indicates that the step is an external program and not a built-in compile step.
 | ReadOutput | Controls whether program output is shown in the compile log.
 | SupportsBSP | Indicates that this step can be used for BSP files. Steps that don't support BSPs are automatically disabled if a user selects a BSP file. Defaults to `false`. (>=v27.27)
+| CompatibleGames | Whitelist of Steam App IDs for games that this plugin is compatible with. Will override IncompatibleGames if both are set. (>=v27.29)
+| IncompatibleGames | Blacklist of Steam App IDs for games that this plugin is not compatible with. (>=v27.29)
 
 ### Variable Substitution
 | Variable | Description |
@@ -78,7 +82,9 @@ My Plugin/
 		"CanHaveValue": "bool",
 		"Value": "string",
 		"ValueIsFile": "bool",
-		"ValueIsFolder": "bool"
+		"ValueIsFolder": "bool",
+		"CompatibleGames": "int[]",
+		"IncompatibleGames": "int[]"
 	},
 	...
 ]
@@ -94,6 +100,8 @@ My Plugin/
 | Value | Default value for the parameter.
 | ValueIsFile | Indicates that value is a file. Adds a button that opens a File Picker dialog. Defaults to `false`.
 | ValueIsFolder | Indicates that value is a folder. Adds a button that opens a Folder Picker dialog. Defaults to `false`.
+| CompatibleGames | Whitelist of Steam App IDs for games that this plugin parameter is compatible with. Will override IncompatibleGames if both are set. (>=v27.29)
+| IncompatibleGames | Blacklist of Steam App IDs for games that this plugin parameter is not compatible with. (>=v27.29)
 
 ## Best Practices
 For examples, download [PLUGIN DEMO.zip](https://github.com/ruarai/CompilePal/files/9296903/PLUGIN.DEMO.zip) or look at the existing compile steps in the `Parameters` folder.
