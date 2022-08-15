@@ -13,7 +13,11 @@
     "Description": "Compile with LDR",
     "Value": null,
     "CanHaveValue": false,
-    "Warning": ""
+    "Warning": "",
+    "IncompatibleGames": [
+      730, // csgo
+      550 // l4d2
+    ] 
   },
   {
     "Name": "HDR",
@@ -29,7 +33,11 @@
     "Description": "Compile with HDR and LDR.",
     "Value": null,
     "CanHaveValue": false,
-    "Warning": "Known to have issues with some versions of Source."
+    "Warning": "",
+    "IncompatibleGames": [
+      730, // csgo
+      550 // l4d2
+    ] 
   },
   {
     "Name": "Fast",
@@ -94,7 +102,10 @@
     "Description": "Generate per-vertex prop_static lighting (uses higher/final quality processing)",
     "Value": null,
     "CanHaveValue": false,
-    "Warning": "CS:GO Only!"
+    "Warning": "",
+    "CompatibleGames": [
+      730 // csgo
+    ] 
   },
   {
     "Name": "Static Prop Lighting Old",
@@ -102,7 +113,10 @@
     "Description": "Generate per-vertex prop_static lighting using the old algorithm",
     "Value": null,
     "CanHaveValue": false,
-    "Warning": "CS:GO Only!"
+    "Warning": "",
+    "CompatibleGames": [
+      730 // csgo
+    ] 
   },
   {
     "Name": "Static Prop Bounce",
@@ -110,7 +124,10 @@
     "Description": "Enable static props to bounce light.",
     "Value": null,
     "CanHaveValue": true,
-    "Warning": "CS:GO Only!"
+    "Warning": "",
+    "CompatibleGames": [
+      730 // csgo
+    ] 
   },
   {
     "Name": "Static Prop Sample Scale",
@@ -118,7 +135,10 @@
     "Description": "Controls quality of static prop lighting (16 = slow, high quality, 4 = default and 0.25 = fast, low quality).",
     "Value": null,
     "CanHaveValue": true,
-    "Warning": "CS:GO Only! Note that adding -final is the same as having -StaticPropSampleScale 16."
+    "Warning": "Note that adding -final is the same as having -StaticPropSampleScale 16.",
+    "CompatibleGames": [
+      730 // csgo
+    ] 
   },
   {
     "Name": "Static Prop Polys",
@@ -158,7 +178,10 @@
     "Description": "Scales the amount of baked AO",
     "Value": null,
     "CanHaveValue": true,
-    "Warning": "CS:GO Only!"
+    "Warning": "",
+    "CompatibleGames": [
+      730 // csgo
+    ] 
   },
   {
     "Name": "Threads",
