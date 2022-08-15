@@ -93,7 +93,10 @@
     "Description": "Merges static props together according to the rules defined in scripts/hammer/spcombinerules/spcombinerules.txt.",
     "Value": null,
     "CanHaveValue": false,
-    "Warning": "CS:GO Only!"
+    "Warning": "",
+    "CompatibleGames": [
+      730 // csgo
+    ] 
   },
   {
     "Name": "Static Prop Combine - Keep Sources",
@@ -101,7 +104,10 @@
     "Description": "Don't clean up cluster models after bspzip.",
     "Value": null,
     "CanHaveValue": false,
-    "Warning": "CS:GO Only!"
+    "Warning": "",
+    "CompatibleGames": [
+      730 // csgo
+    ] 
   },
   {
     "Name": "Static Prop Combine - Consider VIS",
@@ -109,7 +115,10 @@
     "Description": "Cluster static prop models only within vis clusters.",
     "Value": null,
     "CanHaveValue": false,
-    "Warning": "CS:GO Only!"
+    "Warning": "",
+    "CompatibleGames": [
+      730 // csgo
+    ] 
   },
   {
     "Name": "Static Prop Combine - Autocombine",
@@ -117,7 +126,10 @@
     "Description": "Automatically combine simple static props without an explicit combine rule.",
     "Value": null,
     "CanHaveValue": false,
-    "Warning": "CS:GO Only!"
+    "Warning": "",
+    "CompatibleGames": [
+      730 // csgo
+    ] 
   },
   {
     "Name": "Static Prop Combine - Suggest Rules",
@@ -125,7 +137,10 @@
     "Description": "Suggest rules to add to spcombinerules.txt",
     "Value": null,
     "CanHaveValue": false,
-    "Warning": "CS:GO Only!"
+    "Warning": "",
+    "CompatibleGames": [
+      730 // csgo
+    ] 
   },
   {
     "Name": "Static Prop Combine - Min Instances",
@@ -133,7 +148,10 @@
     "Description": "Set the minimum number of props in a combine group required to create a combined prop.",
     "Value": 3,
     "CanHaveValue": true,
-    "Warning": "CS:GO Only!"
+    "Warning": "",
+    "CompatibleGames": [
+      730 // csgo
+    ] 
   },
   {
     "Name": "Static Prop Combine - Print Combine Rules",
@@ -141,7 +159,10 @@
     "Description": "Prints the combine rules",
     "Value": null,
     "CanHaveValue": false,
-    "Warning": "CS:GO Only!"
+    "Warning": "",
+    "CompatibleGames": [
+      730 // csgo
+    ] 
   },
   {
     "Name": "Static Prop Combine - Color Instances",
@@ -149,7 +170,10 @@
     "Description": "Instances of combined props get colored",
     "Value": null,
     "CanHaveValue": false,
-    "Warning": "CS:GO Only!"
+    "Warning": "",
+    "CompatibleGames": [
+      730 // csgo
+    ] 
   },
   {
     "Name": "Static Prop Combine Ignore - Fast Reflection",
@@ -157,7 +181,10 @@
     "Description": "Combine props, even if they have differing Render in Fast Reflections settings.",
     "Value": null,
     "CanHaveValue": false,
-    "Warning": "CS:GO Only!"
+    "Warning": "",
+    "CompatibleGames": [
+      730 // csgo
+    ] 
   },
   {
     "Name": "Static Prop Combine Ignore - Normals",
@@ -165,7 +192,10 @@
     "Description": "Combine props, even if they have differing Ignore Normals settings.",
     "Value": null,
     "CanHaveValue": false,
-    "Warning": "CS:GO Only!"
+    "Warning": "",
+    "CompatibleGames": [
+      730 // csgo
+    ] 
   },
   {
     "Name": "Static Prop Combine Ignore - No Shadow",
@@ -173,7 +203,10 @@
     "Description": "Combine props, even if they have differing Disable Shadows settings.",
     "Value": null,
     "CanHaveValue": false,
-    "Warning": "CS:GO Only!"
+    "Warning": "",
+    "CompatibleGames": [
+      730 // csgo
+    ] 
   },
   {
     "Name": "Static Prop Combine Ignore - No Vertex Lighting",
@@ -181,7 +214,10 @@
     "Description": "Combine props, even if they have differing Disable Vertex lighting settings.",
     "Value": null,
     "CanHaveValue": false,
-    "Warning": "CS:GO Only!"
+    "Warning": "",
+    "CompatibleGames": [
+      730 // csgo
+    ] 
   },
   {
     "Name": "Static Prop Combine Ignore - No Flashlight",
@@ -189,7 +225,10 @@
     "Description": "Combine props, even if they have differing Disable flashlight settings.",
     "Value": null,
     "CanHaveValue": false,
-    "Warning": "CS:GO Only!"
+    "Warning": "",
+    "CompatibleGames": [
+      730 // csgo
+    ] 
   },
   {
     "Name": "Static Prop Combine Ignore - No Self Shadowing",
@@ -197,7 +236,10 @@
     "Description": "Combine props, even if they have differing Disable Self-Shadowing settings.",
     "Value": null,
     "CanHaveValue": false,
-    "Warning": "CS:GO Only!"
+    "Warning": "",
+    "CompatibleGames": [
+      730 // csgo
+    ] 
   },
   {
     "Name": "Static Prop Combine Ignore - Disable Shadow Depth",
@@ -205,6 +247,9 @@
     "Description": "Combine props, even if they have differing Disable ShadowDepth settings.",
     "Value": null,
     "CanHaveValue": false,
-    "Warning": "CS:GO Only!"
+    "Warning": "",
+    "CompatibleGames": [
+      730 // csgo
+    ] 
   }
 ]

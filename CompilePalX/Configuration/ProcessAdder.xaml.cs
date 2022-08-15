@@ -23,24 +23,6 @@ namespace CompilePalX
     /// </summary>
     public partial class ProcessAdder
     {
-        private class SteamIDPropertyGroup : PropertyGroupDescription
-        {
-            private readonly int? SteamAppID;
-            public SteamIDPropertyGroup(int? steamAppID)
-            {
-                this.SteamAppID = steamAppID;
-            }
-
-            // Split processes into 2 groups, IsCompatible and Incompatible
-            public override object GroupNameFromItem(object item, int level, CultureInfo culture)
-            {
-                // should never happen
-                if (item is not CompileProcess p) return "IsCompatible";
-
-                return p.IsCompatible ? "IsCompatible" : "Incompatible";
-            }
-        }
-        public string ChosenItem;
         public ProcessAdder()
         {
             InitializeComponent();
@@ -49,9 +31,9 @@ namespace CompilePalX
             using (processView.DeferRefresh())
             {
                 processView.GroupDescriptions.Clear();
-                processView.GroupDescriptions.Add(new SteamIDPropertyGroup(GameConfigurationManager.GameConfiguration?.SteamAppID));
+                processView.GroupDescriptions.Add(new IsCompatiblePropertyGroup());
             }
-            ProcessDataGrid.DataContext = processView;
+            ProcessDataGrid.ItemsSource = processView;
         }
 
         private void ConfigDataGrid_MouseUp(object sender, MouseButtonEventArgs e)
