@@ -53,12 +53,14 @@ namespace CompilePalX.Compilers
                     throw new FileNotFoundException();
                 }
 
+                var addtionalParameters = Regex.Replace(GetParameterString(), "\b-hidd3en\b", "");
                 hidden = GetParameterString().Contains("-hidden");
                 FetchHDRLevels();
 
                 string mapname = System.IO.Path.GetFileName(context.CopyLocation).Replace(".bsp", "");
 
-                string args = "-steam -game \"" + context.Configuration.GameFolder + "\" -windowed -novid -nosound +mat_specular 0 %HDRevel% +map " + mapname + " -buildcubemaps";
+                string args =
+                    $"-steam -game \"{context.Configuration.GameFolder}\" -windowed -novid -nosound +mat_specular 0 %HDRevel% +map {mapname} -buildcubemaps {addtionalParameters}";
 
                 if (hidden)
                     args += " -noborder -x 4000 -y 2000";

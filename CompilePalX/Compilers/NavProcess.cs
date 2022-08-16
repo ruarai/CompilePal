@@ -50,15 +50,14 @@ namespace CompilePalX.Compilers
                 DeleteNav(mapname, context.Configuration.GameFolder);
 
                 hidden = GetParameterString().Contains("-hidden");
-                bool textmode = GetParameterString().Contains("-textmode");
 
-                string args = "-steam -game \"" + context.Configuration.GameFolder + "\" -windowed -novid -nosound +log 0 +sv_logflush 1 +sv_cheats 1 +map " + mapname;
+                var addtionalParameters = Regex.Replace(GetParameterString(), "\b-hidden\b", "");
+
+                string args =
+                    $"-steam -game \"{context.Configuration.GameFolder}\" -windowed -novid -nosound +log 0 +sv_logflush 1 +sv_cheats 1 +map {mapname} {addtionalParameters}";
 
                 if (hidden)
                     args += " -noborder -x 4000 -y 2000";
-
-                if (textmode)
-                    args += " -textmode";
 
                 var startInfo = new ProcessStartInfo(context.Configuration.GameEXE, args);
                 startInfo.UseShellExecute = false;

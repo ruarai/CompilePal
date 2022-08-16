@@ -6,5 +6,30 @@
     "Value": null,
     "CanHaveValue": false,
     "Warning": ""
+  },
+  {
+    "Name": "Width",
+    "Parameter": " -w",
+    "Description": "Sets the horizontal resolution",
+    "Value": null,
+    "CanHaveValue": true,
+    "Warning": ""
+  },
+  {
+    "Name": "Height",
+    "Parameter": " -h",
+    "Description": "Sets the vertical resolution",
+    "Value": null,
+    "CanHaveValue": true,
+    "Warning": ""
+  },
+  {
+    "Name": "Command Line Argument",
+    "Parameter": "",
+    "Description": "Passes value as a command line argument",
+    "Value": "",
+    "CanHaveValue": true,
+    "Warning": "",
+    "CanBeUsedMoreThanOnce": true
   }
 ]
