@@ -136,10 +136,9 @@ namespace CompilePalX
             {
                 string binFolder = (string)rk.GetValue("Directory")!;
 
-                string gameData = Path.Combine(binFolder, "GameConfig.txt");
                 try
                 {
-                    configs.AddRange(GameConfigurationParser.Parse(gameData));
+                    configs.AddRange(GameConfigurationParser.Parse(binFolder));
                 }
                 catch (Exception e)
                 {

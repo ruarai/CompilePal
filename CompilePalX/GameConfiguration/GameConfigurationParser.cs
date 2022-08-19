@@ -9,34 +9,36 @@ using CompilePalX.Compiling;
 namespace CompilePalX {
     class GameConfigurationParser
     {
-        public static List<GameConfiguration> Parse(string filename)
+        public static List<GameConfiguration> Parse(string binFolder)
         {
-            var lines = File.ReadAllLines(filename);
+            // prioritize hammer++ configs, fallback to hammer if it doesn't exist
+            string filename = Path.Combine(binFolder, "hammerplusplus", "hammerplusplus_gameconfig.txt");
+            if (!File.Exists(filename))
+                filename = Path.Combine(binFolder, "GameConfig.txt");
+
             var gameInfos = new List<GameConfiguration>();
 
             var data = new KV.FileData(filename);
-
             foreach (KV.DataBlock gamedb in data.headnode.GetFirstByName(new[] { "\"Configs\"", "\"GameConfig.txt\"" })
                          .GetFirstByName("\"Games\"").subBlocks)
             {
-                string binfolder = Path.GetDirectoryName(filename);
                 KV.DataBlock hdb = gamedb.GetFirstByName(new[] { "\"Hammer\"", "\"hammer\"" });
 
                 CompilePalLogger.LogLine($"Gamedb: {gamedb}");
                 GameConfiguration game = new GameConfiguration
                 {
                     Name = gamedb.name.Replace("\"", ""),
-                    BinFolder = binfolder,
-                    GameFolder = GetFullPath(gamedb.TryGetStringValue("GameDir"), binfolder),
-                    GameEXE = GetFullPath(hdb.TryGetStringValue("GameExe"), binfolder),
-                    SDKMapFolder = GetFullPath(hdb.TryGetStringValue("MapDir"), binfolder),
-                    VBSP = GetFullPath(hdb.TryGetStringValue("BSP"), binfolder),
-                    VVIS = GetFullPath(hdb.TryGetStringValue("Vis"), binfolder),
-                    VRAD = GetFullPath(hdb.TryGetStringValue("Light"), binfolder),
-                    MapFolder = GetFullPath(hdb.TryGetStringValue("BSPDir"), binfolder),
-                    BSPZip = Path.Combine(binfolder, "bspzip.exe"),
-                    VBSPInfo = Path.Combine(binfolder, "vbspinfo.exe"),
-                    VPK = Path.Combine(binfolder, "vpk.exe"),
+                    BinFolder = binFolder,
+                    GameFolder = GetFullPath(gamedb.TryGetStringValue("GameDir"), binFolder),
+                    GameEXE = GetFullPath(hdb.TryGetStringValue("GameExe"), binFolder),
+                    SDKMapFolder = GetFullPath(hdb.TryGetStringValue("MapDir"), binFolder),
+                    VBSP = GetFullPath(hdb.TryGetStringValue("BSP"), binFolder),
+                    VVIS = GetFullPath(hdb.TryGetStringValue("Vis"), binFolder),
+                    VRAD = GetFullPath(hdb.TryGetStringValue("Light"), binFolder),
+                    MapFolder = GetFullPath(hdb.TryGetStringValue("BSPDir"), binFolder),
+                    BSPZip = Path.Combine(binFolder, "bspzip.exe"),
+                    VBSPInfo = Path.Combine(binFolder, "vbspinfo.exe"),
+                    VPK = Path.Combine(binFolder, "vpk.exe"),
                 };
 
                 game.SteamAppID = GetSteamAppID(game);
