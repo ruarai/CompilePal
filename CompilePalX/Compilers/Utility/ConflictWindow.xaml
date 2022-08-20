@@ -25,8 +25,8 @@
         <TextBlock Padding="10, 10, 10, 10" FontSize="25">Conflicting Particle Names</TextBlock>
         <RichTextBox Grid.Row="1" Padding="10, 0, 10, 0" BorderThickness="0" IsReadOnly="True">
             <FlowDocument>
-                <Paragraph Margin="0" Foreground="Gray">Compile Pal was unable to determine which file was being used due to multiple files containing the same particle names</Paragraph>
-                <Paragraph Margin="0" Foreground="Gray">Please select one or multiple PCFs to add to the manifest</Paragraph>
+                <Paragraph Margin="0">Compile Pal was unable to determine which file was being used due to multiple files containing the same particle names</Paragraph>
+                <Paragraph Margin="0">Please select one or multiple PCFs to add to the manifest</Paragraph>
             </FlowDocument>
         </RichTextBox>
             
@@ -37,11 +37,11 @@
 
             <Button Click="NoneClicked " Margin="10, 10, 115, 10" Width="100" HorizontalAlignment="Right">Select None</Button>
 
-            <ToggleButton Background ="White" BorderThickness="0" Height="30" Width="250" Click="ShowInfo" IsChecked="False" x:Name="advancedButton">
+            <ToggleButton Background ="Transparent" BorderThickness="0" Height="30" Width="250" Click="ShowInfo" IsChecked="False" x:Name="advancedButton">
                 Show Advanced Information
                 <ToggleButton.Style>
                     <Style TargetType="{x:Type ToggleButton}">
-                        <Setter Property="Foreground" Value="Gray"></Setter>
+                        <Setter Property="Foreground" Value="{StaticResource CompilePal.Brushes.Link}"/>
                         <Setter Property="Template">
                             <Setter.Value>
                                 <ControlTemplate TargetType="{x:Type ToggleButton}">
@@ -54,7 +54,7 @@
 
                         <Style.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Foreground" Value="Crimson"></Setter>
+                                <Setter Property="Foreground" Value="{StaticResource MahApps.Brushes.Accent}"/>
                             </Trigger>
                         </Style.Triggers>
                     </Style>
@@ -62,11 +62,11 @@
             </ToggleButton>
         </Grid>
 
-        <ScrollViewer Grid.Row="4" Visibility="Collapsed" x:Name="advancedInfo" Background="White">
+        <ScrollViewer Grid.Row="4" Visibility="Collapsed" x:Name="advancedInfo" Background="Transparent">
             <ScrollViewer.Resources>
                 <Style TargetType="ScrollBar">
                     <Setter Property="Width" Value="25"></Setter>
-                    <Setter Property="Background" Value="White"></Setter>
+                    <Setter Property="Background" Value="Transparent"></Setter>
                 </Style>
             </ScrollViewer.Resources>
             

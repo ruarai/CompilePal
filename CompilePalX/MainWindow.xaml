@@ -71,13 +71,13 @@
         <GridSplitter Grid.Row="1" Height="2" HorizontalAlignment="Stretch" Width="512"></GridSplitter>
         <controls:MetroTabControl Grid.Row="2" controls:TabControlHelper.Underlined="SelectedTabItem" controls:TabControlHelper.Transition="LeftReplace" Margin="10,10,10,40">
             <controls:MetroTabItem Header="CONFIG">
-                <Grid Background="#FFE5E5E5">
+                <Grid Background="{StaticResource CompilePal.Brushes.GridBackground}">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" MinWidth="100"/>
                         <ColumnDefinition Width="Auto" MinWidth="100"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <DockPanel Grid.Column="0" Margin="10,10,0,10" Background="White">
+                    <DockPanel Grid.Column="0" Margin="10,10,0,10" Background="{StaticResource CompilePal.Brushes.DockBackground}">
                         <Button x:Name="RemovePresetButton" Content="Remove" Margin="5,0,5,5" VerticalAlignment="Bottom" Click="RemovePresetButton_Click" DockPanel.Dock="Bottom"/>
                         <Button x:Name="ClonePresetButton" Content="Clone" Margin="5,0,5,5" VerticalAlignment="Bottom" Click="ClonePresetButton_OnClick" DockPanel.Dock="Bottom"/>
                         <Button x:Name="AddPresetButton" Content="Add Preset" Margin="5,0,5,5" VerticalAlignment="Bottom"  Click="AddPresetButton_Click" DockPanel.Dock="Bottom"/>
@@ -106,7 +106,7 @@
                             </ListBox.GroupStyle>
                         </ListBox>
                     </DockPanel>
-                    <DockPanel Grid.Column="1" Margin="10,10,0,10" Background="White">
+                    <DockPanel Grid.Column="1" Margin="10,10,0,10" Background="{StaticResource CompilePal.Brushes.DockBackground}">
                         <Button x:Name="RemoveProcessesButton" Content="Remove" DockPanel.Dock="Bottom" Margin="5,0,5,5" Grid.Row="1" Click="RemoveProcessButton_Click"/>
                         <Button x:Name="AddProcessesButton" Content="Add Process" DockPanel.Dock="Bottom" Margin="5,0,5,5" Grid.Row="2" Click="AddProcessButton_Click"/>
                         <ListBox x:Name ="CompileProcessesListBox" Margin="0,0,0,5" Grid.Row="0" SelectionChanged="CompileProcessesListBox_SelectionChanged">
@@ -171,7 +171,7 @@
                                         <DataTemplate>
                                             <StackPanel Orientation="Horizontal">
                                                 <TextBlock Text="{Binding Name}" Margin="5, 0, 5, 0"/>
-                                                <iconPacks:PackIconMaterial Kind="Alert" Foreground="Orange" Margin="0, 0, 5, 0" ToolTip="This parameter is potentially incompatible with the current game">
+                                                <iconPacks:PackIconMaterial Kind="Alert" Foreground="{StaticResource CompilePal.Brushes.Warning}" Margin="0, 0, 5, 0" ToolTip="This parameter is potentially incompatible with the current game">
                                                     <iconPacks:PackIconMaterial.Style>
                                                         <Style TargetType="iconPacks:PackIconMaterial">
                                                             <Setter Property="Visibility" Value="Collapsed"/>
@@ -283,7 +283,7 @@
                                         <Style TargetType="DataGridCell">
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsDraggable}" Value="False">
-                                                    <Setter Property="Background" Value="#FFE5E5E5"/>
+                                                    <Setter Property="Background" Value="{StaticResource CompilePal.Brushes.GridBackground}"/>
                                                     <Setter Property="BorderThickness" Value="0"/>
                                                     <Setter Property="FocusVisualStyle" Value="{x:Null}" />
                                                     <Setter Property="Foreground" Value="Black"/>
@@ -320,11 +320,11 @@
                 </Grid>
             </controls:MetroTabItem>
             <controls:MetroTabItem Name="OutputTab" Header="OUTPUT">
-                <Grid Background="#FFE5E5E5">
+                <Grid Background="{StaticResource CompilePal.Brushes.GridBackground}">
                     <RichTextBox IsReadOnly="True" x:Name="CompileOutputTextbox" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" BorderThickness="0" Margin="10,10,10,10" FontFamily="Segoe UI, Lucida Sans Unicode, Verdana" IsReadOnlyCaretVisible="True" Block.LineHeight="2" IsDocumentEnabled="True">
                         <RichTextBox.Document>
                             <FlowDocument>
-                                <Paragraph Name="OutputParagraph"></Paragraph>
+                                <Paragraph Name="OutputParagraph"/>
                             </FlowDocument>
                         </RichTextBox.Document>
                     </RichTextBox>
@@ -337,10 +337,10 @@
             <Button Name="CopyButton" Margin="5,10,0,6" Width="35" Click="CopyButton_OnClick" ToolTip="Copy Output">
                 <iconPacks:Material Height="15" Kind="ContentCopy" />
             </Button>
-            <Button Name="CompileStartStopButton" Content="Compile" Margin="5,10,0,6" Width="75" Click="CompileStartStopButton_OnClick"/>
+            <Button Name="CompileStartStopButton" Content="Compile" Margin="5,10,0,6" Width="75" Click="CompileStartStopButton_OnClick" IsEnabled="{Binding ElementName=MapListBox, Path=Items.Count}"/>
         </StackPanel>
         <Label Name="UpdateLabel" Visibility="Collapsed"  Grid.Row="2" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="10" MouseLeftButtonUp="UpdateLabel_MouseLeftButtonUp" >
-            <Hyperlink Name="UpdateHyperLink" NavigateUri="https://github.com/ruarai/CompilePal/releases/latest" RequestNavigate="UpdateHyperLink_OnRequestNavigate" Foreground="DodgerBlue"/>
+            <Hyperlink Name="UpdateHyperLink" NavigateUri="https://github.com/ruarai/CompilePal/releases/latest" RequestNavigate="UpdateHyperLink_OnRequestNavigate" Foreground="{StaticResource CompilePal.Brushes.Link}"/>
         </Label>
         <Label Name="TimeElapsedLabel" Visibility="Collapsed" Grid.Row="2" VerticalAlignment="Bottom" FontWeight="Bold" HorizontalAlignment="Left" Margin="10" />
     </Grid>

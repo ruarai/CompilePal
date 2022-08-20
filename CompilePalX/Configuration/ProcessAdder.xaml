@@ -25,8 +25,8 @@
                                             <Expander IsExpanded="False" x:Name="GroupExpander">
                                                 <Expander.Header>
                                                     <DockPanel ToolTip="Processes may be incompatible with the current game">
-                                                        <iconPacks:PackIconMaterial Kind="Alert" Foreground="#ffc700" VerticalAlignment="Center" />
-                                                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold" Foreground="White" FontSize="14" Margin="5, 2, 5, 0" Visibility="Visible"/>
+                                                        <iconPacks:PackIconMaterial Kind="Alert" Foreground="{StaticResource CompilePal.Brushes.Warning}" VerticalAlignment="Center" />
+                                                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold" Foreground="{StaticResource MahApps.Brushes.ThemeBackground}" FontSize="14" Margin="5, 2, 5, 0" Visibility="Visible"/>
                                                     </DockPanel>
                                                 </Expander.Header>
                                                 <Expander.Content>

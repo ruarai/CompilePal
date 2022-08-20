@@ -16,8 +16,13 @@
     <Color x:Key="MahApps.Colors.Accent4">#33E41F27</Color>
 
     <Color x:Key="MahApps.Colors.ThemeForeground">#FF585855</Color>
-    <Color x:Key="MahApps.Colors.ThemeBackground">#FFFFFFFF</Color>
+    <Color x:Key="MahApps.Colors.ThemeBackground">White</Color>
     <Color x:Key="MahApps.Colors.IdealForeground">White</Color>
+
+    <Color x:Key="CompilePal.Colors.GridBackground">#FFE5E5E5</Color>
+    <Color x:Key="CompilePal.Colors.Warning">#ffc700</Color>
+    <Color x:Key="CompilePal.Colors.Link">DodgerBlue</Color>
+    <Color x:Key="CompilePal.Colors.CheckboxDisabled">LightGray</Color>
 
     <!-- re-set brushes too -->
     <SolidColorBrush x:Key="MahApps.Brushes.Highlight" Color="{StaticResource MahApps.Colors.HighlightColor}" options:Freeze="True" />
@@ -53,4 +58,10 @@
 
     <SolidColorBrush x:Key="MahApps.Brushes.WindowButtonCommands.Background.MouseOver" Color="#66DCDCDC" options:Freeze="True" />
     <SolidColorBrush x:Key="MahApps.Brushes.WindowButtonCommands.Background.Pressed" Color="#66DCDCDC" Opacity="0.5" options:Freeze="True" />
-</ResourceDictionary>
+
+    <SolidColorBrush x:Key="CompilePal.Brushes.GridBackground" Color="{StaticResource CompilePal.Colors.GridBackground}" options:Freeze="True" />
+    <SolidColorBrush x:Key="CompilePal.Brushes.DockBackground" Color="{StaticResource MahApps.Colors.ThemeBackground}" options:Freeze="True" />
+    <SolidColorBrush x:Key="CompilePal.Brushes.Warning" Color="{StaticResource CompilePal.Colors.Warning}" options:Freeze="True" />
+    <SolidColorBrush x:Key="CompilePal.Brushes.Link" Color="{StaticResource CompilePal.Colors.Link}" options:Freeze="True" />
+    <SolidColorBrush x:Key="CompilePal.Brushes.CheckboxDisabled" Color="{StaticResource CompilePal.Colors.CheckboxDisabled}" options:Freeze="True" />
+ </ResourceDictionary>

@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 using MahApps.Metro.Controls.Dialogs;
 
 namespace CompilePalX
@@ -92,6 +93,17 @@ namespace CompilePalX
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
+            // walk up dependency tree to make sure click source was not edit/delete button
+            DependencyObject? dep = e.OriginalSource as DependencyObject;
+            while ((dep != null) && !(dep is Button) && !(dep is DataGridRow))
+            {
+                dep = VisualTreeHelper.GetParent(dep);
+            }
+
+            // ignore if double click came from button
+            if (dep is Button)
+                return;
+
             var selectedItem = (GameConfiguration?)GameGrid.SelectedItem;
 
             if (selectedItem != null)

@@ -18,10 +18,10 @@
             <Label Padding="0, 5 5, 5" Content="Preset Name" IsTabStop="False"/>
             <TextBox Name="InputTextBox" Height="24" KeyDown="InputTextBox_KeyDown"/>
             <StackPanel Orientation="Horizontal" Margin="0, 10, 0, 0">
-                <CheckBox Name="IsMapSpecificCheckbox" controls:CheckBoxHelper.CheckBackgroundFillUncheckedDisabled="LightGray"/>
+                <CheckBox Name="IsMapSpecificCheckbox" controls:CheckBoxHelper.CheckBackgroundFillUncheckedDisabled="{StaticResource CompilePal.Brushes.CheckboxDisabled}"/>
                 <Label Content="Map Specific" IsTabStop="False" Margin="-5, 0, -5, 0"/>
                 <Grid Background="Transparent" Margin="2, 2, 0, 0" Height="12" ToolTip="{Binding Path=MapToolTip, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}">
-                    <iconPacks:PackIconMaterial Height="12" Kind="HelpCircleOutline"  VerticalAlignment="Center" Foreground="DodgerBlue" IsTabStop="False">
+                    <iconPacks:PackIconMaterial Height="12" Kind="HelpCircleOutline"  VerticalAlignment="Center" Foreground="{StaticResource CompilePal.Brushes.Link}" IsTabStop="False">
                         <iconPacks:PackIconMaterial.Style>
                             <Style TargetType="iconPacks:PackIconMaterial">
                                 <Style.Triggers>
