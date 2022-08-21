@@ -16,6 +16,7 @@ using CompilePalX.Compilers;
 using CompilePalX.Compiling;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
+using System.Windows;
 using System.Windows.Documents.Serialization;
 using CompilePalX.Annotations;
 using CompilePalX.Configuration;
@@ -209,7 +210,7 @@ namespace CompilePalX
         private static void postCompile(List<MapErrors> errors)
         {
             CompilePalLogger.LogLineColor(
-	            $"\n'{ConfigurationManager.CurrentPreset.Name}' compile finished in {compileTimeStopwatch.Elapsed.ToString(@"hh\:mm\:ss")}", Brushes.ForestGreen);
+	            $"\n'{ConfigurationManager.CurrentPreset!.Name}' compile finished in {compileTimeStopwatch.Elapsed.ToString(@"hh\:mm\:ss")}", (Brush) Application.Current.TryFindResource("CompilePal.Brushes.Success"));
 
             if (errors != null && errors.Any())
             {
@@ -270,7 +271,7 @@ namespace CompilePalX
 
             ProgressManager.SetProgress(0);
 
-            CompilePalLogger.LogLineColor("Compile forcefully ended.", Brushes.OrangeRed);
+            CompilePalLogger.LogLineColor("Compile forcefully ended.", (Brush) Application.Current.TryFindResource("CompilePal.Brushes.Severity4"));
 
             postCompile(null);
         }

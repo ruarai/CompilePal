@@ -10,6 +10,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Media;
 using CompilePalX.Annotations;
 using CompilePalX.Compiling;
@@ -92,6 +93,7 @@ namespace CompilePalX
 		public bool IsDraggable { get { return Draggable; } }
 		[UsedImplicitly] public bool SupportsBSP => Metadata.SupportsBSP;
 
+        [UsedImplicitly]
         public bool IsCompatible
         {
             get
@@ -115,7 +117,7 @@ namespace CompilePalX
             }
         }
 
-        public Process Process;
+        public Process? Process;
 
         public virtual bool CanRun(CompileContext context)
         {
@@ -136,7 +138,7 @@ namespace CompilePalX
                 return;
 
             Process.Kill();
-            CompilePalLogger.LogLineColor("Killed {0}.", Brushes.OrangeRed, this.Metadata.Name);
+            CompilePalLogger.LogLineColor("Killed {0}.", (Brush) Application.Current.TryFindResource("CompilePal.Brushes.Severity4"), this.Metadata.Name);
         }
 
         public ObservableCollection<ConfigItem> ParameterList = new ObservableCollection<ConfigItem>();
