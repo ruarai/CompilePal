@@ -16,18 +16,22 @@ namespace CompilePalX
     /// </summary>
     public partial class LaunchWindow
     {
-	    public static LaunchWindow? Instance;
 
         private bool GameConfigsEmpty => !GameConfigurationManager.GameConfigurations.Any();
+
+        public static LaunchWindow? Instance { get; private set; }
+
         public LaunchWindow()
         {
+            Instance = this;
             try
             {
                 InitializeComponent();
 
                 GameConfigurationManager.LoadGameConfigurations();
 
-                if (GameConfigurationManager.GameConfigurations.Count == 1)
+                // automatically launch if there is only 1 config and main window is not open  
+                if (GameConfigurationManager.GameConfigurations.Count == 1 && MainWindow.Instance == null)
                     Launch(GameConfigurationManager.GameConfigurations.First());
 
                 GameGrid.ItemsSource = GameConfigurationManager.GameConfigurations;
@@ -66,13 +70,13 @@ namespace CompilePalX
                 }
             }
             catch (Exception e) { ExceptionHandler.LogException(e); }
-
-            Instance = this;
         }
 
         private void Launch(GameConfiguration config)
         {
             GameConfigurationManager.GameConfiguration = config;
+            Instance = null;
+
 			// if main window already exists update title
             if (MainWindow.Instance == null)
             {
@@ -85,8 +89,6 @@ namespace CompilePalX
                 // refresh item sources to reevaluate process/parameter compatibility
                 MainWindow.Instance.RefreshSources();
             }
-
-            Instance = null;
             Close();
 
         }
