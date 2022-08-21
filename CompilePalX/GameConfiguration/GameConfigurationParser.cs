@@ -24,7 +24,7 @@ namespace CompilePalX {
             {
                 KV.DataBlock hdb = gamedb.GetFirstByName(new[] { "\"Hammer\"", "\"hammer\"" });
 
-                CompilePalLogger.LogLine($"Gamedb: {gamedb}");
+                CompilePalLogger.LogLineDebug($"Gamedb: {gamedb}");
                 GameConfiguration game = new GameConfiguration
                 {
                     Name = gamedb.name.Replace("\"", ""),
