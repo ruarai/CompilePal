@@ -8,6 +8,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Markup;
 using System.Windows.Media;
 using CompilePalX.Compiling;
@@ -171,15 +172,15 @@ namespace CompilePalX
             switch (severity)
             {
                 default:
-                    return (SolidColorBrush)(new BrushConverter().ConvertFrom("#0e5fc1")); // blue
+                    return (Brush) Application.Current.TryFindResource("CompilePal.Brushes.Severity1");
                 case 2:
-                    return (SolidColorBrush)(new BrushConverter().ConvertFrom("#e19520")); // yellow orange
+                    return (Brush) Application.Current.TryFindResource("CompilePal.Brushes.Severity2");
                 case 3:
-                    return (SolidColorBrush)(new BrushConverter().ConvertFrom("#ce4a08")); // orange
+                    return (Brush) Application.Current.TryFindResource("CompilePal.Brushes.Severity3");
                 case 4:
-                    return (SolidColorBrush)(new BrushConverter().ConvertFrom("#d93600")); // red
+                    return (Brush) Application.Current.TryFindResource("CompilePal.Brushes.Severity4");
                 case 5:
-                    return Brushes.Red;
+                    return (Brush) Application.Current.TryFindResource("CompilePal.Brushes.Severity5");
             }
         }
 

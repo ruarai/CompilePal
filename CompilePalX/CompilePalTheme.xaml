@@ -23,6 +23,11 @@
     <Color x:Key="CompilePal.Colors.Warning">#ffc700</Color>
     <Color x:Key="CompilePal.Colors.Link">DodgerBlue</Color>
     <Color x:Key="CompilePal.Colors.CheckboxDisabled">LightGray</Color>
+    <Color x:Key="CompilePal.Colors.Severity1">#0e5fc1</Color>
+    <Color x:Key="CompilePal.Colors.Severity2">#e19520</Color>
+    <Color x:Key="CompilePal.Colors.Severity3">#ce4a08</Color>
+    <Color x:Key="CompilePal.Colors.Severity4">#d93600</Color>
+    <Color x:Key="CompilePal.Colors.Severity5">Red</Color>
 
     <!-- re-set brushes too -->
     <SolidColorBrush x:Key="MahApps.Brushes.Highlight" Color="{StaticResource MahApps.Colors.HighlightColor}" options:Freeze="True" />
@@ -64,4 +69,9 @@
     <SolidColorBrush x:Key="CompilePal.Brushes.Warning" Color="{StaticResource CompilePal.Colors.Warning}" options:Freeze="True" />
     <SolidColorBrush x:Key="CompilePal.Brushes.Link" Color="{StaticResource CompilePal.Colors.Link}" options:Freeze="True" />
     <SolidColorBrush x:Key="CompilePal.Brushes.CheckboxDisabled" Color="{StaticResource CompilePal.Colors.CheckboxDisabled}" options:Freeze="True" />
+    <SolidColorBrush x:Key="CompilePal.Brushes.Severity1" Color="{StaticResource CompilePal.Colors.Severity1}" options:Freeze="True" />
+    <SolidColorBrush x:Key="CompilePal.Brushes.Severity2" Color="{StaticResource CompilePal.Colors.Severity2}" options:Freeze="True" />
+    <SolidColorBrush x:Key="CompilePal.Brushes.Severity3" Color="{StaticResource CompilePal.Colors.Severity3}" options:Freeze="True" />
+    <SolidColorBrush x:Key="CompilePal.Brushes.Severity4" Color="{StaticResource CompilePal.Colors.Severity4}" options:Freeze="True" />
+    <SolidColorBrush x:Key="CompilePal.Brushes.Severity5" Color="{StaticResource CompilePal.Colors.Severity5}" options:Freeze="True" />
  </ResourceDictionary>
