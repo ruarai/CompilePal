@@ -101,7 +101,7 @@ namespace CompilePalX
             }
 
             // ignore if double click came from button
-            if (dep is Button)
+            if (dep is Button b && b.Name != "LaunchButton")
                 return;
 
             var selectedItem = (GameConfiguration?)GameGrid.SelectedItem;
