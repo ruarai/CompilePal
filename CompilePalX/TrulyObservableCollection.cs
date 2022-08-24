@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CompilePalX
 {
@@ -28,7 +23,7 @@ namespace CompilePalX
         {
             foreach (var item in pItems)
             {
-                this.Add(item);
+                Add(item);
             }
         }
 
@@ -36,26 +31,26 @@ namespace CompilePalX
         {
             if (e.NewItems != null)
             {
-                foreach (Object item in e.NewItems)
+                foreach (var item in e.NewItems)
                 {
-                    ((INotifyPropertyChanged) item).PropertyChanged += ItemPropertyChanged;
+                    ((INotifyPropertyChanged)item).PropertyChanged += ItemPropertyChanged;
                 }
             }
 
             if (e.OldItems != null)
             {
-                foreach (Object item in e.OldItems)
+                foreach (var item in e.OldItems)
                 {
-                    ((INotifyPropertyChanged) item).PropertyChanged -= ItemPropertyChanged;
+                    ((INotifyPropertyChanged)item).PropertyChanged -= ItemPropertyChanged;
                 }
             }
         }
 
         private void ItemPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            NotifyCollectionChangedEventArgs args =
+            var args =
                 new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, sender, sender,
-                    IndexOf((T) sender));
+                    IndexOf((T)sender));
             OnCollectionChanged(args);
         }
     }

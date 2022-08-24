@@ -21,18 +21,13 @@ namespace CompilePalX.Compilers.BSPPack
 
     class BSPPack : CompileProcess
     {
-        public BSPPack()
-            : base("PACK")
-        {
 
-        }
+        private const string keysFolder = "Keys";
 
         private static string bspZip;
         private static string vpk;
         private static string gameFolder;
         private static string bspPath;
-
-        private const string keysFolder = "Keys";
 
         private static bool verbose;
         private static bool dryrun;
@@ -48,15 +43,20 @@ namespace CompilePalX.Compilers.BSPPack
         public static bool genParticleManifest;
 
         public static KeyValuePair<string, string> particleManifest;
+        private string outputFile = "BSPZipFiles\\files.txt";
 
         private List<string> sourceDirectories = new List<string>();
-        private string outputFile = "BSPZipFiles\\files.txt";
+        public BSPPack()
+            : base("PACK") { }
 
         public override void Run(CompileContext context, CancellationToken cancellationToken)
         {
             CompileErrors = new List<Error>();
 
-            if (!CanRun(context)) return;
+            if (!CanRun(context))
+            {
+                return;
+            }
 
             verbose = GetParameterString().Contains("-verbose");
             dryrun = GetParameterString().Contains("-dryrun");
@@ -70,13 +70,13 @@ namespace CompilePalX.Compilers.BSPPack
             includefilelist = GetParameterString().Contains("-includefilelist");
             usefilelist = GetParameterString().Contains("-usefilelist");
 
-            char[] paramChars = GetParameterString().ToCharArray();
-            List<string> parameters = ParseParameters(paramChars);
+            var paramChars = GetParameterString().ToCharArray();
+            var parameters = ParseParameters(paramChars);
 
-            List<string> includeFiles = new List<string>();
-            List<string> excludeFiles = new List<string>();
-            List<string> excludeDirs = new List<string>();
-            List<string> excludedVpkFiles = new List<string>();
+            var includeFiles = new List<string>();
+            var excludeFiles = new List<string>();
+            var excludeDirs = new List<string>();
+            var excludedVpkFiles = new List<string>();
 
             try
             {
@@ -95,7 +95,10 @@ namespace CompilePalX.Compilers.BSPPack
                 if (usefilelist)
                 {
                     var fileListParam = parameters.First(p => p.StartsWith("usefilelist"))
-                        .Split(new[] { " " }, 2, StringSplitOptions.None);
+                        .Split(new[]
+                        {
+                            " "
+                        }, 2, StringSplitOptions.None);
                     if (fileListParam.Length > 1 && !string.IsNullOrWhiteSpace(fileListParam[1]))
                     {
                         outputFile = fileListParam[1];
@@ -121,30 +124,34 @@ namespace CompilePalX.Compilers.BSPPack
                 outputFile = "BSPZipFiles\\files.txt";
 
                 Keys.vmtTextureKeyWords =
-                    File.ReadAllLines(System.IO.Path.Combine(keysFolder, "texturekeys.txt")).ToList();
+                    File.ReadAllLines(Path.Combine(keysFolder, "texturekeys.txt")).ToList();
                 Keys.vmtMaterialKeyWords =
-                    File.ReadAllLines(System.IO.Path.Combine(keysFolder, "materialkeys.txt")).ToList();
-                Keys.vmfSoundKeys = File.ReadAllLines(System.IO.Path.Combine(keysFolder, "vmfsoundkeys.txt")).ToList();
-                Keys.vmfMaterialKeys = File.ReadAllLines(System.IO.Path.Combine(keysFolder, "vmfmaterialkeys.txt"))
+                    File.ReadAllLines(Path.Combine(keysFolder, "materialkeys.txt")).ToList();
+                Keys.vmfSoundKeys = File.ReadAllLines(Path.Combine(keysFolder, "vmfsoundkeys.txt")).ToList();
+                Keys.vmfMaterialKeys = File.ReadAllLines(Path.Combine(keysFolder, "vmfmaterialkeys.txt"))
                     .ToList();
-                Keys.vmfModelKeys = File.ReadAllLines(System.IO.Path.Combine(keysFolder, "vmfmodelkeys.txt")).ToList();
+                Keys.vmfModelKeys = File.ReadAllLines(Path.Combine(keysFolder, "vmfmodelkeys.txt")).ToList();
 
                 // get manually included files
                 if (include)
                 {
                     //Get included files from parameter list
-                    foreach (string parameter in parameters)
+                    foreach (var parameter in parameters)
                     {
                         if (parameter.Contains("include"))
                         {
                             var filePath = parameter.Replace("\"", "").Replace("include ", "").TrimEnd(' ');
                             //Test that file exists
                             if (File.Exists(filePath))
+                            {
                                 includeFiles.Add(filePath);
+                            }
                             else
+                            {
                                 CompilePalLogger.LogCompileError($"Could not find file: {filePath}\n",
                                     new Error($"Could not find file: {filePath}", $"Could not find file: {filePath}",
                                         ErrorSeverity.Caution));
+                            }
                         }
                     }
                 }
@@ -153,7 +160,7 @@ namespace CompilePalX.Compilers.BSPPack
                 if (includeDir)
                 {
                     //Get included files from parameter list
-                    foreach (string parameter in parameters)
+                    foreach (var parameter in parameters)
                     {
                         if (parameter.Contains("includedir"))
                         {
@@ -163,11 +170,15 @@ namespace CompilePalX.Compilers.BSPPack
                             {
                                 var files = Directory.GetFiles(folderPath, "*", SearchOption.AllDirectories);
                                 foreach (var file in files)
+                                {
                                     includeFiles.Add(file);
+                                }
                             }
                             else
+                            {
                                 CompilePalLogger.LogCompileError($"Could not find folder: {folderPath}\n",
                                     new Error($"Could not find folder: {folderPath}", ErrorSeverity.Caution));
+                            }
                         }
                     }
                 }
@@ -175,7 +186,7 @@ namespace CompilePalX.Compilers.BSPPack
                 if (exclude)
                 {
                     //Get excluded files from parameter list
-                    foreach (string parameter in parameters)
+                    foreach (var parameter in parameters)
                     {
                         if (Regex.IsMatch(parameter, @"^exclude\b"))
                         {
@@ -185,10 +196,14 @@ namespace CompilePalX.Compilers.BSPPack
                                 .ToLower().TrimEnd(' ');
                             //Test that file exists
                             if (File.Exists(filePath))
+                            {
                                 excludeFiles.Add(filePath);
+                            }
                             else
+                            {
                                 CompilePalLogger.LogCompileError($"Could not find file: {filePath}\n",
                                     new Error($"Could not find file: {filePath}", ErrorSeverity.Caution));
+                            }
                         }
                     }
                 }
@@ -196,7 +211,7 @@ namespace CompilePalX.Compilers.BSPPack
                 if (excludeDir)
                 {
                     //Get excluded directories from parameter list
-                    foreach (string parameter in parameters)
+                    foreach (var parameter in parameters)
                     {
                         if (Regex.IsMatch(parameter, @"^excludedir\b"))
                         {
@@ -206,10 +221,14 @@ namespace CompilePalX.Compilers.BSPPack
                                 .ToLower().TrimEnd(' ');
                             //Test that dir exists
                             if (Directory.Exists(path))
+                            {
                                 excludeDirs.Add(path);
+                            }
                             else
+                            {
                                 CompilePalLogger.LogCompileError($"Could not find folder: {path}\n",
                                     new Error($"Could not find folder: {path}", ErrorSeverity.Caution));
+                            }
                         }
                     }
                 }
@@ -217,15 +236,15 @@ namespace CompilePalX.Compilers.BSPPack
                 // exclude files that are in the specified vpk.
                 if (excludevpk)
                 {
-                    foreach (string parameter in parameters)
+                    foreach (var parameter in parameters)
                     {
                         if (parameter.Contains("excludevpk"))
                         {
                             var vpkPath = parameter.Replace("\"", "").Replace("excludevpk ", "").TrimEnd(' ');
 
-                            string[] vpkFileList = GetVPKFileList(vpkPath);
+                            var vpkFileList = GetVPKFileList(vpkPath);
 
-                            foreach (string file in vpkFileList)
+                            foreach (var file in vpkFileList)
                             {
                                 excludedVpkFiles.Add(file.ToLower());
                             }
@@ -239,37 +258,48 @@ namespace CompilePalX.Compilers.BSPPack
                 {
                     CompilePalLogger.LogLine("Source directories:");
                     foreach (var sourceDirectory in sourceDirectories)
+                    {
                         CompilePalLogger.LogLine(sourceDirectory);
+                    }
                 }
 
                 CompilePalLogger.LogLine("Reading BSP...");
 
-                BSP map = new BSP(new FileInfo(bspPath));
+                var map = new BSP(new FileInfo(bspPath));
                 AssetUtils.findBspUtilityFiles(map, sourceDirectories, renamenav, genParticleManifest);
 
                 // give files unique names based on map so they dont get overwritten
                 if (dryrun)
+                {
                     outputFile = $"BSPZipFiles\\{Path.GetFileNameWithoutExtension(map.file.FullName)}_files.txt";
+                }
 
                 //Set map particle manifest
                 if (genParticleManifest)
+                {
                     map.particleManifest = particleManifest;
+                }
 
                 if (cancellationToken.IsCancellationRequested)
+                {
                     return;
+                }
 
-                string unpackDir = System.IO.Path.GetTempPath() + Guid.NewGuid();
+                var unpackDir = Path.GetTempPath() + Guid.NewGuid();
                 UnpackBSP(unpackDir);
                 AssetUtils.findBspPakDependencies(map, unpackDir);
 
                 CompilePalLogger.LogLine("Initializing pak file...");
-                PakFile pakfile = new PakFile(map, sourceDirectories, includeFiles, excludeFiles, excludeDirs,
+                var pakfile = new PakFile(map, sourceDirectories, includeFiles, excludeFiles, excludeDirs,
                     excludedVpkFiles, outputFile);
 
                 if (includefilelist)
                 {
                     var fileListParams = parameters.Where(p => p.StartsWith("includefilelist"))
-                        .Select(f => f.Split(new[] { " " }, 2, StringSplitOptions.None));
+                        .Select(f => f.Split(new[]
+                        {
+                            " "
+                        }, 2, StringSplitOptions.None));
                     foreach (var fileListParam in fileListParams)
                     {
                         if (fileListParam.Length <= 1 || string.IsNullOrWhiteSpace(fileListParam[1]))
@@ -291,7 +321,7 @@ namespace CompilePalX.Compilers.BSPPack
                         var filelist = File.ReadAllLines(inputFile);
 
                         // file list format is internal path, newline, external path
-                        for (int i = 0; i < filelist.Length - 1; i += 2)
+                        for (var i = 0; i < filelist.Length - 1; i += 2)
                         {
                             var internalPath = filelist[i];
                             var externalPath = filelist[i + 1];
@@ -308,7 +338,7 @@ namespace CompilePalX.Compilers.BSPPack
 
                 if (packvpk)
                 {
-                    string vpkName = context.BSPFile.Replace(".bsp", ".vpk");
+                    var vpkName = context.BSPFile.Replace(".bsp", ".vpk");
                     if (File.Exists(vpkName))
                     {
                         File.Delete(vpkName);
@@ -324,11 +354,11 @@ namespace CompilePalX.Compilers.BSPPack
 
                     if (GetParameterString().Contains("-ainfo"))
                     {
-                        foreach (string parameter in parameters)
+                        foreach (var parameter in parameters)
                         {
                             if (parameter.Contains("ainfo"))
                             {
-                                var @filePath = parameter.Replace("\"", "").Replace("ainfo ", "").TrimEnd(' ');
+                                var filePath = parameter.Replace("\"", "").Replace("ainfo ", "").TrimEnd(' ');
                                 //Test that file exists
                                 if (File.Exists(filePath))
                                 {
@@ -341,7 +371,9 @@ namespace CompilePalX.Compilers.BSPPack
 
 
                     if (cancellationToken.IsCancellationRequested)
+                    {
                         return;
+                    }
 
                     CompilePalLogger.LogLine("Running VPK...");
                     foreach (var path in sourceDirectories)
@@ -373,7 +405,9 @@ namespace CompilePalX.Compilers.BSPPack
                 else
                 {
                     if (cancellationToken.IsCancellationRequested)
+                    {
                         return;
+                    }
                     CompilePalLogger.LogLine("Writing file list...");
                     pakfile.OutputToFile();
 
@@ -396,14 +430,22 @@ namespace CompilePalX.Compilers.BSPPack
                 CompilePalLogger.LogLine(pakfile.pcfcount + " particle files found");
                 CompilePalLogger.LogLine(pakfile.sndcount + " sounds found");
                 if (pakfile.vehiclescriptcount != 0)
+                {
                     CompilePalLogger.LogLine(pakfile.vehiclescriptcount + " vehicle scripts found");
+                }
                 if (pakfile.effectscriptcount != 0)
+                {
                     CompilePalLogger.LogLine(pakfile.effectscriptcount + " effect scripts found");
+                }
                 if (pakfile.vscriptcount != 0)
+                {
                     CompilePalLogger.LogLine(pakfile.vscriptcount + " vscripts found");
+                }
                 if (pakfile.panoramaMapIconCount != 0)
+                {
                     CompilePalLogger.LogLine(pakfile.panoramaMapIconCount + " panorama map icons found");
-                string additionalFiles =
+                }
+                var additionalFiles =
                     (map.nav.Key != default(string) ? "\n-nav file" : "") +
                     (map.soundscape.Key != default(string) ? "\n-soundscape" : "") +
                     (map.soundscript.Key != default(string) ? "\n-soundscript" : "") +
@@ -416,7 +458,9 @@ namespace CompilePalX.Compilers.BSPPack
                     (map.res.Key != default(string) ? "\n-res file" : "");
 
                 if (additionalFiles != "")
+                {
                     CompilePalLogger.LogLine("additional files: " + additionalFiles);
+                }
                 CompilePalLogger.LogLine("---------------------");
 
             }
@@ -437,7 +481,7 @@ namespace CompilePalX.Compilers.BSPPack
             }
         }
 
-        static void PackFileList(CompileContext context, string outputFile)
+        private static void PackFileList(CompileContext context, string outputFile)
         {
             if (File.Exists(context.BSPFile))
             {
@@ -469,7 +513,7 @@ namespace CompilePalX.Compilers.BSPPack
             }
         }
 
-        static void UnpackBSP(string unpackDir)
+        private static void UnpackBSP(string unpackDir)
         {
             // unpacks the pak file and extracts it to a temp location
 
@@ -478,7 +522,7 @@ namespace CompilePalX.Compilers.BSPPack
              * case for water materials. We use this method to extract the
              * pak file to a temp folder and read the dependencies of its files. */
 
-            string arguments = "-extractfiles \"$bspold\" \"$dir\"";
+            var arguments = "-extractfiles \"$bspold\" \"$dir\"";
             arguments = arguments.Replace("$bspold", bspPath);
             arguments = arguments.Replace("$dir", unpackDir);
 
@@ -488,17 +532,20 @@ namespace CompilePalX.Compilers.BSPPack
             startInfo.RedirectStandardOutput = true;
             startInfo.EnvironmentVariables["VPROJECT"] = gameFolder;
 
-            var p = new Process { StartInfo = startInfo };
+            var p = new Process
+            {
+                StartInfo = startInfo
+            };
             p.Start();
-            string output = p.StandardOutput.ReadToEnd();
+            var output = p.StandardOutput.ReadToEnd();
 
             p.WaitForExit();
 
         }
 
-        static void PackBSP(string outputFile)
+        private static void PackBSP(string outputFile)
         {
-            string arguments = "-addlist \"$bspnew\"  \"$list\" \"$bspold\"";
+            var arguments = "-addlist \"$bspnew\"  \"$list\" \"$bspold\"";
             arguments = arguments.Replace("$bspnew", bspPath);
             arguments = arguments.Replace("$bspold", bspPath);
             arguments = arguments.Replace("$list", outputFile);
@@ -514,7 +561,10 @@ namespace CompilePalX.Compilers.BSPPack
                 }
             };
 
-            var p = new Process { StartInfo = startInfo };
+            var p = new Process
+            {
+                StartInfo = startInfo
+            };
 
             try
             {
@@ -527,26 +577,35 @@ namespace CompilePalX.Compilers.BSPPack
                 return;
             }
 
-            string output = p.StandardOutput.ReadToEnd();
+            var output = p.StandardOutput.ReadToEnd();
             if (verbose)
+            {
                 CompilePalLogger.Log(output);
+            }
             else
+            {
                 CompilePalLogger.LogDebug(output);
+            }
 
             p.WaitForExit();
-            if (p.ExitCode != 0) {
+            if (p.ExitCode != 0)
+            {
                 // this indicates an access violation. BSPZIP may have crashed because of too many files being packed
                 if (p.ExitCode == -1073741819)
+                {
                     CompilePalLogger.LogCompileError($"BSPZIP exited with code: {p.ExitCode}, this might indicate that too many files are being packed\n", new Error($"BSPZIP exited with code: {p.ExitCode}, this might indicate that too many files are being packed\n", ErrorSeverity.FatalError));
+                }
                 else
+                {
                     CompilePalLogger.LogCompileError($"BSPZIP exited with code: {p.ExitCode}\n", new Error($"BSPZIP exited with code: {p.ExitCode}\n", ErrorSeverity.Warning));
+                }
             }
 
         }
 
-        static void PackVPK(string targetVPK, string responseFile, string searchPath)
+        private static void PackVPK(string targetVPK, string responseFile, string searchPath)
         {
-            string arguments = $"a \"{targetVPK}\" \"@{responseFile}\"";
+            var arguments = $"a \"{targetVPK}\" \"@{responseFile}\"";
 
             var p = new Process
             {
@@ -559,7 +618,7 @@ namespace CompilePalX.Compilers.BSPPack
                     UseShellExecute = false,
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,
-                    CreateNoWindow = true,
+                    CreateNoWindow = true
                 }
             };
 
@@ -577,8 +636,8 @@ namespace CompilePalX.Compilers.BSPPack
                 return;
             }
 
-            string output = p.StandardOutput.ReadToEnd();
-            string errOutput = p.StandardError.ReadToEnd();
+            var output = p.StandardOutput.ReadToEnd();
+            var errOutput = p.StandardError.ReadToEnd();
             if (verbose)
             {
                 CompilePalLogger.Log(output);
@@ -589,9 +648,9 @@ namespace CompilePalX.Compilers.BSPPack
             p.WaitForExit();
         }
 
-        static string[] GetVPKFileList(string VPKPath)
-		{
-            string arguments = $"l \"{VPKPath}\"";
+        private static string[] GetVPKFileList(string VPKPath)
+        {
+            var arguments = $"l \"{VPKPath}\"";
 
             var p = new Process
             {
@@ -603,14 +662,14 @@ namespace CompilePalX.Compilers.BSPPack
                     UseShellExecute = false,
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,
-                    CreateNoWindow = true,
+                    CreateNoWindow = true
                 }
             };
-            
+
             p.Start();
 
-            string output = p.StandardOutput.ReadToEnd();
-            string errOutput = p.StandardError.ReadToEnd();
+            var output = p.StandardOutput.ReadToEnd();
+            var errOutput = p.StandardError.ReadToEnd();
             if (verbose)
             {
                 CompilePalLogger.Log(errOutput);
@@ -618,98 +677,116 @@ namespace CompilePalX.Compilers.BSPPack
 
             p.WaitForExit();
 
-            char[] delims = new[] { '\r', '\n' };
+            char[] delims =
+            {
+                '\r', '\n'
+            };
             return output.Split(delims, StringSplitOptions.RemoveEmptyEntries);
         }
 
-        static void p_OutputDataReceived(object sender, DataReceivedEventArgs e)
+        private static void p_OutputDataReceived(object sender, DataReceivedEventArgs e)
         {
             CompilePalLogger.LogLine(e.Data);
         }
 
         public static List<string> GetSourceDirectories(string gamePath, bool verbose = true)
         {
-            List<string> sourceDirectories = new List<string>();
-            string gameInfo = System.IO.Path.Combine(gamePath, "gameinfo.txt");
+            var sourceDirectories = new List<string>();
+            var gameInfo = Path.Combine(gamePath, "gameinfo.txt");
 
-            string rootPath = Directory.GetParent(gamePath).ToString();
+            var rootPath = Directory.GetParent(gamePath).ToString();
 
             if (File.Exists(gameInfo))
             {
                 var lines = File.ReadAllLines(gameInfo);
 
-                bool foundSearchPaths = false;
-                for (int i = 0; i < lines.Length; i++)
+                var foundSearchPaths = false;
+                for (var i = 0; i < lines.Length; i++)
                 {
                     var line = lines[i];
 
                     if (foundSearchPaths)
                     {
                         if (line.Contains("}"))
+                        {
                             break;
+                        }
 
                         if (line.Contains("//") || string.IsNullOrWhiteSpace(line))
+                        {
                             continue;
+                        }
 
-                        string path = GetInfoValue(line).Replace("\"", "");
+                        var path = GetInfoValue(line).Replace("\"", "");
 
-                        if (path.Contains("|") && !path.Contains("|gameinfo_path|") || path.Contains(".vpk")) continue;
+                        if (path.Contains("|") && !path.Contains("|gameinfo_path|") || path.Contains(".vpk"))
+                        {
+                            continue;
+                        }
 
                         if (path.Contains("*"))
                         {
-							string fullPath = path;
-							if (fullPath.Contains(("|gameinfo_path|")))
-	                        {
-		                        string newPath = path.Replace("*", "").Replace("|gameinfo_path|", "");
+                            var fullPath = path;
+                            if (fullPath.Contains("|gameinfo_path|"))
+                            {
+                                var newPath = path.Replace("*", "").Replace("|gameinfo_path|", "");
 
-		                        fullPath = System.IO.Path.GetFullPath(gamePath + "\\" + newPath.TrimEnd('\\'));
-	                        }
+                                fullPath = Path.GetFullPath(gamePath + "\\" + newPath.TrimEnd('\\'));
+                            }
                             if (Path.IsPathRooted(fullPath.Replace("*", "")))
                             {
                                 fullPath = fullPath.Replace("*", "");
                             }
-	                        else
-	                        {
-		                        string newPath = fullPath.Replace("*", "");
+                            else
+                            {
+                                var newPath = fullPath.Replace("*", "");
 
-		                        fullPath = System.IO.Path.GetFullPath(rootPath + "\\" + newPath.TrimEnd('\\'));
-	                        }
+                                fullPath = Path.GetFullPath(rootPath + "\\" + newPath.TrimEnd('\\'));
+                            }
 
-	                        if (verbose)
-		                        CompilePalLogger.LogLine("Found wildcard path: {0}", fullPath);
+                            if (verbose)
+                            {
+                                CompilePalLogger.LogLine("Found wildcard path: {0}", fullPath);
+                            }
 
-	                        try
-	                        {
-		                        var directories = Directory.GetDirectories(fullPath);
-		                        sourceDirectories.AddRange(directories);
-	                        }
-	                        catch { }
+                            try
+                            {
+                                var directories = Directory.GetDirectories(fullPath);
+                                sourceDirectories.AddRange(directories);
+                            }
+                            catch { }
                         }
                         else if (path.Contains("|gameinfo_path|"))
                         {
-	                        string fullPath = gamePath;
+                            var fullPath = gamePath;
 
-	                        if (verbose)
-		                        CompilePalLogger.LogLine("Found search path: {0}", fullPath);
+                            if (verbose)
+                            {
+                                CompilePalLogger.LogLine("Found search path: {0}", fullPath);
+                            }
 
-	                        sourceDirectories.Add(fullPath);
+                            sourceDirectories.Add(fullPath);
                         }
                         else if (Directory.Exists(path))
                         {
-	                        if (verbose)
-		                        CompilePalLogger.LogLine("Found search path: {0}", path);
+                            if (verbose)
+                            {
+                                CompilePalLogger.LogLine("Found search path: {0}", path);
+                            }
 
-	                        sourceDirectories.Add(path);
+                            sourceDirectories.Add(path);
 
                         }
                         else
                         {
                             try
                             {
-                                string fullPath = System.IO.Path.GetFullPath(rootPath + "\\" + path.TrimEnd('\\'));
+                                var fullPath = Path.GetFullPath(rootPath + "\\" + path.TrimEnd('\\'));
 
                                 if (verbose)
+                                {
                                     CompilePalLogger.LogLine("Found search path: {0}", fullPath);
+                                }
 
                                 sourceDirectories.Add(fullPath);
                             }
@@ -725,7 +802,9 @@ namespace CompilePalX.Compilers.BSPPack
                         if (line.Contains("SearchPaths"))
                         {
                             if (verbose)
+                            {
                                 CompilePalLogger.LogLine("Found search paths...");
+                            }
                             foundSearchPaths = true;
                             i++;
                         }
@@ -740,33 +819,39 @@ namespace CompilePalX.Compilers.BSPPack
         }
         private static string GetInfoValue(string line)
         {
-			// filepath info values
-			if (line.Contains('"'))
-				return Regex.Split( line, @"[^\s""']+|""([^""]*)""|'([^']*)'") // splits on whitespace outside of quotes
-					.First((l) => !string.IsNullOrWhiteSpace(l)); // ignore empty entries
+            // filepath info values
+            if (line.Contains('"'))
+            {
+                return Regex.Split(line, @"[^\s""']+|""([^""]*)""|'([^']*)'") // splits on whitespace outside of quotes
+                    .First(l => !string.IsNullOrWhiteSpace(l)); // ignore empty entries
+            }
 
-			// new char[0] = split on whitespace
+            // new char[0] = split on whitespace
             return line.Split(new char[0], StringSplitOptions.RemoveEmptyEntries)[1];
         }
 
         // parses parameters that can contain '-' in their values. Ex. filepaths
         private static List<string> ParseParameters(char[] paramChars)
         {
-            List<string> parameters = new List<string>();
-            bool inQuote = false;
-            StringBuilder tempParam = new StringBuilder();
+            var parameters = new List<string>();
+            var inQuote = false;
+            var tempParam = new StringBuilder();
 
             foreach (var pChar in paramChars)
             {
                 if (pChar == '\"')
+                {
                     inQuote = !inQuote;
+                }
                 else if (!inQuote && pChar == '-')
                 {
                     parameters.Add(tempParam.ToString());
                     tempParam.Clear();
                 }
                 else
+                {
                     tempParam.Append(pChar);
+                }
 
             }
 

@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using CompilePalX.Compilers.BSPPack;
 using CompilePalX.Compiling;
@@ -13,26 +11,26 @@ namespace CompilePalX.Compilers.UtilityProcess
 {
     public class PCF
     {
-        //Class to hold information about a pcf
-        public string FilePath;
 
         public int BinaryVersion;
-        public int PcfVersion;
-
-        public int NumDictStrings;
-        public List<string> StringDict = new List<string>();
-
-        public List<string> ParticleNames = new List<string>();
+        //Class to hold information about a pcf
+        public string FilePath;
         public List<string> MaterialNames = new List<string>();
         public List<string> ModelNames = new List<string>();
+
+        public int NumDictStrings;
+
+        public List<string> ParticleNames = new List<string>();
+        public int PcfVersion;
+        public List<string> StringDict = new List<string>();
 
 
         public List<string> GetModelNames()
         {
-            List<string> modelList = new List<string>();
+            var modelList = new List<string>();
             //All strings including model names are stored in string dict for binary 4+
             //TODO I think only binary 4+ support models, but if not we need to implement a method to read them for lower versions
-            foreach (string s in StringDict)
+            foreach (var s in StringDict)
             {
                 if (s.EndsWith(".mdl"))
                 {
@@ -47,23 +45,24 @@ namespace CompilePalX.Compilers.UtilityProcess
         //All strings including materials are stored in string dict of binary v4 pcfs
         public List<string> GetMaterialNamesV4()
         {
-            List<string> materialNames = new List<string>();
+            var materialNames = new List<string>();
 
-            foreach (string s in StringDict)
+            foreach (var s in StringDict)
             {
 
                 if (s.EndsWith(".vmt") || s.EndsWith(".vtf"))
                 {
                     // Alien Swarm does not prepend materials/ to particles, add it just in case
-                    if (this.BinaryVersion == 5 && this.PcfVersion == 2)
+                    if (BinaryVersion == 5 && PcfVersion == 2)
+                    {
                         materialNames.Add("materials\\" + s);
+                    }
 
                     materialNames.Add(s);
                 }
             }
             return materialNames;
         }
-        
     }
 
     public static class ParticleUtils
@@ -83,24 +82,24 @@ namespace CompilePalX.Compilers.UtilityProcess
                 return null;
             }
 
-            PCF pcf = new PCF();
-            BinaryReader reader = new BinaryReader(fs);
+            var pcf = new PCF();
+            var reader = new BinaryReader(fs);
 
             pcf.FilePath = filePath;
 
             //Get Magic String
-            string magicString = ReadNullTerminatedString(fs, reader);
+            var magicString = ReadNullTerminatedString(fs, reader);
 
             //Throw away unneccesary info
             magicString = magicString.Replace("<!-- dmx encoding binary ", "");
             magicString = magicString.Replace(" -->", "");
 
             //Extract info from magic string
-            string[] magicSplit = magicString.Split(' ');
-            
+            var magicSplit = magicString.Split(' ');
+
             //Store binary and pcf versions
-            Int32.TryParse(magicSplit[0], out pcf.BinaryVersion); 
-            Int32.TryParse(magicSplit[3], out pcf.PcfVersion);
+            int.TryParse(magicSplit[0], out pcf.BinaryVersion);
+            int.TryParse(magicSplit[3], out pcf.PcfVersion);
 
             //Different versions have different stringDict sizes
             if (pcf.BinaryVersion != 4 && pcf.BinaryVersion != 5)
@@ -113,17 +112,19 @@ namespace CompilePalX.Compilers.UtilityProcess
             }
 
             //Add strings to string dict
-            for (int i = 0; i < pcf.NumDictStrings; i++)
+            for (var i = 0; i < pcf.NumDictStrings; i++)
+            {
                 pcf.StringDict.Add(ReadNullTerminatedString(fs, reader));
+            }
 
             //Read element dict for particle names
-            int numElements = reader.ReadInt32();
-            for (int i = 0; i < numElements; i++)
+            var numElements = reader.ReadInt32();
+            for (var i = 0; i < numElements; i++)
             {
                 int typeNameIndex = reader.ReadUInt16();
-                string typeName = pcf.StringDict[typeNameIndex];
+                var typeName = pcf.StringDict[typeNameIndex];
 
-                string elementName = "";
+                var elementName = "";
 
                 if (pcf.BinaryVersion != 4 && pcf.BinaryVersion != 5)
                 {
@@ -143,17 +144,19 @@ namespace CompilePalX.Compilers.UtilityProcess
                     elementName = pcf.StringDict[elementNameIndex];
                     fs.Seek(20, SeekOrigin.Current);
                 }
-                
+
                 //Get particle names
                 if (typeName == "DmeParticleSystemDefinition")
+                {
                     pcf.ParticleNames.Add(elementName);
+                }
 
             }
 
-            bool containsParticle = false;
-            foreach (string particleName in pcf.ParticleNames)
+            var containsParticle = false;
+            foreach (var particleName in pcf.ParticleNames)
             {
-                foreach (string targetParticle in targetParticles)
+                foreach (var targetParticle in targetParticles)
                 {
                     if (particleName == targetParticle)
                     {
@@ -167,7 +170,9 @@ namespace CompilePalX.Compilers.UtilityProcess
             fs.Close();
 
             if (!containsParticle)
+            {
                 return null;
+            }
 
             return pcf;
         }
@@ -186,24 +191,24 @@ namespace CompilePalX.Compilers.UtilityProcess
                 return null;
             }
 
-            PCF pcf = new PCF();
-            BinaryReader reader = new BinaryReader(fs);
+            var pcf = new PCF();
+            var reader = new BinaryReader(fs);
 
             pcf.FilePath = filePath;
 
             //Get Magic String
-            string magicString = ReadNullTerminatedString(fs, reader);
+            var magicString = ReadNullTerminatedString(fs, reader);
 
             //Throw away unneccesary info
             magicString = magicString.Replace("<!-- dmx encoding binary ", "");
             magicString = magicString.Replace(" -->", "");
 
             //Extract info from magic string
-            string[] magicSplit = magicString.Split(' ');
-            
+            var magicSplit = magicString.Split(' ');
+
             //Store binary and pcf versions
-            Int32.TryParse(magicSplit[0], out pcf.BinaryVersion); 
-            Int32.TryParse(magicSplit[3], out pcf.PcfVersion);
+            int.TryParse(magicSplit[0], out pcf.BinaryVersion);
+            int.TryParse(magicSplit[3], out pcf.PcfVersion);
 
             //Different versions have different stringDict sizes
             if (pcf.BinaryVersion != 4 && pcf.BinaryVersion != 5)
@@ -216,17 +221,19 @@ namespace CompilePalX.Compilers.UtilityProcess
             }
 
             //Add strings to string dict
-            for (int i = 0; i < pcf.NumDictStrings; i++)
+            for (var i = 0; i < pcf.NumDictStrings; i++)
+            {
                 pcf.StringDict.Add(ReadNullTerminatedString(fs, reader));
+            }
 
             //Read element dict for particle names
-            int numElements = reader.ReadInt32();
-            for (int i = 0; i < numElements; i++)
+            var numElements = reader.ReadInt32();
+            for (var i = 0; i < numElements; i++)
             {
                 int typeNameIndex = reader.ReadUInt16();
-                string typeName = pcf.StringDict[typeNameIndex];
+                var typeName = pcf.StringDict[typeNameIndex];
 
-                string elementName = "";
+                var elementName = "";
 
                 if (pcf.BinaryVersion != 4 && pcf.BinaryVersion != 5)
                 {
@@ -246,10 +253,12 @@ namespace CompilePalX.Compilers.UtilityProcess
                     elementName = pcf.StringDict[elementNameIndex];
                     fs.Seek(20, SeekOrigin.Current);
                 }
-                
+
                 //Get particle names
                 if (typeName == "DmeParticleSystemDefinition")
+                {
                     pcf.ParticleNames.Add(elementName);
+                }
 
             }
 
@@ -258,13 +267,17 @@ namespace CompilePalX.Compilers.UtilityProcess
                 //Can extract all neccesary data from string dict
 
                 //Add materials and models to the master list
-                List<string> materialNames = pcf.GetMaterialNamesV4();
+                var materialNames = pcf.GetMaterialNamesV4();
                 if (materialNames != null && materialNames.Count != 0)
+                {
                     pcf.MaterialNames.AddRange(materialNames);
+                }
 
-                List<string> modelNames = pcf.GetModelNames();
+                var modelNames = pcf.GetModelNames();
                 if (modelNames != null && modelNames.Count != 0)
+                {
                     pcf.ModelNames.AddRange(modelNames);
+                }
 
                 reader.Close();
                 fs.Close();
@@ -274,32 +287,37 @@ namespace CompilePalX.Compilers.UtilityProcess
             //Have to read element attributes to get materials for binary version under 4
 
             //Read Element Attributes
-            for (int a = 0; a < numElements; a++)
+            for (var a = 0; a < numElements; a++)
             {
-                int numElementAttribs = reader.ReadInt32();
-                for (int n = 0; n < numElementAttribs; n++)
+                var numElementAttribs = reader.ReadInt32();
+                for (var n = 0; n < numElementAttribs; n++)
                 {
                     int typeID = reader.ReadUInt16();
                     int attributeType = reader.ReadByte();
-                    string attributeTypeName = pcf.StringDict[typeID];
+                    var attributeTypeName = pcf.StringDict[typeID];
 
-                    int count = (attributeType > 14) ? reader.ReadInt32() : 1;
-                    attributeType = (attributeType > 14) ? attributeType - 14 : attributeType;
+                    var count = attributeType > 14 ? reader.ReadInt32() : 1;
+                    attributeType = attributeType > 14 ? attributeType - 14 : attributeType;
 
-                    int[] typelength = { 0, 4, 4, 4, 1, 1, 4, 4, 4, 8, 12, 16, 12, 16, 64 };
+                    int[] typelength =
+                    {
+                        0, 4, 4, 4, 1, 1, 4, 4, 4, 8, 12, 16, 12, 16, 64
+                    };
 
                     switch (attributeType)
                     {
                         case 5:
-                            string material = ReadNullTerminatedString(fs, reader);
+                            var material = ReadNullTerminatedString(fs, reader);
                             if (attributeTypeName == "material")
+                            {
                                 pcf.MaterialNames.Add("materials/" + material);
+                            }
                             break;
 
                         case 6:
-                            for (int i = 0; i < count; i++)
+                            for (var i = 0; i < count; i++)
                             {
-                                uint len = reader.ReadUInt32();
+                                var len = reader.ReadUInt32();
                                 fs.Seek(len, SeekOrigin.Current);
                             }
                             break;
@@ -307,7 +325,7 @@ namespace CompilePalX.Compilers.UtilityProcess
                         default:
                             fs.Seek(typelength[attributeType] * count, SeekOrigin.Current);
                             break;
-                            
+
                     }
                 }
             }
@@ -321,7 +339,7 @@ namespace CompilePalX.Compilers.UtilityProcess
 
         private static string ReadNullTerminatedString(FileStream fs, BinaryReader reader)
         {
-            List<byte> verString = new List<byte>();
+            var verString = new List<byte>();
             byte v;
             do
             {
@@ -331,20 +349,17 @@ namespace CompilePalX.Compilers.UtilityProcess
 
             return Encoding.ASCII.GetString(verString.ToArray()).Trim('\0');
         }
-
     }
 
     class ParticleManifest
     {
+        private readonly string baseDirectory;
+        private readonly string filepath;
+        private readonly string internalPath = "particles\\";
         //Class responsible for holding information about particles
-        private List<PCF> particles;
-        private string internalPath = "particles\\";
-        private string filepath;
-        private string baseDirectory;
+        private readonly List<PCF> particles;
 
-        public KeyValuePair<string, string> particleManifest { get; private set; }
-
-        public ParticleManifest (List<string> sourceDirectories, List<string> ignoreDirectories, List<string> excludedFiles, BSP map, string bspPath, string gameFolder)
+        public ParticleManifest(List<string> sourceDirectories, List<string> ignoreDirectories, List<string> excludedFiles, BSP map, string bspPath, string gameFolder)
         {
             CompilePalLogger.LogLine("Generating Particle Manifest...");
 
@@ -354,20 +369,24 @@ namespace CompilePalX.Compilers.UtilityProcess
 
             //Search directories for pcf and find particles that match used particle names
             //TODO multithread this?
-            foreach (string sourceDirectory in sourceDirectories)
+            foreach (var sourceDirectory in sourceDirectories)
             {
-                string externalPath = sourceDirectory + "\\" + internalPath;
+                var externalPath = sourceDirectory + "\\" + internalPath;
 
                 if (Directory.Exists(externalPath) && !ignoreDirectories.Contains(externalPath.Remove(externalPath.Length - 1, 1), StringComparer.OrdinalIgnoreCase))
-                    foreach (string file in Directory.GetFiles(externalPath))
+                {
+                    foreach (var file in Directory.GetFiles(externalPath))
                     {
                         if (file.EndsWith(".pcf") && !excludedFiles.Contains(file.ToLower()))
                         {
-                            PCF pcf = ParticleUtils.IsTargetParticle(file, map.ParticleList);
+                            var pcf = ParticleUtils.IsTargetParticle(file, map.ParticleList);
                             if (pcf != null && !particles.Exists(p => p.FilePath == pcf.FilePath))
+                            {
                                 particles.Add(pcf);
+                            }
                         }
                     }
+                }
             }
 
             if (particles == null || particles.Count == 0)
@@ -375,20 +394,20 @@ namespace CompilePalX.Compilers.UtilityProcess
                 CompilePalLogger.LogCompileError("Could not find any PCFs that contained used particles!\n", new Error("Could not find any PCFs that contained used particles!\n", ErrorSeverity.Warning));
                 return;
             }
-                
+
 
             //Check for pcfs that contain the same particle name
             //List<ParticleConflict> conflictingParticles = new List<ParticleConflict>();
-            List<PCF> conflictingParticles = new List<PCF>();
+            var conflictingParticles = new List<PCF>();
             if (particles.Count > 1)
             {
-                for (int i = 0; i < particles.Count - 1; i++)
+                for (var i = 0; i < particles.Count - 1; i++)
                 {
-                    for (int j = i + 1; j < particles.Count; j++)
+                    for (var j = i + 1; j < particles.Count; j++)
                     {
 
                         //Create a list of names that intersect between the 2 lists
-                        List<string> conflictingNames = particles[i].ParticleNames.Intersect(particles[j].ParticleNames).ToList();
+                        var conflictingNames = particles[i].ParticleNames.Intersect(particles[j].ParticleNames).ToList();
 
                         if (conflictingNames.Count != 0 && particles[i].FilePath != particles[j].FilePath)
                         {
@@ -396,7 +415,7 @@ namespace CompilePalX.Compilers.UtilityProcess
                             conflictingParticles.Add(particles[i]);
                             conflictingParticles.Add(particles[j]);
                         }
-                            
+
                     }
                 }
             }
@@ -406,12 +425,12 @@ namespace CompilePalX.Compilers.UtilityProcess
             {
 
                 //Remove particle if it is in a particle conflict, add back when conflict is manually resolved
-                foreach (PCF conflictParticle in conflictingParticles)
+                foreach (var conflictParticle in conflictingParticles)
                 {
                     particles.Remove(conflictParticle);
                 }
-                
-                List<PCF> resolvedConflicts = new List<PCF>();
+
+                var resolvedConflicts = new List<PCF>();
 
                 //Bring up conflict window
                 //Have to run on STAthread
@@ -421,7 +440,7 @@ namespace CompilePalX.Compilers.UtilityProcess
                     ProgressManager.ErrorProgress();
 
                     //Create window
-                    ConflictWindow cw = new ConflictWindow(conflictingParticles, map.ParticleList);
+                    var cw = new ConflictWindow(conflictingParticles, map.ParticleList);
                     cw.ShowDialog();
 
                     //Get resolved conflicts
@@ -437,25 +456,27 @@ namespace CompilePalX.Compilers.UtilityProcess
 
             //Dont create particle manifest if there is no particles
             if (particles.Count == 0)
+            {
                 return;
-            
+            }
+
             //Generate manifest file
             filepath = bspPath.Remove(bspPath.Length - 4, 4) + "_particles.txt";
 
             //Write manifest
-            using (StreamWriter sw = new StreamWriter(filepath))
+            using (var sw = new StreamWriter(filepath))
             {
                 sw.WriteLine("particles_manifest");
                 sw.WriteLine("{");
 
-                foreach (string source in sourceDirectories)
+                foreach (var source in sourceDirectories)
                 {
-                    foreach (PCF particle in particles)
+                    foreach (var particle in particles)
                     {
                         if (particle.FilePath.StartsWith(source + "\\" + internalPath))
                         {
                             // add 1 for the backslash between source dir and particle path
-                            string internalParticlePath = particle.FilePath.Remove(0, source.Length + 1);
+                            var internalParticlePath = particle.FilePath.Remove(0, source.Length + 1);
 
                             sw.WriteLine($"      \"file\"    \"!{internalParticlePath}\"");
                             CompilePalLogger.LogLine($"PCF added to manifest: {internalParticlePath}");
@@ -466,13 +487,15 @@ namespace CompilePalX.Compilers.UtilityProcess
                 sw.WriteLine("}");
             }
 
-            string internalDirectory = filepath;
-            if(filepath.ToLower().StartsWith(baseDirectory.ToLower()))
+            var internalDirectory = filepath;
+            if (filepath.ToLower().StartsWith(baseDirectory.ToLower()))
             {
                 internalDirectory = filepath.Substring(baseDirectory.Length);
             }
             //Store internal/external dir so it can be packed
             particleManifest = new KeyValuePair<string, string>(internalDirectory, filepath);
         }
+
+        public KeyValuePair<string, string> particleManifest { get; }
     }
 }

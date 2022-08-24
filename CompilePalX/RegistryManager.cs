@@ -1,9 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using CompilePalX.Compiling;
 using Microsoft.Win32;
 
@@ -18,8 +13,8 @@ namespace CompilePalX
         {
             try
             {
-                RegistryKey software = Registry.CurrentUser.OpenSubKey("Software", true);
-                RegistryKey compilePalRegistryKey = software.CreateSubKey("CompilePal");
+                var software = Registry.CurrentUser.OpenSubKey("Software", true);
+                var compilePalRegistryKey = software.CreateSubKey("CompilePal");
 
                 compilePalRegistryKey.SetValue(key, value);
                 return true;
@@ -37,10 +32,10 @@ namespace CompilePalX
         {
             try
             {
-                RegistryKey software = Registry.CurrentUser.OpenSubKey("Software", true);
-                RegistryKey compilePalRegistryKey = software.CreateSubKey("CompilePal");
+                var software = Registry.CurrentUser.OpenSubKey("Software", true);
+                var compilePalRegistryKey = software.CreateSubKey("CompilePal");
 
-                return (T) compilePalRegistryKey.GetValue(key);
+                return (T)compilePalRegistryKey.GetValue(key);
             }
             catch (Exception er)
             {

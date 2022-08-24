@@ -1,24 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
+﻿using System.Windows;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace CompilePalX
 {
     /// <summary>
     /// Interaction logic for PresetDialog.xaml
     /// </summary>
-    public partial class PresetDialog 
+    public partial class PresetDialog
     {
+
+        public bool Result;
         public PresetDialog(string title, Map? selectedMap)
         {
             InitializeComponent();
@@ -27,12 +18,12 @@ namespace CompilePalX
             IsMapSpecificCheckbox.IsEnabled = selectedMap != null;
             IsMapSpecificCheckbox.IsHitTestVisible = selectedMap != null;
             if (selectedMap != null)
+            {
                 MapToolTip = $"Preset will only apply to {selectedMap.MapName}";
+            }
         }
-
-        public bool Result = false;
-        public string Text { get { return InputTextBox.Text; } }
-        public bool IsMapSpecific { get { return IsMapSpecificCheckbox.IsChecked ?? false; } }
+        public string Text => InputTextBox.Text;
+        public bool IsMapSpecific => IsMapSpecificCheckbox.IsChecked ?? false;
         public string? MapToolTip { get; set; }
 
         private void OKButton_OnClick(object sender, RoutedEventArgs e)

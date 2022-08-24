@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Diagnostics;
 using System.Management;
-using System.Text;
-using System.Threading.Tasks;
 using System.Security.Cryptography;
+using System.Text;
 using Segment;
 using Segment.Model;
 
@@ -12,11 +11,11 @@ namespace CompilePalX
 {
     static class AnalyticsManager
     {
-        private static string anonymousUserID;
-        private static Segment.Model.Properties userProperties;
-        private static Options options;
 
         private const bool debuggerCheckOverride = false;
+        private static readonly string anonymousUserID;
+        private static readonly Segment.Model.Properties userProperties;
+        private static readonly Options options;
 
         public static bool Enabled = true;
 
@@ -27,37 +26,53 @@ namespace CompilePalX
         {
             anonymousUserID = getUniqueComputerID();
 
-            userProperties = new Segment.Model.Properties()
-                            {
-                                {"version",UpdateManager.CurrentVersion},
-                                {"game",GameConfigurationManager.GameConfiguration?.Name}
-                            };
+            userProperties = new Segment.Model.Properties
+            {
+                {
+                    "version", UpdateManager.CurrentVersion
+                },
+                {
+                    "game", GameConfigurationManager.GameConfiguration?.Name
+                }
+            };
 
-            options = new Options {Context = {{"direct", true}}};
+            options = new Options
+            {
+                Context =
+                {
+                    {
+                        "direct", true
+                    }
+                }
+            };
         }
+
+        private static bool enabled => (!Debugger.IsAttached || debuggerCheckOverride) && Enabled;
 
         //Returns a unique, anonymised ID that should allow for more accurate counting of number of users
         //This method is probably overkill, but MachineName is too common across different computers
-        static string getUniqueComputerID()
+        private static string getUniqueComputerID()
         {
-            string id = Environment.MachineName;
+            var id = Environment.MachineName;
 
             try
             {
-                ManagementClass mc = new ManagementClass("win32_processor");
+                var mc = new ManagementClass("win32_processor");
                 var cpus = mc.GetInstances();
-                foreach (var cpu in cpus)//Just for all those people with two cpus
+                foreach (var cpu in cpus) //Just for all those people with two cpus
+                {
                     id += cpu.Properties["processorID"].Value.ToString();
+                }
             }
             catch { }
             try
             {
-                ManagementObject disk = new ManagementObject("win32_logicaldisk.deviceid=\"C:\"");
+                var disk = new ManagementObject("win32_logicaldisk.deviceid=\"C:\"");
                 disk.Get();
                 id += disk["VolumeSerialNumber"].ToString();
             }
             catch { }
-            
+
             return GetHashString(id);
         }
 
@@ -70,18 +85,23 @@ namespace CompilePalX
         public static string GetHashString(string inputString)
         {
             var sb = new StringBuilder();
-            foreach (byte b in GetHash(inputString))
+            foreach (var b in GetHash(inputString))
+            {
                 sb.Append(b.ToString("X2"));
+            }
 
             return sb.ToString();
         }
         public static void Launch()
         {
-            if (!enabled) return;
+            if (!enabled)
+            {
+                return;
+            }
 
             client = new Client("KPCewjPBrksT73NkIGqh5pkXBvmrnKAT");
-            legacyClient= new Client("5IMRGFe2K7JV76e1NzyC40oBADmta5Oh");
-            Track(anonymousUserID, "Launch", userProperties,options );
+            legacyClient = new Client("5IMRGFe2K7JV76e1NzyC40oBADmta5Oh");
+            Track(anonymousUserID, "Launch", userProperties, options);
         }
         public static void Compile()
         {
@@ -112,7 +132,5 @@ namespace CompilePalX
                 legacyClient.Track(userId, eventName, properties, options);
             }
         }
-
-        private static bool enabled => (!System.Diagnostics.Debugger.IsAttached || debuggerCheckOverride) && Enabled;
     }
 }

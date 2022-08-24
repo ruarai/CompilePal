@@ -5,29 +5,27 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Media;
-using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using System.Windows.Media;
 
 namespace CompilePalX.Compiling
 {
-    internal delegate Run LogWrite(string s, Brush b);
-    internal delegate void LogBacktrack(List<Run> l);
-    internal delegate void CompileErrorLogWrite(string errorText, Error e);
+    delegate Run LogWrite(string s, Brush b);
+    delegate void LogBacktrack(List<Run> l);
+    delegate void CompileErrorLogWrite(string errorText, Error e);
 
-    internal delegate void CompileErrorFound(Error e);
+    delegate void CompileErrorFound(Error e);
 
 
     static class CompilePalLogger
     {
         private static readonly string logFile = "./debug.log";
+
+
+        private static readonly Dictionary<Error, int> errorsFound = new Dictionary<Error, int>();
+
+        private static StringBuilder lineBuffer = new StringBuilder();
+        private static List<Run> tempText = new List<Run>();
         static CompilePalLogger()
         {
             File.Delete(logFile);
@@ -43,7 +41,7 @@ namespace CompilePalX.Compiling
 
         public static Run LogColor(string s, Brush b, params object[] formatStrings)
         {
-            string text = s;
+            var text = s;
             if (formatStrings.Length != 0)
             {
                 text = string.Format(s, formatStrings);
@@ -95,36 +93,38 @@ namespace CompilePalX.Compiling
         public static void LogCompileError(string errorText, Error e)
         {
             if (errorsFound.ContainsKey(e))
+            {
                 errorsFound[e]++;
+            }
             else
+            {
                 errorsFound.Add(e, 1);
+            }
 
             if (errorsFound[e] < 128)
+            {
                 OnErrorLog(errorText, e);
+            }
             else
+            {
                 Log(errorText); //Stop hyperlinking errors if we see over 128 of them
-            
+            }
+
             File.AppendAllText(logFile, errorText);
             OnErrorFound(e);
         }
-
-
-        private static Dictionary<Error, int> errorsFound = new Dictionary<Error, int>();
-
-        private static StringBuilder lineBuffer = new StringBuilder();
-        private static List<Run> tempText = new List<Run>();
         public static void ProgressiveLog(string s)
         {
             lineBuffer.Append(s);
 
             if (s.Contains("\n"))
             {
-                List<string> lines = lineBuffer.ToString().Split('\n').ToList();
+                var lines = lineBuffer.ToString().Split('\n').ToList();
 
-                string suffixText = lines.Last();
+                var suffixText = lines.Last();
 
                 lineBuffer = new StringBuilder(suffixText);
-                
+
                 OnBacktrack(tempText);
 
                 for (var i = 0; i < lines.Count - 1; i++)
@@ -133,9 +133,13 @@ namespace CompilePalX.Compiling
                     var error = ErrorFinder.GetError(line);
 
                     if (error == null)
+                    {
                         Log(line);
+                    }
                     else
+                    {
                         LogCompileError(line, error);
+                    }
                 }
 
                 if (suffixText.Length > 0)
@@ -149,6 +153,5 @@ namespace CompilePalX.Compiling
                 tempText.Add(Log(s));
             }
         }
-
     }
 }

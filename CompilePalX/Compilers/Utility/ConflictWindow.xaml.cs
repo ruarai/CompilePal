@@ -1,17 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using CompilePalX.Compiling;
 
 namespace CompilePalX.Compilers.UtilityProcess
@@ -22,16 +15,16 @@ namespace CompilePalX.Compilers.UtilityProcess
     //TODO save settings for showing advanced info so user doesnt have to open it every time
     public partial class ConflictWindow
     {
-        private List<PCF> pc;
-        private Dictionary<string, PCF> pcfDict;
-        private List<string> targetParticles;
 
         private FileInfo file1;
         private FileInfo file2;
 
         private int oldHeight = 625;
+        private readonly List<PCF> pc;
+        private readonly Dictionary<string, PCF> pcfDict;
 
         public List<PCF> selectedPCFS;
+        private readonly List<string> targetParticles;
 
         public ConflictWindow(List<PCF> particleConflict, List<string> _targetParticles)
         {
@@ -66,23 +59,23 @@ namespace CompilePalX.Compilers.UtilityProcess
             fileBox.Items.Clear();
 
             //Add files to file selection box
-            foreach (PCF pcf in pc)
+            foreach (var pcf in pc)
             {
-                int headerSize = 25;
-                int paragraphSize = 13;
+                var headerSize = 25;
+                var paragraphSize = 13;
 
                 //Add list of files to filebox
                 //Fix seperators to match first part of filepath
                 fileBox.Items.Add(pcf.FilePath.Replace('/', '\\'));
 
                 //Get filename by splitting string by / and taking the last value
-                string[] fileNameSplit = pcf.FilePath.Split('/');
-                string fileName = fileNameSplit[^1].Replace(".pcf", "");
+                var fileNameSplit = pcf.FilePath.Split('/');
+                var fileName = fileNameSplit[^1].Replace(".pcf", "");
 
                 //Add advanced info to expanders
-                Grid stack = new Grid();
+                var stack = new Grid();
 
-                Expander expander = new Expander();
+                var expander = new Expander();
                 expander.Header = fileName;
                 expander.Content = stack;
                 AdvancedSP.Children.Add(expander);
@@ -100,7 +93,7 @@ namespace CompilePalX.Compilers.UtilityProcess
                     continue;
                 }
 
-                RichTextBox fileInfo = new RichTextBox();
+                var fileInfo = new RichTextBox();
                 fileInfo.BorderThickness = new Thickness(0);
                 fileInfo.Margin = new Thickness(10, 0, 10, 10);
                 fileInfo.IsReadOnly = true;
@@ -108,42 +101,44 @@ namespace CompilePalX.Compilers.UtilityProcess
                 fileInfo.Document.Blocks.Clear();
                 stack.Children.Add(fileInfo);
 
-                Paragraph header = new Paragraph(new Run("File Information"));
+                var header = new Paragraph(new Run("File Information"));
                 header.FontSize = headerSize;
                 header.Margin = new Thickness(0);
                 fileInfo.Document.Blocks.Add(header);
 
-                Paragraph fileSizeInfo = new Paragraph(new Run("Filesize: " + file.Length / 1000 + " KB"));
+                var fileSizeInfo = new Paragraph(new Run("Filesize: " + file.Length / 1000 + " KB"));
                 fileSizeInfo.Margin = new Thickness(0);
                 fileSizeInfo.FontSize = paragraphSize;
                 fileInfo.Document.Blocks.Add(fileSizeInfo);
 
-                DateTime lastDateModified = System.IO.File.GetLastWriteTime(pcf.FilePath);
+                var lastDateModified = File.GetLastWriteTime(pcf.FilePath);
 
-                Paragraph fileDateInfo = new Paragraph(new Run("Last Modified: " + lastDateModified));
+                var fileDateInfo = new Paragraph(new Run("Last Modified: " + lastDateModified));
                 fileDateInfo.Margin = new Thickness(0);
                 fileDateInfo.FontSize = paragraphSize;
                 fileInfo.Document.Blocks.Add(fileDateInfo);
 
                 //Add particle names
-                Paragraph particleHeader = new Paragraph(new Run("Particles"));
+                var particleHeader = new Paragraph(new Run("Particles"));
                 particleHeader.Margin = new Thickness(0);
                 particleHeader.FontSize = headerSize;
                 fileInfo.Document.Blocks.Add(particleHeader);
 
-                foreach (string name in pcf.ParticleNames)
+                foreach (var name in pcf.ParticleNames)
                 {
-                    Paragraph particleName = new Paragraph(new Run(name));
+                    var particleName = new Paragraph(new Run(name));
                     particleName.Margin = new Thickness(0, 0, 0, 0);
                     particleName.FontSize = paragraphSize;
                     if (targetParticles.Contains(name))
+                    {
                         particleName.Foreground = TryFindResource("MahApps.Brushes.Accent") as SolidColorBrush;
+                    }
 
                     fileInfo.Document.Blocks.Add(particleName);
                 }
 
                 //Add footer
-                Paragraph footer = new Paragraph(new Run("Used particles are highlighted"));
+                var footer = new Paragraph(new Run("Used particles are highlighted"));
                 footer.Margin = new Thickness(0);
                 footer.FontSize = paragraphSize;
                 footer.TextAlignment = TextAlignment.Center;
@@ -180,11 +175,13 @@ namespace CompilePalX.Compilers.UtilityProcess
         private void SelectClicked(object sender, RoutedEventArgs e)
         {
             if (fileBox.SelectedItems.Count == 0)
+            {
                 return;
+            }
 
             foreach (var selectedItem in fileBox.SelectedItems)
             {
-                string itemPath = selectedItem as string;
+                var itemPath = selectedItem as string;
                 selectedPCFS.Add(pcfDict[itemPath]);
             }
 

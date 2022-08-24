@@ -1,51 +1,57 @@
-﻿using System;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Windows;
 
-namespace CompilePalX;
-
-/// <summary>
-/// Interaction logic for GameConfigurationWindow.xaml
-/// </summary>
-public partial class GameConfigurationWindow
+namespace CompilePalX
 {
-    private static GameConfigurationWindow? instance;
-    public static GameConfigurationWindow Instance => instance ??= new GameConfigurationWindow();
-    private int? index;
 
-    private GameConfigurationWindow(GameConfiguration? gc = null)
+    /// <summary>
+    /// Interaction logic for GameConfigurationWindow.xaml
+    /// </summary>
+    public partial class GameConfigurationWindow
     {
-        InitializeComponent();
-        gc ??= new GameConfiguration();
-        this.DataContext = gc;
-    }
+        private static GameConfigurationWindow? instance;
+        private int? index;
 
-    public void Open(GameConfiguration? gc = null, int? index = null)
-    {
-        gc ??= new GameConfiguration();
-        this.DataContext = gc;
-        this.index = index;
-        Show();
-        Focus();
-    }
+        private GameConfigurationWindow(GameConfiguration? gc = null)
+        {
+            InitializeComponent();
+            gc ??= new GameConfiguration();
+            DataContext = gc;
+        }
+        public static GameConfigurationWindow Instance => instance ??= new GameConfigurationWindow();
+
+        public void Open(GameConfiguration? gc = null, int? index = null)
+        {
+            gc ??= new GameConfiguration();
+            DataContext = gc;
+            this.index = index;
+            Show();
+            Focus();
+        }
 
 
-    private void SaveButton_OnClick(object sender, RoutedEventArgs e)
-    {
-        // TODO: validate
-        // if index is not null, this is an edit
-        if (this.index != null)
-            GameConfigurationManager.GameConfigurations[(int)this.index] = (GameConfiguration)this.DataContext;
-        else
-            GameConfigurationManager.GameConfigurations.Add((GameConfiguration)this.DataContext);
+        private void SaveButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            // TODO: validate
+            // if index is not null, this is an edit
+            if (index != null)
+            {
+                GameConfigurationManager.GameConfigurations[(int)index] = (GameConfiguration)DataContext;
+            }
+            else
+            {
+                GameConfigurationManager.GameConfigurations.Add((GameConfiguration)DataContext);
+            }
 
-        GameConfigurationManager.SaveGameConfigurations();
-        LaunchWindow.Instance?.RefreshGameConfigurationList();
-        Close();
-    }
-    protected override void OnClosing(CancelEventArgs e)
-    {
-        instance = null;
-        base.OnClosing(e);
+            GameConfigurationManager.SaveGameConfigurations();
+            LaunchWindow.Instance?.RefreshGameConfigurationList();
+            Close();
+        }
+
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            instance = null;
+            base.OnClosing(e);
+        }
     }
 }

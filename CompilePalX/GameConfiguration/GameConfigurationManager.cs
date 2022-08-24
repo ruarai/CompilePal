@@ -2,9 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using Microsoft.Win32;
 using Newtonsoft.Json;
 
@@ -12,11 +9,11 @@ namespace CompilePalX
 {
     static class GameConfigurationManager
     {
-        private static string? mapFile = null;
+        private static string? mapFile;
         public static GameConfiguration? GameConfiguration;
         public static GameConfiguration GameConfigurationBackup;
         public static List<GameConfiguration> GameConfigurations;
-        private static string GameConfigurationFolder = "./GameConfiguration";
+        private static readonly string GameConfigurationFolder = "./GameConfiguration";
         private static readonly string GameConfigurationsPath = Path.Combine(GameConfigurationFolder, "gameConfigs.json");
 
         public static string SubstituteValues(string text, string mapFile = "")
@@ -26,7 +23,7 @@ namespace CompilePalX
             text = text.Replace("$bsp$", $"\"{Path.ChangeExtension(mapFile, "bsp")}\"");
 
             text = text.Replace("$mapCopyLocation$",
-	            $"\"{Path.Combine(GameConfiguration.MapFolder, Path.ChangeExtension(Path.GetFileName(mapFile), "bsp"))}\"");
+                $"\"{Path.Combine(GameConfiguration.MapFolder, Path.ChangeExtension(Path.GetFileName(mapFile), "bsp"))}\"");
 
             text = text.Replace("$game$", $"\"{GameConfiguration.GameFolder}\"");
             text = text.Replace("$gameEXE$", $"\"{GameConfiguration.GameEXE}\"");
@@ -49,9 +46,21 @@ namespace CompilePalX
         }
 
         /// <summary>
-        /// Modifies the current context
+        ///     Modifies
+        ///     the
+        ///     current
+        ///     context
         /// </summary>
-        /// <param name="val">string in the form 'COMPILE_PAL_SET VARNAME VALUE'</param>
+        /// <param
+        ///     name="val">
+        ///     string
+        ///     in
+        ///     the
+        ///     form
+        ///     'COMPILE_PAL_SET
+        ///     VARNAME
+        ///     VALUE'
+        /// </param>
         public static void ModifyCurrentContext(string val)
         {
             val = val.Replace("COMPILE_PAL_SET ", "");
@@ -107,34 +116,36 @@ namespace CompilePalX
             return new CompileContext
             {
                 Configuration = GameConfiguration,
-                MapFile = GameConfigurationManager.mapFile ?? map.File,
+                MapFile = mapFile ?? map.File,
                 Map = map,
-                BSPFile = Path.ChangeExtension(GameConfigurationManager.mapFile ?? map.File, "bsp"),
-                CopyLocation = map.IsBSP ? map.File : Path.Combine(GameConfiguration.MapFolder, Path.ChangeExtension(Path.GetFileName(GameConfigurationManager.mapFile ?? map.File), "bsp"))
+                BSPFile = Path.ChangeExtension(mapFile ?? map.File, "bsp"),
+                CopyLocation = map.IsBSP ? map.File : Path.Combine(GameConfiguration.MapFolder, Path.ChangeExtension(Path.GetFileName(mapFile ?? map.File), "bsp"))
             };
         }
 
         public static void LoadGameConfigurations()
         {
             if (!Directory.Exists(GameConfigurationFolder))
+            {
                 Directory.CreateDirectory(GameConfigurationFolder);
+            }
 
             //Loading the last used configurations for hammer
-            RegistryKey? rk = Registry.CurrentUser.OpenSubKey(@"Software\Valve\Hammer\General");
+            var rk = Registry.CurrentUser.OpenSubKey(@"Software\Valve\Hammer\General");
 
             var configs = new List<GameConfiguration>();
 
             //try loading json
             if (File.Exists(GameConfigurationsPath))
             {
-                string jsonLoadText = File.ReadAllText(GameConfigurationsPath);
+                var jsonLoadText = File.ReadAllText(GameConfigurationsPath);
                 configs.AddRange(JsonConvert.DeserializeObject<List<GameConfiguration>>(jsonLoadText) ?? new List<GameConfiguration>());
             }
 
             //try loading from registry
             if (rk != null)
             {
-                string binFolder = (string)rk.GetValue("Directory")!;
+                var binFolder = (string)rk.GetValue("Directory")!;
 
                 try
                 {
@@ -148,13 +159,13 @@ namespace CompilePalX
 
             // remove duplicates
             GameConfigurations = configs.GroupBy(g => (g.Name, g.GameFolder)).Select(grp => grp.First()).ToList();
-            
+
             SaveGameConfigurations();
         }
 
         public static void SaveGameConfigurations()
         {
-            string jsonSaveText = JsonConvert.SerializeObject(GameConfigurations, Formatting.Indented);
+            var jsonSaveText = JsonConvert.SerializeObject(GameConfigurations, Formatting.Indented);
             File.WriteAllText(GameConfigurationsPath, jsonSaveText);
         }
     }

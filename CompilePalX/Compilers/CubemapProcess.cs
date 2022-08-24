@@ -1,34 +1,34 @@
-﻿using CompilePalX.Compiling;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
-using System.Threading.Tasks;
+using CompilePalX.Compiling;
 
 namespace CompilePalX.Compilers
 {
     class CubemapProcess : CompileProcess
     {
+        private string bspFile;
+
+        private bool HDR;
+
+        private bool hidden;
+        private bool LDR;
+
+        private string vbspInfo;
         public CubemapProcess() : base("CUBEMAPS") { }
 
-        bool HDR = false;
-        bool LDR = false;
-
-        string vbspInfo;
-        string bspFile;
-
-        bool hidden;
-        
 
         public override void Run(CompileContext context, CancellationToken cancellationToken)
         {
             CompileErrors = new List<Error>();
 
-            if (!CanRun(context)) return;
+            if (!CanRun(context))
+            {
+                return;
+            }
 
             vbspInfo = context.Configuration.VBSPInfo;
             bspFile = context.CopyLocation;
@@ -57,34 +57,48 @@ namespace CompilePalX.Compilers
                 hidden = GetParameterString().Contains("-hidden");
                 FetchHDRLevels();
 
-                string mapname = System.IO.Path.GetFileName(context.CopyLocation).Replace(".bsp", "");
+                var mapname = Path.GetFileName(context.CopyLocation).Replace(".bsp", "");
 
-                string args =
+                var args =
                     $"-steam -game \"{context.Configuration.GameFolder}\" -windowed -novid -nosound +mat_specular 0 %HDRevel% +map {mapname} -buildcubemaps {addtionalParameters}";
 
                 if (hidden)
+                {
                     args += " -noborder -x 4000 -y 2000";
+                }
 
                 if (HDR && LDR)
                 {
                     CompilePalLogger.LogLine("Map requires two sets of cubemaps");
 
-                    if (cancellationToken.IsCancellationRequested) return;
+                    if (cancellationToken.IsCancellationRequested)
+                    {
+                        return;
+                    }
                     CompilePalLogger.LogLine("Compiling LDR cubemaps...");
                     RunCubemaps(context.Configuration.GameEXE, args.Replace("%HDRevel%", "+mat_hdr_level 0"), cancellationToken);
 
-                    if (cancellationToken.IsCancellationRequested) return;
+                    if (cancellationToken.IsCancellationRequested)
+                    {
+                        return;
+                    }
                     CompilePalLogger.LogLine("Compiling HDR cubemaps...");
                     RunCubemaps(context.Configuration.GameEXE, args.Replace("%HDRevel%", "+mat_hdr_level 2"), cancellationToken);
                 }
                 else
                 {
-                    if (cancellationToken.IsCancellationRequested) return;
+                    if (cancellationToken.IsCancellationRequested)
+                    {
+                        return;
+                    }
                     CompilePalLogger.LogLine("Map requires one set of cubemaps");
                     CompilePalLogger.LogLine("Compiling cubemaps...");
                     RunCubemaps(context.Configuration.GameEXE, args.Replace("%HDRevel%", ""), cancellationToken);
                 }
-                if (cancellationToken.IsCancellationRequested) return;
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    return;
+                }
                 CompilePalLogger.LogLine("Cubemaps compiled");
             }
             catch (FileNotFoundException)
@@ -105,7 +119,10 @@ namespace CompilePalX.Compilers
             startInfo.UseShellExecute = false;
             startInfo.CreateNoWindow = false;
 
-            Process = new Process { StartInfo = startInfo };
+            Process = new Process
+            {
+                StartInfo = startInfo
+            };
             Process.Start();
             Process.WaitForExit();
         }
@@ -115,12 +132,13 @@ namespace CompilePalX.Compilers
             CompilePalLogger.LogLine("Detecting HDR levels...");
             var startInfo = new ProcessStartInfo(vbspInfo, "\"" + bspFile + "\"")
             {
-                UseShellExecute = false,
-                CreateNoWindow = true,
-                RedirectStandardOutput = true
+                UseShellExecute = false, CreateNoWindow = true, RedirectStandardOutput = true
             };
 
-            Process = new Process { StartInfo = startInfo };
+            Process = new Process
+            {
+                StartInfo = startInfo
+            };
             try
             {
                 Process.Start();
@@ -133,15 +151,18 @@ namespace CompilePalX.Compilers
                 return;
             }
 
-            string output = Process.StandardOutput.ReadToEnd();
+            var output = Process.StandardOutput.ReadToEnd();
 
             if (Process.ExitCode != 0)
+            {
                 CompilePalLogger.LogLine("Could not read HDR levels, defaulting to one.");
-            else{
-                Regex re = new Regex(@"^LDR\sworldlights\s+.*", RegexOptions.IgnoreCase | RegexOptions.Multiline);
-                string LDRStats = re.Match(output).Value.Trim();
+            }
+            else
+            {
+                var re = new Regex(@"^LDR\sworldlights\s+.*", RegexOptions.IgnoreCase | RegexOptions.Multiline);
+                var LDRStats = re.Match(output).Value.Trim();
                 re = new Regex(@"^HDR\sworldlights\s+.*", RegexOptions.IgnoreCase | RegexOptions.Multiline);
-                string HDRStats = re.Match(output).Value.Trim();
+                var HDRStats = re.Match(output).Value.Trim();
                 LDR = !LDRStats.Contains(" 0/");
                 HDR = !HDRStats.Contains(" 0/");
             }

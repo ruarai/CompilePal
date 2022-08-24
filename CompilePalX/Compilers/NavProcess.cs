@@ -1,34 +1,34 @@
-﻿using CompilePalX.Compiling;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
-using System.Threading.Tasks;
+using CompilePalX.Compiling;
 
 namespace CompilePalX.Compilers
 {
     class NavProcess : CompileProcess
     {
-        public NavProcess() : base("NAV") { }
 
-        static string mapname;
-        static string mapnav;
-        static string mapcfg;
-        static string mapCFGBackup;
+        private static string mapname;
+        private static string mapnav;
+        private static string mapcfg;
+        private static string mapCFGBackup;
+
+        private bool hidden;
         private string mapLogPath;
-
-        bool hidden;
+        public NavProcess() : base("NAV") { }
 
         public override void Run(CompileContext context, CancellationToken cancellationToken)
         {
             CompileErrors = new List<Error>();
 
-            if (!CanRun(context)) return;
+            if (!CanRun(context))
+            {
+                return;
+            }
 
             try
             {
@@ -39,25 +39,30 @@ namespace CompilePalX.Compilers
                     throw new FileNotFoundException();
                 }
 
-                mapname = System.IO.Path.GetFileName(context.CopyLocation).Replace(".bsp", "");
+                mapname = Path.GetFileName(context.CopyLocation).Replace(".bsp", "");
                 mapnav = context.CopyLocation.Replace(".bsp", ".nav");
                 mapcfg = context.Configuration.GameFolder + "/cfg/" + mapname + ".cfg";
                 mapCFGBackup = context.Configuration.GameFolder + "/cfg/" + mapname + "_cpalbackup.cfg";
-                string mapLog = mapname + "_nav.log";
+                var mapLog = mapname + "_nav.log";
                 mapLogPath = Path.Combine(context.Configuration.GameFolder, mapLog);
 
-                if (cancellationToken.IsCancellationRequested) return;
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    return;
+                }
                 DeleteNav(mapname, context.Configuration.GameFolder);
 
                 hidden = GetParameterString().Contains("-hidden");
 
                 var addtionalParameters = Regex.Replace(GetParameterString(), "\b-hidden\b", "");
 
-                string args =
+                var args =
                     $"-steam -game \"{context.Configuration.GameFolder}\" -windowed -novid -nosound +log 0 +sv_logflush 1 +sv_cheats 1 +map {mapname} {addtionalParameters}";
 
                 if (hidden)
+                {
                     args += " -noborder -x 4000 -y 2000";
+                }
 
                 var startInfo = new ProcessStartInfo(context.Configuration.GameEXE, args);
                 startInfo.UseShellExecute = false;
@@ -67,14 +72,18 @@ namespace CompilePalX.Compilers
                 if (File.Exists(mapcfg))
                 {
                     if (File.Exists(mapCFGBackup))
-                        System.IO.File.Delete(mapCFGBackup);
-                    System.IO.File.Move(mapcfg, mapCFGBackup);
+                    {
+                        File.Delete(mapCFGBackup);
+                    }
+                    File.Move(mapcfg, mapCFGBackup);
                 }
 
                 if (File.Exists(mapLogPath))
+                {
                     File.Delete(mapLogPath);
+                }
 
-                System.IO.File.Create(mapcfg).Dispose();
+                File.Create(mapcfg).Dispose();
                 TextWriter tw = new StreamWriter(mapcfg);
                 tw.WriteLine("con_logfile " + mapLog);
                 tw.WriteLine("nav_generate");
@@ -82,11 +91,14 @@ namespace CompilePalX.Compilers
 
                 using (TextReader tr = new StreamReader(File.Open(mapLogPath, FileMode.OpenOrCreate, FileAccess.Read, FileShare.ReadWrite)))
                 {
-                    Process = new Process { StartInfo = startInfo };
-                    Process.Exited += new EventHandler(Process_Exited);
+                    Process = new Process
+                    {
+                        StartInfo = startInfo
+                    };
+                    Process.Exited += Process_Exited;
                     Process.EnableRaisingEvents = true;
                     Process.Start();
-                
+
                     string line;
                     do
                     {
@@ -94,10 +106,13 @@ namespace CompilePalX.Compilers
                         line = tr.ReadLine();
                     } while ((line == null || !line.Contains(".nav' saved.")) && !cancellationToken.IsCancellationRequested);
                 }
-                
+
                 ExitClient();
 
-                if (cancellationToken.IsCancellationRequested) return;
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    return;
+                }
                 CompilePalLogger.LogLine("nav file complete!");
             }
             catch (FileNotFoundException)
@@ -113,10 +128,10 @@ namespace CompilePalX.Compilers
 
         private static void DeleteNav(string mapname, string gamefolder)
         {
-            List<string> navdirs = BSPPack.BSPPack.GetSourceDirectories(gamefolder, false);
-            foreach (string source in navdirs)
+            var navdirs = BSPPack.BSPPack.GetSourceDirectories(gamefolder, false);
+            foreach (var source in navdirs)
             {
-                string externalPath = source + "/maps/" + mapname + ".nav";
+                var externalPath = source + "/maps/" + mapname + ".nav";
 
                 if (File.Exists(externalPath))
                 {
@@ -129,13 +144,17 @@ namespace CompilePalX.Compilers
         private void ExitClient()
         {
             if (Process != null && !Process.HasExited)
+            {
                 try
                 {
-                    this.Process.Kill();
+                    Process.Kill();
                 }
                 catch (Win32Exception) { }
+            }
             else
+            {
                 CleanUp();
+            }
         }
         private void CleanUp()
         {
@@ -143,11 +162,17 @@ namespace CompilePalX.Compilers
             try
             {
                 if (File.Exists(mapcfg))
+                {
                     File.Delete(mapcfg);
+                }
                 if (File.Exists(mapCFGBackup))
-                    System.IO.File.Move(mapCFGBackup, mapcfg);
+                {
+                    File.Move(mapCFGBackup, mapcfg);
+                }
                 if (File.Exists(mapLogPath))
+                {
                     File.Delete(mapLogPath);
+                }
             }
             catch (Exception e)
             {
@@ -160,7 +185,7 @@ namespace CompilePalX.Compilers
             ExitClient();
         }
 
-        void Process_Exited(object sender, EventArgs e)
+        private void Process_Exited(object sender, EventArgs e)
         {
             CleanUp();
         }

@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -17,10 +14,6 @@ namespace CompilePalX
     public partial class LaunchWindow
     {
 
-        private bool GameConfigsEmpty => !GameConfigurationManager.GameConfigurations.Any();
-
-        public static LaunchWindow? Instance { get; private set; }
-
         public LaunchWindow()
         {
             Instance = this;
@@ -32,34 +25,40 @@ namespace CompilePalX
 
                 // automatically launch if there is only 1 config and main window is not open  
                 if (GameConfigurationManager.GameConfigurations.Count == 1 && MainWindow.Instance == null)
+                {
                     Launch(GameConfigurationManager.GameConfigurations.First());
+                }
 
                 GameGrid.ItemsSource = GameConfigurationManager.GameConfigurations;
 
                 RefreshGameConfigurationList();
 
                 //Handle command line args for game configs
-                string[] commandLineArgs = Environment.GetCommandLineArgs();
-                for (int i = 0; i < commandLineArgs.Length; i++)
+                var commandLineArgs = Environment.GetCommandLineArgs();
+                for (var i = 0; i < commandLineArgs.Length; i++)
                 {
-	                var arg = commandLineArgs[i];
+                    var arg = commandLineArgs[i];
                     try
                     {
                         // look for game args
                         if (arg == "--game")
                         {
-							// make sure args don't go out of bounds
-	                        if (i + 1 > commandLineArgs.Length)
-		                        break;
-
-	                        string argGameConfig = commandLineArgs[i + 1].ToLower();
-
-                            foreach (GameConfiguration config in GameConfigurationManager.GameConfigurations)
+                            // make sure args don't go out of bounds
+                            if (i + 1 > commandLineArgs.Length)
                             {
-	                            string configName = config.Name.ToLower();
+                                break;
+                            }
+
+                            var argGameConfig = commandLineArgs[i + 1].ToLower();
+
+                            foreach (var config in GameConfigurationManager.GameConfigurations)
+                            {
+                                var configName = config.Name.ToLower();
 
                                 if (argGameConfig == configName)
-	                                Launch(config);
+                                {
+                                    Launch(config);
+                                }
                             }
                         }
                     }
@@ -72,20 +71,24 @@ namespace CompilePalX
             catch (Exception e) { ExceptionHandler.LogException(e); }
         }
 
+        private bool GameConfigsEmpty => !GameConfigurationManager.GameConfigurations.Any();
+
+        public static LaunchWindow? Instance { get; private set; }
+
         private void Launch(GameConfiguration config)
         {
             GameConfigurationManager.GameConfiguration = config;
             Instance = null;
 
-			// if main window already exists update title
+            // if main window already exists update title
             if (MainWindow.Instance == null)
             {
-				var c = new MainWindow();
-				c.Show();
+                var c = new MainWindow();
+                c.Show();
             }
             else
             {
-				MainWindow.Instance.Title = $"Compile Pal {UpdateManager.CurrentVersion}X {GameConfigurationManager.GameConfiguration.Name}";
+                MainWindow.Instance.Title = $"Compile Pal {UpdateManager.CurrentVersion}X {GameConfigurationManager.GameConfiguration.Name}";
                 // refresh item sources to reevaluate process/parameter compatibility
                 MainWindow.Instance.RefreshSources();
             }
@@ -96,27 +99,31 @@ namespace CompilePalX
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             // walk up dependency tree to make sure click source was not edit/delete button
-            DependencyObject? dep = e.OriginalSource as DependencyObject;
-            while ((dep != null) && !(dep is Button) && !(dep is DataGridRow))
+            var dep = e.OriginalSource as DependencyObject;
+            while (dep != null && !(dep is Button) && !(dep is DataGridRow))
             {
                 dep = VisualTreeHelper.GetParent(dep);
             }
 
             // ignore if double click came from button
             if (dep is Button b && b.Name != "LaunchButton")
+            {
                 return;
+            }
 
             var selectedItem = (GameConfiguration?)GameGrid.SelectedItem;
 
             if (selectedItem != null)
+            {
                 Launch(selectedItem);
+            }
         }
 
         protected override void OnClosing(CancelEventArgs e)
         {
-	        Instance = null;
+            Instance = null;
             GameConfigurationWindow.Instance?.Close();
-	        base.OnClosing(e);
+            base.OnClosing(e);
         }
 
         private void AddButton_OnClick(object sender, RoutedEventArgs e)
@@ -126,7 +133,7 @@ namespace CompilePalX
 
         public void RefreshGameConfigurationList()
         {
-            this.GameGrid.Items.Refresh();
+            GameGrid.Items.Refresh();
 
             // recalculate state
             if (GameConfigsEmpty)
@@ -146,7 +153,7 @@ namespace CompilePalX
         private void EditButton_OnClick(object sender, RoutedEventArgs e)
         {
             var configuration = (GameConfiguration)((Button)sender).DataContext;
-            int configIndex = GameConfigurationManager.GameConfigurations.IndexOf(configuration);
+            var configIndex = GameConfigurationManager.GameConfigurations.IndexOf(configuration);
             GameConfigurationWindow.Instance.Open(configuration.Clone() as GameConfiguration, configIndex);
         }
 
@@ -154,20 +161,22 @@ namespace CompilePalX
         {
             var configuration = (GameConfiguration)((Button)sender).DataContext;
 
-            var dialogSettings = new MetroDialogSettings()
+            var dialogSettings = new MetroDialogSettings
             {
                 AffirmativeButtonText = "Delete",
                 NegativeButtonText = "Cancel",
                 AnimateHide = false,
                 AnimateShow = false,
-                DefaultButtonFocus = MessageDialogResult.Affirmative,
+                DefaultButtonFocus = MessageDialogResult.Affirmative
             };
 
-            var result = await this.ShowMessageAsync($"Delete Game", $"Are you sure you want to delete {configuration.Name}?",
+            var result = await this.ShowMessageAsync("Delete Game", $"Are you sure you want to delete {configuration.Name}?",
                 MessageDialogStyle.AffirmativeAndNegative, dialogSettings);
 
             if (result != MessageDialogResult.Affirmative)
+            {
                 return;
+            }
 
             GameConfigurationManager.GameConfigurations.Remove(configuration);
             GameConfigurationManager.SaveGameConfigurations();
@@ -179,7 +188,9 @@ namespace CompilePalX
                 GameConfigurationManager.GameConfiguration = null;
                 // if game config is already opened in the main window, close it
                 if (MainWindow.Instance != null)
+                {
                     MainWindow.Instance.Close();
+                }
             }
         }
 

@@ -1,43 +1,37 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Media;
 using System.Windows.Shell;
 
 namespace CompilePalX
 {
-    internal delegate void OnTitleChange(string title);
-    internal delegate void OnProgressChange(double progress);
+    delegate void OnTitleChange(string title);
+    delegate void OnProgressChange(double progress);
     static class ProgressManager
     {
-        public static event OnTitleChange TitleChange;
-        public static event OnProgressChange ProgressChange;
 
         private static TaskbarItemInfo taskbarInfo;
         private static bool ready;
-        private static string defaultTitle = "Compile Pal";
+        private static readonly string defaultTitle = "Compile Pal";
 
-        static public void Init(TaskbarItemInfo _taskbarInfo)
+
+        public static double Progress
+        {
+            get => taskbarInfo.Dispatcher.Invoke(() => { return ready ? taskbarInfo.ProgressValue : 0; });
+            set => SetProgress(value);
+        }
+        public static event OnTitleChange TitleChange;
+        public static event OnProgressChange ProgressChange;
+
+        public static void Init(TaskbarItemInfo _taskbarInfo)
         {
             taskbarInfo = _taskbarInfo;
             ready = true;
 
             TitleChange(
-	            $"{defaultTitle} {UpdateManager.CurrentVersion}X {GameConfigurationManager.GameConfiguration.Name}");
+                $"{defaultTitle} {UpdateManager.CurrentVersion}X {GameConfigurationManager.GameConfiguration.Name}");
         }
 
-
-        static public double Progress
-        {
-            get
-            {
-                return taskbarInfo.Dispatcher.Invoke(() => { return ready ? taskbarInfo.ProgressValue : 0; });
-            }
-            set { SetProgress(value); }
-        }
-
-        static public void SetProgress(double progress)
+        public static void SetProgress(double progress)
         {
             if (ready)
             {
@@ -52,13 +46,13 @@ namespace CompilePalX
                     {
                         TitleChange($"{Math.Floor(progress * 100d)}% - {defaultTitle} {UpdateManager.CurrentVersion}X");
 
-                        System.Media.SystemSounds.Exclamation.Play();
+                        SystemSounds.Exclamation.Play();
                     }
                     else if (progress <= 0)
                     {
                         taskbarInfo.ProgressState = TaskbarItemProgressState.None;
                         TitleChange(
-	                        $"{defaultTitle} {UpdateManager.CurrentVersion}X {GameConfigurationManager.GameConfiguration.Name}");
+                            $"{defaultTitle} {UpdateManager.CurrentVersion}X {GameConfigurationManager.GameConfiguration.Name}");
                     }
                     else
                     {
@@ -69,29 +63,31 @@ namespace CompilePalX
             }
         }
 
-        static public void ErrorProgress()
+        public static void ErrorProgress()
         {
             taskbarInfo.Dispatcher.Invoke(() =>
-                                          {
-                                              if (ready)
-                                              {
-                                                  SetProgress(1);
-                                                  taskbarInfo.ProgressState = TaskbarItemProgressState.Error;
-                                              }
-                                          });
+            {
+                if (ready)
+                {
+                    SetProgress(1);
+                    taskbarInfo.ProgressState = TaskbarItemProgressState.Error;
+                }
+            });
 
         }
 
-        static public void PingProgress()
+        public static void PingProgress()
         {
             taskbarInfo.Dispatcher.Invoke(() =>
-                                          {
-                                              if (ready)
-                                              {
-                                                  if (taskbarInfo.ProgressValue >= 1)
-                                                      SetProgress(0);
-                                              }
-                                          });
+            {
+                if (ready)
+                {
+                    if (taskbarInfo.ProgressValue >= 1)
+                    {
+                        SetProgress(0);
+                    }
+                }
+            });
         }
     }
 }

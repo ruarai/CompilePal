@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
-using CompilePalX.Compiling;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
+using CompilePalX.Compiling;
 
 namespace CompilePalX.Compilers
 {
@@ -14,10 +14,15 @@ namespace CompilePalX.Compilers
         {
 
             CompileErrors = new List<Error>();
-            if (!CanRun(context)) return;
+            if (!CanRun(context))
+            {
+                return;
+            }
 
             if (cancellationToken.IsCancellationRequested)
+            {
                 return;
+            }
 
             // don't run unless it's the last map of the queue
             if (CompilingManager.MapFiles.Last().File == context.MapFile)
@@ -30,7 +35,10 @@ namespace CompilePalX.Compilers
                 startInfo.UseShellExecute = false;
                 startInfo.CreateNoWindow = true;
 
-                Process = new Process { StartInfo = startInfo };
+                Process = new Process
+                {
+                    StartInfo = startInfo
+                };
                 Process.Start();
             }
         }

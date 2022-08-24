@@ -1,32 +1,34 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.IO;
 using System.Threading;
-using System.Windows.Media;
+using System.Threading.Tasks;
 using CompilePalX.Compiling;
 
 namespace CompilePalX.Compilers
 {
     class CompileExecutable : CompileProcess
     {
+
+        private static readonly string runningDirectory = ".";
         public CompileExecutable(string metadata)
             : base(metadata)
         {
             if (!Directory.Exists(runningDirectory))
+            {
                 Directory.CreateDirectory(runningDirectory);
+            }
         }
-
-        private static string runningDirectory = ".";
 
         public override void Run(CompileContext c, CancellationToken cancellationToken)
         {
             CompileErrors = new List<Error>();
 
-            if (!CanRun(c)) return;
+            if (!CanRun(c))
+            {
+                return;
+            }
 
             // listen for cancellations
             cancellationToken.Register(() =>
@@ -43,13 +45,13 @@ namespace CompilePalX.Compilers
             if (Metadata.ReadOutput)
             {
                 Process.StartInfo = new ProcessStartInfo
-                    {
-                        RedirectStandardOutput = true,
-                        RedirectStandardInput = true,
-                        RedirectStandardError = true,
-                        UseShellExecute = false,
-                        CreateNoWindow = true,
-                    };
+                {
+                    RedirectStandardOutput = true,
+                    RedirectStandardInput = true,
+                    RedirectStandardError = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                };
             }
 
             var args = GameConfigurationManager.SubstituteValues(GetParameterString(), c.MapFile);
@@ -64,7 +66,7 @@ namespace CompilePalX.Compilers
             {
                 if (cancellationToken.IsCancellationRequested)
                 {
-                    CompilePalLogger.LogDebug($"Cancelled {this.Metadata.Name}");
+                    CompilePalLogger.LogDebug($"Cancelled {Metadata.Name}");
                     return;
                 }
                 Process.Start();
@@ -78,25 +80,31 @@ namespace CompilePalX.Compilers
             Process.PriorityClass = ProcessPriorityClass.BelowNormal;
 
             if (Metadata.ReadOutput)
-            { 
+            {
                 ReadOutput(cancellationToken);
                 if (Process.ExitCode != 0)
+                {
                     CompilePalLogger.LogCompileError($"{Name} exited with code: {Process.ExitCode}\n", new Error($"{Name} exited with code: {Process.ExitCode}", ErrorSeverity.Warning));
+                }
 
             }
         }
 
         private void ReadOutput(CancellationToken cancellationToken)
         {
-            char[] buffer = new char[256];
+            var buffer = new char[256];
             Task<int> read = null;
             while (true)
             {
                 if (cancellationToken.IsCancellationRequested)
+                {
                     return;
+                }
 
                 if (read == null)
+                {
                     read = Process.StandardOutput.ReadAsync(buffer, 0, buffer.Length);
+                }
 
                 read.Wait(100); // an arbitray timeout
 
@@ -104,7 +112,7 @@ namespace CompilePalX.Compilers
                 {
                     if (read.Result > 0)
                     {
-                        string text = new string(buffer, 0, read.Result);
+                        var text = new string(buffer, 0, read.Result);
 
                         CompilePalLogger.ProgressiveLog(text);
 

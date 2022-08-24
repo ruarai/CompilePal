@@ -6,135 +6,140 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Media;
 using CompilePalX.Compiling;
 
 namespace CompilePalX.Compilers
 {
-	//Process does not actually run, only builds list of custom processes
-	class CustomProcess : CompileProcess
-	{
-		public CustomProcess() : base("CUSTOM") { }
+    //Process does not actually run, only builds list of custom processes
+    class CustomProcess : CompileProcess
+    {
 
-		public List<CustomProgram> Programs = new List<CustomProgram>();
+        public List<CustomProgram> Programs = new List<CustomProgram>();
+        public CustomProcess() : base("CUSTOM") { }
 
-		public List<CustomProgram> BuildProgramList()
-		{
-			Programs = new List<CustomProgram>();
-			foreach (var parameter in PresetDictionary[ConfigurationManager.CurrentPreset])
-			{
-				string path = parameter.Value;
-				string args = parameter.Value2;
+        public List<CustomProgram> BuildProgramList()
+        {
+            Programs = new List<CustomProgram>();
+            foreach (var parameter in PresetDictionary[ConfigurationManager.CurrentPreset])
+            {
+                var path = parameter.Value;
+                var args = parameter.Value2;
 
-				//Set default order to 15
-				int order = 15;
+                //Set default order to 15
+                var order = 15;
 
-				//Use warning to hold custom order
-				if (!string.IsNullOrWhiteSpace(parameter.Warning))
-					Int32.TryParse(parameter.Warning, out order);
+                //Use warning to hold custom order
+                if (!string.IsNullOrWhiteSpace(parameter.Warning))
+                {
+                    int.TryParse(parameter.Warning, out order);
+                }
 
-				if (string.IsNullOrWhiteSpace(path))
-					continue;
+                if (string.IsNullOrWhiteSpace(path))
+                {
+                    continue;
+                }
 
-				CustomProgram program = new CustomProgram(path, args, parameter.ReadOutput, parameter.WaitForExit, order);
+                var program = new CustomProgram(path, args, parameter.ReadOutput, parameter.WaitForExit, order);
 
-				Programs.Add(program);
-			}
+                Programs.Add(program);
+            }
 
-			return Programs;
-		}
-	}
+            return Programs;
+        }
+    }
 
-	class CustomProgram : CompileProcess
-	{
-		public new Process Process { get; set; }
+    class CustomProgram : CompileProcess
+    {
 
-		public new string Name { get; set; }
-		public new string Description { get; set; }
+        public CustomProgram(string path, string args, bool readOutput, bool waitForExit, int customOrder) : base("CUSTOM")
+        {
+            Path = path;
+            Args = args;
+            ReadOutput = readOutput;
+            WaitForExit = waitForExit;
+            CustomOrder = customOrder;
+            Name = path.Replace("\\", "/").Replace("\"", "").Split('/').Last();
+            Description = "Run program.";
+            Draggable = true;
+        }
+        public new Process Process { get; set; }
 
-		public string Path { get; set; }
+        public new string Name { get; set; }
+        public new string Description { get; set; }
 
-		public ProcessStartInfo StartInfo { get; set; }
+        public string Path { get; set; }
 
-		public string Args { get; }
+        public ProcessStartInfo StartInfo { get; set; }
 
-		public bool ReadOutput { get; set; }
+        public string Args { get; }
 
-		public bool WaitForExit { get; set; }
+        public bool ReadOutput { get; set; }
 
-		public int CustomOrder { get; set; }
+        public bool WaitForExit { get; set; }
 
-		public CustomProgram(string path, string args, bool readOutput, bool waitForExit, int customOrder) : base("CUSTOM")
-		{
-			Path = path;
-			Args = args;
-			ReadOutput = readOutput;
-			WaitForExit = waitForExit;
-			CustomOrder = customOrder;
-			Name = path.Replace("\\", "/").Replace("\"", "").Split('/').Last();
-			Description = "Run program.";
-			Draggable = true;
-		}
+        public int CustomOrder { get; set; }
 
-		//Import FindExecutable to find program associated with filetype
-		[DllImport("shell32.dll")]
-		static extern int FindExecutable(string lpFile, string lpDirectory, [Out] StringBuilder lpResult);
+        //Import FindExecutable to find program associated with filetype
+        [DllImport("shell32.dll")]
+        private static extern int FindExecutable(string lpFile, string lpDirectory, [Out] StringBuilder lpResult);
 
-		public override void Run(CompileContext c, CancellationToken cancellationToken)
-		{
+        public override void Run(CompileContext c, CancellationToken cancellationToken)
+        {
             CompileErrors = new List<Error>();
 
-            if (!CanRun(c)) return;
+            if (!CanRun(c))
+            {
+                return;
+            }
 
-			CompilePalLogger.LogLine("\nCompilePal - " + Path);
+            CompilePalLogger.LogLine("\nCompilePal - " + Path);
 
-			//Find filepath of program associated with filetype
-			//This is similar to using shellexecute, except we can read the output
-			StringBuilder programPath = new StringBuilder();
-			Path = ParseArgs(Path, c);
-			int result = FindExecutable(Path, null, programPath);
+            //Find filepath of program associated with filetype
+            //This is similar to using shellexecute, except we can read the output
+            var programPath = new StringBuilder();
+            Path = ParseArgs(Path, c);
+            var result = FindExecutable(Path, null, programPath);
 
-			//Result code <= is an error
-			if (result <= 32)
-			{
-				//TODO switch to error logs
-				switch (result)
-				{
-					case 2:
-						CompilePalLogger.LogCompileError($"File not found: {Path}\n", new Error($"File not found: {Path}\n", ErrorSeverity.Error));
-						break;
-					case 3:
-						CompilePalLogger.LogCompileError($"Path is invalid: {Path}\n", new Error($"Path is invalid: {Path}\n", ErrorSeverity.Error));
-						break;
-					case 5:
-						CompilePalLogger.LogCompileError($"File could not be accessed: {Path}\n", new Error($"File could not be accessed: {Path}\n", ErrorSeverity.Error));
-						break;
-					case 31:
-						CompilePalLogger.LogCompileError($"There is no program associated with this filetype: {Path}\n", new Error($"There is no program associated with this filetype: {Path}\n", ErrorSeverity.Error));
-						break;
-				}
-				return;
-			}
+            //Result code <= is an error
+            if (result <= 32)
+            {
+                //TODO switch to error logs
+                switch (result)
+                {
+                    case 2:
+                        CompilePalLogger.LogCompileError($"File not found: {Path}\n", new Error($"File not found: {Path}\n", ErrorSeverity.Error));
+                        break;
+                    case 3:
+                        CompilePalLogger.LogCompileError($"Path is invalid: {Path}\n", new Error($"Path is invalid: {Path}\n", ErrorSeverity.Error));
+                        break;
+                    case 5:
+                        CompilePalLogger.LogCompileError($"File could not be accessed: {Path}\n", new Error($"File could not be accessed: {Path}\n", ErrorSeverity.Error));
+                        break;
+                    case 31:
+                        CompilePalLogger.LogCompileError($"There is no program associated with this filetype: {Path}\n", new Error($"There is no program associated with this filetype: {Path}\n", ErrorSeverity.Error));
+                        break;
+                }
+                return;
+            }
 
-			string parsedArgs = ParseArgs(Args, c);
-			// Python files require the filename to be the first arg, otherwise it just opens python
-			if (Path.EndsWith(".py"))
-				parsedArgs = parsedArgs.Insert(0, Path);
+            var parsedArgs = ParseArgs(Args, c);
+            // Python files require the filename to be the first arg, otherwise it just opens python
+            if (Path.EndsWith(".py"))
+            {
+                parsedArgs = parsedArgs.Insert(0, Path);
+            }
 
-			StartInfo = new ProcessStartInfo
-			{
-				UseShellExecute = false,
-				CreateNoWindow = true,
-				FileName = programPath.ToString(),
-				Arguments = parsedArgs
-			};
+            StartInfo = new ProcessStartInfo
+            {
+                UseShellExecute = false, CreateNoWindow = true, FileName = programPath.ToString(), Arguments = parsedArgs
+            };
 
-			if (ReadOutput)
-			{
-				StartInfo.RedirectStandardOutput = true;
-				StartInfo.RedirectStandardInput = true;
-				StartInfo.RedirectStandardError = true;
-			}
+            if (ReadOutput)
+            {
+                StartInfo.RedirectStandardOutput = true;
+                StartInfo.RedirectStandardInput = true;
+                StartInfo.RedirectStandardError = true;
+            }
 
 
             // listen for cancellations
@@ -155,7 +160,7 @@ namespace CompilePalX.Compilers
 
             try
             {
-                Process = new Process()
+                Process = new Process
                 {
                     StartInfo = StartInfo
                 };
@@ -174,7 +179,10 @@ namespace CompilePalX.Compilers
                 {
                     Process.WaitForExit();
                     Process.Close();
-					if (cancellationToken.IsCancellationRequested) return;
+                    if (cancellationToken.IsCancellationRequested)
+                    {
+                        return;
+                    }
                     CompilePalLogger.LogLine("\nProgram completed successfully\n");
                 }
                 else
@@ -184,7 +192,10 @@ namespace CompilePalX.Compilers
                     {
                         Process.WaitForExit();
                         Process.Close();
-                        if (cancellationToken.IsCancellationRequested) return;
+                        if (cancellationToken.IsCancellationRequested)
+                        {
+                            return;
+                        }
                         CompilePalLogger.LogLine("\nProgram completed successfully\n");
                     });
                 }
@@ -192,91 +203,107 @@ namespace CompilePalX.Compilers
             catch (Exception e)
             {
                 CompilePalLogger.LogCompileError($"Failed to run {Path}", new Error($"Failed to run {Path}", ErrorSeverity.Error));
-				CompilePalLogger.LogCompileError(e.ToString(), new Error(e.ToString(), ErrorSeverity.Error));
+                CompilePalLogger.LogCompileError(e.ToString(), new Error(e.ToString(), ErrorSeverity.Error));
             }
-		}
+        }
 
-		private void ProcessOnErrorDataReceived(object sender, DataReceivedEventArgs e)
-		{
-			if (e.Data != null)
-				CompilePalLogger.LogLineColor(e.Data, Error.GetSeverityBrush(4));
-		}
-
-		private void ProcessOnOutputDataReceived(object sender, DataReceivedEventArgs e)
-		{
+        private void ProcessOnErrorDataReceived(object sender, DataReceivedEventArgs e)
+        {
             if (e.Data != null)
             {
-				if (e.Data.StartsWith("COMPILE_PAL_SET"))
-					GameConfigurationManager.ModifyCurrentContext(e.Data);
-				else
-                    CompilePalLogger.LogLine(e.Data);
+                CompilePalLogger.LogLineColor(e.Data, Error.GetSeverityBrush(4));
             }
-		}
+        }
 
-		//Parse args for parameters and replace them with their corresponding values
-		//Paramaters from https://developer.valvesoftware.com/wiki/Command_Sequences
-		private string ParseArgs(string originalArgs, CompileContext c)
-		{
-			string args = originalArgs.Replace("$file", $"{System.IO.Path.GetFileNameWithoutExtension(c.MapFile)}");
-			args = args.Replace("$ext", $"{System.IO.Path.GetExtension(c.MapFile)}");
-			args = args.Replace("$path", $"{System.IO.Path.GetDirectoryName(c.MapFile)}");
+        private void ProcessOnOutputDataReceived(object sender, DataReceivedEventArgs e)
+        {
+            if (e.Data != null)
+            {
+                if (e.Data.StartsWith("COMPILE_PAL_SET"))
+                {
+                    GameConfigurationManager.ModifyCurrentContext(e.Data);
+                }
+                else
+                {
+                    CompilePalLogger.LogLine(e.Data);
+                }
+            }
+        }
 
-			args = args.Replace("$exedir", $"{System.IO.Path.GetDirectoryName(c.Configuration.GameEXE)}");
-			args = args.Replace("$bspdir", $"{c.Configuration.MapFolder}\\");
-			args = args.Replace("$gamedir", $"{c.Configuration.GameFolder}");
-			args = args.Replace("$bindir", $"{c.Configuration.BinFolder}");
+        //Parse args for parameters and replace them with their corresponding values
+        //Paramaters from https://developer.valvesoftware.com/wiki/Command_Sequences
+        private string ParseArgs(string originalArgs, CompileContext c)
+        {
+            var args = originalArgs.Replace("$file", $"{System.IO.Path.GetFileNameWithoutExtension(c.MapFile)}");
+            args = args.Replace("$ext", $"{System.IO.Path.GetExtension(c.MapFile)}");
+            args = args.Replace("$path", $"{System.IO.Path.GetDirectoryName(c.MapFile)}");
 
-			args = args.Replace("$bsp_exe", $"{c.Configuration.VBSP}");
-			args = args.Replace("$vis_exe", $"{c.Configuration.VVIS}");
-			args = args.Replace("$light_exe", $"{c.Configuration.VRAD}");
-			args = args.Replace("$game_exe", $"{c.Configuration.GameEXE}");
-			CompilePalLogger.LogLine("Args: " + args);
-			return args;
-		}
+            args = args.Replace("$exedir", $"{System.IO.Path.GetDirectoryName(c.Configuration.GameEXE)}");
+            args = args.Replace("$bspdir", $"{c.Configuration.MapFolder}\\");
+            args = args.Replace("$gamedir", $"{c.Configuration.GameFolder}");
+            args = args.Replace("$bindir", $"{c.Configuration.BinFolder}");
 
-		public override bool Equals(object obj)
-		{
-			if (obj == null)
-				return false;
+            args = args.Replace("$bsp_exe", $"{c.Configuration.VBSP}");
+            args = args.Replace("$vis_exe", $"{c.Configuration.VVIS}");
+            args = args.Replace("$light_exe", $"{c.Configuration.VRAD}");
+            args = args.Replace("$game_exe", $"{c.Configuration.GameEXE}");
+            CompilePalLogger.LogLine("Args: " + args);
+            return args;
+        }
 
-			if (obj is CustomProgram program)
-				return Equals(program);
+        public override bool Equals(object obj)
+        {
+            if (obj == null)
+            {
+                return false;
+            }
 
-			if (obj is ConfigItem config)
-				return Equals(config);
+            if (obj is CustomProgram program)
+            {
+                return Equals(program);
+            }
 
-			return ReferenceEquals(this, obj);
-		}
+            if (obj is ConfigItem config)
+            {
+                return Equals(config);
+            }
 
-		protected bool Equals(CustomProgram other)
-		{
-			if (other == null)
-				return false;
+            return ReferenceEquals(this, obj);
+        }
 
-			return Equals(Process, other.Process) && string.Equals(Name, other.Name) && string.Equals(Description, other.Description) && string.Equals(Path, other.Path) && Equals(StartInfo, other.StartInfo) && string.Equals(Args, other.Args) && ReadOutput == other.ReadOutput && CustomOrder == other.CustomOrder;
-		}
+        protected bool Equals(CustomProgram other)
+        {
+            if (other == null)
+            {
+                return false;
+            }
 
-		protected bool Equals(ConfigItem other)
-		{
-			if (other == null)
-				return false;
+            return Equals(Process, other.Process) && string.Equals(Name, other.Name) && string.Equals(Description, other.Description) && string.Equals(Path, other.Path) && Equals(StartInfo, other.StartInfo) && string.Equals(Args, other.Args) && ReadOutput == other.ReadOutput && CustomOrder == other.CustomOrder;
+        }
 
-			return (ReadOutput == other.ReadOutput && string.Equals(Path, other.Value) && string.Equals(CustomOrder.ToString(), other.Warning) && Equals(Args, other.Value2));
-		}
+        protected bool Equals(ConfigItem other)
+        {
+            if (other == null)
+            {
+                return false;
+            }
 
-		public override string ToString()
-		{
-			return Name;
-		}
-	}
+            return ReadOutput == other.ReadOutput && string.Equals(Path, other.Value) && string.Equals(CustomOrder.ToString(), other.Warning) && Equals(Args, other.Value2);
+        }
 
-	//public static class StringExtension
-	//{
-	//	//Finds first instance of search character and replaces it
-	//	public static string ReplaceFirst(this string str, string searchString, string replaceString)
-	//	{
-	//		int index = str.IndexOf(searchString);
-	//		return str.Remove(index, searchString.Length).Insert(index, replaceString);
-	//	}
-	//}
+        public override string ToString()
+        {
+            return Name;
+        }
+    }
+
+    //public static class StringExtension
+    //{
+    //	//Finds first instance of search character and replaces it
+    //	public static string ReplaceFirst(this string str, string searchString, string replaceString)
+    //	{
+    //		int index = str.IndexOf(searchString);
+    //		return str.Remove(index, searchString.Length).Insert(index, replaceString);
+    //	}
+    //}
 }

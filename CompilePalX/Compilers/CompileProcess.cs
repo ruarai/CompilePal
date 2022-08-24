@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using CompilePalX.Annotations;
@@ -20,13 +15,20 @@ namespace CompilePalX
 {
     class CompileProcess
     {
-        public string ParameterFolder = "./Parameters";
-	    public bool Draggable = true; // set to false if we ever want to disable reordering non custom compile steps
         public List<Error> CompileErrors;
+        public bool Draggable = true; // set to false if we ever want to disable reordering non custom compile steps
+
+        public CompileMetadata Metadata;
+        public string ParameterFolder = "./Parameters";
+
+        public ObservableCollection<ConfigItem> ParameterList = new ObservableCollection<ConfigItem>();
+        public ObservableDictionary<Preset, ObservableCollection<ConfigItem>> PresetDictionary = new ObservableDictionary<Preset, ObservableCollection<ConfigItem>>();
+
+        public Process? Process;
 
         public CompileProcess(string name)
         {
-            string jsonMetadata = Path.Combine(ParameterFolder, name, "meta.json");
+            var jsonMetadata = Path.Combine(ParameterFolder, name, "meta.json");
 
             if (File.Exists(jsonMetadata))
             {
@@ -36,7 +38,7 @@ namespace CompilePalX
             }
             else
             {
-                string legacyMetadata = Path.Combine(ParameterFolder, name + ".meta");
+                var legacyMetadata = Path.Combine(ParameterFolder, name + ".meta");
 
                 if (File.Exists(legacyMetadata))
                 {
@@ -61,9 +63,53 @@ namespace CompilePalX
 
         }
 
+        public string PresetFile => Metadata.Name + ".csv";
+
+        public double Ordering => Metadata.Order;
+        public bool DoRun
+        {
+            get => Metadata.DoRun;
+            set => Metadata.DoRun = value;
+        }
+        public string Name => Metadata.Name;
+        public string Description => Metadata.Description;
+        public string Warning => Metadata.Warning;
+        public bool IsDraggable => Draggable;
+        [UsedImplicitly] public bool SupportsBSP => Metadata.SupportsBSP;
+
+        [UsedImplicitly]
+        public bool IsCompatible
+        {
+            get
+            {
+                // current game configuration has no SteamAppID
+                if (GameConfigurationManager.GameConfiguration != null && GameConfigurationManager.GameConfiguration.SteamAppID == null)
+                {
+                    return true;
+                }
+
+                var currentAppID = (int)GameConfigurationManager.GameConfiguration!.SteamAppID!;
+
+                // supported game ID list should take precedence. If defined, check that current GameConfiguration SteamID is in whitelist
+                if (Metadata.CompatibleGames != null)
+                {
+                    return Metadata.CompatibleGames.Contains(currentAppID);
+                }
+
+                // If defined, check that current GameConfiguration SteamID is not in blacklist
+                if (Metadata.IncompatibleGames != null)
+                {
+                    return !Metadata.IncompatibleGames.Contains(currentAppID);
+                }
+
+                // process does not define which games are supported
+                return true;
+            }
+        }
+
         public static CompileMetadata LoadLegacyData(string csvFile)
         {
-            CompileMetadata metadata = new CompileMetadata();
+            var metadata = new CompileMetadata();
 
             var lines = File.ReadAllLines(csvFile);
 
@@ -74,50 +120,16 @@ namespace CompilePalX
             metadata.DoRun = bool.Parse(lines[5]);
             metadata.ReadOutput = bool.Parse(lines[6]);
             if (lines.Count() > 7)
+            {
                 metadata.Warning = lines[7];
+            }
             if (lines.Count() > 8)
+            {
                 metadata.Description = lines[8];
+            }
 
             return metadata;
         }
-
-        public CompileMetadata Metadata;
-
-        public string PresetFile { get { return Metadata.Name + ".csv"; } }
-
-        public double Ordering { get { return Metadata.Order; } }
-        public bool DoRun { get { return Metadata.DoRun; } set { Metadata.DoRun = value; } }
-        public string Name { get { return Metadata.Name; } }
-        public string Description { get { return Metadata.Description; } }
-        public string Warning { get { return Metadata.Warning; } }
-		public bool IsDraggable { get { return Draggable; } }
-		[UsedImplicitly] public bool SupportsBSP => Metadata.SupportsBSP;
-
-        [UsedImplicitly]
-        public bool IsCompatible
-        {
-            get
-            {
-                // current game configuration has no SteamAppID
-                if (GameConfigurationManager.GameConfiguration != null && GameConfigurationManager.GameConfiguration.SteamAppID == null)
-                    return true;
-
-                int currentAppID = (int)GameConfigurationManager.GameConfiguration!.SteamAppID!;
-
-                // supported game ID list should take precedence. If defined, check that current GameConfiguration SteamID is in whitelist
-                if (Metadata.CompatibleGames != null)
-                    return Metadata.CompatibleGames.Contains(currentAppID);
-
-                // If defined, check that current GameConfiguration SteamID is not in blacklist
-                if (Metadata.IncompatibleGames != null)
-                    return !Metadata.IncompatibleGames.Contains(currentAppID);
-
-                // process does not define which games are supported
-                return true;
-            }
-        }
-
-        public Process? Process;
 
         public virtual bool CanRun(CompileContext context)
         {
@@ -128,28 +140,25 @@ namespace CompilePalX
             }
             return true;
         }
-        public virtual void Run(CompileContext context, CancellationToken cancellationToken)
-        {
-
-        }
+        public virtual void Run(CompileContext context, CancellationToken cancellationToken) { }
         public virtual void Cancel()
         {
             if (Process is null || Process.Id == 0 || Process.HasExited)
+            {
                 return;
+            }
 
             Process.Kill();
-            CompilePalLogger.LogLineColor("Killed {0}.", (Brush) Application.Current.TryFindResource("CompilePal.Brushes.Severity4"), this.Metadata.Name);
+            CompilePalLogger.LogLineColor("Killed {0}.", (Brush)Application.Current.TryFindResource("CompilePal.Brushes.Severity4"), Metadata.Name);
         }
-
-        public ObservableCollection<ConfigItem> ParameterList = new ObservableCollection<ConfigItem>();
-        public ObservableDictionary<Preset, ObservableCollection<ConfigItem>> PresetDictionary = new ObservableDictionary<Preset, ObservableCollection<ConfigItem>>();
 
 
         public string GetParameterString()
         {
-            string parameters = Metadata.Arguments;
+            var parameters = Metadata.Arguments;
 
             if (ConfigurationManager.CurrentPreset != null)
+            {
                 foreach (var parameter in PresetDictionary[ConfigurationManager.CurrentPreset])
                 {
                     parameters += parameter.Parameter;
@@ -164,16 +173,23 @@ namespace CompilePalX
 
                             //Read Ouput
                             if (parameter.ReadOutput)
+                            {
                                 parameters += " " + parameter.ReadOutput;
+                            }
                         }
                         else
                             // protect filepaths in quotes, since they can contain -
                         if (parameter.ValueIsFile || parameter.Value2IsFile)
+                        {
                             parameters += $" \"{parameter.Value}\"";
+                        }
                         else
+                        {
                             parameters += " " + parameter.Value;
+                        }
                     }
                 }
+            }
 
             parameters += Metadata.BasisString;
 
@@ -190,7 +206,7 @@ namespace CompilePalX
     {
         public string Name { get; set; }
         public string Path { get; set; }
-        public string Arguments { get; set; } = String.Empty;
+        public string Arguments { get; set; } = string.Empty;
         public float Order { get; set; }
 
         public bool DoRun { get; set; }
@@ -207,10 +223,10 @@ namespace CompilePalX
 
     class CompileContext
     {
-        public string MapFile;
-        public Map Map;
-        public GameConfiguration Configuration;
         public string BSPFile;
+        public GameConfiguration Configuration;
         public string CopyLocation;
+        public Map Map;
+        public string MapFile;
     }
 }

@@ -1,50 +1,39 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Net;
 using System.Net.Http;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using CompilePalX.Compiling;
 
 namespace CompilePalX
 {
-    internal delegate void UpdateFound();
+    delegate void UpdateFound();
     static class UpdateManager
     {
-        public static event UpdateFound OnUpdateFound;
-
-        private static Version currentVersion;
-        public static string CurrentVersion => currentVersion.ToString(isPrerelease ? 2 : 1);
-
-        private static Version latestVersion;
-        public static string LatestVersion => latestVersion.ToString(isPrerelease ? 2 : 1);
 
         private const string LatestVersionURL = "https://raw.githubusercontent.com/ruarai/CompilePal/master/CompilePalX/version.txt";
         private const string LatestPrereleaseVersionURL = "https://raw.githubusercontent.com/ruarai/CompilePal/master/CompilePalX/version_prerelease.txt";
 
-        private static string MajorUpdateURL = "https://github.com/ruarai/CompilePal/releases/latest";
-        // Tags must be in form: v0major.minor
-        private static string PrereleaseUpdateURL => $"https://github.com/ruarai/CompilePal/releases/tag/v0{LatestVersion}";
-        public static Uri UpdateURL => new Uri(isPrerelease ? PrereleaseUpdateURL : MajorUpdateURL);
+        private static readonly Version currentVersion;
 
-        private static bool isPrerelease = false;
+        private static Version latestVersion;
+
+        private static readonly string MajorUpdateURL = "https://github.com/ruarai/CompilePal/releases/latest";
+
+        private static readonly bool isPrerelease;
 
         static UpdateManager()
         {
-            string currentVersionString = GetValidVersionString(File.ReadAllText("./version.txt"));
-            string currentPrereleaseVersionString = GetValidVersionString(File.ReadAllText("./version_prerelease.txt") + ".0.0");
+            var currentVersionString = GetValidVersionString(File.ReadAllText("./version.txt"));
+            var currentPrereleaseVersionString = GetValidVersionString(File.ReadAllText("./version_prerelease.txt") + ".0.0");
 
             currentVersion = Version.Parse(currentVersionString);
-            Version currentPrereleaseVersion = Version.Parse(currentPrereleaseVersionString);
+            var currentPrereleaseVersion = Version.Parse(currentPrereleaseVersionString);
 
             if (currentPrereleaseVersion > currentVersion)
             {
-	            currentVersion = currentPrereleaseVersion;
+                currentVersion = currentPrereleaseVersion;
                 isPrerelease = true;
             }
 
@@ -54,14 +43,20 @@ namespace CompilePalX
             RegistryManager.Write("Version", currentVersionString);
             RegistryManager.Write("PrereleaseVersion", currentPrereleaseVersionString);
         }
+        public static string CurrentVersion => currentVersion.ToString(isPrerelease ? 2 : 1);
+        public static string LatestVersion => latestVersion.ToString(isPrerelease ? 2 : 1);
+        // Tags must be in form: v0major.minor
+        private static string PrereleaseUpdateURL => $"https://github.com/ruarai/CompilePal/releases/tag/v0{LatestVersion}";
+        public static Uri UpdateURL => new Uri(isPrerelease ? PrereleaseUpdateURL : MajorUpdateURL);
+        public static event UpdateFound OnUpdateFound;
 
         public static void CheckVersion()
         {
-            Thread updaterThread = new Thread(ThreadedCheck);
+            var updaterThread = new Thread(ThreadedCheck);
             updaterThread.Start();
         }
 
-        static async void ThreadedCheck()
+        private static async void ThreadedCheck()
         {
             try
             {
@@ -70,7 +65,7 @@ namespace CompilePalX
                 ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
                 var c = new HttpClient();
                 var version = c.GetStringAsync(new Uri(isPrerelease ? LatestPrereleaseVersionURL : LatestVersionURL));
-                string newVersion = GetValidVersionString(await version);
+                var newVersion = GetValidVersionString(await version);
 
                 latestVersion = Version.Parse(newVersion);
 

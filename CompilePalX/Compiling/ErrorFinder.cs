@@ -4,12 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Markup;
 using System.Windows.Media;
 using CompilePalX.Compiling;
 
@@ -17,26 +14,26 @@ namespace CompilePalX
 {
     static class ErrorFinder
     {
-        private static List<Error> errorList = new List<Error>();
+        private static readonly List<Error> errorList = new List<Error>();
 
         //interlopers list of errors
-        private static string errorURL = "https://www.interlopers.net/includes/errorpage/errorChecker.txt";
+        private static readonly string errorURL = "https://www.interlopers.net/includes/errorpage/errorChecker.txt";
 
-        private static Regex errorDescriptionPattern = new Regex("<h4>(.*?)</h4>");
+        private static readonly Regex errorDescriptionPattern = new Regex("<h4>(.*?)</h4>");
 
-        private static string errorStyle = Path.Combine("./Compiling", "errorstyle.html");
-        private static string errorCache = Path.Combine("./Compiling", "errors.txt");
+        private static readonly string errorStyle = Path.Combine("./Compiling", "errorstyle.html");
+        private static readonly string errorCache = Path.Combine("./Compiling", "errors.txt");
         public static void Init()
         {
-            Thread t = new Thread(AsyncInit);
+            var t = new Thread(AsyncInit);
             t.Start();
         }
 
-        static async void AsyncInit()
+        private static async void AsyncInit()
         {
             try
             {
-                if (File.Exists(errorCache) && (DateTime.Now.Subtract(File.GetLastWriteTime(errorCache)).TotalDays < 7))
+                if (File.Exists(errorCache) && DateTime.Now.Subtract(File.GetLastWriteTime(errorCache)).TotalDays < 7)
                 {
                     LoadErrorData(File.ReadAllText(errorCache));
                 }
@@ -47,17 +44,17 @@ namespace CompilePalX
 
                     try
                     {
-	                    var c = new HttpClient();
-	                    string result = await c.GetStringAsync(new Uri(errorURL));
+                        var c = new HttpClient();
+                        var result = await c.GetStringAsync(new Uri(errorURL));
 
-	                    LoadErrorData(result);
-						File.WriteAllText(errorCache, result);
+                        LoadErrorData(result);
+                        File.WriteAllText(errorCache, result);
                     }
                     catch (Exception e)
                     {
-						// fallback to cache if download fails
-						ExceptionHandler.LogException(e, false);
-						LoadErrorData(File.ReadAllText((errorCache)));
+                        // fallback to cache if download fails
+                        ExceptionHandler.LogException(e, false);
+                        LoadErrorData(File.ReadAllText(errorCache));
                     }
 
                 }
@@ -69,18 +66,21 @@ namespace CompilePalX
             }
         }
 
-        static void LoadErrorData(string input)
+        private static void LoadErrorData(string input)
         {
-            string style = File.ReadAllText(errorStyle);
+            var style = File.ReadAllText(errorStyle);
 
-            var lines = input.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
-
-            int count = int.Parse(lines[0]);
-
-            int id = 0;
-            for (int i = 1; i < (count * 2) + 1; i++)
+            var lines = input.Split(new[]
             {
-                Error error = new Error();
+                "\r\n", "\n"
+            }, StringSplitOptions.None);
+
+            var count = int.Parse(lines[0]);
+
+            var id = 0;
+            for (var i = 1; i < count * 2 + 1; i++)
+            {
+                var error = new Error();
 
                 var data = lines[i].Split('|');
 
@@ -108,9 +108,10 @@ namespace CompilePalX
             {
                 if (error.RegexTrigger.IsMatch(line))
                 {
-	                var err = error.Clone() as Error;
-					// remove all control chars
-	                err.ShortDescription = new string(line.Where(c => !char.IsControl(c)).ToArray());;
+                    var err = error.Clone() as Error;
+                    // remove all control chars
+                    err.ShortDescription = new string(line.Where(c => !char.IsControl(c)).ToArray());
+                    ;
                     return err;
                 }
             }
@@ -119,70 +120,38 @@ namespace CompilePalX
 
         public static void ShowErrorDialog(Error error)
         {
-            ErrorWindow w = new ErrorWindow(error);
+            var w = new ErrorWindow(error);
             w.ShowDialog();
         }
     }
 
     public class Error : ICloneable
     {
-        public Regex RegexTrigger;
-        public string Message;
-        public string ShortDescription;
-        public int Severity;
 
         public int ID;
+        public string Message;
+        public Regex RegexTrigger;
+        public int Severity;
+        public string ShortDescription;
 
         public Error() { }
 
         public Error(string message, string shortDescription, ErrorSeverity severity, int id = -1)
         {
-            this.Message = message;
-            this.ShortDescription = shortDescription;
-            this.Severity = (int) severity;
-            this.ID = id;
+            Message = message;
+            ShortDescription = shortDescription;
+            Severity = (int)severity;
+            ID = id;
         }
         public Error(string message, ErrorSeverity severity, int id = -1)
         {
-            this.Message = message;
-            this.ShortDescription = message;
-            this.Severity = (int) severity;
-            this.ID = id;
-        }
-
-        public override bool Equals(object obj)
-        {
-            return ((Error)obj).ID == this.ID;
-        }
-
-        public override int GetHashCode()
-        {
-            return ID;//ID is unique between errors
-        }
-
-        public object Clone()
-        {
-	        return this.MemberwiseClone();
+            Message = message;
+            ShortDescription = message;
+            Severity = (int)severity;
+            ID = id;
         }
 
         public Brush ErrorColor => GetSeverityBrush(Severity);
-
-        public static Brush GetSeverityBrush(int severity)
-        {
-            switch (severity)
-            {
-                default:
-                    return (Brush) Application.Current.TryFindResource("CompilePal.Brushes.Severity1");
-                case 2:
-                    return (Brush) Application.Current.TryFindResource("CompilePal.Brushes.Severity2");
-                case 3:
-                    return (Brush) Application.Current.TryFindResource("CompilePal.Brushes.Severity3");
-                case 4:
-                    return (Brush) Application.Current.TryFindResource("CompilePal.Brushes.Severity4");
-                case 5:
-                    return (Brush) Application.Current.TryFindResource("CompilePal.Brushes.Severity5");
-            }
-        }
 
         public string SeverityText
         {
@@ -203,13 +172,46 @@ namespace CompilePalX
                 }
             }
         }
+
+        public object Clone()
+        {
+            return MemberwiseClone();
+        }
+
+        public override bool Equals(object obj)
+        {
+            return ((Error)obj).ID == ID;
+        }
+
+        public override int GetHashCode()
+        {
+            return ID; //ID is unique between errors
+        }
+
+        public static Brush GetSeverityBrush(int severity)
+        {
+            switch (severity)
+            {
+                default:
+                    return (Brush)Application.Current.TryFindResource("CompilePal.Brushes.Severity1");
+                case 2:
+                    return (Brush)Application.Current.TryFindResource("CompilePal.Brushes.Severity2");
+                case 3:
+                    return (Brush)Application.Current.TryFindResource("CompilePal.Brushes.Severity3");
+                case 4:
+                    return (Brush)Application.Current.TryFindResource("CompilePal.Brushes.Severity4");
+                case 5:
+                    return (Brush)Application.Current.TryFindResource("CompilePal.Brushes.Severity5");
+            }
+        }
     }
 
-    public enum ErrorSeverity {
+    public enum ErrorSeverity
+    {
         Info = 1,
         Caution = 2,
         Warning = 3,
         Error = 4,
-        FatalError = 5,
+        FatalError = 5
     }
 }
