@@ -77,7 +77,7 @@ namespace CompilePalX.Compilers.UtilityProcess
 
                 //Get filename by splitting string by / and taking the last value
                 string[] fileNameSplit = pcf.FilePath.Split('/');
-                string fileName = fileNameSplit[fileNameSplit.Length -1].Replace(".pcf", "");
+                string fileName = fileNameSplit[^1].Replace(".pcf", "");
 
                 //Add advanced info to expanders
                 Grid stack = new Grid();
@@ -137,21 +137,18 @@ namespace CompilePalX.Compilers.UtilityProcess
                     particleName.Margin = new Thickness(0, 0, 0, 0);
                     particleName.FontSize = paragraphSize;
                     if (targetParticles.Contains(name))
-                        particleName.Foreground = Brushes.Crimson;
+                        particleName.Foreground = TryFindResource("MahApps.Brushes.Accent") as SolidColorBrush;
 
                     fileInfo.Document.Blocks.Add(particleName);
                 }
 
                 //Add footer
-                Paragraph footer = new Paragraph(new Run("Used particles are highlighted in red"));
+                Paragraph footer = new Paragraph(new Run("Used particles are highlighted"));
                 footer.Margin = new Thickness(0);
                 footer.FontSize = paragraphSize;
-                footer.Foreground = Brushes.Gray;
                 footer.TextAlignment = TextAlignment.Center;
                 fileInfo.Document.Blocks.Add(footer);
             }
-
-
         }
 
         //Toggle between showing advanced info and hiding it

@@ -21,7 +21,10 @@
     "Description": "Renames the nav file to embed.nav",
     "Value": null,
     "CanHaveValue": false,
-    "Warning": "For TF2 only"
+    "Warning": "",
+    "CompatibleGames": [
+      440 //tf2
+    ] 
   },
   {
     "Name": "Include",
@@ -81,8 +84,12 @@
     "Description": "Pack into a VPK instead of BSP.",
     "Value": null,
     "CanHaveValue": false,
-    "Warning": "L4D2/Portal2 only",
-    "CanBeUsedMoreThanOnce": false
+    "Warning": "",
+    "CanBeUsedMoreThanOnce": false,
+    "CompatibleGames": [
+      550, //l4d2
+      620 //portal 2
+    ] 
   },
   {
     "Name": "Addon Info",
@@ -91,8 +98,12 @@
     "Value": null,
     "ValueIsFile": true,
     "CanHaveValue": true,
-    "Warning": "L4D2/Portal2 only",
-    "CanBeUsedMoreThanOnce": false
+    "Warning": "",
+    "CanBeUsedMoreThanOnce": false,
+    "CompatibleGames": [
+      550, //l4d2
+      620 //portal 2
+    ] 
   },
   {
     "Name": "Include File List",

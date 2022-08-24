@@ -8,7 +8,11 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Media;
+using CompilePalX.Annotations;
 using CompilePalX.Compiling;
 using Newtonsoft.Json;
 
@@ -87,49 +91,89 @@ namespace CompilePalX
         public string Description { get { return Metadata.Description; } }
         public string Warning { get { return Metadata.Warning; } }
 		public bool IsDraggable { get { return Draggable; } }
+		[UsedImplicitly] public bool SupportsBSP => Metadata.SupportsBSP;
 
-        public Process Process;
+        [UsedImplicitly]
+        public bool IsCompatible
+        {
+            get
+            {
+                // current game configuration has no SteamAppID
+                if (GameConfigurationManager.GameConfiguration != null && GameConfigurationManager.GameConfiguration.SteamAppID == null)
+                    return true;
 
-        public virtual void Run(CompileContext context)
+                int currentAppID = (int)GameConfigurationManager.GameConfiguration!.SteamAppID!;
+
+                // supported game ID list should take precedence. If defined, check that current GameConfiguration SteamID is in whitelist
+                if (Metadata.CompatibleGames != null)
+                    return Metadata.CompatibleGames.Contains(currentAppID);
+
+                // If defined, check that current GameConfiguration SteamID is not in blacklist
+                if (Metadata.IncompatibleGames != null)
+                    return !Metadata.IncompatibleGames.Contains(currentAppID);
+
+                // process does not define which games are supported
+                return true;
+            }
+        }
+
+        public Process? Process;
+
+        public virtual bool CanRun(CompileContext context)
+        {
+            if (context.Map.IsBSP && !SupportsBSP)
+            {
+                CompilePalLogger.LogLineDebug($"Map is BSP, skipping process {Name}");
+                return false;
+            }
+            return true;
+        }
+        public virtual void Run(CompileContext context, CancellationToken cancellationToken)
         {
 
         }
         public virtual void Cancel()
         {
+            if (Process is null || Process.Id == 0 || Process.HasExited)
+                return;
 
+            Process.Kill();
+            CompilePalLogger.LogLineColor("Killed {0}.", (Brush) Application.Current.TryFindResource("CompilePal.Brushes.Severity4"), this.Metadata.Name);
         }
 
         public ObservableCollection<ConfigItem> ParameterList = new ObservableCollection<ConfigItem>();
-        public ObservableDictionary<string, ObservableCollection<ConfigItem>> PresetDictionary = new ObservableDictionary<string, ObservableCollection<ConfigItem>>();
+        public ObservableDictionary<Preset, ObservableCollection<ConfigItem>> PresetDictionary = new ObservableDictionary<Preset, ObservableCollection<ConfigItem>>();
 
 
         public string GetParameterString()
         {
-            string parameters = string.Empty;
-            foreach (var parameter in PresetDictionary[ConfigurationManager.CurrentPreset])
-            {
-				parameters += parameter.Parameter;
+            string parameters = Metadata.Arguments;
 
-	            if (parameter.CanHaveValue && !string.IsNullOrEmpty(parameter.Value))
-	            {
-					//Handle additional parameters in CUSTOM process
-					if (parameter.Name == "Run Program")
-					{
-						//Add args
-						parameters += " " + parameter.Value;
+            if (ConfigurationManager.CurrentPreset != null)
+                foreach (var parameter in PresetDictionary[ConfigurationManager.CurrentPreset])
+                {
+                    parameters += parameter.Parameter;
 
-						//Read Ouput
-						if (parameter.ReadOutput)
-							parameters += " " + parameter.ReadOutput;
-					}
-					else
-						// protect filepaths in quotes, since they can contain -
-						if (parameter.ValueIsFile || parameter.Value2IsFile)
-							parameters += $" \"{parameter.Value}\"";
-						else
-							parameters += " " + parameter.Value;
-	            }
-            }
+                    if (parameter.CanHaveValue && !string.IsNullOrEmpty(parameter.Value))
+                    {
+                        //Handle additional parameters in CUSTOM process
+                        if (parameter.Name == "Run Program")
+                        {
+                            //Add args
+                            parameters += " " + parameter.Value;
+
+                            //Read Ouput
+                            if (parameter.ReadOutput)
+                                parameters += " " + parameter.ReadOutput;
+                        }
+                        else
+                            // protect filepaths in quotes, since they can contain -
+                        if (parameter.ValueIsFile || parameter.Value2IsFile)
+                            parameters += $" \"{parameter.Value}\"";
+                        else
+                            parameters += " " + parameter.Value;
+                    }
+                }
 
             parameters += Metadata.BasisString;
 
@@ -146,7 +190,7 @@ namespace CompilePalX
     {
         public string Name { get; set; }
         public string Path { get; set; }
-
+        public string Arguments { get; set; } = String.Empty;
         public float Order { get; set; }
 
         public bool DoRun { get; set; }
@@ -154,15 +198,17 @@ namespace CompilePalX
 
         public string Description { get; set; }
         public string Warning { get; set; }
-
-        public bool PresetDefault { get; set; }
-
+        public bool PresetDefault { get; set; } = false;
         public string BasisString { get; set; }
+        public bool SupportsBSP { get; set; } = false;
+        public HashSet<int>? IncompatibleGames { get; set; }
+        public HashSet<int>? CompatibleGames { get; set; }
     }
 
     class CompileContext
     {
         public string MapFile;
+        public Map Map;
         public GameConfiguration Configuration;
         public string BSPFile;
         public string CopyLocation;

@@ -21,7 +21,10 @@
     "Description": "Updates the filename of an older soundscape file",
     "Value": null,
     "CanHaveValue": false,
-    "Warning": "TF2 Only"
+    "Warning": "",
+    "CompatibleGames": [
+      440 // tf2
+    ] 
   },
   {
     "Name": "Update Level Sounds Version",
@@ -29,7 +32,10 @@
     "Description": "Updates the filename of an older level sounds file",
     "Value": null,
     "CanHaveValue": false,
-    "Warning": "TF2 Only"
+    "Warning": "",
+    "CompatibleGames": [
+      440 // tf2
+    ] 
   },
   {
     "Name": "Exclude Directory",

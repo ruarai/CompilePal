@@ -60,11 +60,9 @@ namespace CompilePalX.Compilers.BSPPack
             this.file = file;
 
             offsets = new KeyValuePair<int, int>[64];
-            try
+            using (bsp = new FileStream(file.FullName, FileMode.Open))
+            using (reader = new BinaryReader(bsp))
             {
-                bsp = new FileStream(file.FullName, FileMode.Open);
-                reader = new BinaryReader(bsp);
-
                 bsp.Seek(4, SeekOrigin.Begin); //skip header
                 int bspVer = reader.ReadInt32();
 
@@ -92,7 +90,6 @@ namespace CompilePalX.Compilers.BSPPack
                     }
                 }
 
-
                 buildEntityList();
 
                 buildEntModelList();
@@ -104,12 +101,6 @@ namespace CompilePalX.Compilers.BSPPack
                 buildTextureList();
 
                 buildEntSoundList();
-
-            }
-            finally
-            {
-                reader.Close();
-                bsp.Close();
             }
         }
 

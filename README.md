@@ -20,7 +20,7 @@
 #### Experimental Releases
 Get the latest features without having to wait. Experimental releases may be unstable, use at your own risk.
 
-[Compile Pal V27.20](https://github.com/ruarai/CompilePal/releases/tag/v027.20)
+[Compile Pal V27.29](https://github.com/ruarai/CompilePal/releases/tag/v027.29)
 
 
 ## Features
@@ -37,6 +37,7 @@ Get the latest features without having to wait. Experimental releases may be uns
 ## Guides
 * [Quick Start](Guides/QuickStart.md)
 * [Reporting An Issue](Guides/Issues.md)
+* [Plugin Development](Guides/Plugins.md)
 * [Custom Compile Steps](Guides/Custom.md)
 * [Custom Compile Step Collection](Guides/CustomCollection.md)
 * [Command Line Arguments](Guides/CMDArgs.md)

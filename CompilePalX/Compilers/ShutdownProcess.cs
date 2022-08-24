@@ -2,6 +2,7 @@
 using CompilePalX.Compiling;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 
 namespace CompilePalX.Compilers
 {
@@ -9,9 +10,14 @@ namespace CompilePalX.Compilers
     {
         public ShutdownProcess() : base("SHUTDOWN") { }
 
-        public override void Run(CompileContext context)
+        public override void Run(CompileContext context, CancellationToken cancellationToken)
         {
+
             CompileErrors = new List<Error>();
+            if (!CanRun(context)) return;
+
+            if (cancellationToken.IsCancellationRequested)
+                return;
 
             // don't run unless it's the last map of the queue
             if (CompilingManager.MapFiles.Last().File == context.MapFile)

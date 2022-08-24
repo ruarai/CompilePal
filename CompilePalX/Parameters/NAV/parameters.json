@@ -14,5 +14,14 @@
     "Value": null,
     "CanHaveValue": false,
     "Warning": ""
+  },
+  {
+    "Name": "Command Line Argument",
+    "Parameter": "",
+    "Description": "Passes value as a command line argument",
+    "Value": "",
+    "CanHaveValue": true,
+    "Warning": "",
+    "CanBeUsedMoreThanOnce": true
   }
 ]

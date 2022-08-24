@@ -7,5 +7,6 @@
   "Description": "Utilities for generating and updating filenames.",
   "Warning": "",
   "PresetDefault": false,
-  "BasisString": ""
+  "BasisString": "",
+  "SupportsBSP": true
 }

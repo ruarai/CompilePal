@@ -6,6 +6,7 @@
             xmlns:local="clr-namespace:CompilePalX"
             xmlns:config="clr-namespace:CompilePalX.Configuration"
             xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+            xmlns:compilePalX="clr-namespace:CompilePalX"
 
             Title="Compile Pal X"
             MinHeight="550" MinWidth="790"
@@ -14,7 +15,7 @@
             IconEdgeMode="Aliased" Icon="CompilePalIcon.ico" ShowIconOnTitleBar="False" 
             Activated="MetroWindow_Activated" 
             BorderThickness="1" 
-            BorderBrush="{DynamicResource AccentColorBrush}" 
+            BorderBrush="{DynamicResource MahApps.Brushes.Accent}" 
         >
 
     <controls:MetroWindow.LeftWindowCommands>
@@ -33,13 +34,29 @@
         </controls:WindowCommands>
     </controls:MetroWindow.RightWindowCommands>
 
+    <controls:MetroWindow.WindowButtonCommands>
+        <controls:WindowButtonCommands LightCloseButtonStyle="{StaticResource LightButtonStyle}" LightMinButtonStyle="{StaticResource LightButtonStyle}" LightMaxButtonStyle="{StaticResource LightButtonStyle}"/>
+    </controls:MetroWindow.WindowButtonCommands>
+
+    <controls:MetroWindow.Resources>
+        <Style x:Key="GroupListBoxStyle" TargetType="ListBoxItem" BasedOn="{StaticResource {x:Type ListBoxItem}}">
+            <Setter Property="Margin" Value="-5, 0, 0, 0" />
+            <Setter Property="Padding" Value="10, 0, 0, 0" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Items.Groups.Count, RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}" Value="1">
+                    <Setter Property="Padding" Value="5, 0, 0, 0" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </controls:MetroWindow.Resources>
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="80" MinHeight="80" MaxHeight="240"></RowDefinition>
             <RowDefinition Height="5"></RowDefinition>
             <RowDefinition></RowDefinition>
         </Grid.RowDefinitions>
-        <ListBox x:Name="MapListBox" Grid.Row="0" Margin="10,10,95,0" BorderBrush="{DynamicResource AccentColorBrush}" BorderThickness="1">
+        <ListBox x:Name="MapListBox" Grid.Row="0" Margin="10,10,95,0" BorderBrush="{DynamicResource MahApps.Brushes.Accent}" SelectionChanged="MapListBox_OnSelectionChanged" BorderThickness="1" SelectionMode="Single">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <DockPanel HorizontalAlignment="Stretch">
@@ -49,35 +66,97 @@
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
-        <Button x:Name="AddMapButton"  Grid.Row="0" Content="Add Map..." Margin="0,10,10,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="75" Click="AddMapButton_Click"/>
+        <Button x:Name="AddMapButton"  Grid.Row="0" Content="Add Map" Margin="0,10,10,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="75" Click="AddMapButton_Click"/>
         <Button x:Name="RemoveMapButton"  Grid.Row="0" Content="Remove" Margin="0,45,10,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="75" Click="RemoveMapButton_Click"/>
         <GridSplitter Grid.Row="1" Height="2" HorizontalAlignment="Stretch" Width="512"></GridSplitter>
-        <controls:MetroTabControl Grid.Row="2" controls:TabControlHelper.IsUnderlined="True" controls:TabControlHelper.Transition="LeftReplace" Margin="10,10,10,40">
+        <controls:MetroTabControl Grid.Row="2" controls:TabControlHelper.Underlined="SelectedTabItem" controls:TabControlHelper.Transition="LeftReplace" Margin="10,10,10,40">
             <controls:MetroTabItem Header="CONFIG">
-                <Grid Background="#FFE5E5E5">
+                <Grid Background="{StaticResource CompilePal.Brushes.GridBackground}">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" MinWidth="100"/>
                         <ColumnDefinition Width="Auto" MinWidth="100"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <DockPanel Grid.Column="0" Margin="10,10,0,10" Background="White">
+                    <DockPanel Grid.Column="0" Margin="10,10,0,10" Background="{StaticResource CompilePal.Brushes.DockBackground}">
                         <Button x:Name="RemovePresetButton" Content="Remove" Margin="5,0,5,5" VerticalAlignment="Bottom" Click="RemovePresetButton_Click" DockPanel.Dock="Bottom"/>
-                        <Button x:Name="ClonePresetButton" Content="Clone..." Margin="5,0,5,5" VerticalAlignment="Bottom" Click="ClonePresetButton_OnClick" DockPanel.Dock="Bottom"/>
-                        <Button x:Name="AddPresetButton" Content="Add..." Margin="5,0,5,5" VerticalAlignment="Bottom"  Click="AddPresetButton_Click" DockPanel.Dock="Bottom"/>
-                        <ListBox Name="PresetConfigListBox" Margin="0,0,0,5" SelectionChanged="PresetConfigListBox_SelectionChanged" />
+                        <Button x:Name="ClonePresetButton" Content="Clone" Margin="5,0,5,5" VerticalAlignment="Bottom" Click="ClonePresetButton_OnClick" DockPanel.Dock="Bottom"/>
+                        <Button x:Name="AddPresetButton" Content="Add Preset" Margin="5,0,5,5" VerticalAlignment="Bottom"  Click="AddPresetButton_Click" DockPanel.Dock="Bottom"/>
+                        <ListBox Name="PresetConfigListBox" Margin="0,0,0,5" SelectionChanged="PresetConfigListBox_SelectionChanged" SelectionMode="Single" ItemContainerStyle="{StaticResource GroupListBoxStyle}">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Name}" Margin="0, 0, 5, 0"/>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                            <ListBox.GroupStyle>
+                                <GroupStyle>
+                                    <GroupStyle.HeaderTemplate>
+                                        <DataTemplate>
+                                            <TextBlock x:Name="PresetHeaderBlock" FontWeight="Bold" FontSize="14" Text="{Binding Name}" Margin="5, 2, 5, 0"/>
+                                            <DataTemplate.Triggers>
+                                                <DataTrigger Binding="{Binding Name}" Value="{x:Null}">
+                                                    <Setter TargetName="PresetHeaderBlock" Property="Text" Value="Global"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Items.Groups.Count, RelativeSource={RelativeSource AncestorType={x:Type ListBox}}}" Value="1">
+                                                    <Setter TargetName="PresetHeaderBlock" Property="Visibility" Value="Collapsed"/>
+                                                </DataTrigger>
+                                            </DataTemplate.Triggers>
+                                        </DataTemplate>
+                                    </GroupStyle.HeaderTemplate>
+                                </GroupStyle>
+                            </ListBox.GroupStyle>
+                        </ListBox>
                     </DockPanel>
-                    <DockPanel Grid.Column="1" Margin="10,10,0,10" Background="White">
+                    <DockPanel Grid.Column="1" Margin="10,10,0,10" Background="{StaticResource CompilePal.Brushes.DockBackground}">
                         <Button x:Name="RemoveProcessesButton" Content="Remove" DockPanel.Dock="Bottom" Margin="5,0,5,5" Grid.Row="1" Click="RemoveProcessButton_Click"/>
-                        <Button x:Name="AddProcessesButton" Content="Add..." DockPanel.Dock="Bottom" Margin="5,0,5,5" Grid.Row="2" Click="AddProcessButton_Click"/>
+                        <Button x:Name="AddProcessesButton" Content="Add Process" DockPanel.Dock="Bottom" Margin="5,0,5,5" Grid.Row="2" Click="AddProcessButton_Click"/>
                         <ListBox x:Name ="CompileProcessesListBox" Margin="0,0,0,5" Grid.Row="0" SelectionChanged="CompileProcessesListBox_SelectionChanged">
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
-                                    <DockPanel HorizontalAlignment="Stretch">
-                                        <TextBlock Text="{Binding}" Margin="0, 0, 5, 0"/>
-                                        <CheckBox IsChecked="{Binding DoRun, Mode=TwoWay}" HorizontalAlignment="Right" Click="DoRun_OnClick"/>
+                                    <DockPanel Name="ProcessDockPanel"  HorizontalAlignment="Stretch">
+                                        <TextBlock VerticalAlignment="Center" Text="{Binding}" Margin="0, 0, 5, 0"/>
+                                        <iconPacks:PackIconMaterial VerticalAlignment="Center" Kind="Alert" Foreground="Orange" Margin="0, 0, 5, 0" ToolTip="This process is potentially incompatible with the current game">
+                                            <iconPacks:PackIconMaterial.Style>
+                                                <Style TargetType="iconPacks:PackIconMaterial">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsCompatible}" Value="False">
+                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </iconPacks:PackIconMaterial.Style>
+                                        </iconPacks:PackIconMaterial>
+                                        <CheckBox x:Name="ProcessCheckbox"  IsChecked="{Binding DoRun, Mode=TwoWay}" HorizontalAlignment="Right" Click="DoRun_OnClick" controls:CheckBoxHelper.CheckBackgroundFillUncheckedDisabled="LightGray" ToolTipService.ShowOnDisabled="True"/>
                                     </DockPanel>
+                                    <DataTemplate.Triggers>
+                                        <MultiDataTrigger>
+                                            <MultiDataTrigger.Conditions>
+                                                <Condition Binding="{Binding Path=SelectedItem.IsBSP, ElementName=MapListBox}" Value="True"/>
+                                                <Condition Binding="{Binding SupportsBSP}" Value="False"/>
+                                            </MultiDataTrigger.Conditions>
+                                            <MultiDataTrigger.Setters>
+                                                <Setter TargetName="ProcessCheckbox" Property="IsChecked" Value="False"/>
+                                                <Setter TargetName="ProcessCheckbox" Property="ToolTip" Value="This process does not support BSP files"/>
+                                            </MultiDataTrigger.Setters>
+                                        </MultiDataTrigger>
+                                    </DataTemplate.Triggers>
                                 </DataTemplate>
                             </ListBox.ItemTemplate>
+                            <ListBox.ItemContainerStyle>
+                                <Style TargetType="ListBoxItem" BasedOn="{StaticResource {x:Type ListBoxItem}}">
+                                    <Style.Triggers>
+                                        <MultiDataTrigger>
+                                            <MultiDataTrigger.Conditions>
+                                                <Condition Binding="{Binding Path=SelectedItem.IsBSP, ElementName=MapListBox}" Value="True"/>
+                                                <Condition Binding="{Binding SupportsBSP}" Value="False"/>
+                                            </MultiDataTrigger.Conditions>
+                                            <MultiDataTrigger.Setters>
+                                                <Setter Property="IsEnabled" Value="False"/>
+                                            </MultiDataTrigger.Setters>
+                                        </MultiDataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ListBox.ItemContainerStyle>
                         </ListBox>
                     </DockPanel>
                     <Grid Grid.Column="2">
@@ -87,7 +166,27 @@
                         </Grid.RowDefinitions>
                         <DataGrid Grid.Row ="0" Name="ConfigDataGrid" Margin="10,10,10,10" AutoGenerateColumns="False" CanUserAddRows="False" ItemsSource="{Binding}">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="Name" Binding="{ Binding Name}" IsReadOnly="True"/>
+                                <DataGridTemplateColumn Header="Name" IsReadOnly="True">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="{Binding Name}" Margin="5, 0, 5, 0"/>
+                                                <iconPacks:PackIconMaterial Kind="Alert" Foreground="{StaticResource CompilePal.Brushes.Warning}" Margin="0, 0, 5, 0" ToolTip="This parameter is potentially incompatible with the current game">
+                                                    <iconPacks:PackIconMaterial.Style>
+                                                        <Style TargetType="iconPacks:PackIconMaterial">
+                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding IsCompatible}" Value="False">
+                                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </iconPacks:PackIconMaterial.Style>
+                                                </iconPacks:PackIconMaterial>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
                                 <DataGridTemplateColumn Header="Value">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
@@ -111,9 +210,15 @@
                                                     <local:FileInput.Style>
                                                         <Style TargetType="{x:Type local:FileInput}">
                                                             <Style.Triggers>
-                                                                <DataTrigger Binding="{Binding ValueIsFile}" Value="False">
-                                                                    <Setter Property="Visibility" Value="Hidden"/>
-                                                                </DataTrigger>
+                                                                <MultiDataTrigger>
+                                                                    <MultiDataTrigger.Conditions>
+                                                                        <Condition Binding="{Binding ValueIsFile}" Value="False"/>
+                                                                        <Condition Binding="{Binding ValueIsFolder}" Value="False"/>
+                                                                    </MultiDataTrigger.Conditions>
+                                                                    <MultiDataTrigger.Setters>
+                                                                        <Setter Property="Visibility" Value="Hidden"/>
+                                                                    </MultiDataTrigger.Setters>
+                                                                </MultiDataTrigger>
                                                                 <DataTrigger Binding="{Binding ValueIsFolder}" Value="True">
                                                                     <Setter Property="Hint" Value="Choose Folder"/>
                                                                 </DataTrigger>
@@ -122,26 +227,26 @@
                                                         </Style>
                                                     </local:FileInput.Style>
                                                 </local:FileInput>
+                                                <Grid.Style>
+                                                    <Style TargetType="{x:Type Grid}">
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding CanHaveValue}" Value="False">
+                                                                <Setter Property="Visibility" Value="Hidden"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Grid.Style>
                                             </Grid>
                                         </DataTemplate>
                                     </DataGridTemplateColumn.CellTemplate>
-                                    <DataGridTemplateColumn.CellStyle>
-                                        <Style TargetType="{x:Type DataGridCell}">
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding CanHaveValue}" Value="False">
-                                                    <Setter Property="Visibility" Value="Hidden" />
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </DataGridTemplateColumn.CellStyle>
                                 </DataGridTemplateColumn>
                                 <DataGridTextColumn Header="Description" Binding="{ Binding Description}" IsReadOnly="True"/>
                                 <DataGridTextColumn Header="Warnings" Binding="{ Binding Warning}" IsReadOnly="True"/>
                             </DataGrid.Columns>
                         </DataGrid>
 
-                        <controls:MetroTabControl Grid.Row="0" Visibility="Hidden" controls:TabControlHelper.IsUnderlined="True" Name="ProcessTab" IsEnabled="False" SelectionChanged="ProcessTab_OnSelectionChanged" >
-                            <controls:MetroTabItem Header="PROGRAMS" Margin="5, 0, 0, 0" x:Name="ProgramTab">
+                        <controls:MetroTabControl Grid.Row="0" Visibility="Hidden" controls:TabControlHelper.Underlined="SelectedTabItem" Name="ProcessTab" IsEnabled="False" SelectionChanged="ProcessTab_OnSelectionChanged" Background="Transparent">
+                            <controls:MetroTabItem Header="PROGRAMS" Margin="5, 0, 0, 0" x:Name="ProgramTab" Background="Transparent">
                                 <DataGrid IsEnabled="False" Visibility="Visible" Name="ProcessDataGrid" Margin="10,10,10,10" AutoGenerateColumns="False" CanUserAddRows="False" ItemsSource="{Binding}">
                                     <DataGrid.Columns>
                                         <DataGridTemplateColumn Header="Program Path" CanUserSort="False">
@@ -167,7 +272,7 @@
                                 </DataGrid>
                             </controls:MetroTabItem>
 
-                            <controls:MetroTabItem Header="ORDER" Margin="5, 0, 0, 0" IsEnabledChanged="OrderGrid_OnIsEnabledChanged" x:Name="OrderTab">
+                            <controls:MetroTabItem Header="ORDER" Margin="5, 0, 0, 0" IsEnabledChanged="OrderGrid_OnIsEnabledChanged" x:Name="OrderTab" Background="Transparent">
                                 <DataGrid Name="OrderGrid" Margin="10,10,10,10" AutoGenerateColumns="False" CanUserAddRows="False" SelectionMode="Single" ItemsSource="{Binding Source={x:Static config:OrderManager.CurrentOrder}}" local:RowDragHelper.EnableRowDrag="True">
                                     <DataGrid.Columns>
                                         <DataGridTextColumn Header="Original Order" Binding="{ Binding Ordering}" IsReadOnly="True" CanUserSort="False"/>
@@ -178,7 +283,7 @@
                                         <Style TargetType="DataGridCell">
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsDraggable}" Value="False">
-                                                    <Setter Property="Background" Value="#FFE5E5E5"/>
+                                                    <Setter Property="Background" Value="{StaticResource CompilePal.Brushes.GridBackground}"/>
                                                     <Setter Property="BorderThickness" Value="0"/>
                                                     <Setter Property="FocusVisualStyle" Value="{x:Null}" />
                                                     <Setter Property="Foreground" Value="Black"/>
@@ -208,33 +313,34 @@
 
                         <Grid Grid.Row="1">
                             <TextBox Name="ParametersTextBox" Margin="10,0,180,0" VerticalAlignment="Top" IsEnabled="False"/>
-                            <Button Content="Add..." Margin="10,0" Grid.Row="1" Width="80" HorizontalAlignment="Right" VerticalAlignment="Top" Name="AddParameterButton" Click="AddParameterButton_Click"/>
+                            <Button Content="Add" Margin="10,0" Grid.Row="1" Width="80" HorizontalAlignment="Right" VerticalAlignment="Top" Name="AddParameterButton" Click="AddParameterButton_Click"/>
                             <Button Content="Remove" Margin="0,0,95,0" Grid.Row="1" Width="80" HorizontalAlignment="Right" VerticalAlignment="Top" Name="RemoveParameterButton" Click="RemoveParameterButton_OnClickParameterButton_Click"/>
                         </Grid>
                     </Grid>
                 </Grid>
             </controls:MetroTabItem>
             <controls:MetroTabItem Name="OutputTab" Header="OUTPUT">
-                <Grid Background="#FFE5E5E5">
+                <Grid Background="{StaticResource CompilePal.Brushes.GridBackground}">
                     <RichTextBox IsReadOnly="True" x:Name="CompileOutputTextbox" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" BorderThickness="0" Margin="10,10,10,10" FontFamily="Segoe UI, Lucida Sans Unicode, Verdana" IsReadOnlyCaretVisible="True" Block.LineHeight="2" IsDocumentEnabled="True">
                         <RichTextBox.Document>
                             <FlowDocument>
-                                <Paragraph Name="OutputParagraph"></Paragraph>
+                                <Paragraph Name="OutputParagraph"/>
                             </FlowDocument>
                         </RichTextBox.Document>
                     </RichTextBox>
-                    <!--Scroll to bottom button, probably not needed-->
-                    <!--<Button Click="ConfigBack_OnClick" ToolTip="Scroll To Bottom" x:Name="Tmp" HorizontalAlignment="Right" VerticalAlignment="Bottom" Background="Red" Margin="100, 100, 30, 15" Foreground="White" >
-                        <iconPacks:Material Kind="ArrowDown" />
-                    </Button>-->
                 </Grid>
 
             </controls:MetroTabItem>
         </controls:MetroTabControl>
-        <Button Name="CompileStartStopButton" Grid.Row="2" Content="Compile" Margin="10,10,10,10"  VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="75" Click="CompileStartStopButton_OnClick"/>
-        <ProgressBar Name="CompileProgressBar" Margin="0,0,96,10" Grid.Row="2" Height="25" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="200"/>
+        <StackPanel Grid.Row="2" VerticalAlignment="Bottom" HorizontalAlignment="Right" Orientation="Horizontal" Margin="10,0,10,0">
+            <ProgressBar Name="CompileProgressBar" Margin="0,0,0,7" Height="27" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="200"/>
+            <Button Name="CopyButton" Margin="5,10,0,6" Width="35" Click="CopyButton_OnClick" ToolTip="Copy Output">
+                <iconPacks:Material Height="15" Kind="ContentCopy" />
+            </Button>
+            <Button Name="CompileStartStopButton" Content="Compile" Margin="5,10,0,6" Width="75" Click="CompileStartStopButton_OnClick" IsEnabled="{Binding ElementName=MapListBox, Path=Items.Count}"/>
+        </StackPanel>
         <Label Name="UpdateLabel" Visibility="Collapsed"  Grid.Row="2" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="10" MouseLeftButtonUp="UpdateLabel_MouseLeftButtonUp" >
-            <Hyperlink Name="UpdateHyperLink" NavigateUri="https://github.com/ruarai/CompilePal/releases/latest" RequestNavigate="UpdateHyperLink_OnRequestNavigate"/>
+            <Hyperlink Name="UpdateHyperLink" NavigateUri="https://github.com/ruarai/CompilePal/releases/latest" RequestNavigate="UpdateHyperLink_OnRequestNavigate" Foreground="{StaticResource CompilePal.Brushes.Link}"/>
         </Label>
         <Label Name="TimeElapsedLabel" Visibility="Collapsed" Grid.Row="2" VerticalAlignment="Bottom" FontWeight="Bold" HorizontalAlignment="Left" Margin="10" />
     </Grid>

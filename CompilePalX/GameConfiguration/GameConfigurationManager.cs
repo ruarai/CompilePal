@@ -5,15 +5,19 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Microsoft.Win32;
+using Newtonsoft.Json;
 
 namespace CompilePalX
 {
     static class GameConfigurationManager
     {
-        private static string mapFile = null;
-        public static GameConfiguration GameConfiguration;
+        private static string? mapFile = null;
+        public static GameConfiguration? GameConfiguration;
         public static GameConfiguration GameConfigurationBackup;
         public static List<GameConfiguration> GameConfigurations;
+        private static string GameConfigurationFolder = "./GameConfiguration";
+        private static readonly string GameConfigurationsPath = Path.Combine(GameConfigurationFolder, "gameConfigs.json");
 
         public static string SubstituteValues(string text, string mapFile = "")
         {
@@ -98,15 +102,60 @@ namespace CompilePalX
             mapFile = null;
         }
 
-        public static CompileContext BuildContext(string mapFile)
+        public static CompileContext BuildContext(Map map)
         {
             return new CompileContext
             {
                 Configuration = GameConfiguration,
-                MapFile = GameConfigurationManager.mapFile ?? mapFile,
-                BSPFile = Path.ChangeExtension(GameConfigurationManager.mapFile ?? mapFile, "bsp"),
-                CopyLocation = Path.Combine(GameConfiguration.MapFolder, Path.ChangeExtension(Path.GetFileName(GameConfigurationManager.mapFile ?? mapFile), "bsp"))
+                MapFile = GameConfigurationManager.mapFile ?? map.File,
+                Map = map,
+                BSPFile = Path.ChangeExtension(GameConfigurationManager.mapFile ?? map.File, "bsp"),
+                CopyLocation = map.IsBSP ? map.File : Path.Combine(GameConfiguration.MapFolder, Path.ChangeExtension(Path.GetFileName(GameConfigurationManager.mapFile ?? map.File), "bsp"))
             };
+        }
+
+        public static void LoadGameConfigurations()
+        {
+            if (!Directory.Exists(GameConfigurationFolder))
+                Directory.CreateDirectory(GameConfigurationFolder);
+
+            //Loading the last used configurations for hammer
+            RegistryKey? rk = Registry.CurrentUser.OpenSubKey(@"Software\Valve\Hammer\General");
+
+            var configs = new List<GameConfiguration>();
+
+            //try loading json
+            if (File.Exists(GameConfigurationsPath))
+            {
+                string jsonLoadText = File.ReadAllText(GameConfigurationsPath);
+                configs.AddRange(JsonConvert.DeserializeObject<List<GameConfiguration>>(jsonLoadText) ?? new List<GameConfiguration>());
+            }
+
+            //try loading from registry
+            if (rk != null)
+            {
+                string binFolder = (string)rk.GetValue("Directory")!;
+
+                try
+                {
+                    configs.AddRange(GameConfigurationParser.Parse(binFolder));
+                }
+                catch (Exception e)
+                {
+                    ExceptionHandler.LogException(e);
+                }
+            }
+
+            // remove duplicates
+            GameConfigurations = configs.GroupBy(g => (g.Name, g.GameFolder)).Select(grp => grp.First()).ToList();
+            
+            SaveGameConfigurations();
+        }
+
+        public static void SaveGameConfigurations()
+        {
+            string jsonSaveText = JsonConvert.SerializeObject(GameConfigurations, Formatting.Indented);
+            File.WriteAllText(GameConfigurationsPath, jsonSaveText);
         }
     }
 }

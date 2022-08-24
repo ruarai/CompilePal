@@ -1,0 +1,70 @@
+﻿<controls:MetroWindow x:Class="CompilePalX.GameConfigurationWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+        xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+        xmlns:compilePalX="clr-namespace:CompilePalX"
+        xmlns:sys="clr-namespace:System;assembly=System.Runtime"
+        xmlns:local="clr-namespace:CompilePalX"
+        Title="Game Configuration" Height="444" Width="564"
+                      BorderBrush="{DynamicResource MahApps.Brushes.Accent}" BorderThickness="1" 
+                      IconEdgeMode="Aliased" Icon="..\CompilePalIcon.ico" ShowIconOnTitleBar="False" >
+    <controls:MetroWindow.WindowButtonCommands>
+        <controls:WindowButtonCommands LightCloseButtonStyle="{StaticResource LightButtonStyle}" LightMinButtonStyle="{StaticResource LightButtonStyle}" LightMaxButtonStyle="{StaticResource LightButtonStyle}"/>
+    </controls:MetroWindow.WindowButtonCommands>
+
+    <controls:MetroWindow.Resources>
+        <ControlTemplate x:Key="LabeledTextbox" TargetType="TextBox">
+            <StackPanel Margin="0, 0, 0, 5">
+                <StackPanel Orientation="Horizontal">
+                    <Label Padding="0, 5 5, 5" Margin="0, 0, -5, 0" Content="{TemplateBinding Tag}" IsTabStop="False"/>
+                    <Grid Background="Transparent" Margin="2, 2, 0, 0" Height="12" ToolTip="{TemplateBinding ToolTip}">
+                        <iconPacks:PackIconMaterial Height="12" Kind="HelpCircleOutline"  VerticalAlignment="Center" Foreground="{StaticResource CompilePal.Brushes.Link}" IsTabStop="False">
+                            <iconPacks:PackIconMaterial.Style>
+                                <Style TargetType="iconPacks:PackIconMaterial">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource FindAncestor, AncestorType=Grid}}" Value="True">
+                                            <Setter Property="Opacity" Value="0.5"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </iconPacks:PackIconMaterial.Style>
+                        </iconPacks:PackIconMaterial>
+                        <Grid.Style>
+                            <Style TargetType="{x:Type Grid}">
+                                <Setter Property="Visibility" Value="Visible"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding RelativeSource={RelativeSource Self}, Path=ToolTip}" Value="{x:Null}">
+                                        <Setter Property="Visibility" Value="Hidden"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Grid.Style>
+                    </Grid>
+                </StackPanel>
+                <TextBox Text="{Binding RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay, Path=Text}" Focusable="True"/>
+            </StackPanel>
+        </ControlTemplate>
+    </controls:MetroWindow.Resources>
+
+    <Grid>
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <StackPanel Orientation="Vertical" Margin="20, 10, 20, 20" FocusManager.FocusedElement="{Binding ElementName=Name}">
+                <TextBox Template="{StaticResource LabeledTextbox}" Text="{Binding Path=Name, Mode=TwoWay}" Tag="Name" Name="Name"/>
+                <TextBox Template="{StaticResource LabeledTextbox}" Text="{Binding Path=SteamAppID, Mode=TwoWay}" Tag="App ID" ToolTip="Steam App ID. Used to determine which processes/parameters are compatible with the current game. Can be found on https://steamdb.info/apps/"/>
+                <TextBox Template="{StaticResource LabeledTextbox}" Text="{Binding Path=GameFolder, Mode=TwoWay}" Tag="Game Folder" ToolTip="Path to the game folder.&#x0a;Ex. C:\Program Files (x86)\Steam\steamapps\common\Team Fortress 2\tf" />
+                <TextBox Template="{StaticResource LabeledTextbox}" Text="{Binding Path=BinFolder, Mode=TwoWay}" Tag="Bin Folder" ToolTip="Path to the bin folder that contains the command line tools.&#x0a;Ex. C:\Program Files (x86)\Steam\steamapps\common\Team Fortress 2\bin" />
+                <TextBox Template="{StaticResource LabeledTextbox}" Text="{Binding Path=GameEXE, Mode=TwoWay}" Tag="Game EXE" ToolTip="Path to game EXE.&#x0a;Ex. C:\Program Files (x86)\Steam\steamapps\common\Team Fortress 2\hl2.exe" />
+                <TextBox Template="{StaticResource LabeledTextbox}" Text="{Binding Path=VBSP, Mode=TwoWay}" Tag="VBSP" ToolTip="Path to vbsp.exe.&#x0a;Ex. C:\Program Files (x86)\Steam\steamapps\common\Team Fortress 2\bin\vbsp.exe" />
+                <TextBox Template="{StaticResource LabeledTextbox}" Text="{Binding Path=VVIS, Mode=TwoWay}" Tag="VVIS" ToolTip="Path to vvis.exe.&#x0a;Ex. C:\Program Files (x86)\Steam\steamapps\common\Team Fortress 2\bin\vvis.exe" />
+                <TextBox Template="{StaticResource LabeledTextbox}" Text="{Binding Path=VRAD, Mode=TwoWay}" Tag="VRAD" ToolTip="Path to vrad.exe.&#x0a;Ex. C:\Program Files (x86)\Steam\steamapps\common\Team Fortress 2\bin\vrad.exe" />
+                <TextBox Template="{StaticResource LabeledTextbox}" Text="{Binding Path=BSPZip, Mode=TwoWay}" Tag="BSPZip" ToolTip="Path to bspzip.exe.&#x0a;Ex. C:\Program Files (x86)\Steam\steamapps\common\Team Fortress 2\bin\bspzip.exe" />
+                <TextBox Template="{StaticResource LabeledTextbox}" Text="{Binding Path=VBSPInfo, Mode=TwoWay}" Tag="VBSPInfo" ToolTip="Path to vbspinfo.exe.&#x0a;Ex. C:\Program Files (x86)\Steam\steamapps\common\Team Fortress 2\bin\vbspinfo.exe" />
+                <TextBox Template="{StaticResource LabeledTextbox}" Text="{Binding Path=VPK, Mode=TwoWay}" Tag="VPK" ToolTip="Path to vpk.exe.&#x0a;Ex. C:\Program Files (x86)\Steam\steamapps\common\Team Fortress 2\bin\vpk.exe" />
+                <TextBox Template="{StaticResource LabeledTextbox}" Text="{Binding Path=MapFolder, Mode=TwoWay}" Tag="Map Folder" ToolTip="Path to the folder containing BSP files.&#x0a;Ex. C:\Program Files (x86)\Steam\steamapps\common\Team Fortress 2\tf\maps" />
+                <TextBox Template="{StaticResource LabeledTextbox}" Text="{Binding Path=SDKMapFolder, Mode=TwoWay}" Tag="SDK Map Folder" ToolTip="Path to the folder containing VMF files.&#x0a;Ex. C:\Program Files (x86)\Steam\steamapps\common\Team Fortress 2\sourcesdk_content\mapsrc" />
+                <Button Click="SaveButton_OnClick" Margin="0, 10, 0, 0">Save</Button>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</controls:MetroWindow>

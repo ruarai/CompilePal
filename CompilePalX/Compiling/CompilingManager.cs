@@ -15,8 +15,12 @@ using System.Windows.Threading;
 using CompilePalX.Compilers;
 using CompilePalX.Compiling;
 using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
+using System.Windows;
+using System.Windows.Documents.Serialization;
 using CompilePalX.Annotations;
 using CompilePalX.Configuration;
+using Newtonsoft.Json;
 
 namespace CompilePalX
 {
@@ -24,7 +28,7 @@ namespace CompilePalX
     internal delegate void CompileStarted();
     internal delegate void CompileFinished();
 
-    class Map : INotifyPropertyChanged
+    public class Map : INotifyPropertyChanged
     {
         private string file;
 
@@ -34,6 +38,20 @@ namespace CompilePalX
             set { file = value; OnPropertyChanged(nameof(File));  }
         }
 
+        /// <summary>
+        /// Map name without version identifiers
+        /// </summary>
+        public string MapName {
+            get {
+                string fullMapName = Path.GetFileNameWithoutExtension(file);
+
+                // try removing version identifier
+                return Regex.Replace(fullMapName, @"_[^_]+\d$", "");
+            }
+        }
+
+        public bool IsBSP => Path.GetExtension(file) == ".bsp";
+
         private bool compile;
         public bool Compile 
         {
@@ -41,10 +59,18 @@ namespace CompilePalX
             set { compile = value; OnPropertyChanged(nameof(Compile));  }
         }
 
-        public Map(string file, bool compile = true)
+        private Preset? preset;
+        public Preset? Preset
+        {
+            get => preset;
+            set { preset = value; OnPropertyChanged(nameof(Preset));  }
+        }
+
+        public Map(string file, bool compile = true, Preset? preset = null)
         {
             File = file;
             Compile = compile;
+            Preset = preset;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -85,10 +111,10 @@ namespace CompilePalX
 
         public static TrulyObservableCollection<Map> MapFiles = new TrulyObservableCollection<Map>();
 
-        private static Thread compileThread;
         private static Stopwatch compileTimeStopwatch = new Stopwatch();
 
         public static bool IsCompiling { get; private set; }
+        private static CancellationTokenSource cts;
 
         public static void ToggleCompileState()
         {
@@ -113,15 +139,13 @@ namespace CompilePalX
 
             OnClear();
 
-            CompilePalLogger.LogLine($"Starting a '{ConfigurationManager.CurrentPreset}' compile.");
-
-            compileThread = new Thread(CompileThreaded);
-            compileThread.Start();
+            cts = new CancellationTokenSource();
+            Task.Run(() => CompileThreaded(cts.Token));
         }
 
         private static CompileProcess currentCompileProcess;
 
-        private static void CompileThreaded()
+        private static void CompileThreaded(CancellationToken cancellationToken)
         {
             try
             {
@@ -140,8 +164,10 @@ namespace CompilePalX
 
                     string mapFile = map.File; 
                     string cleanMapName = Path.GetFileNameWithoutExtension(mapFile);
+                    ConfigurationManager.CurrentPreset = map.Preset;
 
                     var compileErrors = new List<Error>();
+                    CompilePalLogger.LogLine($"Starting a '{ConfigurationManager.CurrentPreset?.Name}' compile.");
                     CompilePalLogger.LogLine($"Starting compilation of {cleanMapName}");
 
 					//Update the grid so we have the most up to date order
@@ -150,8 +176,9 @@ namespace CompilePalX
                     GameConfigurationManager.BackupCurrentContext();
 					foreach (var compileProcess in OrderManager.CurrentOrder)
 					{
+                        cancellationToken.ThrowIfCancellationRequested();
                         currentCompileProcess = compileProcess;
-                        compileProcess.Run(GameConfigurationManager.BuildContext(mapFile));
+                        compileProcess.Run(GameConfigurationManager.BuildContext(map), cancellationToken);
 
                         compileErrors.AddRange(currentCompileProcess.CompileErrors);
 
@@ -174,15 +201,16 @@ namespace CompilePalX
                     GameConfigurationManager.RestoreCurrentContext();
                 }
 
-                MainWindow.ActiveDispatcher.Invoke(() => postCompile(mapErrors));
+                if (!cancellationToken.IsCancellationRequested)
+                    MainWindow.ActiveDispatcher.Invoke(() => postCompile(mapErrors));
             }
-            catch (ThreadAbortException) { ProgressManager.ErrorProgress(); }
+            catch (OperationCanceledException) { ProgressManager.ErrorProgress(); }
         }
 
         private static void postCompile(List<MapErrors> errors)
         {
             CompilePalLogger.LogLineColor(
-	            $"\n'{ConfigurationManager.CurrentPreset}' compile finished in {compileTimeStopwatch.Elapsed.ToString(@"hh\:mm\:ss")}", Brushes.ForestGreen);
+	            $"\n'{ConfigurationManager.CurrentPreset!.Name}' compile finished in {compileTimeStopwatch.Elapsed.ToString(@"hh\:mm\:ss")}", (Brush) Application.Current.TryFindResource("CompilePal.Brushes.Success"));
 
             if (errors != null && errors.Any())
             {
@@ -203,7 +231,7 @@ namespace CompilePalX
                     int mapMaxSeverity = map.Errors.Max(e => e.Severity);
                     CompilePalLogger.LogLineColor("{0} errors/warnings logged for {1}:", Error.GetSeverityBrush(mapMaxSeverity), map.Errors.Count, map.MapName);
 
-                    var distinctErrors = map.Errors.GroupBy(e => e.ID);
+                    var distinctErrors = map.Errors.GroupBy(e => e.ID).OrderBy(e => e.First().Severity);
                     foreach (var errorList in distinctErrors)
                     {
                         var error = errorList.First();
@@ -234,29 +262,16 @@ namespace CompilePalX
         {
             try
             {
-                compileThread.Abort();
+                cts.Cancel();
             }
             catch
             {
             }
             IsCompiling = false;
 
-            foreach (var compileProcess in ConfigurationManager.CompileProcesses.Where(cP => cP.Process != null))
-            {
-                try
-                {
-                    compileProcess.Cancel();
-                    compileProcess.Process.Kill();
-
-                    CompilePalLogger.LogLineColor("Killed {0}.", Brushes.OrangeRed, compileProcess.Metadata.Name);
-                }
-                catch (InvalidOperationException) { }
-                catch (Exception e) { ExceptionHandler.LogException(e); }
-            }
-
             ProgressManager.SetProgress(0);
 
-            CompilePalLogger.LogLineColor("Compile forcefully ended.", Brushes.OrangeRed);
+            CompilePalLogger.LogLineColor("Compile forcefully ended.", (Brush) Application.Current.TryFindResource("CompilePal.Brushes.Severity4"));
 
             postCompile(null);
         }

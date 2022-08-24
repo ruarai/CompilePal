@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Media;
 using CompilePalX.Compiling;
@@ -79,9 +80,11 @@ namespace CompilePalX.Compilers
 		[DllImport("shell32.dll")]
 		static extern int FindExecutable(string lpFile, string lpDirectory, [Out] StringBuilder lpResult);
 
-		public override void Run(CompileContext c)
+		public override void Run(CompileContext c, CancellationToken cancellationToken)
 		{
             CompileErrors = new List<Error>();
+
+            if (!CanRun(c)) return;
 
 			CompilePalLogger.LogLine("\nCompilePal - " + Path);
 
@@ -133,6 +136,23 @@ namespace CompilePalX.Compilers
 				StartInfo.RedirectStandardError = true;
 			}
 
+
+            // listen for cancellations
+            cancellationToken.Register(() =>
+            {
+                try
+                {
+                    if (ReadOutput)
+                    {
+                        Process.OutputDataReceived -= ProcessOnOutputDataReceived;
+                        Process.ErrorDataReceived -= ProcessOnErrorDataReceived;
+                    }
+                    Cancel();
+                }
+                catch (InvalidOperationException) { }
+                catch (Exception e) { ExceptionHandler.LogException(e); }
+            });
+
             try
             {
                 Process = new Process()
@@ -154,6 +174,7 @@ namespace CompilePalX.Compilers
                 {
                     Process.WaitForExit();
                     Process.Close();
+					if (cancellationToken.IsCancellationRequested) return;
                     CompilePalLogger.LogLine("\nProgram completed successfully\n");
                 }
                 else
@@ -163,6 +184,7 @@ namespace CompilePalX.Compilers
                     {
                         Process.WaitForExit();
                         Process.Close();
+                        if (cancellationToken.IsCancellationRequested) return;
                         CompilePalLogger.LogLine("\nProgram completed successfully\n");
                     });
                 }

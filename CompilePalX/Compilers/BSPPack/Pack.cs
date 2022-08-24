@@ -52,9 +52,11 @@ namespace CompilePalX.Compilers.BSPPack
         private List<string> sourceDirectories = new List<string>();
         private string outputFile = "BSPZipFiles\\files.txt";
 
-        public override void Run(CompileContext context)
+        public override void Run(CompileContext context, CancellationToken cancellationToken)
         {
             CompileErrors = new List<Error>();
+
+            if (!CanRun(context)) return;
 
             verbose = GetParameterString().Contains("-verbose");
             dryrun = GetParameterString().Contains("-dryrun");
@@ -241,6 +243,7 @@ namespace CompilePalX.Compilers.BSPPack
                 }
 
                 CompilePalLogger.LogLine("Reading BSP...");
+
                 BSP map = new BSP(new FileInfo(bspPath));
                 AssetUtils.findBspUtilityFiles(map, sourceDirectories, renamenav, genParticleManifest);
 
@@ -251,6 +254,9 @@ namespace CompilePalX.Compilers.BSPPack
                 //Set map particle manifest
                 if (genParticleManifest)
                     map.particleManifest = particleManifest;
+
+                if (cancellationToken.IsCancellationRequested)
+                    return;
 
                 string unpackDir = System.IO.Path.GetTempPath() + Guid.NewGuid();
                 UnpackBSP(unpackDir);
@@ -333,6 +339,10 @@ namespace CompilePalX.Compilers.BSPPack
                         }
                     }
 
+
+                    if (cancellationToken.IsCancellationRequested)
+                        return;
+
                     CompilePalLogger.LogLine("Running VPK...");
                     foreach (var path in sourceDirectories)
                     {
@@ -362,6 +372,8 @@ namespace CompilePalX.Compilers.BSPPack
                 }
                 else
                 {
+                    if (cancellationToken.IsCancellationRequested)
+                        return;
                     CompilePalLogger.LogLine("Writing file list...");
                     pakfile.OutputToFile();
 
@@ -518,7 +530,18 @@ namespace CompilePalX.Compilers.BSPPack
             string output = p.StandardOutput.ReadToEnd();
             if (verbose)
                 CompilePalLogger.Log(output);
+            else
+                CompilePalLogger.LogDebug(output);
+
             p.WaitForExit();
+            if (p.ExitCode != 0) {
+                // this indicates an access violation. BSPZIP may have crashed because of too many files being packed
+                if (p.ExitCode == -1073741819)
+                    CompilePalLogger.LogCompileError($"BSPZIP exited with code: {p.ExitCode}, this might indicate that too many files are being packed\n", new Error($"BSPZIP exited with code: {p.ExitCode}, this might indicate that too many files are being packed\n", ErrorSeverity.FatalError));
+                else
+                    CompilePalLogger.LogCompileError($"BSPZIP exited with code: {p.ExitCode}\n", new Error($"BSPZIP exited with code: {p.ExitCode}\n", ErrorSeverity.Warning));
+            }
+
         }
 
         static void PackVPK(string targetVPK, string responseFile, string searchPath)

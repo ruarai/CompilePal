@@ -15,18 +15,25 @@ using System.Windows.Shapes;
 namespace CompilePalX
 {
     /// <summary>
-    /// Interaction logic for InputDialog.xaml
+    /// Interaction logic for PresetDialog.xaml
     /// </summary>
-    public partial class InputDialog 
+    public partial class PresetDialog 
     {
-        public InputDialog(string title)
+        public PresetDialog(string title, Map? selectedMap)
         {
             InitializeComponent();
             Title = title;
+
+            IsMapSpecificCheckbox.IsEnabled = selectedMap != null;
+            IsMapSpecificCheckbox.IsHitTestVisible = selectedMap != null;
+            if (selectedMap != null)
+                MapToolTip = $"Preset will only apply to {selectedMap.MapName}";
         }
 
         public bool Result = false;
         public string Text { get { return InputTextBox.Text; } }
+        public bool IsMapSpecific { get { return IsMapSpecificCheckbox.IsChecked ?? false; } }
+        public string? MapToolTip { get; set; }
 
         private void OKButton_OnClick(object sender, RoutedEventArgs e)
         {

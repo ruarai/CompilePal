@@ -24,9 +24,11 @@ namespace CompilePalX.Compilers
 
         bool hidden;
 
-        public override void Run(CompileContext context)
+        public override void Run(CompileContext context, CancellationToken cancellationToken)
         {
             CompileErrors = new List<Error>();
+
+            if (!CanRun(context)) return;
 
             try
             {
@@ -44,18 +46,18 @@ namespace CompilePalX.Compilers
                 string mapLog = mapname + "_nav.log";
                 mapLogPath = Path.Combine(context.Configuration.GameFolder, mapLog);
 
+                if (cancellationToken.IsCancellationRequested) return;
                 DeleteNav(mapname, context.Configuration.GameFolder);
 
                 hidden = GetParameterString().Contains("-hidden");
-                bool textmode = GetParameterString().Contains("-textmode");
 
-                string args = "-steam -game \"" + context.Configuration.GameFolder + "\" -windowed -novid -nosound +log 0 +sv_logflush 1 +sv_cheats 1 +map " + mapname;
+                var addtionalParameters = Regex.Replace(GetParameterString(), "\b-hidden\b", "");
+
+                string args =
+                    $"-steam -game \"{context.Configuration.GameFolder}\" -windowed -novid -nosound +log 0 +sv_logflush 1 +sv_cheats 1 +map {mapname} {addtionalParameters}";
 
                 if (hidden)
                     args += " -noborder -x 4000 -y 2000";
-
-                if (textmode)
-                    args += " -textmode";
 
                 var startInfo = new ProcessStartInfo(context.Configuration.GameEXE, args);
                 startInfo.UseShellExecute = false;
@@ -90,11 +92,12 @@ namespace CompilePalX.Compilers
                     {
                         Thread.Sleep(100);
                         line = tr.ReadLine();
-                    } while (line == null || !line.Contains(".nav' saved."));
-                
-                    ExitClient();
+                    } while ((line == null || !line.Contains(".nav' saved.")) && !cancellationToken.IsCancellationRequested);
                 }
+                
+                ExitClient();
 
+                if (cancellationToken.IsCancellationRequested) return;
                 CompilePalLogger.LogLine("nav file complete!");
             }
             catch (FileNotFoundException)
@@ -136,12 +139,20 @@ namespace CompilePalX.Compilers
         }
         private void CleanUp()
         {
-            if (File.Exists(mapcfg))
-                File.Delete(mapcfg);
-            if (File.Exists(mapCFGBackup))
-                System.IO.File.Move(mapCFGBackup, mapcfg);
-            if (File.Exists(mapLogPath))
-                File.Delete(mapLogPath);
+            // give time for process to release file handles
+            try
+            {
+                if (File.Exists(mapcfg))
+                    File.Delete(mapcfg);
+                if (File.Exists(mapCFGBackup))
+                    System.IO.File.Move(mapCFGBackup, mapcfg);
+                if (File.Exists(mapLogPath))
+                    File.Delete(mapLogPath);
+            }
+            catch (Exception e)
+            {
+                CompilePalLogger.LogCompileError($"Failed to cleanup temporary file: {e}\n", new Error($"Failed to cleanup temporary file: {e}\n", "CompilePal Internal Error", ErrorSeverity.Info));
+            }
         }
 
         public override void Cancel()

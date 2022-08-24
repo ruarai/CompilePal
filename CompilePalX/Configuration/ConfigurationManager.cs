@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Documents;
@@ -15,13 +16,49 @@ using Newtonsoft.Json;
 
 namespace CompilePalX
 {
+    public class Preset : IEquatable<Preset>
+    {
+        public string Name { get; set; }
+        public string? Map { get; set; }
+
+        public bool Equals(Preset? other)
+        {
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+            return Name == other.Name && Map == other.Map;
+        }
+
+        public override bool Equals(object? obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((Preset)obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Name, Map);
+        }
+
+        /// <summary>
+        /// Returns whether a map can use the preset
+        /// </summary>
+        /// <param name="mapName"></param>
+        /// <returns></returns>
+        public bool IsValidMap(string mapName)
+        {
+            // presets with no map are global
+            return this.Map == null || mapName == Map;
+        }
+    }
 
     static class ConfigurationManager
     {
         public static ObservableCollection<CompileProcess> CompileProcesses = new ObservableCollection<CompileProcess>();
-        public static ObservableCollection<string> KnownPresets = new ObservableCollection<string>();
+        public static ObservableCollection<Preset> KnownPresets = new();
 
-        public static string CurrentPreset = "Fast";
+        public static Preset? CurrentPreset = null;
 
         private static readonly string ParametersFolder = "./Parameters";
         private static readonly string PresetsFolder = "./Presets";
@@ -94,11 +131,20 @@ namespace CompilePalX
 
             foreach (string presetPath in presets)
             {
-                string preset = Path.GetFileName(presetPath);
+                string presetName = Path.GetFileName(presetPath);
+
+                // try reading preset metadata
+                string metadataFile = Path.Combine(presetPath, "meta.json");
+
+                Preset preset;
+                if (File.Exists(metadataFile))
+                    preset = JsonConvert.DeserializeObject<Preset>(File.ReadAllText(metadataFile)) ?? new Preset() { Name = presetName };
+                else
+                    // legacy presets don't have metadata, use folder name as preset name
+                    preset = new Preset() { Name = presetName };
+
                 foreach (var process in CompileProcesses)
                 {
-
-
                     string file = Path.Combine(presetPath, process.PresetFile);
                     if (File.Exists(file))
                     {
@@ -131,7 +177,8 @@ namespace CompilePalX
                         }
                     }
                 }
-                CompilePalLogger.LogLine("Added preset {0} for processes {1}", preset, string.Join(", ", CompileProcesses));
+
+                CompilePalLogger.LogLine($"Added preset {preset.Name} {(preset.Map != null ? $"for map {preset.Map} " : "")}for processes {string.Join(", ", CompileProcesses)}");
                 CurrentPreset = preset;
                 KnownPresets.Add(preset);
 
@@ -142,7 +189,7 @@ namespace CompilePalX
         {
             foreach (var knownPreset in KnownPresets)
             {
-                string presetFolder = Path.Combine(PresetsFolder, knownPreset);
+                string presetFolder =  GetPresetFolder(knownPreset);
 
                 foreach (var compileProcess in CompileProcesses)
                 {
@@ -160,6 +207,12 @@ namespace CompilePalX
                         File.WriteAllLines(presetPath, lines);
                     }
                 }
+
+                // save preset metadata
+                string metadataPath = Path.Combine(presetFolder, "meta.json");
+                string jsonSaveText = JsonConvert.SerializeObject(knownPreset, Formatting.Indented);
+
+                File.WriteAllText(metadataPath, jsonSaveText);
             }
         }
 
@@ -173,10 +226,14 @@ namespace CompilePalX
             }
         }
 
-        public static void NewPreset(string name)
+        public static Preset NewPreset(string name, string? map)
         {
             string[] defaultProcesses = new string[] { "VBSP", "VVIS", "VRAD", "COPY", "GAME" };
-            string folder = Path.Combine(PresetsFolder, name);
+            var preset = new Preset() { Name = name, Map = map };
+
+            // if map specific, append map to name so you can make map specific presets with the same name as global ones
+            string folder = GetPresetFolder(preset);
+
             if (!Directory.Exists(folder))
             {
                 Directory.CreateDirectory(folder);
@@ -189,30 +246,53 @@ namespace CompilePalX
                         File.Create(path).Close();
                     }
                 }
+
+                // create metadata
+                string metadataPath = Path.Combine(folder, "meta.json");
+                string jsonSaveText = JsonConvert.SerializeObject(preset, Formatting.Indented);
+                File.WriteAllText(metadataPath, jsonSaveText);
             }
 
-
             AssembleParameters();
+            return preset;
         }
-        public static void ClonePreset(string name)
+        public static Preset? ClonePreset(string name, string? map)
         {
-            string newFolder = Path.Combine(PresetsFolder, name);
-            string oldFolder = Path.Combine(PresetsFolder, CurrentPreset);
+            if (CurrentPreset == null)
+                return null;
+
+            var preset = new Preset() { Name = name, Map = map };
+
+            // if map specific, append map to name so you can make map specific presets with the same name as global ones
+            string newFolder = GetPresetFolder(preset);
+
+            // if cloned preset is map specific, append map to name
+            string oldFolder = GetPresetFolder(CurrentPreset);
+
             if (!Directory.Exists(newFolder))
             {
                 SavePresets();
 
                 DirectoryCopy(oldFolder, newFolder, true);
 
+                // overwrite metadata
+                string metadataPath = Path.Combine(newFolder, "meta.json");
+                string jsonSaveText = JsonConvert.SerializeObject(preset, Formatting.Indented);
+                File.WriteAllText(metadataPath, jsonSaveText);
+
                 AssembleParameters();
             }
 
-
+            return preset;
         }
 
-        public static void RemovePreset(string name)
+        private static string GetPresetFolder(Preset preset)
         {
-            string folder = Path.Combine(PresetsFolder, name);
+            return preset.Map != null ? Path.Combine(PresetsFolder, $"{preset.Name}_{preset.Map}") : Path.Combine(PresetsFolder, preset.Name);
+        }
+        public static void RemovePreset(Preset preset)
+        {
+            string folder = GetPresetFolder(preset);
             if (Directory.Exists(folder))
             {
                 Directory.Delete(folder, true);
@@ -223,7 +303,10 @@ namespace CompilePalX
         }
         public static void RemoveProcess(string name)
         {
-            string presetPath = Path.Combine(PresetsFolder, CurrentPreset, name.ToLower() + ".csv");
+            if (CurrentPreset == null)
+                return;
+
+            string presetPath = Path.Combine(GetPresetFolder(CurrentPreset), name.ToLower() + ".csv");
             if (File.Exists(presetPath))
             {
                 File.Delete(presetPath);

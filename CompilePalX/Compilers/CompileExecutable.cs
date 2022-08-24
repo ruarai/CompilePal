@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
+using System.Threading;
 using System.Windows.Media;
 using CompilePalX.Compiling;
 
@@ -19,13 +20,26 @@ namespace CompilePalX.Compilers
                 Directory.CreateDirectory(runningDirectory);
         }
 
-        private static string runningDirectory = "./CompileLogs";
+        private static string runningDirectory = ".";
 
-        public override void Run(CompileContext c)
+        public override void Run(CompileContext c, CancellationToken cancellationToken)
         {
             CompileErrors = new List<Error>();
-            Process = new Process();
 
+            if (!CanRun(c)) return;
+
+            // listen for cancellations
+            cancellationToken.Register(() =>
+            {
+                try
+                {
+                    Cancel();
+                }
+                catch (InvalidOperationException) { }
+                catch (Exception e) { ExceptionHandler.LogException(e); }
+            });
+
+            Process = new Process();
             if (Metadata.ReadOutput)
             {
                 Process.StartInfo = new ProcessStartInfo
@@ -44,8 +58,15 @@ namespace CompilePalX.Compilers
             Process.StartInfo.Arguments = string.Join(" ", args);
             Process.StartInfo.WorkingDirectory = runningDirectory;
 
+            CompilePalLogger.LogLineDebug($"Running '{Process.StartInfo.FileName}' with args '{Process.StartInfo.Arguments}'");
+
             try
             {
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    CompilePalLogger.LogDebug($"Cancelled {this.Metadata.Name}");
+                    return;
+                }
                 Process.Start();
             }
             catch (Exception e)
@@ -57,15 +78,23 @@ namespace CompilePalX.Compilers
             Process.PriorityClass = ProcessPriorityClass.BelowNormal;
 
             if (Metadata.ReadOutput)
-                readOutput();
+            { 
+                ReadOutput(cancellationToken);
+                if (Process.ExitCode != 0)
+                    CompilePalLogger.LogCompileError($"{Name} exited with code: {Process.ExitCode}\n", new Error($"{Name} exited with code: {Process.ExitCode}", ErrorSeverity.Warning));
+
+            }
         }
 
-        private void readOutput()
+        private void ReadOutput(CancellationToken cancellationToken)
         {
             char[] buffer = new char[256];
             Task<int> read = null;
             while (true)
             {
+                if (cancellationToken.IsCancellationRequested)
+                    return;
+
                 if (read == null)
                     read = Process.StandardOutput.ReadAsync(buffer, 0, buffer.Length);
 
@@ -89,6 +118,5 @@ namespace CompilePalX.Compilers
             }
             Process.WaitForExit();
         }
-
     }
 }

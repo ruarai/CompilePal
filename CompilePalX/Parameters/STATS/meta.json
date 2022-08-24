@@ -7,5 +7,6 @@
   "Description": "Outputs statistics similar to those of VRAD.",
   "Warning": "",
   "PresetDefault": false,
-  "BasisString": " -treeinfo $mapCopyLocation$"
+  "BasisString": " -treeinfo $mapCopyLocation$",
+  "SupportsBSP": true
 }

@@ -7,5 +7,9 @@
   "Description": "Finds map dependencies and includes them in the .bsp.",
   "Warning": "",
   "PresetDefault": false,
-  "BasisString": " -game $game$ -bsp $bsp$ -bspZip $bspZip$ -keys $keys$"
+  "BasisString": " -game $game$ -bsp $bsp$ -bspZip $bspZip$ -keys $keys$",
+  "SupportsBSP": true,
+  "IncompatibleGames": [
+    4000 // gmod. Certain distributions dont have bspzip.exe
+  ] 
 }

@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Markup;
 using System.Windows.Media;
 using CompilePalX.Compiling;
@@ -30,7 +32,7 @@ namespace CompilePalX
             t.Start();
         }
 
-        static void AsyncInit()
+        static async void AsyncInit()
         {
             try
             {
@@ -45,8 +47,8 @@ namespace CompilePalX
 
                     try
                     {
-	                    WebClient c = new WebClient();
-	                    string result = c.DownloadString(new Uri(errorURL));
+	                    var c = new HttpClient();
+	                    string result = await c.GetStringAsync(new Uri(errorURL));
 
 	                    LoadErrorData(result);
 						File.WriteAllText(errorCache, result);
@@ -170,15 +172,15 @@ namespace CompilePalX
             switch (severity)
             {
                 default:
-                    return (SolidColorBrush)(new BrushConverter().ConvertFrom("#0e5fc1")); // blue
+                    return (Brush) Application.Current.TryFindResource("CompilePal.Brushes.Severity1");
                 case 2:
-                    return (SolidColorBrush)(new BrushConverter().ConvertFrom("#e19520")); // yellow orange
+                    return (Brush) Application.Current.TryFindResource("CompilePal.Brushes.Severity2");
                 case 3:
-                    return (SolidColorBrush)(new BrushConverter().ConvertFrom("#ce4a08")); // orange
+                    return (Brush) Application.Current.TryFindResource("CompilePal.Brushes.Severity3");
                 case 4:
-                    return (SolidColorBrush)(new BrushConverter().ConvertFrom("#d93600")); // red
+                    return (Brush) Application.Current.TryFindResource("CompilePal.Brushes.Severity4");
                 case 5:
-                    return Brushes.Red;
+                    return (Brush) Application.Current.TryFindResource("CompilePal.Brushes.Severity5");
             }
         }
 
