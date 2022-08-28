@@ -64,7 +64,6 @@ namespace CompilePalX
             ActiveDispatcher = Dispatcher;
 
             CompilePalLogger.OnWrite += Logger_OnWrite;
-            CompilePalLogger.OnBacktrack += Logger_OnBacktrack;
             CompilePalLogger.OnErrorLog += CompilePalLogger_OnError;
 
             UpdateManager.OnUpdateFound += UpdateManager_OnUpdateFound;
@@ -217,17 +216,6 @@ namespace CompilePalX
                     CompileOutputTextbox.ScrollToEnd();
 
                 return textRun;
-            });
-        }
-
-        void Logger_OnBacktrack(List<Run> removals)
-        {
-            Dispatcher.Invoke(() =>
-            {
-                foreach (var run in removals)
-                {
-                    run.Text = "";
-                }
             });
         }
 

@@ -102,7 +102,7 @@ namespace CompilePalX
             }
         }
 
-        public static Error GetError(string line)
+        public static Error? GetError(string line)
         {
             foreach (var error in errorList)
             {

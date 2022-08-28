@@ -35,7 +35,6 @@ namespace CompilePalX.Compiling
             Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
         }
         public static event LogWrite OnWrite;
-        public static event LogBacktrack OnBacktrack;
         public static event CompileErrorLogWrite OnErrorLog;
 
         public static event CompileErrorFound OnErrorFound;
@@ -108,47 +107,15 @@ namespace CompilePalX.Compiling
             OnErrorFound(e);
         }
 
-
         private static Dictionary<Error, int> errorsFound = new Dictionary<Error, int>();
-
-        private static StringBuilder lineBuffer = new StringBuilder();
-        private static List<Run> tempText = new List<Run>();
-        public static void ProgressiveLog(string s)
+        public static void LogLineChecked(string line)
         {
-            lineBuffer.Append(s);
+            var error = ErrorFinder.GetError(line);
 
-            if (s.Contains("\n"))
-            {
-                List<string> lines = lineBuffer.ToString().Split('\n').ToList();
-
-                string suffixText = lines.Last();
-
-                lineBuffer = new StringBuilder(suffixText);
-                
-                OnBacktrack(tempText);
-
-                for (var i = 0; i < lines.Count - 1; i++)
-                {
-                    var line = lines[i];
-                    var error = ErrorFinder.GetError(line);
-
-                    if (error == null)
-                        Log(line);
-                    else
-                        LogCompileError(line, error);
-                }
-
-                if (suffixText.Length > 0)
-                {
-                    tempText = new List<Run>();
-                    tempText.Add(Log(suffixText));
-                }
-            }
+            if (error == null)
+                LogLine(line);
             else
-            {
-                tempText.Add(Log(s));
-            }
+                LogCompileError(line + Environment.NewLine, error);
         }
-
     }
 }

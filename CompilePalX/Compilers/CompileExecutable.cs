@@ -33,6 +33,12 @@ namespace CompilePalX.Compilers
             {
                 try
                 {
+                    if (Metadata.ReadOutput)
+                    {
+                        Process.OutputDataReceived -= ProcessOnOutputDataReceived;
+                        Process.ErrorDataReceived -= ProcessOnOutputDataReceived;
+
+                    }
                     Cancel();
                 }
                 catch (InvalidOperationException) { }
@@ -79,44 +85,27 @@ namespace CompilePalX.Compilers
 
             if (Metadata.ReadOutput)
             { 
-                ReadOutput(cancellationToken);
+                Process.BeginOutputReadLine();
+                Process.BeginErrorReadLine();
+                Process.OutputDataReceived += ProcessOnOutputDataReceived;
+                Process.ErrorDataReceived += ProcessOnOutputDataReceived;
+
+                Process.WaitForExitAsync(cancellationToken).Wait(cancellationToken);
+
                 if (Process.ExitCode != 0)
                     CompilePalLogger.LogCompileError($"{Name} exited with code: {Process.ExitCode}\n", new Error($"{Name} exited with code: {Process.ExitCode}", ErrorSeverity.Warning));
-
             }
         }
 
-        private void ReadOutput(CancellationToken cancellationToken)
+        private void ProcessOnOutputDataReceived(object sender, DataReceivedEventArgs e)
         {
-            char[] buffer = new char[256];
-            Task<int> read = null;
-            while (true)
-            {
-                if (cancellationToken.IsCancellationRequested)
-                    return;
+            if (e.Data == null) return;
 
-                if (read == null)
-                    read = Process.StandardOutput.ReadAsync(buffer, 0, buffer.Length);
-
-                read.Wait(100); // an arbitray timeout
-
-                if (read.IsCompleted)
-                {
-                    if (read.Result > 0)
-                    {
-                        string text = new string(buffer, 0, read.Result);
-
-                        CompilePalLogger.ProgressiveLog(text);
-
-                        read = null; // ok, this task completed so we need to create a new one
-                        continue;
-                    }
-
-                    // got -1, process ended
-                    break;
-                }
-            }
-            Process.WaitForExit();
+            // listen for variable updates for plugins
+            if (e.Data.StartsWith("COMPILE_PAL_SET"))
+                GameConfigurationManager.ModifyCurrentContext(e.Data);
+            else
+                CompilePalLogger.LogLineChecked(e.Data);
         }
     }
 }

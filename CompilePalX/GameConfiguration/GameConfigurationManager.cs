@@ -73,6 +73,15 @@ namespace CompilePalX
                 case "game_exe":
                     GameConfiguration.GameEXE = value;
                     break;
+                case "bspzip_exe":
+                    GameConfiguration.BSPZip = value;
+                    break;
+                case "vpk_exe":
+                    GameConfiguration.VPK = value;
+                    break;
+                case "vbspinfo_exe":
+                    GameConfiguration.VBSPInfo = value;
+                    break;
                 case "bspdir":
                     GameConfiguration.MapFolder = value;
                     break;
