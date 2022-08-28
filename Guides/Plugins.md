@@ -103,8 +103,29 @@ My Plugin/
 | CompatibleGames | Whitelist of Steam App IDs for games that this plugin parameter is compatible with. Will override IncompatibleGames if both are set. (>=v27.29)
 | IncompatibleGames | Blacklist of Steam App IDs for games that this plugin parameter is not compatible with. (>=v27.29)
 
+## Modifying The Current Game Configuration (>=v27.30)
+You can modify the current game configuration by sending `COMPILE_PAL_SET {variable} {value}` through stdout. These changes will persist until the next map is compiled.
+
+| Variable | Description |
+| ------ | ---- |
+| file | VMF filepath |
+| bspdir | BSP directory |
+| bindir | Bin directory|
+| sdkbindir | SDK bin directory |
+| gamedir | Game directory |
+| vbsp_exe | Path to VBSP |
+| vvis_exe | Path to VVIS |
+| vrad_exe | Path to VRAD |
+| game_exe | Path to the game |
+| bspzip_exe | Path to BSPZip |
+| vpk_exe | Path to VPK.exe |
+| vbspinfo_exe | Path to VBSPInfo |
+
+For example, sending `COMPILE_PAL_SET file 'new/file/path.vmf'` will update the configuration to point to the vmf at `new/file/path.vmf` instead of what was originally selected.
+
 ## Best Practices
-For examples, download [PLUGIN DEMO.zip](https://github.com/ruarai/CompilePal/files/9296903/PLUGIN.DEMO.zip) or look at the existing compile steps in the `Parameters` folder.
+For examples, download [PLUGIN DEMO.zip](https://github.com/ruarai/CompilePal/files/9440548/PLUGIN.DEMO.zip) or look at the existing compile steps in the `Parameters` folder.
+
 
 ### Packaging An Application
 It is recomended to package your application inside the plugin folder to make it easier to point to. For example, `Path` can be set to `Parameters\\My Plugin\\plugin.exe`.
