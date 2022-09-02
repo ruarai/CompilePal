@@ -45,3 +45,6 @@ You can modify the current game configuration by sending `COMPILE_PAL_SET variab
 | vvis_exe | Path to VVIS |
 | vrad_exe | Path to VRAD |
 | game_exe | Path to the game |
+| bspzip_exe | Path to BSPZip |
+| vpk_exe | Path to VPK.exe |
+| vbspinfo_exe | Path to VBSPInfo |

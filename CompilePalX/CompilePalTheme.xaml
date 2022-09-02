@@ -20,15 +20,15 @@
     <Color x:Key="MahApps.Colors.IdealForeground">White</Color>
 
     <Color x:Key="CompilePal.Colors.GridBackground">#FFE5E5E5</Color>
+    <Color x:Key="CompilePal.Colors.CheckboxDisabled">LightGray</Color>
     <Color x:Key="CompilePal.Colors.Warning">#ffc700</Color>
     <Color x:Key="CompilePal.Colors.Link">DodgerBlue</Color>
-    <Color x:Key="CompilePal.Colors.CheckboxDisabled">LightGray</Color>
-    <Color x:Key="CompilePal.Colors.Severity1">#0e5fc1</Color>
-    <Color x:Key="CompilePal.Colors.Severity2">#e19520</Color>
-    <Color x:Key="CompilePal.Colors.Severity3">#ce4a08</Color>
-    <Color x:Key="CompilePal.Colors.Success">ForestGreen</Color>
-    <Color x:Key="CompilePal.Colors.Severity4">#d93600</Color>
-    <Color x:Key="CompilePal.Colors.Severity5">Red</Color>
+    <Color x:Key="CompilePal.Colors.Severity1">#7392f0</Color>
+    <Color x:Key="CompilePal.Colors.Severity2">#efa718</Color>
+    <Color x:Key="CompilePal.Colors.Severity3">#ea761d</Color>
+    <Color x:Key="CompilePal.Colors.Severity4">#e42826</Color>
+    <Color x:Key="CompilePal.Colors.Severity5">#f21311</Color>
+    <Color x:Key="CompilePal.Colors.Success">#48b21b</Color>
 
     <!-- re-set brushes too -->
     <SolidColorBrush x:Key="MahApps.Brushes.Highlight" Color="{StaticResource MahApps.Colors.HighlightColor}" options:Freeze="True" />
