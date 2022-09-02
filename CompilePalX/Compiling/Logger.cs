@@ -2,19 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Media;
-using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace CompilePalX.Compiling
 {
@@ -35,7 +25,6 @@ namespace CompilePalX.Compiling
             Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
         }
         public static event LogWrite OnWrite;
-        public static event LogBacktrack OnBacktrack;
         public static event CompileErrorLogWrite OnErrorLog;
 
         public static event CompileErrorFound OnErrorFound;
@@ -108,47 +97,15 @@ namespace CompilePalX.Compiling
             OnErrorFound(e);
         }
 
-
         private static Dictionary<Error, int> errorsFound = new Dictionary<Error, int>();
-
-        private static StringBuilder lineBuffer = new StringBuilder();
-        private static List<Run> tempText = new List<Run>();
-        public static void ProgressiveLog(string s)
+        public static void LogLineChecked(string line)
         {
-            lineBuffer.Append(s);
+            var error = ErrorFinder.GetError(line);
 
-            if (s.Contains("\n"))
-            {
-                List<string> lines = lineBuffer.ToString().Split('\n').ToList();
-
-                string suffixText = lines.Last();
-
-                lineBuffer = new StringBuilder(suffixText);
-                
-                OnBacktrack(tempText);
-
-                for (var i = 0; i < lines.Count - 1; i++)
-                {
-                    var line = lines[i];
-                    var error = ErrorFinder.GetError(line);
-
-                    if (error == null)
-                        Log(line);
-                    else
-                        LogCompileError(line, error);
-                }
-
-                if (suffixText.Length > 0)
-                {
-                    tempText = new List<Run>();
-                    tempText.Add(Log(suffixText));
-                }
-            }
+            if (error == null)
+                LogLine(line);
             else
-            {
-                tempText.Add(Log(s));
-            }
+                LogCompileError(line + Environment.NewLine, error);
         }
-
     }
 }
