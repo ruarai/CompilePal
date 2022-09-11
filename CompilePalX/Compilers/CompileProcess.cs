@@ -138,7 +138,7 @@ namespace CompilePalX
                 return;
 
             Process.Kill();
-            CompilePalLogger.LogLineColor("Killed {0}.", (Brush) Application.Current.TryFindResource("CompilePal.Brushes.Severity4"), this.Metadata.Name);
+            CompilePalLogger.LogLineColor("\nKilled {0}.", (Brush) Application.Current.TryFindResource("CompilePal.Brushes.Severity4"), this.Metadata.Name);
         }
 
         public ObservableCollection<ConfigItem> ParameterList = new ObservableCollection<ConfigItem>();

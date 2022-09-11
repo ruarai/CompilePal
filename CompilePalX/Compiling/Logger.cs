@@ -18,7 +18,7 @@ using System.Windows.Shapes;
 
 namespace CompilePalX.Compiling
 {
-    internal delegate Run LogWrite(string s, Brush b);
+    internal delegate Run? LogWrite(string s, Brush b);
     internal delegate void LogBacktrack(List<Run> l);
     internal delegate void CompileErrorLogWrite(string errorText, Error e);
 
@@ -35,6 +35,7 @@ namespace CompilePalX.Compiling
             Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
         }
         public static event LogWrite OnWrite;
+        public static event LogBacktrack OnBacktrack;
         public static event CompileErrorLogWrite OnErrorLog;
 
         public static event CompileErrorFound OnErrorFound;
@@ -64,12 +65,21 @@ namespace CompilePalX.Compiling
             return LogColor(s + Environment.NewLine, b, formatStrings);
         }
 
-        public static Run Log(string s = "", params object[] formatStrings)
+        public static Run? Log(string s = "", params object[] formatStrings)
         {
+
+            // listen for variable updates for plugins
+            if (s.StartsWith("COMPILE_PAL_SET"))
+            {
+                GameConfigurationManager.ModifyCurrentContext(s);
+                return null;
+
+            }
+
             return LogColor(s, null, formatStrings);
         }
 
-        public static Run LogLine(string s = "", params object[] formatStrings)
+        public static Run? LogLine(string s = "", params object[] formatStrings)
         {
             return Log(s + Environment.NewLine, formatStrings);
         }
@@ -107,15 +117,47 @@ namespace CompilePalX.Compiling
             OnErrorFound(e);
         }
 
-        private static Dictionary<Error, int> errorsFound = new Dictionary<Error, int>();
-        public static void LogLineChecked(string line)
-        {
-            var error = ErrorFinder.GetError(line);
+        private static Dictionary<Error, int> errorsFound = new ();
 
-            if (error == null)
-                LogLine(line);
-            else
-                LogCompileError(line + Environment.NewLine, error);
+        private static StringBuilder lineBuffer = new ();
+        private static List<Run> tempText = new ();
+        public static void LogProgressive(string s)
+        {
+            lineBuffer.Append(s);
+
+            if (!s.Contains("\n"))
+            {
+                Run? log = Log(s);
+                if (log != null)
+                    tempText.Add(log);
+            }
+
+            // Log has completed at least 1 line, process it further
+            List<string> lines = lineBuffer.ToString().Split('\n').ToList();
+
+            string suffixText = lines.Last();
+
+            lineBuffer = new StringBuilder(suffixText);
+
+            OnBacktrack(tempText);
+
+            for (int i = 0; i < lines.Count - 1; i++)
+            {
+                string line = lines[i];
+                Error? error = ErrorFinder.GetError(line);
+
+                if (error == null)
+                    Log(line);
+                else
+                    LogCompileError(line, error);
+            }
+
+            if (suffixText.Length > 0)
+            {
+                Run? log = Log(suffixText);
+                if (log != null)
+                    tempText = new List<Run> { log };
+            }
         }
     }
 }
