@@ -31,6 +31,7 @@ My Plugin/
   "DoRun": "bool",
   "ReadOutput": "bool",
   "SupportsBSP": "bool",
+  "CheckExitCode": "bool",
   "CompatibleGames": "int[]",
   "IncompatibleGames": "int[]"
 }
@@ -47,6 +48,7 @@ My Plugin/
 | DoRun		| This should always be true. This indicates that the step is an external program and not a built-in compile step.
 | ReadOutput | Controls whether program output is shown in the compile log.
 | SupportsBSP | Indicates that this step can be used for BSP files. Steps that don't support BSPs are automatically disabled if a user selects a BSP file. Defaults to `false`. (>=v27.27)
+| CheckExitCode | Checks for process exit code and raises a warning when it is not 0. Defaults to `true`. (>=v27.31)
 | CompatibleGames | Whitelist of Steam App IDs for games that this plugin is compatible with. Will override IncompatibleGames if both are set. (>=v27.29)
 | IncompatibleGames | Blacklist of Steam App IDs for games that this plugin is not compatible with. (>=v27.29)
 
