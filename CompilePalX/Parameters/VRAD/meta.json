@@ -7,5 +7,6 @@
   "Description": "Generates static lighting.",
   "Warning": "",
   "PresetDefault": false,
-  "BasisString": " -game $game$ $vmfFile$"
+  "BasisString": " -game $game$ $vmfFile$",
+  "CheckExitCode": false 
 }

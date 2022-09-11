@@ -92,7 +92,7 @@ namespace CompilePalX.Compilers
 
                 Process.WaitForExitAsync(cancellationToken).Wait(cancellationToken);
 
-                if (Process.ExitCode != 0)
+                if (Metadata.CheckExitCode && Process.ExitCode != 0)
                     CompilePalLogger.LogCompileError($"{Name} exited with code: {Process.ExitCode}\n", new Error($"{Name} exited with code: {Process.ExitCode}", ErrorSeverity.Warning));
             }
         }

@@ -12,5 +12,6 @@
   "CompatibleGames": [
     440, // tf2
     240 // cs:s
-  ] 
+  ],
+  "CheckExitCode": false 
 }
