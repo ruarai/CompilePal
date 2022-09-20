@@ -8,5 +8,6 @@
   "Warning": "",
   "PresetDefault": false,
   "BasisString": " -treeinfo $mapCopyLocation$",
-  "SupportsBSP": true
+  "SupportsBSP": true,
+  "CheckExitCode": false 
 }

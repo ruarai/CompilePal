@@ -7,5 +7,6 @@
   "Description": "Performs visibility tests for optimization.",
   "Warning": "",
   "PresetDefault": false,
-  "BasisString": " -game $game$ $vmfFile$"
+  "BasisString": " -game $game$ $vmfFile$",
+  "CheckExitCode": false
 }

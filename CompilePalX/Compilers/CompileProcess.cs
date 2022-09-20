@@ -149,7 +149,7 @@ namespace CompilePalX
             }
 
             Process.Kill();
-            CompilePalLogger.LogLineColor("Killed {0}.", (Brush)Application.Current.TryFindResource("CompilePal.Brushes.Severity4"), Metadata.Name);
+            CompilePalLogger.LogLineColor("\nKilled {0}.", (Brush) Application.Current.TryFindResource("CompilePal.Brushes.Severity4"), this.Metadata.Name);
         }
 
 
@@ -215,6 +215,7 @@ namespace CompilePalX
         public string Description { get; set; }
         public string Warning { get; set; }
         public bool PresetDefault { get; set; } = false;
+        public bool CheckExitCode { get; set; } = true;
         public string BasisString { get; set; }
         public bool SupportsBSP { get; set; } = false;
         public HashSet<int>? IncompatibleGames { get; set; }
