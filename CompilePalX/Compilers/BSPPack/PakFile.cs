@@ -24,7 +24,7 @@ namespace CompilePalX.Compilers.BSPPack
             return AddFile(new KeyValuePair<string, string>(internalPath, externalPath));
         }
         // onFailure is for utility files such as nav, radar, etc which get excluded. if they are excluded, the Delegate is run. This is used for removing the files from the BSP class, so they dont appear in the summary at the end
-        private bool AddFile(KeyValuePair<string, string> paths, Action<BSP> onExcluded = null, BSP bsp = null)
+        private bool AddFile(KeyValuePair<string, string> paths, Action<BSP>? onExcluded = null, BSP? bsp = null)
         {
             var externalPath = paths.Value;
 
@@ -91,6 +91,9 @@ namespace CompilePalX.Compilers.BSPPack
 
             if (bsp.radartxt.Key != default(string))
                 AddFile(bsp.radartxt, (b => b.radartxt = default), bsp);
+
+            if (bsp.RadarTablet.Key != default(string))
+                AddFile(bsp.RadarTablet, (b => b.RadarTablet = default), bsp);
 
             if (bsp.res.Key != default(string))
             {

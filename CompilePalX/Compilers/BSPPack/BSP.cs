@@ -46,6 +46,7 @@ namespace CompilePalX.Compilers.BSPPack
         public KeyValuePair<string, string> jpg { get; set; }
         public KeyValuePair<string, string> radartxt { get; set; }
         public List<KeyValuePair<string, string>> radardds { get; set; }
+        public KeyValuePair<string, string> RadarTablet { get; set; }
         public List<KeyValuePair<string, string>> languages { get; set; }
         public List<KeyValuePair<string, string>> VehicleScriptList { get; set; }
         public List<KeyValuePair<string, string>> EffectScriptList { get; set; }

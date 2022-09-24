@@ -404,19 +404,20 @@ namespace CompilePalX.Compilers.BSPPack
                 if (pakfile.panoramaMapIconCount != 0)
                     CompilePalLogger.LogLine(pakfile.panoramaMapIconCount + " panorama map icons found");
                 string additionalFiles =
-                    (map.nav.Key != default(string) ? "\n-nav file" : "") +
-                    (map.soundscape.Key != default(string) ? "\n-soundscape" : "") +
-                    (map.soundscript.Key != default(string) ? "\n-soundscript" : "") +
-                    (map.detail.Key != default(string) ? "\n-detail file" : "") +
-                    (map.particleManifest.Key != default(string) ? "\n-particle manifest" : "") +
-                    (map.radartxt.Key != default(string) ? "\n-radar files" : "") +
-                    (map.txt.Key != default(string) ? "\n-loading screen text" : "") +
-                    (map.jpg.Key != default(string) ? "\n-loading screen image" : "") +
-                    (map.kv.Key != default(string) ? "\n-kv file" : "") +
-                    (map.res.Key != default(string) ? "\n-res file" : "");
+                    (map.nav.Key != default(string) ? "\n-Nav file" : "") +
+                    (map.soundscape.Key != default(string) ? "\n-Soundscape" : "") +
+                    (map.soundscript.Key != default(string) ? "\n-Soundscript" : "") +
+                    (map.detail.Key != default(string) ? "\n-Detail file" : "") +
+                    (map.particleManifest.Key != default(string) ? "\n-Particle manifest" : "") +
+                    (map.radartxt.Key != default(string) ? "\n-Radar files" : "") +
+                    (map.RadarTablet.Key != default(string) ? "\n-Radar tablet" : "") +
+                    (map.txt.Key != default(string) ? "\n-Loading screen text" : "") +
+                    (map.jpg.Key != default(string) ? "\n-Loading screen image" : "") +
+                    (map.kv.Key != default(string) ? "\n-KV file" : "") +
+                    (map.res.Key != default(string) ? "\n-Res file" : "");
 
                 if (additionalFiles != "")
-                    CompilePalLogger.LogLine("additional files: " + additionalFiles);
+                    CompilePalLogger.LogLine("Additional Files: " + additionalFiles);
                 CompilePalLogger.LogLine("---------------------");
 
             }

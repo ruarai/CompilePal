@@ -754,6 +754,19 @@ namespace CompilePalX.Compilers.BSPPack
             }
             bsp.PanoramaMapIcons = panoramaMapIcons;
 
+            // csgo dz tablets
+            internalPath = "materials/models/weapons/v_models/tablet/tablet_radar_" + bsp.file.Name.Replace(".bsp", ".vtf");
+            foreach (string source in sourceDirectories)
+            {
+                string externalPath = source + "/" + internalPath;
+
+                if (File.Exists(externalPath))
+                {
+                    bsp.RadarTablet = new KeyValuePair<string, string>(internalPath, externalPath);
+                    break;
+                }
+            }
+
             // language files, particle manifests and soundscript file
             // (these language files are localized text files for tf2 mission briefings)
             string internalDir = "maps/";
