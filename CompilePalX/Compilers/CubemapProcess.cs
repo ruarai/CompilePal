@@ -60,7 +60,7 @@ namespace CompilePalX.Compilers
                 string mapname = System.IO.Path.GetFileName(context.CopyLocation).Replace(".bsp", "");
 
                 string args =
-                    $"-steam -game \"{context.Configuration.GameFolder}\" -windowed -novid -nosound +mat_specular 0 %HDRevel% +map {mapname} -buildcubemaps {addtionalParameters}";
+                    $"-steam -game \"{context.Configuration.GameFolder}\" -windowed -insecure -novid -nosound +mat_specular 0 %HDRevel% +map {mapname} -buildcubemaps {addtionalParameters}";
 
                 if (hidden)
                     args += " -noborder -x 4000 -y 2000";
