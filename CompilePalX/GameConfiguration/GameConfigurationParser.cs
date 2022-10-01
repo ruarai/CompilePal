@@ -19,7 +19,7 @@ namespace CompilePalX {
             var gameInfos = new List<GameConfiguration>();
 
             var data = new KV.FileData(filename);
-            foreach (KV.DataBlock gamedb in data.headnode.GetFirstByName(new[] { "\"Configs\"", "\"GameConfig.txt\"" })
+            foreach (KV.DataBlock gamedb in data.headnode.GetFirstByName(new[] { "\"Configs\"", "\"GameConfig.txt\"", "\"hammerplusplus\\hammerplusplus_gameconfig.txt\"" })
                          .GetFirstByName("\"Games\"").subBlocks)
             {
                 KV.DataBlock hdb = gamedb.GetFirstByName(new[] { "\"Hammer\"", "\"hammer\"" });
