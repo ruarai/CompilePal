@@ -51,15 +51,22 @@ namespace CompilePalX
 	                    string result = await c.GetStringAsync(new Uri(errorURL));
 
 	                    LoadErrorData(result);
-						File.WriteAllText(errorCache, result);
+						await File.WriteAllTextAsync(errorCache, result);
                     }
                     catch (Exception e)
                     {
 						// fallback to cache if download fails
 						ExceptionHandler.LogException(e, false);
-						LoadErrorData(File.ReadAllText((errorCache)));
+                        if (File.Exists((errorCache)))
+                        {
+                            CompilePalLogger.LogLineDebug("Loading error data from cache");
+                            LoadErrorData(await File.ReadAllTextAsync(errorCache));
+                        }
+                        else
+                        {
+                            CompilePalLogger.LogLineDebug($"Error cache not found: {errorCache}");
+                        }
                     }
-
                 }
             }
             catch (Exception x)

@@ -87,7 +87,7 @@ namespace CompilePalX
 
                 ProgressManager.SetProgress(ProgressManager.Progress);
             }
-            catch (WebException e)
+            catch (HttpRequestException e)
             {
                 CompilePalLogger.LogLine("Failed to find update information as an error was returned:");
                 CompilePalLogger.LogLine(e.ToString());
