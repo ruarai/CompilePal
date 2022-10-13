@@ -870,10 +870,9 @@ namespace CompilePalX
 	    {
 			//Generic T is workaround for CustomProgram being
 		    //less accessible than this method.
-		    var program = target as CustomProgram;
-		    if (program == null)
+            if (target is not CustomProgram program)
 			    return;
-
+            CompilePalLogger.LogDebug($"Setting order of target: {target} to {newOrder}");
 			var programConfig = GetConfigFromCustomProgram(program);
 
 			if (programConfig == null)
@@ -885,7 +884,7 @@ namespace CompilePalX
 
 
 		//Search through ProcDataGrid to find corresponding ConfigItem
-		private ConfigItem GetConfigFromCustomProgram(CustomProgram program)
+		private ConfigItem? GetConfigFromCustomProgram(CustomProgram program)
 	    {
 			foreach (var procSourceItem in ProcessDataGrid.ItemsSource)
 			{

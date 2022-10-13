@@ -16,6 +16,7 @@ namespace CompilePalX.Compilers.BSPPack
         private FileStream bsp;
         private BinaryReader reader;
         private KeyValuePair<int, int>[] offsets; // offset/length
+        private static readonly char[] SpecialCaracters = { '*', '#', '@', '>', '<', '^', '(', ')', '}', '$', '!', '?', ' ' };
 
         public List<Dictionary<string, string>> entityList { get; private set; }
 
@@ -212,7 +213,6 @@ namespace CompilePalX.Compilers.BSPPack
                     }
                 }
 
-
                 // special condition for sprites
                 if (ent["classname"].Contains("sprite") && ent.ContainsKey("model"))
                     materials.Add(ent["model"]);
@@ -385,6 +385,14 @@ namespace CompilePalX.Compilers.BSPPack
 						else if (prop.Value == "tf_projectile_throwable")
 							EntModelList.Add("models/props_gameplay/small_loaf.mdl");
 					}
+					//Pack I/O triggered models
+                    if (prop.Value.Contains("SetModel"))
+                    {
+                        // SetModel is in form SetModel,models/path/to/model.mdl
+						List<string> io = prop.Value.Split(',').ToList();
+						if (!string.IsNullOrWhiteSpace(io[io.IndexOf("SetModel") + 1]))
+							EntModelList.Add(io[io.IndexOf("SetModel") + 1].Trim(SpecialCaracters));
+                    }
 				}
 			}
         }
@@ -392,26 +400,25 @@ namespace CompilePalX.Compilers.BSPPack
         public void buildEntSoundList()
         {
             // builds the list of sounds referenced in entities
-            char[] special_caracters = new char[] { '*', '#', '@', '>', '<', '^', '(', ')', '}', '$', '!', '?', ' ' };
             EntSoundList = new List<string>();
 			foreach (Dictionary<string, string> ent in entityList)
 				foreach (KeyValuePair<string, string> prop in ent)
 				{
 					if (Keys.vmfSoundKeys.Contains(prop.Key.ToLower()))
-						EntSoundList.Add("sound/" + prop.Value.Trim(special_caracters));
+						EntSoundList.Add("sound/" + prop.Value.Trim(SpecialCaracters));
 					//Pack I/O triggered sounds
 					else if (prop.Value.Contains("PlayVO"))
 					{
 						//Parameter value following PlayVO is always either a sound path or an empty string
 						List<string> io = prop.Value.Split(',').ToList();
 						if (!string.IsNullOrWhiteSpace(io[io.IndexOf("PlayVO") + 1]))
-							EntSoundList.Add("sound/" + io[io.IndexOf("PlayVO") + 1].Trim(special_caracters));
+							EntSoundList.Add("sound/" + io[io.IndexOf("PlayVO") + 1].Trim(SpecialCaracters));
 					}
 					else if (prop.Value.Contains("playgamesound"))
 					{
 						List<string> io = prop.Value.Split(',').ToList();
 						if (!string.IsNullOrWhiteSpace(io[io.IndexOf("playgamesound") + 1]))
-							EntSoundList.Add("sound/" + io[io.IndexOf("playgamesound") + 1].Trim(special_caracters));
+							EntSoundList.Add("sound/" + io[io.IndexOf("playgamesound") + 1].Trim(SpecialCaracters));
 					}
 					else if (prop.Value.Contains("play"))
 					{
@@ -421,7 +428,7 @@ namespace CompilePalX.Compilers.BSPPack
 
 						foreach (var command in playCommand)
 						{
-							EntSoundList.Add("sound/" + command.Split(' ')[1].Trim(special_caracters));
+							EntSoundList.Add("sound/" + command.Split(' ')[1].Trim(SpecialCaracters));
 						}
 					}
 
