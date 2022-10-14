@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using CompilePalX.Compiling;
 
 namespace CompilePalX.Compilers.BSPPack
 {
@@ -278,10 +279,12 @@ namespace CompilePalX.Compilers.BSPPack
             var uniqueMats = new HashSet<string>();
             foreach (var ent in entityListArrayForm)
             {
-                foreach(var kv in ent)
+                foreach(var prop in ent)
                 {
-                    var match = Regex.Match(kv.Item2, @"r_screenoverlay ([^,]+),");
-                    if(match.Success)
+                    // get i/o triggered materials
+                    string ioString = GetIOString(prop.Item2);
+                    var match = Regex.Match(ioString, @"r_screenoverlay ([^,]+),");
+                    if (match.Success)
                     {
                         uniqueMats.Add(match.Groups[1].Value.Replace(".vmt", ""));
                     }
@@ -385,11 +388,13 @@ namespace CompilePalX.Compilers.BSPPack
 						else if (prop.Value == "tf_projectile_throwable")
 							EntModelList.Add("models/props_gameplay/small_loaf.mdl");
 					}
+
 					//Pack I/O triggered models
-                    if (prop.Value.Contains("SetModel"))
+                    string ioString = GetIOString(prop.Value);
+                    if (ioString.Contains("SetModel"))
                     {
                         // SetModel is in form SetModel,models/path/to/model.mdl
-						List<string> io = prop.Value.Split(',').ToList();
+						List<string> io = ioString.Split(',').ToList();
 						if (!string.IsNullOrWhiteSpace(io[io.IndexOf("SetModel") + 1]))
 							EntModelList.Add(io[io.IndexOf("SetModel") + 1].Trim(SpecialCaracters));
                     }
@@ -407,22 +412,23 @@ namespace CompilePalX.Compilers.BSPPack
 					if (Keys.vmfSoundKeys.Contains(prop.Key.ToLower()))
 						EntSoundList.Add("sound/" + prop.Value.Trim(SpecialCaracters));
 					//Pack I/O triggered sounds
-					else if (prop.Value.Contains("PlayVO"))
+                    string ioString = GetIOString(prop.Value);
+					if (ioString.Contains("PlayVO"))
 					{
 						//Parameter value following PlayVO is always either a sound path or an empty string
-						List<string> io = prop.Value.Split(',').ToList();
+						List<string> io = ioString.Split(',').ToList();
 						if (!string.IsNullOrWhiteSpace(io[io.IndexOf("PlayVO") + 1]))
 							EntSoundList.Add("sound/" + io[io.IndexOf("PlayVO") + 1].Trim(SpecialCaracters));
 					}
-					else if (prop.Value.Contains("playgamesound"))
+					else if (ioString.Contains("playgamesound"))
 					{
-						List<string> io = prop.Value.Split(',').ToList();
+						List<string> io = ioString.Split(',').ToList();
 						if (!string.IsNullOrWhiteSpace(io[io.IndexOf("playgamesound") + 1]))
 							EntSoundList.Add("sound/" + io[io.IndexOf("playgamesound") + 1].Trim(SpecialCaracters));
 					}
-					else if (prop.Value.Contains("play"))
+					else if (ioString.Contains("play"))
 					{
-						List<string> io = prop.Value.Split(',').ToList();
+						List<string> io = ioString.Split(',').ToList();
 
 						var playCommand = io.Where(i => i.StartsWith("play "));
 
@@ -444,6 +450,29 @@ namespace CompilePalX.Compilers.BSPPack
                 foreach (KeyValuePair<string, string> particle in ent)
                      if (particle.Key.ToLower() == "effect_name")
                         ParticleList.Add(particle.Value);
+        }
+
+        private string GetIOString(string property)
+        {
+            if (!property.Contains("AddOutput"))
+                return property;
+
+            // AddOutput format: <output name> <target name>:<input name>:<parameter>:<delay>:<max times to fire> or simple form <key> <value>
+            // only need to convert complex form into simple form
+            if (property.Contains(':'))
+            {
+                var splitIo = property.Split(':');
+                if (splitIo.Length < 3)
+                {
+                    CompilePalLogger.LogCompileError($"Failed to decode AddOutput, format may be incorrect: {property}\n", new Error($"Failed to decode AddOutput, format may be incorrect: {property}\n", ErrorSeverity.Warning));
+                    return property;
+                }
+
+                // need to have a trailing comma because some regexes rely on it for capture groups
+                property = $"{splitIo[2]},";
+            }
+
+            return property;
         }
     }
 }
