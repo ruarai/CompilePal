@@ -60,11 +60,11 @@ namespace CompilePalX.Compilers.BSPPack
         public int vehiclescriptcount { get; private set; }
         public int effectscriptcount { get; private set; }
         public int vscriptcount { get; private set; }
-        public int panoramaMapIconCount { get; private set; }
+        public int PanoramaMapBackgroundCount { get; private set; }
 
         public PakFile(BSP bsp, List<string> sourceDirectories, List<string> includeFiles, List<string> excludedFiles, List<string> excludedDirs, List<string> excludedVpkFiles, string outputFile)
         {
-            mdlcount = vmtcount = pcfcount = sndcount = vehiclescriptcount = effectscriptcount = panoramaMapIconCount = 0;
+            mdlcount = vmtcount = pcfcount = sndcount = vehiclescriptcount = effectscriptcount = PanoramaMapBackgroundCount = 0;
             sourceDirs = sourceDirectories;
             fileName = outputFile;
 
@@ -94,6 +94,11 @@ namespace CompilePalX.Compilers.BSPPack
 
             if (bsp.RadarTablet.Key != default(string))
                 AddFile(bsp.RadarTablet, (b => b.RadarTablet = default), bsp);
+
+            if (bsp.PanoramaMapIcon.Key != default(string))
+            {
+                AddFile(bsp.PanoramaMapIcon, (b => b.PanoramaMapIcon = default), bsp);
+            }
 
             if (bsp.res.Key != default(string))
             {
@@ -162,9 +167,9 @@ namespace CompilePalX.Compilers.BSPPack
             foreach (string vscript in bsp.vscriptList)
                 if (AddInternalFile(vscript, FindExternalFile(vscript)))
                     vscriptcount++;
-            foreach (KeyValuePair<string, string> teamSelectionBackground in bsp.PanoramaMapIcons)
+            foreach (KeyValuePair<string, string> teamSelectionBackground in bsp.PanoramaMapBackgrounds)
                 if (AddInternalFile(teamSelectionBackground.Key, teamSelectionBackground.Value))
-                    panoramaMapIconCount++;
+                    PanoramaMapBackgroundCount++;
 
 			// add all manually included files
 			// TODO right now the manually included files search for files it depends on. Not sure if this should be default behavior

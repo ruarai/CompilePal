@@ -53,7 +53,8 @@ namespace CompilePalX.Compilers.BSPPack
         public List<KeyValuePair<string, string>> VehicleScriptList { get; set; }
         public List<KeyValuePair<string, string>> EffectScriptList { get; set; }
         public List<string> vscriptList { get; set; }
-        public List<KeyValuePair<string, string>> PanoramaMapIcons { get; set; }
+        public List<KeyValuePair<string, string>> PanoramaMapBackgrounds { get; set; }
+        public KeyValuePair<string, string> PanoramaMapIcon { get; set; }
 
         public FileInfo file { get; private set; }
         private bool isL4D2 = false;

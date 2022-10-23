@@ -743,15 +743,14 @@ namespace CompilePalX.Compilers.BSPPack
             foreach (string source in sourceDirectories)
             {
                 string externalPath = source + "/" + internalPath;
-
-                foreach (string extension in new String[] {".jpg", ".jpeg"})
+                foreach (string extension in new[] {".jpg", ".jpeg"})
                     if (File.Exists(externalPath + extension))
                         bsp.jpg = new KeyValuePair<string, string>(internalPath + ".jpg", externalPath + extension);
             }
 
-            // csgo panorama map icons (.png)
+            // csgo panorama map backgrounds (.png)
             internalPath = "materials/panorama/images/map_icons/screenshots/"; 
-            var panoramaMapIcons = new List<KeyValuePair<string, string>>();
+            var panoramaMapBackgrounds = new List<KeyValuePair<string, string>>();
             foreach (string source in sourceDirectories)
             {
                 string externalPath = source + "/" + internalPath;
@@ -759,9 +758,20 @@ namespace CompilePalX.Compilers.BSPPack
 
                 foreach (string resolution in new[] {"360p", "1080p"})
                     if (File.Exists($"{externalPath}{resolution}/{bspName}.png"))
-                        panoramaMapIcons.Add(new KeyValuePair<string, string>($"{internalPath}{resolution}/{bspName}.png", $"{externalPath}{resolution}/{bspName}.png"));
+                        panoramaMapBackgrounds.Add(new KeyValuePair<string, string>($"{internalPath}{resolution}/{bspName}.png", $"{externalPath}{resolution}/{bspName}.png"));
             }
-            bsp.PanoramaMapIcons = panoramaMapIcons;
+            bsp.PanoramaMapBackgrounds = panoramaMapBackgrounds;
+
+            // csgo panorama map icon
+            internalPath = "materials/panorama/images/map_icons/"; 
+            foreach (string source in sourceDirectories)
+            {
+                string externalPath = source + "/" + internalPath;
+                string bspName = bsp.file.Name.Replace(".bsp", "");
+                foreach (string extension in new[] {".svg"})
+                    if (File.Exists($"{externalPath }map_icon_{bspName}{extension}"))
+                        bsp.PanoramaMapIcon = new KeyValuePair<string, string>($"{internalPath}map_icon_{bspName}{extension}", $"{externalPath}map_icon_{bspName}{extension}");
+            }
 
             // csgo dz tablets
             internalPath = "materials/models/weapons/v_models/tablet/tablet_radar_" + bsp.file.Name.Replace(".bsp", ".vtf");
