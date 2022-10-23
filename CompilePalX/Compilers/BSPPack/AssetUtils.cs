@@ -424,8 +424,15 @@ namespace CompilePalX.Compilers.BSPPack
                 if (material == "")
                     break;
 
+                string radarPath = $"resource/{vmtPathParser(material, false)}";
+                // clean path so it never contains _radar
+                if (radarPath.EndsWith("_radar"))
+                {
+                    radarPath = radarPath.Replace("_radar", "");
+                }
+
                 // add default radar
-                DDSs.Add($"resource/{vmtPathParser(material, false)}_radar.dds");
+                DDSs.Add($"{radarPath}_radar.dds");
 
                 var verticalSections = subblock.GetFirstByName("\"verticalsections\"");
                 if (verticalSections == null)
@@ -433,7 +440,9 @@ namespace CompilePalX.Compilers.BSPPack
                 
                 // add multi-level radars
                 foreach (var section in verticalSections.subBlocks)
-                    DDSs.Add($"resource/{vmtPathParser(material, false)}_{section.name.Replace("\"", string.Empty)}_radar.dds");
+                {
+                    DDSs.Add($"{radarPath}_{section.name.Replace("\"", string.Empty)}_radar.dds");
+                }
             }
 
             return DDSs;
