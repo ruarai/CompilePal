@@ -1,5 +1,7 @@
-# Plugins
+# Plugins (Beta)
 Compile Pal's plugin based architecture allows developers to create their own compile steps.
+
+Plugins are currently in a beta state, so the format and structure are subject to change.
 
 ![image](https://user-images.githubusercontent.com/15372675/183811926-d23c8b65-4df1-4cb8-8474-93d63bd1fd56.png)
 
@@ -9,7 +11,7 @@ Plugins can be installed by copying the plugin folder into the Compile Pal/Param
 ***USE PLUGINS AT YOUR OWN RISK, DO NOT INSTALL PLUGINS FROM UNTRUSTED SOURCES***
 
 ## Structure
-Plugins consist of a folder that contains a `meta.json` and `parameters.json` file.
+Plugins consist of a folder that contains a `meta.json` and `parameters.json` file, and optionally other files that the plugin may require to run such as an executable.
 ```
 My Plugin/
   meta.json
