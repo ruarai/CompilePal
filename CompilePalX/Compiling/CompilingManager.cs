@@ -46,7 +46,7 @@ namespace CompilePalX
                 string fullMapName = Path.GetFileNameWithoutExtension(file);
 
                 // try removing version identifier
-                return Regex.Replace(fullMapName, @"_[^_]+\d$", "");
+                return Regex.Replace(fullMapName, @"((_[^_]+\d)|(_rc))$", "");
             }
         }
 
