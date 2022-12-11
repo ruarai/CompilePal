@@ -66,7 +66,8 @@
                     </DockPanel>
                     <DataTemplate.Triggers>
                         <DataTrigger Binding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListBoxItem}}, Path=IsSelected}" Value="True">
-                            <Setter Property="Foreground" Value="{StaticResource MahApps.Brushes.Gray8}" TargetName="selectedPreset"/>
+                            <Setter Property="Opacity" Value="0.7" TargetName="selectedPreset"/>
+                            <Setter Property="Foreground" Value="{StaticResource MahApps.Brushes.IdealForeground}" TargetName="selectedPreset"/>
                         </DataTrigger>
                     </DataTemplate.Triggers>
                 </DataTemplate>
