@@ -272,9 +272,9 @@ namespace CompilePalX
 
                     // if no map is selected, show only global presets
                     if (map == null)
-                        return preset.Map == null;
+                        return preset.MapRegex == null;
 
-                    return preset.IsValidMap(map.MapName);
+                    return preset.IsValidMap(map.FullMapName);
                 };
             }
             PresetConfigListBox.ItemsSource = presetView;
@@ -480,26 +480,18 @@ namespace CompilePalX
             var dialog = new PresetDialog("Add Preset", MapListBox.SelectedItem as Map);
             dialog.ShowDialog();
 
-            if (dialog.Result)
+            if (!dialog.Result)
             {
-                string presetName = dialog.Text;
-                bool isMapSpecific = dialog.IsMapSpecific;
-
-                string? map = null;
-                if (isMapSpecific)
-                {
-                    var m = MapListBox.SelectedItem as Map;
-                    map = m?.MapName;
-                }
-
-                var preset = ConfigurationManager.NewPreset(presetName, map);
-
-                AnalyticsManager.NewPreset();
-
-                SetSources();
-                CompileProcessesListBox.SelectedIndex = 0;
-                PresetConfigListBox.SelectedItem = preset;
+                return;
             }
+            var presetInfo = (Preset)dialog.DataContext;
+            var preset = ConfigurationManager.NewPreset(presetInfo);
+
+            AnalyticsManager.NewPreset();
+
+            SetSources();
+            CompileProcessesListBox.SelectedIndex = 0;
+            PresetConfigListBox.SelectedItem = preset;
         }
         private void ClonePresetButton_OnClick(object sender, RoutedEventArgs e)
         {
@@ -508,26 +500,18 @@ namespace CompilePalX
                 var dialog = new PresetDialog("Clone Preset", MapListBox.SelectedItem as Map);
                 dialog.ShowDialog();
 
-                if (dialog.Result)
+                if (!dialog.Result)
                 {
-                    string presetName = dialog.Text;
-                    bool isMapSpecific = dialog.IsMapSpecific;
-
-                    string? map = null;
-                    if (isMapSpecific)
-                    {
-                        var m = MapListBox.SelectedItem as Map;
-                        map = m?.MapName;
-                    }
-
-                    var preset = ConfigurationManager.ClonePreset(presetName, map);
-
-                    AnalyticsManager.NewPreset();
-
-                    SetSources();
-                    CompileProcessesListBox.SelectedIndex = 0;
-                    PresetConfigListBox.SelectedItem = preset;
+                    return;
                 }
+                var presetInfo = (Preset)dialog.DataContext;
+                var preset = ConfigurationManager.ClonePreset(presetInfo);
+
+                AnalyticsManager.NewPreset();
+
+                SetSources();
+                CompileProcessesListBox.SelectedIndex = 0;
+                PresetConfigListBox.SelectedItem = preset;
             }
         }
 

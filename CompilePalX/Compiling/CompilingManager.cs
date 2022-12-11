@@ -38,17 +38,12 @@ namespace CompilePalX
             set { file = value; OnPropertyChanged(nameof(File));  }
         }
 
+        public string FullMapName => Path.GetFileNameWithoutExtension(file);
         /// <summary>
         /// Map name without version identifiers
         /// </summary>
-        public string MapName {
-            get {
-                string fullMapName = Path.GetFileNameWithoutExtension(file);
-
-                // try removing version identifier
-                return Regex.Replace(fullMapName, @"((_[^_]+\d)|(_rc))$", "");
-            }
-        }
+        // try removing version identifier
+        public string MapName  => Regex.Replace(FullMapName, @"((_[^_]+\d)|(_rc)|(_final))$", "");
 
         public bool IsBSP => Path.GetExtension(file) == ".bsp";
 

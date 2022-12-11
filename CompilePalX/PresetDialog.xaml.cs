@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,8 +18,10 @@ namespace CompilePalX
     /// <summary>
     /// Interaction logic for PresetDialog.xaml
     /// </summary>
-    public partial class PresetDialog 
+    public partial class PresetDialog
     {
+        public bool Result = false;
+        public bool IsMapSpecific { get { return IsMapSpecificCheckbox.IsChecked ?? false; } }
         public PresetDialog(string title, Map? selectedMap)
         {
             InitializeComponent();
@@ -26,17 +29,30 @@ namespace CompilePalX
 
             IsMapSpecificCheckbox.IsEnabled = selectedMap != null;
             IsMapSpecificCheckbox.IsHitTestVisible = selectedMap != null;
-            if (selectedMap != null)
-                MapToolTip = $"Preset will only apply to {selectedMap.MapName}";
-        }
 
-        public bool Result = false;
-        public string Text { get { return InputTextBox.Text; } }
-        public bool IsMapSpecific { get { return IsMapSpecificCheckbox.IsChecked ?? false; } }
-        public string? MapToolTip { get; set; }
+            string? mapRegex = null;
+            if (selectedMap is not null)
+            {
+                mapRegex = selectedMap.MapName + ".*";
+            }
+
+            DataContext = new Preset()
+            {
+                Name = "",
+                Map = selectedMap?.MapName,
+                MapRegex = mapRegex
+            };
+
+        }
 
         private void OKButton_OnClick(object sender, RoutedEventArgs e)
         {
+            // clear map if not map specific
+            if (!IsMapSpecific)
+            {
+                ((Preset)DataContext).MapRegex = null;
+                ((Preset)DataContext).Map = null;
+            }
             Result = true;
             Close();
         }
@@ -44,15 +60,6 @@ namespace CompilePalX
         private void CancelButton_OnClick(object sender, RoutedEventArgs e)
         {
             Close();
-        }
-
-        private void InputTextBox_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.Enter)
-            {
-                Result = true;
-                Close();
-            }
         }
     }
 }

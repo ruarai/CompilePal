@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
         xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
-        Height="170" Width="320" MaxHeight="180" MinHeight="180" MaxWidth="320" MinWidth="320"
+        Height="170" Width="320" MaxHeight="280" MinHeight="280" MaxWidth="320" MinWidth="320"
                       IconEdgeMode="Aliased" Icon="CompilePalIcon.ico" ShowIconOnTitleBar="False" 
         Title="Input">
     <controls:MetroWindow.WindowButtonCommands>
@@ -14,35 +14,44 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="40"/>
         </Grid.RowDefinitions>
-        <StackPanel Margin="20,10,20,0" VerticalAlignment="Center">
+        <StackPanel Margin="20,10,20,0" VerticalAlignment="Top">
             <Label Padding="0, 5 5, 5" Content="Preset Name" IsTabStop="False"/>
-            <TextBox Name="InputTextBox" Height="24" KeyDown="InputTextBox_KeyDown"/>
+            <TextBox Name="InputTextBox" Height="24" Text="{Binding Path=Name, Mode=TwoWay}"/>
             <StackPanel Orientation="Horizontal" Margin="0, 10, 0, 0">
                 <CheckBox Name="IsMapSpecificCheckbox" controls:CheckBoxHelper.CheckBackgroundFillUncheckedDisabled="{StaticResource CompilePal.Brushes.CheckboxDisabled}"/>
                 <Label Content="Map Specific" IsTabStop="False" Margin="-5, 0, -5, 0"/>
-                <Grid Background="Transparent" Margin="2, 2, 0, 0" Height="12" ToolTip="{Binding Path=MapToolTip, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}">
-                    <iconPacks:PackIconMaterial Height="12" Kind="HelpCircleOutline"  VerticalAlignment="Center" Foreground="{StaticResource CompilePal.Brushes.Link}" IsTabStop="False">
-                        <iconPacks:PackIconMaterial.Style>
-                            <Style TargetType="iconPacks:PackIconMaterial">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource FindAncestor, AncestorType=Grid}}" Value="True">
-                                        <Setter Property="Opacity" Value="0.5"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </iconPacks:PackIconMaterial.Style>
-                    </iconPacks:PackIconMaterial>
-                    <Grid.Style>
-                        <Style TargetType="{x:Type Grid}">
-                            <Setter Property="Visibility" Value="Visible"/>
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding Path=MapToolTip, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}" Value="{x:Null}">
-                                    <Setter Property="Visibility" Value="Hidden"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Grid.Style>
-                </Grid>
+            </StackPanel>
+            <StackPanel>
+                <Label Padding="0, 10 -5, 5" Margin="0, 0, 0, 5" Content="Map Name" IsTabStop="False"/>
+                <TextBox Text="{Binding Path=Map, Mode=TwoWay}"/>
+
+                <StackPanel Orientation="Horizontal" Margin="0, 5, 5, 5">
+                    <Label Padding="0, 5 -5, 5" Content="Match" IsTabStop="False"/>
+                    <Grid Background="Transparent" Margin="2, 2, 0, 0" Height="12" ToolTip="Preset will only appear for maps that match the regex">
+                        <iconPacks:PackIconMaterial Height="12" Kind="HelpCircleOutline"  VerticalAlignment="Center" Foreground="{StaticResource CompilePal.Brushes.Link}" IsTabStop="False">
+                            <iconPacks:PackIconMaterial.Style>
+                                <Style TargetType="iconPacks:PackIconMaterial">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource FindAncestor, AncestorType=Grid}}" Value="True">
+                                            <Setter Property="Opacity" Value="0.5"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </iconPacks:PackIconMaterial.Style>
+                        </iconPacks:PackIconMaterial>
+                    </Grid>
+                </StackPanel>
+                <TextBox Text="{Binding Path=MapRegex, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                <StackPanel.Style>
+                    <Style TargetType="{x:Type StackPanel}">
+                        <Setter Property="Visibility" Value="Visible"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding Path=IsChecked, ElementName=IsMapSpecificCheckbox}" Value="False">
+                                <Setter Property="Visibility" Value="Hidden"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </StackPanel.Style>
             </StackPanel>
         </StackPanel>
         <Grid Grid.Row="1">
@@ -51,7 +60,7 @@
                 <ColumnDefinition Width="25*"/>
                 <ColumnDefinition Width="25*"/>
             </Grid.ColumnDefinitions>
-            <Button Name="OKButton" Grid.Column ="1" Width="80" Height="24" Click="OKButton_OnClick">OK</Button>
+            <Button Name="OKButton" Grid.Column ="1" Width="80" Height="24" Click="OKButton_OnClick" IsEnabled="{Binding ElementName=InputTextBox, Path=Text.Length}">OK</Button>
             <Button Name="CancelButton" Grid.Column ="2" Width="80" Height="24" Click="CancelButton_OnClick">Cancel</Button>
         </Grid>
 

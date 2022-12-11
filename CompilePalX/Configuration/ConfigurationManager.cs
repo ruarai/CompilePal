@@ -20,12 +20,13 @@ namespace CompilePalX
     {
         public string Name { get; set; }
         public string? Map { get; set; }
+        public string? MapRegex { get; set; }
 
         public bool Equals(Preset? other)
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
-            return Name == other.Name && Map == other.Map;
+            return Name == other.Name && MapRegex == other.MapRegex && Map == other.Map;
         }
 
         public override bool Equals(object? obj)
@@ -38,7 +39,7 @@ namespace CompilePalX
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(Name, Map);
+            return HashCode.Combine(Name, MapRegex, Map);
         }
 
         /// <summary>
@@ -49,7 +50,7 @@ namespace CompilePalX
         public bool IsValidMap(string mapName)
         {
             // presets with no map are global
-            return this.Map == null || mapName == Map;
+            return this.MapRegex == null || Regex.IsMatch(mapName, MapRegex);
         }
     }
 
@@ -226,10 +227,9 @@ namespace CompilePalX
             }
         }
 
-        public static Preset NewPreset(string name, string? map)
+        public static Preset NewPreset(Preset preset)
         {
             string[] defaultProcesses = new string[] { "VBSP", "VVIS", "VRAD", "COPY", "GAME" };
-            var preset = new Preset() { Name = name, Map = map };
 
             // if map specific, append map to name so you can make map specific presets with the same name as global ones
             string folder = GetPresetFolder(preset);
@@ -256,12 +256,10 @@ namespace CompilePalX
             AssembleParameters();
             return preset;
         }
-        public static Preset? ClonePreset(string name, string? map)
+        public static Preset? ClonePreset(Preset preset)
         {
             if (CurrentPreset == null)
                 return null;
-
-            var preset = new Preset() { Name = name, Map = map };
 
             // if map specific, append map to name so you can make map specific presets with the same name as global ones
             string newFolder = GetPresetFolder(preset);
