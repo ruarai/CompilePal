@@ -61,8 +61,14 @@
                 <DataTemplate>
                     <DockPanel HorizontalAlignment="Stretch">
                         <TextBlock Text="{Binding File}" Margin="0, 0, 5, 0"/>
+                        <TextBlock Text="{Binding Path=Preset.Name, StringFormat=({0})}" Margin="0, 0, 5, 0" Foreground="{StaticResource MahApps.Brushes.Gray1}" FontWeight="SemiBold" Name="selectedPreset"/>
                         <CheckBox IsChecked="{Binding Compile, Mode=TwoWay}" HorizontalAlignment="Right" />
                     </DockPanel>
+                    <DataTemplate.Triggers>
+                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListBoxItem}}, Path=IsSelected}" Value="True">
+                            <Setter Property="Foreground" Value="{StaticResource MahApps.Brushes.Gray8}" TargetName="selectedPreset"/>
+                        </DataTrigger>
+                    </DataTemplate.Triggers>
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
