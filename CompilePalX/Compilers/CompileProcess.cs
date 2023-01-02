@@ -55,8 +55,6 @@ namespace CompilePalX
 
             }
 
-
-
             ParameterList = ConfigurationManager.GetParameters(Metadata.Name, Metadata.DoRun);
 
         }

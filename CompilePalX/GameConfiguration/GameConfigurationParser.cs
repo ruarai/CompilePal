@@ -25,6 +25,15 @@ namespace CompilePalX {
                 KV.DataBlock hdb = gamedb.GetFirstByName(new[] { "\"Hammer\"", "\"hammer\"" });
 
                 CompilePalLogger.LogLineDebug($"Gamedb: {gamedb}");
+
+                // use vbsp as a backup path for finding other compile executables if they are in a non standard location
+                var vbsp = GetFullPath(hdb.TryGetStringValue("BSP"), binFolder);
+                var vbspPath = Path.GetDirectoryName(vbsp);
+
+                var bspzip = FindPath("bspzip.exe", binFolder, vbspPath);
+                var vbspinfo = FindPath("vbspinfo.exe", binFolder, vbspPath);
+                var vpk = FindPath("vpk.exe", binFolder, vbspPath);
+
                 GameConfiguration game = new GameConfiguration
                 {
                     Name = gamedb.name.Replace("\"", ""),
@@ -32,13 +41,13 @@ namespace CompilePalX {
                     GameFolder = GetFullPath(gamedb.TryGetStringValue("GameDir"), binFolder),
                     GameEXE = GetFullPath(hdb.TryGetStringValue("GameExe"), binFolder),
                     SDKMapFolder = GetFullPath(hdb.TryGetStringValue("MapDir"), binFolder),
-                    VBSP = GetFullPath(hdb.TryGetStringValue("BSP"), binFolder),
+                    VBSP = vbsp,
                     VVIS = GetFullPath(hdb.TryGetStringValue("Vis"), binFolder),
                     VRAD = GetFullPath(hdb.TryGetStringValue("Light"), binFolder),
                     MapFolder = GetFullPath(hdb.TryGetStringValue("BSPDir"), binFolder),
-                    BSPZip = Path.Combine(binFolder, "bspzip.exe"),
-                    VBSPInfo = Path.Combine(binFolder, "vbspinfo.exe"),
-                    VPK = Path.Combine(binFolder, "vpk.exe"),
+                    BSPZip = bspzip,
+                    VBSPInfo = vbspinfo,
+                    VPK = vpk,
                 };
 
                 game.SteamAppID = GetSteamAppID(game);
@@ -82,6 +91,23 @@ namespace CompilePalX {
             }
 
             return null;
+        }
+
+        
+        private static string? FindPath(string program, string binFolder, string backupBinFolder)
+        {
+            var path = Path.Combine(binFolder, program);
+            if (File.Exists(path))
+            {
+                return path;
+            }
+
+            // program does not exist in standard bin folder, fallback to trying to locate it by using a known executable
+            CompilePalLogger.LogLineDebug($"{program} does not exist at \"{path}\", using known compiler location {backupBinFolder}");
+
+            path = Path.Combine(backupBinFolder, program);
+            return File.Exists(path) ? path : null;
+
         }
     }
 }
