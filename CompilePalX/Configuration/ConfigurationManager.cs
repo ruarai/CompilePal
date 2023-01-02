@@ -16,7 +16,7 @@ using Newtonsoft.Json;
 
 namespace CompilePalX
 {
-    public class Preset : IEquatable<Preset>
+    public class Preset : IEquatable<Preset>, ICloneable
     {
         public string Name { get; set; }
         public string? Map { get; set; }
@@ -40,6 +40,10 @@ namespace CompilePalX
         public override int GetHashCode()
         {
             return HashCode.Combine(Name, MapRegex, Map);
+        }
+        public object Clone()
+        {
+            return this.MemberwiseClone();
         }
 
         /// <summary>
@@ -282,6 +286,22 @@ namespace CompilePalX
             }
 
             return preset;
+        }
+
+        public static Preset? EditPreset(Preset preset)
+        {
+            if (CurrentPreset == null)
+            {
+                return null;
+            }
+
+            // "Edit" preset by deleting the current preset and adding a new preset, then make it the currently selected preset
+            RemovePreset(CurrentPreset);
+            var newPreset = NewPreset(preset);
+
+            CurrentPreset = newPreset;
+
+            return newPreset;
         }
 
         private static string GetPresetFolder(Preset preset)

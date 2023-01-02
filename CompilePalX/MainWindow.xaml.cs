@@ -25,6 +25,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Globalization;
 using System.Text.RegularExpressions;
+using System.Windows.Controls.Primitives;
 using System.Windows.Media.Animation;
 using System.Windows.Media.TextFormatting;
 using CompilePalX.Compilers;
@@ -41,6 +42,9 @@ namespace CompilePalX
         public static Dispatcher ActiveDispatcher;
         private ObservableCollection<CompileProcess> CompileProcessesSubList = new ObservableCollection<CompileProcess>();
 	    private bool processModeEnabled;
+
+        public bool PresetFilterEnabled { get; set; } = true;
+
         private DispatcherTimer elapsedTimeDispatcherTimer;
 		public static MainWindow? Instance { get; private set; }
         public ObservableCollection<Preset> Presets;
@@ -264,18 +268,25 @@ namespace CompilePalX
                 presetView.SortDescriptions.Add(new SortDescription("Map", ListSortDirection.Descending));
                 presetView.SortDescriptions.Add(new SortDescription("Name", ListSortDirection.Ascending));
                 // filter out maps that don't match the currently selected map (presets with null maps are global
-                presetView.Filter = (o) =>
+                if (PresetFilterEnabled)
                 {
-                    if (o is not Preset preset) return false;;
+                    presetView.Filter = (o) =>
+                    {
+                        if (o is not Preset preset) return false;;
 
-                    var map = GetCurrentMap();
+                        var map = GetCurrentMap();
 
-                    // if no map is selected, show only global presets
-                    if (map == null)
-                        return preset.MapRegex == null;
+                        // if no map is selected, show only global presets
+                        if (map == null)
+                            return preset.MapRegex == null;
 
-                    return preset.IsValidMap(map.FullMapName);
-                };
+                        return preset.IsValidMap(map.FullMapName);
+                    };
+                }
+                else
+                {
+                    presetView.Filter = null;
+                }
             }
             PresetConfigListBox.ItemsSource = presetView;
 
@@ -332,8 +343,7 @@ namespace CompilePalX
             CompileProcessesListBox.IsEnabled = false;
 
             AddPresetButton.IsEnabled = false;
-            RemovePresetButton.IsEnabled = false;
-            ClonePresetButton.IsEnabled = false;
+            FilterPresetButton.IsEnabled = false;
             PresetConfigListBox.IsEnabled = false;
 
             AddMapButton.IsEnabled = false;
@@ -363,8 +373,7 @@ namespace CompilePalX
             CompileProcessesListBox.IsEnabled = true;
 
             AddPresetButton.IsEnabled = true;
-            RemovePresetButton.IsEnabled = true;
-            ClonePresetButton.IsEnabled = true;
+            FilterPresetButton.IsEnabled = true;
             PresetConfigListBox.IsEnabled = true;
 
             AddMapButton.IsEnabled = true;
@@ -495,32 +504,82 @@ namespace CompilePalX
         }
         private void ClonePresetButton_OnClick(object sender, RoutedEventArgs e)
         {
-            if (ConfigurationManager.CurrentPreset != null)
+            if (ConfigurationManager.CurrentPreset == null)
             {
-                var dialog = new PresetDialog("Clone Preset", MapListBox.SelectedItem as Map);
-                dialog.ShowDialog();
-
-                if (!dialog.Result)
-                {
-                    return;
-                }
-                var presetInfo = (Preset)dialog.DataContext;
-                var preset = ConfigurationManager.ClonePreset(presetInfo);
-
-                AnalyticsManager.NewPreset();
-
-                SetSources();
-                CompileProcessesListBox.SelectedIndex = 0;
-                PresetConfigListBox.SelectedItem = preset;
+                return;
             }
+
+            var dialog = new PresetDialog("Clone Preset", MapListBox.SelectedItem as Map);
+            dialog.ShowDialog();
+
+            if (!dialog.Result)
+            {
+                return;
+            }
+            var presetInfo = (Preset)dialog.DataContext;
+            var preset = ConfigurationManager.ClonePreset(presetInfo);
+
+            AnalyticsManager.NewPreset();
+
+            SetSources();
+            CompileProcessesListBox.SelectedIndex = 0;
+            PresetConfigListBox.SelectedItem = preset;
         }
 
-        private void RemovePresetButton_Click(object sender, RoutedEventArgs e)
+        private void EditPresetButton_OnClick(object sender, RoutedEventArgs e)
         {
-            var selectedItem = (Preset)PresetConfigListBox.SelectedItem;
+            if (PresetConfigListBox.SelectedItem is not Preset selectedPreset)
+            {
+                return;
+            }
+            
+            var dialog = new PresetDialog("Edit Preset", MapListBox.SelectedItem as Map, (Preset)selectedPreset.Clone());
+            dialog.ShowDialog();
 
-            if (selectedItem != null)
-                ConfigurationManager.RemovePreset(selectedItem);
+            if (!dialog.Result)
+            {
+                return;
+            }
+            var presetInfo = (Preset)dialog.DataContext;
+            var preset = ConfigurationManager.EditPreset(presetInfo);
+
+            SetSources();
+            CompileProcessesListBox.SelectedIndex = 0;
+            PresetConfigListBox.SelectedItem = preset;
+
+            // update all maps referencing the unedited preset to be the new one
+            for (int i = 0; i < MapListBox.Items.Count; i++)
+            {
+                var map = MapListBox.Items[i] as Map;
+                if (map.Preset != null && map.Preset.Equals(selectedPreset))
+                    map.Preset = preset;
+            }
+
+        }
+
+        private async void RemovePresetButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            if (PresetConfigListBox.SelectedItem is not Preset selectedPreset)
+            {
+                return;
+            }
+
+            var dialogSettings = new MetroDialogSettings()
+            {
+                AffirmativeButtonText = "Delete",
+                NegativeButtonText = "Cancel",
+                AnimateHide = false,
+                AnimateShow = false,
+                DefaultButtonFocus = MessageDialogResult.Affirmative,
+            };
+
+            var result = await this.ShowMessageAsync($"Delete Preset", $"Are you sure you want to delete preset {selectedPreset.Name}{(selectedPreset.Map != null ? $" ({selectedPreset.Map})" : "")}?",
+                MessageDialogStyle.AffirmativeAndNegative, dialogSettings);
+
+            if (result != MessageDialogResult.Affirmative)
+                return;
+
+            ConfigurationManager.RemovePreset(selectedPreset);
 
             SetSources();
             CompileProcessesListBox.SelectedIndex = 0;
@@ -530,7 +589,7 @@ namespace CompilePalX
             for (int i = 0; i < MapListBox.Items.Count; i++)
             {
                 var map = MapListBox.Items[i] as Map;
-                if (map.Preset != null && map.Preset.Equals(selectedItem))
+                if (map.Preset != null && map.Preset.Equals(selectedPreset))
                     map.Preset = (Preset) PresetConfigListBox.SelectedItem;
             }
         }
@@ -916,6 +975,32 @@ namespace CompilePalX
         private void CopyButton_OnClick(object sender, RoutedEventArgs e)
         {
             Clipboard.SetText(new TextRange(CompileOutputTextbox.Document.ContentStart, CompileOutputTextbox.Document.ContentEnd).Text);
+        }
+        private void PresetActionButton_OnContextMenuOpening(object sender, ContextMenuEventArgs e)
+        {
+            // block right click context menus
+            e.Handled = true;
+        }
+        private void PresetActionButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            if (sender is not Button button || button.ContextMenu == null)
+                return;
+
+            // set placement of context menu to button instead of default behaviour of mouse position
+            button.ContextMenu.PlacementTarget = button;
+            button.ContextMenu.IsOpen = true;
+            e.Handled = true;
+        }
+        private void FilterPresetButton_OnChecked(object sender, RoutedEventArgs e)
+        {
+            var filterChecked = ((bool)(sender as ToggleButton)!.IsChecked)!;
+            // prevent unnecessary updates if state didnt change
+            if (filterChecked != PresetFilterEnabled)
+            {
+                PresetFilterEnabled = filterChecked;
+                // update filters on sources
+                SetSources();
+            }
         }
     }
 

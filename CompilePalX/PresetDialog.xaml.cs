@@ -22,13 +22,10 @@ namespace CompilePalX
     {
         public bool Result = false;
         public bool IsMapSpecific { get { return IsMapSpecificCheckbox.IsChecked ?? false; } }
-        public PresetDialog(string title, Map? selectedMap)
+        public PresetDialog(string title, Map? selectedMap, Preset? preset = null)
         {
             InitializeComponent();
             Title = title;
-
-            IsMapSpecificCheckbox.IsEnabled = selectedMap != null;
-            IsMapSpecificCheckbox.IsHitTestVisible = selectedMap != null;
 
             string? mapRegex = null;
             if (selectedMap is not null)
@@ -36,13 +33,20 @@ namespace CompilePalX
                 mapRegex = selectedMap.MapName + ".*";
             }
 
-            DataContext = new Preset()
+            if (preset != null)
             {
-                Name = "",
-                Map = selectedMap?.MapName,
-                MapRegex = mapRegex
-            };
-
+                DataContext = preset;
+                IsMapSpecificCheckbox.IsChecked = preset.Map != null;
+            }
+            else
+            {
+                DataContext = new Preset()
+                {
+                    Name = "",
+                    Map = selectedMap?.MapName,
+                    MapRegex = mapRegex
+                };
+            }
         }
 
         private void OKButton_OnClick(object sender, RoutedEventArgs e)
