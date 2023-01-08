@@ -169,8 +169,7 @@ namespace CompilePalX.Compilers.BSPPack
                 if (AddInternalFile(sound, FindExternalFile(sound)))
                     sndcount++;
             foreach (string vscript in bsp.vscriptList)
-                if (AddInternalFile(vscript, FindExternalFile(vscript)))
-                    vscriptcount++;
+                AddVScript(vscript);
             foreach (KeyValuePair<string, string> teamSelectionBackground in bsp.PanoramaMapBackgrounds)
                 if (AddInternalFile(teamSelectionBackground.Key, teamSelectionBackground.Value))
                     PanoramaMapBackgroundCount++;
@@ -360,6 +359,24 @@ namespace CompilePalX.Compilers.BSPPack
 				CompilePalLogger.LogCompileError($"Failed to find particle manifest file {internalPath}", new Error($"Failed to find particle manifest file {internalPath}", ErrorSeverity.Error));
 				return;
             }
+        }
+
+        /// <summary>
+        /// Adds VScript file and finds it's dependencies
+        /// </summary>
+        /// <param name="internalPath"></param>
+        public void AddVScript(string internalPath)
+        {
+            string externalPath = FindExternalFile(internalPath);
+            if (!AddInternalFile(internalPath, externalPath))
+            {
+				CompilePalLogger.LogCompileError($"Failed to find VScript file {internalPath}\n", new Error($"Failed to find VScript file", ErrorSeverity.Error));
+                return;
+            }
+            vscriptcount++;
+
+            foreach (string vscript in AssetUtils.FindVSCriptRefs(externalPath))
+                AddVScript(vscript);
         }
 
         private string FindExternalFile(string internalPath)

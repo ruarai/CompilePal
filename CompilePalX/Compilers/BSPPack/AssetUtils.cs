@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using CompilePalX;
+using CompilePalX.Compiling;
 
 namespace CompilePalX.Compilers.BSPPack
 {
@@ -552,6 +553,47 @@ namespace CompilePalX.Compilers.BSPPack
 					foreach (string material in AssetUtils.findVmtTextures(new FileInfo(file).FullName))
 						bsp.TextureList.Add(material);
 				}
+        }
+
+        /// <summary>
+        /// Finds referenced vscripts
+        /// </summary>
+        /// <param name="fullpath">Full path to VScript file</param>
+        /// <returns>List of VSript references</returns>
+        public static List<string> FindVSCriptRefs(string fullpath)
+        {
+            List<string> includedScripts = new List<string>();
+            var script = File.ReadAllLines(fullpath);
+            var commentRegex = new Regex(@"^\/\/");
+            var functionParametersRegex = new Regex("\\((.*?)\\)");
+
+            // currently only squirrel parsing is supported
+            foreach (var line in script.Where(s => !commentRegex.IsMatch(s)))
+            {
+                // statements can also be separated with semicolons
+                var statements = line.Split(";").Where(s => !string.IsNullOrWhiteSpace(s));
+                foreach (var statement in statements)
+                {
+                    if (!statement.Contains("IncludeScript") && !statement.Contains("DoIncludeScript"))
+                    {
+                        continue;
+                    }
+
+                    Match m = functionParametersRegex.Match(statement);
+                    if (!m.Success)
+                    {
+                        CompilePalLogger.LogLineDebug($"Failed to parse function arguments {statement} in file: {fullpath}");
+                        continue;
+                    }
+                    // capture group 0 is always full match, 1 is capture
+                    var functionParameters = m.Groups[1].Value.Split(",");
+
+                    // only want 1st param (filename)
+                    includedScripts.Add(Path.Combine("scripts", "vscripts", functionParameters[0].Replace("\"", "").Trim()));
+                }
+            }
+
+            return includedScripts;
 
         }
 
@@ -851,5 +893,6 @@ namespace CompilePalX.Compilers.BSPPack
 
             return Encoding.ASCII.GetString(verString.ToArray()).Trim('\0');
         }
+
     }
 }
