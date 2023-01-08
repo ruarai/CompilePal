@@ -744,7 +744,7 @@ namespace CompilePalX.Compilers.BSPPack
             }
 
             // find Chaos engine game mount paths
-            var mountedDirectories = GetMountedGamesSourceDirectories(gameInfo);
+            var mountedDirectories = GetMountedGamesSourceDirectories(gameInfo, Path.Combine(gamePath, "cfg", "mounts.kv"));
             if (mountedDirectories != null)
             {
                 sourceDirectories.AddRange(mountedDirectories);
@@ -762,8 +762,9 @@ namespace CompilePalX.Compilers.BSPPack
         /// documentation from https://github.com/momentum-mod/game/pull/1150
         /// </summary>
         /// <param name="gameInfoPath">Path to gameinfo.txt</param>
+        /// <param name="mountsPath">Path to mounts.kv</param>
         /// <returns>A list of additional source directories to search</returns>
-        private static List<string>? GetMountedGamesSourceDirectories(string gameInfoPath)
+        private static List<string>? GetMountedGamesSourceDirectories(string gameInfoPath, string mountsPath)
         {
             var data = new KV.FileData(gameInfoPath);
             CompilePalLogger.LogLineDebug("Looking for mounted games");
@@ -774,6 +775,25 @@ namespace CompilePalX.Compilers.BSPPack
             {
                 CompilePalLogger.LogLineDebug("No mounted games detected");
                 return null;
+            }
+
+            // parse mounts.kv to find additional game mounts
+            if (File.Exists(mountsPath))
+            {
+                var mountData = new KV.FileData(mountsPath);
+                var additionalMounts = mountData.headnode.GetFirstByName("mount");
+                if (additionalMounts != null)
+                {
+                    CompilePalLogger.LogLineDebug("Found additional mounts in mounts.kv");
+                    mounts.subBlocks.AddRange(additionalMounts.subBlocks);
+
+                    // remove duplicates, prefer results from mounts.kv
+                    mounts.subBlocks = mounts.subBlocks.GroupBy(g => g.name).Select(grp => grp.Last()).ToList();
+                }
+                else
+                {
+                    CompilePalLogger.LogLineDebug("No mounted games detected in mounts.kv");
+                }
             }
 
             // get location of Steam folder to parse libraryfolders.vdf
@@ -833,7 +853,8 @@ namespace CompilePalX.Compilers.BSPPack
                     string mountType = subdirMount.Key;
 
                     // only dir mounts supported for now, might add vpk in the future
-                    if (mountType != "dir")
+                    // currently duplicate blocks have their key incremented, ex multiple dir keys would result in dir, dir1, dir2, etc. Should probably fix this in KV instead of using a regex
+                    if (!Regex.IsMatch(mountType, @"dir[1-9]*$"))
                     {
                         continue;
                     }
