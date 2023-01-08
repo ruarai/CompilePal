@@ -781,7 +781,7 @@ namespace CompilePalX.Compilers.BSPPack
             if (File.Exists(mountsPath))
             {
                 var mountData = new KV.FileData(mountsPath);
-                var additionalMounts = mountData.headnode.GetFirstByName("mount");
+                var additionalMounts = mountData.headnode.subBlocks.FirstOrDefault();
                 if (additionalMounts != null)
                 {
                     CompilePalLogger.LogLineDebug("Found additional mounts in mounts.kv");
