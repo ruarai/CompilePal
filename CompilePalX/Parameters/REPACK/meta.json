@@ -11,7 +11,8 @@
   "SupportsBSP": true,
   "CompatibleGames": [
     440, // tf2
-    240 // cs:s
+    240, // cs:s
+    669270 // momentum mod
   ],
   "CheckExitCode": false 
 }
