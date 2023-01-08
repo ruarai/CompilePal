@@ -332,7 +332,7 @@
                     </DockPanel>
                     <Grid Grid.Column="2">
                         <Grid.RowDefinitions>
-                            <RowDefinition Height="36px"/>
+                            <RowDefinition Height="35px"/>
                             <RowDefinition/>
                         </Grid.RowDefinitions>
                         <DockPanel Background="{StaticResource CompilePal.Brushes.GridBackground}" Height="25" Margin="10, 0, 10, 0">
