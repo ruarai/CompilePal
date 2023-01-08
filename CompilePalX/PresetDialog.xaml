@@ -22,7 +22,7 @@
                 <Label Content="Map Filter" IsTabStop="False" Margin="-5, 0, -5, 0"/>
             </StackPanel>
             <StackPanel>
-                <Label Padding="0, 10 -5, 5" Margin="0, 0, 0, 5" Content="Map Name" IsTabStop="False"/>
+                <Label Padding="0, 10 -5, 5" Margin="0, 0, 0, 5" Content="Filter Name" IsTabStop="False"/>
                 <TextBox Text="{Binding Path=Map, Mode=TwoWay}"/>
 
                 <StackPanel Orientation="Horizontal" Margin="0, 5, 5, 5">
