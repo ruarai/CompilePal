@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -7,6 +8,9 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using CompilePalX.Compiling;
+using CompilePalX.KV;
+using CompilePalX.Utilities;
+using Microsoft.Win32;
 
 namespace CompilePalX.Compilers.BSPPack
 {
@@ -738,8 +742,133 @@ namespace CompilePalX.Compilers.BSPPack
             {
                 CompilePalLogger.LogCompileError($"Couldn't find gameinfo.txt at {gameInfo}", new Error($"Couldn't find gameinfo.txt at {gameInfo}", ErrorSeverity.Caution));
             }
+
+            // find Chaos engine game mount paths
+            var mountedDirectories = GetMountedGamesSourceDirectories(gameInfo);
+            if (mountedDirectories != null)
+            {
+                sourceDirectories.AddRange(mountedDirectories);
+                foreach (var directory in mountedDirectories)
+                {
+                    CompilePalLogger.LogLine($"Found mounted search path: {directory}");
+                }
+            }
+
             return sourceDirectories.Distinct().ToList();
         }
+
+        /// <summary>
+        /// Finds additional source directories for Chaos Engine game mounts
+        /// documentation from https://github.com/momentum-mod/game/pull/1150
+        /// </summary>
+        /// <param name="gameInfoPath">Path to gameinfo.txt</param>
+        /// <returns>A list of additional source directories to search</returns>
+        private static List<string>? GetMountedGamesSourceDirectories(string gameInfoPath)
+        {
+            var data = new KV.FileData(gameInfoPath);
+            CompilePalLogger.LogLineDebug("Looking for mounted games");
+
+            // parse gameinfo.txt to find game mounts
+            var mounts = data.headnode.GetFirstByName("\"GameInfo\"")?.GetFirstByName("mount");
+            if (mounts == null)
+            {
+                CompilePalLogger.LogLineDebug("No mounted games detected");
+                return null;
+            }
+
+            // get location of Steam folder to parse libraryfolders.vdf
+            RegistryKey? rk = Registry.CurrentUser.OpenSubKey(@"Software\Valve\Steam");
+            if (rk is null)
+            {
+                CompilePalLogger.LogLineDebug("Could not find Steam registry key");
+                return null;
+            }
+
+            string? steamPath = rk.GetValue("SteamPath") as string;
+            if (steamPath is null)
+            {
+                CompilePalLogger.LogLineDebug("Could not find SteamPath registry value");
+                return null;
+            }
+            string steamAppsPath = Path.Combine(steamPath, "steamapps");
+
+            // get game installation locations
+            var appLocations = GetAppInstallLocations(steamAppsPath);
+
+            // parse mounted games
+            var directories = new List<string>();
+            foreach (var mount in mounts.subBlocks)
+            {
+                var mountDirectories = GetMountedGameSourceDirectories(mount, appLocations);
+                directories.AddRange(mountDirectories);
+            }
+
+            return directories;
+        }
+
+        /// <summary>
+        /// Finds the mounted directories for a game
+        /// </summary>
+        /// <param name="mount">GameInfo datablock for mounted game</param>
+        /// <param name="appLocations">Dictionary mapping from appId to installation location</param>
+        /// <returns>List of mounted folders</returns>
+        private static List<string> GetMountedGameSourceDirectories(DataBlock mount, Dictionary<string, string> appLocations)
+        {
+            var directories = new List<string>();
+            string gameId = mount.name;
+            if (!appLocations.TryGetValue(gameId, out var gameLocation))
+            {
+                CompilePalLogger.LogLineDebug($"Could not find location for game {gameId}");
+                return directories;
+            }
+
+            CompilePalLogger.LogLineDebug($"Found mount for {gameId}");
+            foreach (var gameFolder in mount.subBlocks)
+            {
+                string folder = gameFolder.name.Replace("\"", String.Empty);
+                directories.Add(Path.Combine(gameLocation, folder));
+
+                foreach (var subdirMount in gameFolder.values)
+                {
+                    string mountType = subdirMount.Key;
+
+                    // only dir mounts supported for now, might add vpk in the future
+                    if (mountType != "dir")
+                    {
+                        continue;
+                    }
+
+                    string subdir = subdirMount.Value;
+                    directories.Add(Path.Combine(gameLocation, folder, subdir));
+                }
+            }
+
+            return directories;
+        }
+
+        /// <summary>
+        /// Finds app base installation paths
+        /// </summary>
+        /// <param name="steamAppsPath">path to the steamapps folder</param>
+        /// <returns>A dictionary containing gameId keys and installation folder values</returns>
+        private static Dictionary<string, string?>? GetAppInstallLocations(string steamAppsPath)
+        {
+            // get installation base path and Steam ID for all installed games
+            var locations = new LibraryFoldersParser(Path.Combine(steamAppsPath, "libraryfolders.vdf")).GetInstallLocations();
+            if (locations is null) return null;
+
+            // find actual installation folder for games from their appmanifest
+            var paths = new Dictionary<string, string?>();
+            foreach ((string basePath, string steamId) in locations)
+            {
+                var installationFolder = new AppManifestParser(Path.Combine(steamAppsPath, $"appmanifest_{steamId}.acf")).GetInstallationDirectory();
+                paths[steamId] = Path.Combine(basePath, "common", installationFolder);
+            }
+
+            return paths;
+        }
+
+
         private static string GetInfoValue(string line)
         {
 			// filepath info values
