@@ -21,6 +21,10 @@ namespace CompilePalX.Compilers.BSPPack
 
         private bool AddFile(string internalPath, string externalPath)
         {
+            if (externalPath.Length > 256)
+            {
+                CompilePalLogger.LogCompileError($"File length over 256 characters, file may not pack properly:\n{externalPath}", new Error($"File length over 256 characters, file may not pack properly", ErrorSeverity.Warning));
+            }
             return AddFile(new KeyValuePair<string, string>(internalPath, externalPath));
         }
         // onFailure is for utility files such as nav, radar, etc which get excluded. if they are excluded, the Delegate is run. This is used for removing the files from the BSP class, so they dont appear in the summary at the end
