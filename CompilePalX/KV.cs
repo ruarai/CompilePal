@@ -186,7 +186,7 @@ namespace CompilePalX.KV
                 stream.Write(indenta + "}\n");
         }
 
-        public DataBlock GetFirstByName(string _name) 
+        public DataBlock? GetFirstByName(string _name) 
         {
             for (int i = 0; i < this.subBlocks.Count; i++)
                 if (_name == this.subBlocks[i].name)
@@ -194,7 +194,7 @@ namespace CompilePalX.KV
 
             return null;
         }
-        public DataBlock GetFirstByName(string[] names) 
+        public DataBlock? GetFirstByName(string[] names) 
         {
             for (int i = 0; i < this.subBlocks.Count; i++)
                 if (names.Contains(this.subBlocks[i].name))
