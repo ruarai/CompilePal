@@ -425,7 +425,7 @@
                             </DataGrid.Columns>
                         </DataGrid>
 
-                        <controls:MetroTabControl Grid.Row="0" Visibility="Hidden" controls:TabControlHelper.Underlined="SelectedTabItem" Name="ProcessTab" IsEnabled="False" SelectionChanged="ProcessTab_OnSelectionChanged" Background="Transparent">
+                        <controls:MetroTabControl Grid.Row="1" Visibility="Hidden" controls:TabControlHelper.Underlined="SelectedTabItem" Name="ProcessTab" IsEnabled="False" SelectionChanged="ProcessTab_OnSelectionChanged" Background="Transparent">
                             <controls:MetroTabItem Header="PROGRAMS" Margin="5, 0, 0, 0" x:Name="ProgramTab" Background="Transparent">
                                 <DataGrid IsEnabled="False" Visibility="Visible" Name="ProcessDataGrid" Margin="10,10,10,10" AutoGenerateColumns="False" CanUserAddRows="False" ItemsSource="{Binding}">
                                     <DataGrid.Columns>
