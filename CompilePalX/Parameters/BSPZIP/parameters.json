@@ -1,0 +1,42 @@
+[
+  {
+    "Name": "Pack File List",
+    "Parameter": " -addlist $mapCopyLocation$",
+    "Description": "Packs all files in the file list",
+    "Value": "",
+    "CanHaveValue": true,
+    "ValueIsFile": true,
+    "Warning": ""
+  },
+  {
+    "Name": "Delete Cubemaps",
+    "Parameter": " -deletecubemaps",
+    "Description": "Deletes all .vtf files in the map",
+    "CanHaveValue": false,
+    "Warning": ""
+  },
+  {
+    "Name": "Repack",
+    "Parameter": " -repack",
+    "Description": "Decompresses map if -compress is not passed",
+    "CanHaveValue": false,
+    "Warning": "",
+    "CompatibleGames": [
+      440, // tf2
+      240, // cs:s
+      669270 // momentum mod
+    ]
+  },
+  {
+    "Name": "Compress",
+    "Parameter": " -compress",
+    "Description": "Compresses map",
+    "CanHaveValue": false,
+    "Warning": "Requires -repack",
+    "CompatibleGames": [
+      440, // tf2
+      240, // cs:s
+      669270 // momentum mod
+    ]
+  }
+]

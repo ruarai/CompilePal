@@ -1,0 +1,17 @@
+{
+  "Name": "BSPZIP",
+  "Path": "$bspZip$",
+  "Order": 12.1,
+  "DoRun": true,
+  "ReadOutput": true,
+  "Description": "Command line tool for modifying BSP files.",
+  "Warning": "",
+  "PresetDefault": false,
+  "Arguments":  " -game $game$ ",
+  "BasisString": " $mapCopyLocation$",
+  "CheckExitCode": false,
+  "SupportsBSP": true,
+  "IncompatibleGames": [
+    4000 // gmod. Certain distributions dont have bspzip.exe
+  ] 
+}

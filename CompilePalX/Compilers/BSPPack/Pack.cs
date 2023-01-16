@@ -72,7 +72,6 @@ namespace CompilePalX.Compilers.BSPPack
             excludevpk = GetParameterString().Contains("-excludevpk");
             packvpk = GetParameterString().Contains("-vpk");
             includefilelist = GetParameterString().Contains("-includefilelist");
-            usefilelist = GetParameterString().Contains("-usefilelist");
 
             char[] paramChars = GetParameterString().ToCharArray();
             List<string> parameters = ParseParameters(paramChars);
@@ -93,33 +92,6 @@ namespace CompilePalX.Compilers.BSPPack
                 if (!File.Exists(bspPath))
                 {
                     throw new FileNotFoundException();
-                }
-
-                // manually passing in a file list
-                if (usefilelist)
-                {
-                    var fileListParam = parameters.First(p => p.StartsWith("usefilelist"))
-                        .Split(new[] { " " }, 2, StringSplitOptions.None);
-                    if (fileListParam.Length > 1 && !string.IsNullOrWhiteSpace(fileListParam[1]))
-                    {
-                        outputFile = fileListParam[1];
-                        if (!File.Exists(outputFile))
-                        {
-                            CompilePalLogger.LogCompileError(
-                                $"Could not find file list {outputFile}, exiting pack step\n",
-                                new Error($"Could not find file list {outputFile}, exiting pack step\n",
-                                    ErrorSeverity.Error));
-                            return;
-                        }
-
-                        CompilePalLogger.LogLine($"Using file list {outputFile}");
-                        PackFileList(context, outputFile);
-                        return;
-                    }
-
-                    CompilePalLogger.LogCompileError("No file list set, exiting pack step\n",
-                        new Error("No file list set, exiting  pack step", ErrorSeverity.Error));
-                    return;
                 }
 
                 outputFile = "BSPZipFiles\\files.txt";
