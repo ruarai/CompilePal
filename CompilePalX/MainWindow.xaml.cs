@@ -862,6 +862,8 @@ namespace CompilePalX
 
             // refresh preset config listbox to filter the presets
             CollectionViewSource.GetDefaultView(ConfigurationManager.KnownPresets).Refresh();
+
+            UpdateConfigGrid();
         }
 
 	    private void DoRun_OnClick(object sender, RoutedEventArgs e)
