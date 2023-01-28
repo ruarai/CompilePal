@@ -91,7 +91,7 @@ namespace CompilePalX.Compilers.BSPPack
 
                 if (!File.Exists(bspPath))
                 {
-                    throw new FileNotFoundException();
+                    throw new FileNotFoundException("Could not find BSP", bspPath);
                 }
 
                 outputFile = "BSPZipFiles\\files.txt";
@@ -398,10 +398,10 @@ namespace CompilePalX.Compilers.BSPPack
                 CompilePalLogger.LogLine("---------------------");
 
             }
-            catch (FileNotFoundException)
+            catch (FileNotFoundException e)
             {
-                CompilePalLogger.LogCompileError($"Could not find {bspPath}\n",
-                    new Error($"Could not find {bspPath}", ErrorSeverity.Error));
+                CompilePalLogger.LogCompileError($"Could not find {e.FileName}\n",
+                    new Error($"Could not find {e.FileName}", ErrorSeverity.Error));
             }
             catch (ThreadAbortException)
             {
@@ -854,7 +854,7 @@ namespace CompilePalX.Compilers.BSPPack
             var paths = new Dictionary<string, string?>();
             foreach ((string basePath, string steamId) in locations)
             {
-                var installationFolder = new AppManifestParser(Path.Combine(steamAppsPath, $"appmanifest_{steamId}.acf")).GetInstallationDirectory();
+                var installationFolder = new AppManifestParser(Path.Combine(basePath, $"appmanifest_{steamId}.acf")).GetInstallationDirectory();
                 paths[steamId] = Path.Combine(basePath, "common", installationFolder);
             }
 
