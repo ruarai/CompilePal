@@ -169,7 +169,9 @@ namespace CompilePalX.Compilers.BSPPack
                 if (AddInternalFile(sound, FindExternalFile(sound)))
                     sndcount++;
             foreach (string vscript in bsp.vscriptList)
+            {
                 AddVScript(vscript);
+            }
             foreach (KeyValuePair<string, string> teamSelectionBackground in bsp.PanoramaMapBackgrounds)
                 if (AddInternalFile(teamSelectionBackground.Key, teamSelectionBackground.Value))
                     PanoramaMapBackgroundCount++;
@@ -368,6 +370,13 @@ namespace CompilePalX.Compilers.BSPPack
         public void AddVScript(string internalPath)
         {
             string externalPath = FindExternalFile(internalPath);
+
+            // referenced scripts don't always have extension, try adding .nut
+            if (externalPath == string.Empty)
+            {
+                externalPath = FindExternalFile($"{internalPath}.nut");
+            }
+
             if (!AddInternalFile(internalPath, externalPath))
             {
 				CompilePalLogger.LogCompileError($"Failed to find VScript file {internalPath}\n", new Error($"Failed to find VScript file", ErrorSeverity.Error));
