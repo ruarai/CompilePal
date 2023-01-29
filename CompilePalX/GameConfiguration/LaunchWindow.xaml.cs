@@ -145,14 +145,14 @@ namespace CompilePalX
 
         private void EditButton_OnClick(object sender, RoutedEventArgs e)
         {
-            var configuration = (GameConfiguration)((Button)sender).DataContext;
+            var configuration = (GameConfiguration)((MenuItem)sender).DataContext;
             int configIndex = GameConfigurationManager.GameConfigurations.IndexOf(configuration);
             GameConfigurationWindow.Instance.Open(configuration.Clone() as GameConfiguration, configIndex);
         }
 
         private async void DeleteButton_OnClick(object sender, RoutedEventArgs e)
         {
-            var configuration = (GameConfiguration)((Button)sender).DataContext;
+            var configuration = (GameConfiguration)((MenuItem)sender).DataContext;
 
             var dialogSettings = new MetroDialogSettings()
             {
@@ -188,6 +188,21 @@ namespace CompilePalX
             GameConfigurationManager.LoadGameConfigurations();
             GameGrid.ItemsSource = GameConfigurationManager.GameConfigurations;
             RefreshGameConfigurationList();
+        }
+        private void GameKebabButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            if (sender is not Button button || button.ContextMenu == null)
+                return;
+
+            // set placement of context menu to button instead of default behaviour of mouse position
+            button.ContextMenu.PlacementTarget = button;
+            button.ContextMenu.IsOpen = true;
+            e.Handled = true;
+        }
+        private void GameKebabButton_OnContextMenuOpening(object sender, ContextMenuEventArgs e)
+        {
+            // block right click context menus
+            e.Handled = true;
         }
     }
 }

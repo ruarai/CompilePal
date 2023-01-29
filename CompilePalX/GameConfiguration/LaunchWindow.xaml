@@ -33,20 +33,126 @@
                         <DataGridTemplateColumn Width="auto" CanUserResize="False">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
-                                    <StackPanel Orientation="Horizontal">
-                                        <Button Name="EditButton" Margin="0, 0, 2, 0" Height="20" Width="25" Padding="-4" Click="EditButton_OnClick" ToolTip="Edit Game Configuration"><iconPacks:Material Kind="Pencil" Height="13" Width="13"/></Button>
-                                        <Button Name="DeleteButton" Height="20" Width="25" Padding="-4" Click="DeleteButton_OnClick" ToolTip="Delete Game Configuration"><iconPacks:Material Kind="TrashCanOutline" Height="13" Width="13"/></Button>
-                                        <StackPanel.Style>
-                                            <Style TargetType="{x:Type StackPanel}">
-                                                <Setter Property="Visibility" Value="Hidden"/>
+                                    <Button Name="GameKebabButton" Height="5" Width="auto" Padding="0" Margin="0, -8, 0, -8" Visibility="Visible" Foreground="White" controls:ControlsHelper.CornerRadius="0" controls:ControlsHelper.FocusBorderThickness="0" ContextMenuOpening="GameKebabButton_OnContextMenuOpening" Click="GameKebabButton_OnClick">
+                                        <iconPacks:PackIconMaterial Kind="DotsVertical" Height="8" Width="8"/>
+                                        <Button.ContextMenu>
+                                            <ContextMenu Name="PresetActionMenu" Placement="Bottom">
+                                                <MenuItem Header="Edit" Click="EditButton_OnClick" />
+                                                <MenuItem Header="Delete" Click="DeleteButton_OnClick"/>
+                                            </ContextMenu>
+                                        </Button.ContextMenu>
+                                        <Button.Style>
+                                            <Style TargetType="{x:Type Button}"
+                                                   BasedOn="{StaticResource {x:Type Button}}">
+                                                <Setter Property="Background" Value="Transparent" />
+                                                <Setter Property="BorderThickness" Value="0" />
+
+                                                <!-- #region HorribleHackForBackgroundHoverColor -->
+                                                <Setter Property="Template">
+                                                    <Setter.Value>
+                                                        <ControlTemplate TargetType="{x:Type ButtonBase}">
+                                                            <Grid>
+                                                                <Border x:Name="Border"
+                                                                        Background="{TemplateBinding Background}"
+                                                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                                                        BorderThickness="{TemplateBinding BorderThickness}"
+                                                                        CornerRadius="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(controls:ControlsHelper.CornerRadius), Mode=OneWay}"
+                                                                        SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+                                                                <Border x:Name="DisabledVisualElement"
+                                                                        Background="{DynamicResource ControlsDisabledBrush}"
+                                                                        CornerRadius="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(controls:ControlsHelper.CornerRadius), Mode=OneWay}"
+                                                                        IsHitTestVisible="False"
+                                                                        Opacity="0"
+                                                                        SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+                                                                <controls:ContentControlEx
+                                                                    x:Name="PART_ContentPresenter"
+                                                                    Margin="{TemplateBinding BorderThickness}"
+                                                                    Padding="{TemplateBinding Padding}"
+                                                                    HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                                                    VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                                                                    Content="{TemplateBinding Content}"
+                                                                    ContentCharacterCasing="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=(controls:ControlsHelper.ContentCharacterCasing)}"
+                                                                    ContentStringFormat="{TemplateBinding ContentStringFormat}"
+                                                                    ContentTemplate="{TemplateBinding ContentTemplate}"
+                                                                    ContentTemplateSelector="{TemplateBinding ContentTemplateSelector}"
+                                                                    RecognizesAccessKey="True"
+                                                                    SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+                                                            </Grid>
+                                                            <ControlTemplate.Triggers>
+                                                                <Trigger Property="IsMouseOver" Value="True">
+                                                                    <Setter TargetName="Border"
+                                                                            Property="Background"
+                                                                            Value="{DynamicResource GrayBrush8}" />
+                                                                    <!-- set it to what you need -->
+                                                                </Trigger>
+                                                                <Trigger Property="IsPressed" Value="True">
+                                                                    <Setter TargetName="Border"
+                                                                            Property="Background"
+                                                                            Value="{DynamicResource GrayBrush7}" />
+                                                                </Trigger>
+                                                                <Trigger Property="IsKeyboardFocusWithin"
+                                                                         Value="True">
+                                                                    <Setter TargetName="Border"
+                                                                            Property="BorderBrush"
+                                                                            Value="{DynamicResource ButtonMouseOverBorderBrush}" />
+                                                                    <!--
+                                                                        <Setter TargetName="Border"
+                                                                            Property="BorderThickness" Value="2" />
+                                                                    -->
+                                                                </Trigger>
+                                                                <Trigger Property="IsEnabled" Value="False">
+                                                                    <Setter TargetName="DisabledVisualElement"
+                                                                            Property="Opacity" Value="0.7" />
+                                                                    <Setter TargetName="PART_ContentPresenter"
+                                                                            Property="Opacity" Value="0.3" />
+                                                                </Trigger>
+                                                            </ControlTemplate.Triggers>
+                                                        </ControlTemplate>
+                                                    </Setter.Value>
+                                                </Setter>
+                                                <!-- #endregion -->
+
                                                 <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType={x:Type DataGridRow}}}" Value="True">
-                                                        <Setter Property="Visibility" Value="Visible"/>
-                                                    </DataTrigger>
+                                                    <Trigger Property="IsFocused" Value="True">
+                                                        <Setter Property="Background">
+                                                            <Setter.Value>
+                                                                <SolidColorBrush
+                                                                    Color="{StaticResource MahApps.Colors.Gray10}"
+                                                                    Opacity="0.25" />
+                                                            </Setter.Value>
+                                                        </Setter>
+                                                    </Trigger>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter Property="Background">
+                                                            <Setter.Value>
+                                                                <SolidColorBrush
+                                                                    Color="{StaticResource MahApps.Colors.Gray10}"
+                                                                    Opacity="0.4" />
+                                                            </Setter.Value>
+                                                        </Setter>
+                                                    </Trigger>
+                                                    <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                                                        <Setter Property="Background">
+                                                            <Setter.Value>
+                                                                <SolidColorBrush
+                                                                    Color="{StaticResource MahApps.Colors.Gray10}"
+                                                                    Opacity="0.25" />
+                                                            </Setter.Value>
+                                                        </Setter>
+                                                    </Trigger>
+                                                    <Trigger Property="IsPressed" Value="True">
+                                                        <Setter Property="Background">
+                                                            <Setter.Value>
+                                                                <SolidColorBrush
+                                                                    Color="{StaticResource MahApps.Colors.Gray10}"
+                                                                    Opacity="0.25" />
+                                                            </Setter.Value>
+                                                        </Setter>
+                                                    </Trigger>
                                                 </Style.Triggers>
                                             </Style>
-                                        </StackPanel.Style>
-                                    </StackPanel>
+                                        </Button.Style>
+                                    </Button>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                             <DataGridTemplateColumn.HeaderStyle>
