@@ -878,7 +878,7 @@ namespace CompilePalX.Compilers.BSPPack
                     }
                 }
             }
-            bsp.vscriptList = vscripts;
+            bsp.vscriptList = vscripts.Distinct().ToList();
         }
 
         private static string readNullTerminatedString(FileStream fs, BinaryReader reader)
