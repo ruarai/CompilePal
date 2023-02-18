@@ -6,9 +6,10 @@
 	/>
 </p>
 
-<p align="center">Compile Pal is an easy to use wrapper for the Source map compiling tools.</p>
+<p align="center">Compile Pal is an easy to use wrapper for the Source Engine map compiling tools.</p>
 
-![ui](https://i.imgur.com/DvAVPeR.png)
+![image](https://user-images.githubusercontent.com/15372675/219901251-38a9dc7a-ab95-42c4-9794-e811521a5e89.png)
+
 
 
 ## Downloads
@@ -30,7 +31,7 @@ Get the latest features without having to wait. Experimental releases may be uns
 * Cubemaps
 * Manifest Generation
 * Nav File Generation
-* Custom Compile Steps
+* Plugins and Custom Compile Steps
 * Batch Compiling
 * Much More!
 
