@@ -47,7 +47,7 @@ My Plugin/
 | Arguments | The first arguments passed to the program. Can be templated, see [Variable Substitution](#Variable-Substitution). (>=v27.28)
 | BasisString | The last arguments passed to the program. Can be templated, see [Variable Substitution](#Variable-Substitution). Order of arguments is `Arguments` → `Arguments selected by user` → `BasisString`.
 | Order   | Determines when your step should run. For example, an Order of 1.5 would run between VBSP and VVIS. For the complete ordering, look at the existing compile steps in the `Parameters` folder.
-| DoRun		| This should always be true. This indicates that the step is an external program and not a built-in compile step.
+| DoRun		| Controls whether step is enabled by default. Set to `true` to enable it.
 | ReadOutput | Controls whether program output is shown in the compile log.
 | SupportsBSP | Indicates that this step can be used for BSP files. Steps that don't support BSPs are automatically disabled if a user selects a BSP file. Defaults to `false`. (>=v27.27)
 | CheckExitCode | Checks for process exit code and raises a warning when it is not 0. Defaults to `true`. (>=v27.31)
