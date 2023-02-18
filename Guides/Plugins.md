@@ -3,7 +3,7 @@ Compile Pal's plugin based architecture allows developers to create their own co
 
 Plugins are currently in a beta state, so the format and structure are subject to change.
 
-![image](https://user-images.githubusercontent.com/15372675/183811926-d23c8b65-4df1-4cb8-8474-93d63bd1fd56.png)
+![image](https://user-images.githubusercontent.com/15372675/218288001-2154a3fa-201c-4f18-ad0f-36959aed9108.png)
 
 ## Installation
 Plugins can be installed by copying the plugin folder into the Compile Pal/Parameters folder.
