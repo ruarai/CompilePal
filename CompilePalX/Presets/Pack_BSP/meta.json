@@ -1,0 +1,5 @@
+﻿{
+  "Name": "Pack",
+  "Map": "BSP",
+  "MapRegex": ".*\\.bsp$"
+}
