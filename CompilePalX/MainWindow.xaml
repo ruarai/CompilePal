@@ -70,6 +70,15 @@
                                         <DataTrigger Binding="{Binding Path=Compile}" Value="False">
                                             <Setter Property="Foreground" Value="{StaticResource MahApps.Brushes.TextDisabled}"/>
                                         </DataTrigger>
+                                        <MultiDataTrigger>
+                                            <MultiDataTrigger.Conditions>
+                                                <Condition Binding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListBoxItem}}, Path=IsSelected}" Value="True"/>
+                                                <Condition Binding="{Binding Path=Compile}" Value="False"/>
+                                            </MultiDataTrigger.Conditions>
+                                            <MultiDataTrigger.Setters>
+                                                <Setter Property="Foreground" Value="{StaticResource MahApps.Brushes.IdealForegroundDisabled}"></Setter>
+                                            </MultiDataTrigger.Setters>
+                                        </MultiDataTrigger>
                                     </Style.Triggers>
                                 </Style>
                             </TextBlock.Style>
