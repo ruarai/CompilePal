@@ -280,7 +280,7 @@ namespace CompilePalX
                         if (map == null)
                             return preset.MapRegex == null;
 
-                        return preset.IsValidMap(map.FullMapName);
+                        return preset.IsValidMap(map.File);
                     };
                 }
                 else

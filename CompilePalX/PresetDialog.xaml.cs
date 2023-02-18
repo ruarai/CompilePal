@@ -30,7 +30,7 @@ namespace CompilePalX
             string? mapRegex = null;
             if (selectedMap is not null)
             {
-                mapRegex = selectedMap.MapName + ".*";
+                mapRegex = $"{selectedMap.MapName}.*";
             }
 
             if (preset != null)
