@@ -63,8 +63,29 @@
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <DockPanel HorizontalAlignment="Stretch">
-                        <TextBlock Text="{Binding File}" Margin="0, 0, 5, 0"/>
-                        <TextBlock Text="{Binding Path=Preset.Name, StringFormat=({0})}" Margin="0, 0, 5, 0" Foreground="{StaticResource MahApps.Brushes.Gray1}" FontWeight="SemiBold" Name="selectedPreset"/>
+                        <TextBlock Text="{Binding File}" Margin="0, 0, 5, 0">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Path=Compile}" Value="False">
+                                            <Setter Property="Foreground" Value="{StaticResource MahApps.Brushes.TextDisabled}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                        <TextBlock Text="{Binding Path=Preset.Name, StringFormat=({0})}" Margin="0, 0, 5, 0" FontWeight="SemiBold" Name="selectedPreset">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Foreground" Value="{StaticResource MahApps.Brushes.Gray1}"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Path=Compile}" Value="False">
+                                            <Setter Property="Foreground" Value="{StaticResource MahApps.Brushes.Gray3}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
                         <CheckBox IsChecked="{Binding Compile, Mode=TwoWay}" HorizontalAlignment="Right" />
                     </DockPanel>
                     <DataTemplate.Triggers>

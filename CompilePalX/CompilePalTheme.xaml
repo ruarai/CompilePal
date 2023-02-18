@@ -40,6 +40,7 @@
     <SolidColorBrush x:Key="MahApps.Brushes.WindowTitle" Color="{StaticResource MahApps.Colors.Accent}" options:Freeze="True" />
 
     <SolidColorBrush x:Key="MahApps.Brushes.Text" Color="{StaticResource MahApps.Colors.ThemeForeground}" options:Freeze="True" />
+    <SolidColorBrush x:Key="MahApps.Brushes.TextDisabled" Color="{StaticResource MahApps.Colors.ThemeForeground}" Opacity="0.6" options:Freeze="True" />
 
     <LinearGradientBrush x:Key="MahApps.Brushes.Progress" EndPoint="0.001,0.5" StartPoint="1.002,0.5" options:Freeze="True">
         <GradientStop Color="{StaticResource MahApps.Colors.HighlightColor}" Offset="0" />
