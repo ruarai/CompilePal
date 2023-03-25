@@ -104,15 +104,6 @@ namespace CompilePalX.Compilers.BSPPack
                 AddFile(bsp.PanoramaMapIcon, (b => b.PanoramaMapIcon = default), bsp);
             }
 
-            if (bsp.res.Key != default(string))
-            {
-                if (AddFile(bsp.res, (b => b.res = default), bsp))
-                {
-                    foreach (string material in AssetUtils.findResMaterials(bsp.res.Value))
-                        AddTexture(material);
-                }
-            }
-
             if (bsp.particleManifest.Key != default(string))
             {
                 if (AddFile(bsp.particleManifest, (b => b.particleManifest = default), bsp))
@@ -175,6 +166,15 @@ namespace CompilePalX.Compilers.BSPPack
             foreach (KeyValuePair<string, string> teamSelectionBackground in bsp.PanoramaMapBackgrounds)
                 if (AddInternalFile(teamSelectionBackground.Key, teamSelectionBackground.Value))
                     PanoramaMapBackgroundCount++;
+            foreach (var res in bsp.res)
+            {
+                if (AddFile(res, null, bsp))
+                {
+                    foreach (string material in AssetUtils.findResMaterials(res.Value))
+                        AddTexture(material);
+                }
+                
+            }
 
 			// add all manually included files
 			// TODO right now the manually included files search for files it depends on. Not sure if this should be default behavior

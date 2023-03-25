@@ -379,6 +379,8 @@ namespace CompilePalX.Compilers.BSPPack
                     CompilePalLogger.LogLine(pakfile.vscriptcount + " vscripts found");
                 if (pakfile.PanoramaMapBackgroundCount != 0)
                     CompilePalLogger.LogLine(pakfile.PanoramaMapBackgroundCount + " Panorama map backgrounds found");
+                if (map.res.Count != 0)
+                    CompilePalLogger.LogLine(map.res.Count + " res files found");
                 string additionalFiles =
                     (map.nav.Key != default(string) ? "\n-Nav file" : "") +
                     (map.soundscape.Key != default(string) ? "\n-Soundscape" : "") +
@@ -390,8 +392,7 @@ namespace CompilePalX.Compilers.BSPPack
                     (map.txt.Key != default(string) ? "\n-Loading screen text" : "") +
                     (map.jpg.Key != default(string) ? "\n-Loading screen image" : "") +
                     (map.PanoramaMapIcon.Key != default(string) ? "\n-Panorama map icon" : "") +
-                    (map.kv.Key != default(string) ? "\n-KV file" : "") +
-                    (map.res.Key != default(string) ? "\n-Res file" : "");
+                    (map.kv.Key != default(string) ? "\n-KV file" : "");
 
                 if (additionalFiles != "")
                     CompilePalLogger.LogLine("Additional Files: " + additionalFiles);

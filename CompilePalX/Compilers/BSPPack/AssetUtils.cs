@@ -709,7 +709,7 @@ namespace CompilePalX.Compilers.BSPPack
 			bsp.EffectScriptList = effectScripts;
 
 			// Res file (for tf2's pd gamemode)
-			Dictionary<string, string>  pd_ent = bsp.entityList.FirstOrDefault(item => item["classname"] == "tf_logic_player_destruction");
+			Dictionary<string, string>?  pd_ent = bsp.entityList.FirstOrDefault(item => item["classname"] == "tf_logic_player_destruction");
             if (pd_ent != null && pd_ent.ContainsKey("res_file"))
             {
                 foreach (string source in sourceDirectories)
@@ -717,9 +717,33 @@ namespace CompilePalX.Compilers.BSPPack
                     string externalPath = source + "/" + pd_ent["res_file"];
                     if (File.Exists(externalPath))
                     {
-                        bsp.res = new KeyValuePair<string, string>(pd_ent["res_file"], externalPath);
+                        bsp.res.Add(new KeyValuePair<string, string>(pd_ent["res_file"], externalPath));
                         break;
                     }
+                }
+            }
+
+            // tf2 tc round overview files
+            internalPath = "resource/roundinfo/" + bsp.file.Name.Replace(".bsp", ".res");
+            foreach (string source in sourceDirectories)
+            {
+                string externalPath = source + "/" + internalPath;
+
+                if (File.Exists(externalPath))
+                {
+                    bsp.res.Add(new KeyValuePair<string, string>(internalPath, externalPath));
+                    break;
+                }
+            }
+            internalPath = "materials/overviews/" + bsp.file.Name.Replace(".bsp", ".vmt");
+            foreach (string source in sourceDirectories)
+            {
+                string externalPath = source + "/" + internalPath;
+
+                if (File.Exists(externalPath))
+                {
+                    bsp.TextureList.Add(internalPath);
+                    break;
                 }
             }
 
