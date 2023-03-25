@@ -200,19 +200,18 @@ namespace CompilePalX.Compilers.BSPPack
         {
             // builds the list of textures referenced in entities
 
-            EntTextureList = new List<string>();
+            List<string> materials = new List<string>();
             foreach (Dictionary<string, string> ent in entityList)
             {
-                List<string> materials = new List<string>();
                 foreach (KeyValuePair<string, string> prop in ent)
                 {
-                    //Console.WriteLine(prop.Key + ": " + prop.Value);
                     if (Keys.vmfMaterialKeys.Contains(prop.Key.ToLower()))
                     {
                         materials.Add(prop.Value);
                         if (prop.Key.ToLower().StartsWith("team_icon"))
                             materials.Add(prop.Value + "_locked");
                     }
+
                 }
 
                 // special condition for sprites
@@ -255,47 +254,49 @@ namespace CompilePalX.Compilers.BSPPack
 				            foreach (var file in Directory.GetFiles(directory))
 				            {
 					            if (file.EndsWith(".vmt"))
-					            {
 									materials.Add($"/vgui/{ent["directory"]}/{Path.GetFileName(file)}");
-					            }
 				            }
 			            }
-
-
 					}
 	            }
 
-                // format and add materials
-                foreach (string material in materials)
-                {
-                    string materialpath = material;
-                    if (!material.EndsWith(".vmt") && !materialpath.EndsWith(".spr"))
-                        materialpath += ".vmt";
-
-                    EntTextureList.Add("materials/" + materialpath);
-                }
             }
 
-            // get all overlay mats
-            var uniqueMats = new HashSet<string>();
+            // pack I/O referenced materials
+            // need to use array form of entity because multiple outputs with same command can't be stored in dict
             foreach (var ent in entityListArrayForm)
             {
                 foreach(var prop in ent)
                 {
-                    // get i/o triggered materials
-                    string ioString = GetIOString(prop.Item2);
-                    var match = Regex.Match(ioString, @"r_screenoverlay ([^,]+),");
-                    if (match.Success)
+                    var io = ParseIO(prop.Item2);
+                    if (io is null)
                     {
-                        uniqueMats.Add(match.Groups[1].Value.Replace(".vmt", ""));
+                        continue;
+                    }
+
+                    var (command, parameter) = io;
+
+                    if (command == "SetCountdownImage")
+                        materials.Add($"vgui/{parameter}");
+                    else if (command == "Command")
+                    {
+                        // format of Command is <command> <parameter>
+                        (command, parameter) = parameter.Split(' ') switch { var param => (param[0], param[1])};
+                        if (command == "r_screenoverlay")
+                            materials.Add(parameter);
                     }
                 }
             }
 
-            foreach(var mat in uniqueMats)
+            // format and add materials
+            EntTextureList = new List<string>();
+            foreach (string material in materials)
             {
-                var path = string.Format("materials/{0}.vmt", mat);
-                EntTextureList.Add(path);
+                string materialpath = material;
+                if (!material.EndsWith(".vmt") && !materialpath.EndsWith(".spr"))
+                    materialpath += ".vmt";
+
+                EntTextureList.Add("materials/" + materialpath);
             }
         }
 
@@ -390,17 +391,25 @@ namespace CompilePalX.Compilers.BSPPack
 							EntModelList.Add("models/props_gameplay/small_loaf.mdl");
 					}
 
-					//Pack I/O triggered models
-                    string ioString = GetIOString(prop.Value);
-                    if (ioString.Contains("SetModel"))
-                    {
-                        // SetModel is in form SetModel,models/path/to/model.mdl
-						List<string> io = ioString.Split(',').ToList();
-						if (!string.IsNullOrWhiteSpace(io[io.IndexOf("SetModel") + 1]))
-							EntModelList.Add(io[io.IndexOf("SetModel") + 1].Trim(SpecialCaracters));
-                    }
 				}
 			}
+
+            // pack I/O referenced models
+            // need to use array form of entity because multiple outputs with same command can't be stored in dict
+            foreach (var ent in entityListArrayForm)
+            {
+                foreach (var prop in ent)
+                {
+                    var io = ParseIO(prop.Item2);
+                    if (io == null)
+                        continue;
+
+                    var (command, parameter) = io;
+
+                    if (command == "SetModel")
+                        EntModelList.Add(parameter);
+                }
+            }
         }
 
         public void buildEntSoundList()
@@ -412,36 +421,35 @@ namespace CompilePalX.Compilers.BSPPack
 				{
 					if (Keys.vmfSoundKeys.Contains(prop.Key.ToLower()))
 						EntSoundList.Add("sound/" + prop.Value.Trim(SpecialCaracters));
-					//Pack I/O triggered sounds
-                    string ioString = GetIOString(prop.Value);
-					if (ioString.Contains("PlayVO"))
-					{
-						//Parameter value following PlayVO is always either a sound path or an empty string
-						List<string> io = ioString.Split(',').ToList();
-						if (!string.IsNullOrWhiteSpace(io[io.IndexOf("PlayVO") + 1]))
-							EntSoundList.Add("sound/" + io[io.IndexOf("PlayVO") + 1].Trim(SpecialCaracters));
-					}
-					else if (ioString.Contains("playgamesound"))
-					{
-						List<string> io = ioString.Split(',').ToList();
-						if (!string.IsNullOrWhiteSpace(io[io.IndexOf("playgamesound") + 1]))
-							EntSoundList.Add("sound/" + io[io.IndexOf("playgamesound") + 1].Trim(SpecialCaracters));
-					}
-					else if (ioString.Contains("play"))
-					{
-						List<string> io = ioString.Split(',').ToList();
-
-						var playCommand = io.Where(i => i.StartsWith("play "));
-
-						foreach (var command in playCommand)
-						{
-							EntSoundList.Add("sound/" + command.Split(' ')[1].Trim(SpecialCaracters));
-						}
-					}
-
 				}
 
+            // pack I/O referenced sounds
+            // need to use array form of entity because multiple outputs with same command can't be stored in dict
+            foreach (var ent in entityListArrayForm)
+            {
+                foreach (var prop in ent)
+                {
+                    var io = ParseIO(prop.Item2);
+                    if (io == null)
+                        continue;
 
+                    var (command, parameter) = io;
+                    if (command == "PlayVO")
+                    {
+                        //Parameter value following PlayVO is always either a sound path or an empty string
+                        if (!string.IsNullOrWhiteSpace(parameter)) 
+                            EntSoundList.Add($"sound/{parameter}");
+                    }
+                    else if (command == "Command")
+                    {
+                        // format of Command is <command> <parameter>
+                        (command, parameter) = parameter.Split(' ') switch { var param => (param[0], param[1])};
+
+                        if (command == "play" || command == "playgamesound" )
+                            EntSoundList.Add($"sound/{parameter}");
+                    }
+                }
+            }
         }
 
         public void buildParticleList()
@@ -453,27 +461,50 @@ namespace CompilePalX.Compilers.BSPPack
                         ParticleList.Add(particle.Value);
         }
 
-        private string GetIOString(string property)
+        /// <summary>
+        /// Parses an IO string for the command and parameter. If the command is "AddOutput", it is parsed and that command/parameter is returned instead
+        /// </summary>
+        /// <param name="property">Entity property</param>
+        /// <returns>Tuple containing (command, parameter)</returns>
+        private Tuple<string, string>? ParseIO(string property)
         {
-            if (!property.Contains("AddOutput"))
-                return property;
-
-            // AddOutput format: <output name> <target name>:<input name>:<parameter>:<delay>:<max times to fire> or simple form <key> <value>
-            // only need to convert complex form into simple form
-            if (property.Contains(':'))
+            // io is split by unicode escape char
+            if (!property.Contains("\u001b"))
             {
-                var splitIo = property.Split(':');
-                if (splitIo.Length < 3)
-                {
-                    CompilePalLogger.LogCompileError($"Failed to decode AddOutput, format may be incorrect: {property}\n", new Error($"Failed to decode AddOutput, format may be incorrect: {property}\n", ErrorSeverity.Warning));
-                    return property;
-                }
-
-                // need to have a trailing comma because some regexes rely on it for capture groups
-                property = $"{splitIo[2]},";
+                return null;
             }
 
-            return property;
+            // format: <target>\u001b<target input>\u001b<parameter>\u001b<delay>\u001b<only once>
+            var io = property.Split("\u001b");
+            if (io.Length != 5)
+            {
+                CompilePalLogger.LogCompileError($"Failed to decode IO, ignoring: {property}\n", new Error($"Failed to decode IO, ignoring: {property}\n", ErrorSeverity.Warning));
+                return null;
+            }
+
+            var targetInput = io[1];
+            var parameter = io[2];
+
+            // AddOutput dynamically adds I/O to other entities, parse it to get input/parameter
+            if (targetInput == "AddOutput")
+            {
+                // AddOutput format: <output name> <target name>:<input name>:<parameter>:<delay>:<max times to fire> or simple form <key> <value>
+                // only need to convert complex form into simple form
+                if (parameter.Contains(':'))
+                {
+                    var splitIo = parameter.Split(':');
+                    if (splitIo.Length < 3)
+                    {
+                        CompilePalLogger.LogCompileError($"Failed to decode AddOutput, format may be incorrect: {property}\n", new Error($"Failed to decode AddOutput, format may be incorrect: {property}\n", ErrorSeverity.Warning));
+                        return null;
+                    }
+
+                    targetInput = splitIo[1];
+                    parameter = splitIo[2];
+                }
+            }
+
+            return new Tuple<string, string>(targetInput, parameter);
         }
     }
 }
