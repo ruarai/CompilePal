@@ -855,7 +855,13 @@ namespace CompilePalX.Compilers.BSPPack
             var paths = new Dictionary<string, string?>();
             foreach ((string basePath, string steamId) in locations)
             {
-                var installationFolder = new AppManifestParser(Path.Combine(basePath, $"appmanifest_{steamId}.acf")).GetInstallationDirectory();
+                var appManifestPath = Path.Combine(basePath, $"appmanifest_{steamId}.acf");
+                if (!File.Exists(appManifestPath))
+                {
+                    CompilePalLogger.LogCompileError($"App Manifest {appManifestPath} does not exist, ignoring\n", new Error($"App Manifest {appManifestPath} does not exist, ignoring\n", ErrorSeverity.Warning));
+                    continue;
+                }
+                var installationFolder = new AppManifestParser(appManifestPath).GetInstallationDirectory();
                 paths[steamId] = Path.Combine(basePath, "common", installationFolder);
             }
 
