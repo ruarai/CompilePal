@@ -58,6 +58,7 @@ namespace CompilePalX.Compilers.BSPPack
 
         public FileInfo file { get; private set; }
         private bool isL4D2 = false;
+        private int bspVersion;
 
         public BSP(FileInfo file)
         {
@@ -68,10 +69,10 @@ namespace CompilePalX.Compilers.BSPPack
             using (reader = new BinaryReader(bsp))
             {
                 bsp.Seek(4, SeekOrigin.Begin); //skip header
-                int bspVer = reader.ReadInt32();
+                this.bspVersion = reader.ReadInt32();
 
                 //hack for detecting l4d2 maps
-                if (reader.ReadInt32() == 0 && bspVer == 21)
+                if (reader.ReadInt32() == 0 && this.bspVersion == 21)
                         isL4D2 = true;
 
                 // reset reader position
@@ -331,7 +332,12 @@ namespace CompilePalX.Compilers.BSPPack
 
             // skipping leaf lump
             int leafCount = reader.ReadInt32();
-            bsp.Seek(leafCount * 2, SeekOrigin.Current);
+
+            // bsp v25 uses ints instead of shorts for leaf lump
+            if (this.bspVersion == 25)
+                bsp.Seek(leafCount * sizeof(int), SeekOrigin.Current);
+            else
+                bsp.Seek(leafCount * sizeof(short), SeekOrigin.Current);
 
             // reading staticprop lump
 
