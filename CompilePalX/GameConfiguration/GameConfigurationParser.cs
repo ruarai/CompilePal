@@ -34,6 +34,12 @@ namespace CompilePalX {
                 var vbspinfo = FindPath("vbspinfo.exe", binFolder, vbspPath);
                 var vpk = FindPath("vpk.exe", binFolder, vbspPath);
 
+                if (Path.GetDirectoryName(bspzip) != binFolder)
+                {
+                    CompilePalLogger.LogLineDebug($"Bin folder \"{binFolder}\" differs from compiler location \"{Path.GetDirectoryName(bspzip)}\"");
+                    binFolder = Path.GetDirectoryName(bspzip);
+                }
+
                 GameConfiguration game = new GameConfiguration
                 {
                     Name = gamedb.name.Replace("\"", ""),

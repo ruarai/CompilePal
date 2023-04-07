@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -97,6 +98,7 @@ namespace CompilePalX.Compiling
 
         public static void LogLineDebug(string s)
         {
+            Trace.WriteLine(s);
             LogDebug(s + Environment.NewLine);
         }
 
