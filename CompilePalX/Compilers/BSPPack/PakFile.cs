@@ -160,9 +160,7 @@ namespace CompilePalX.Compilers.BSPPack
                 if (AddInternalFile(sound, FindExternalFile(sound)))
                     sndcount++;
             foreach (string vscript in bsp.vscriptList)
-            {
                 AddVScript(vscript);
-            }
             foreach (KeyValuePair<string, string> teamSelectionBackground in bsp.PanoramaMapBackgrounds)
                 if (AddInternalFile(teamSelectionBackground.Key, teamSelectionBackground.Value))
                     PanoramaMapBackgroundCount++;
@@ -374,7 +372,12 @@ namespace CompilePalX.Compilers.BSPPack
             // referenced scripts don't always have extension, try adding .nut
             if (externalPath == string.Empty)
             {
-                externalPath = FindExternalFile($"{internalPath}.nut");
+                var newInternalPath = $"{internalPath}.nut";
+                externalPath = FindExternalFile(newInternalPath);
+
+                // if we find the file with the .nut extension, update the internal path to include it
+                if (externalPath != string.Empty)
+                    internalPath = newInternalPath;
             }
 
             if (!AddInternalFile(internalPath, externalPath))
