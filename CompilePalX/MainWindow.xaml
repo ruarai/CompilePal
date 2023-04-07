@@ -117,8 +117,8 @@
                         <ColumnDefinition Width="Auto" MinWidth="135"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <StackPanel Grid.Column="0" Margin="10,10,0,10" Background="{StaticResource CompilePal.Brushes.DockBackground}">
-                        <DockPanel Background="{StaticResource CompilePal.Brushes.GridBackground}" Height="30" Margin="0, -5, 0, 0">
+                    <DockPanel Grid.Column="0" Margin="10,10,0,10" Background="{StaticResource CompilePal.Brushes.DockBackground}">
+                        <DockPanel DockPanel.Dock="Top" Background="{StaticResource CompilePal.Brushes.GridBackground}" Height="30" Margin="0, -5, 0, 0">
                             <Button x:Name="AddPresetButton" MinHeight="25" Height="25" Width="25" Padding="0" Margin="0, 0, 0, 5" Click="AddPresetButton_Click" ToolTip="Add Preset" DockPanel.Dock="Right">
                                 <iconPacks:Material Kind="Plus" Height="10" Width="10"/>
                             </Button>
@@ -152,7 +152,7 @@
                             </ToggleButton>
                             <TextBlock FontSize="16" Margin="0, 0, 0, 5" FontWeight="SemiBold">Preset</TextBlock>
                         </DockPanel>
-                        <ListBox Name="PresetConfigListBox" Margin="0,0,0,5" SelectionChanged="PresetConfigListBox_SelectionChanged" SelectionMode="Single" ItemContainerStyle="{StaticResource GroupListBoxStyle}">
+                        <ListBox Name="PresetConfigListBox" SelectionChanged="PresetConfigListBox_SelectionChanged" SelectionMode="Single" ItemContainerStyle="{StaticResource GroupListBoxStyle}">
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
                                     <Grid>
@@ -299,7 +299,7 @@
                                 </GroupStyle>
                             </ListBox.GroupStyle>
                         </ListBox>
-                    </StackPanel>
+                    </DockPanel>
                     <DockPanel Grid.Column="1" Margin="10,10,0,10" Background="{StaticResource CompilePal.Brushes.DockBackground}">
                         <DockPanel DockPanel.Dock="Top" Background="{StaticResource CompilePal.Brushes.GridBackground}" Height="30" Margin="0, -5, 0, 0">
                             <Button x:Name="AddProcessesButton" MinHeight="25" Height="25" Width="25" Padding="0" Margin="0, 0, 0, 5" Click="AddProcessButton_Click"  DockPanel.Dock="Right" ToolTip="Add Process">
@@ -310,7 +310,7 @@
                             </Button>
                             <TextBlock FontSize="16" Margin="0, 0, 0, 5" FontWeight="SemiBold">Process</TextBlock>
                         </DockPanel>
-                        <ListBox x:Name ="CompileProcessesListBox" Margin="0,0,0,5" Grid.Row="0" SelectionChanged="CompileProcessesListBox_SelectionChanged">
+                        <ListBox x:Name ="CompileProcessesListBox" Grid.Row="0" SelectionChanged="CompileProcessesListBox_SelectionChanged">
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
                                     <DockPanel Name="ProcessDockPanel"  HorizontalAlignment="Stretch">
