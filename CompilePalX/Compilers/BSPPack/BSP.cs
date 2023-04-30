@@ -277,14 +277,16 @@ namespace CompilePalX.Compilers.BSPPack
 
                     var (command, parameter) = io;
 
-                    if (command == "SetCountdownImage")
-                        materials.Add($"vgui/{parameter}");
-                    else if (command == "Command")
-                    {
-                        // format of Command is <command> <parameter>
-                        (command, parameter) = parameter.Split(' ') switch { var param => (param[0], param[1])};
-                        if (command == "r_screenoverlay")
-                            materials.Add(parameter);
+                    switch (command) {
+                        case "SetCountdownImage":
+                            materials.Add($"vgui/{parameter}");
+                            break;
+                        case "Command":
+                            // format of Command is <command> <parameter>
+                            (command, parameter) = parameter.Split(' ') switch { var param => (param[0], param[1])};
+                            if (command == "r_screenoverlay")
+                                materials.Add(parameter);
+                            break;
                     }
                 }
             }
