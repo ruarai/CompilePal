@@ -189,6 +189,19 @@ namespace CompilePalX.Compilers.BSPPack
                     TextureList.Add("materials/skybox/" + worldspawn["skyname"] + "_hdr" + s + ".vmt");
                 }
 
+            // skybox materials in skybox_swapper
+            foreach(var swapper in entityList.FindAll(item => item["classname"] == "skybox_swapper"))
+            {
+                if(swapper.ContainsKey("SkyboxName"))
+                {
+                    foreach (string s in new string[] { "bk", "dn", "ft", "lf", "rt", "up" })
+                    {
+                        TextureList.Add("materials/skybox/" + swapper["SkyboxName"] + s + ".vmt");
+                        TextureList.Add("materials/skybox/" + swapper["SkyboxName"] + "_hdr" + s + ".vmt");
+                    }
+                }
+            }
+
             // find detail materials
             if (worldspawn.ContainsKey("detailmaterial"))
                 TextureList.Add("materials/" + worldspawn["detailmaterial"] + ".vmt");
