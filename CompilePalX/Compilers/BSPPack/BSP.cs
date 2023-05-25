@@ -296,6 +296,10 @@ namespace CompilePalX.Compilers.BSPPack
                             break;
                         case "Command":
                             // format of Command is <command> <parameter>
+                            if(!parameter.Contains(' '))
+                            {
+                                continue;
+                            }
                             (command, parameter) = parameter.Split(' ') switch { var param => (param[0], param[1])};
                             if (command == "r_screenoverlay")
                                 materials.Add(parameter);
@@ -464,6 +468,10 @@ namespace CompilePalX.Compilers.BSPPack
                     else if (command == "Command")
                     {
                         // format of Command is <command> <parameter>
+                        if(!parameter.Contains(' '))
+                        {
+                            continue;
+                        }
                         (command, parameter) = parameter.Split(' ') switch { var param => (param[0], param[1])};
 
                         if (command == "play" || command == "playgamesound" )
