@@ -202,6 +202,8 @@ namespace CompilePalX.Compilers.BSPPack
             // builds the list of textures referenced in entities
 
             List<string> materials = new List<string>();
+            HashSet<string> skybox_swappers = new HashSet<string>();
+
             foreach (Dictionary<string, string> ent in entityList)
             {
                 foreach (KeyValuePair<string, string> prop in ent)
@@ -217,6 +219,11 @@ namespace CompilePalX.Compilers.BSPPack
 
                 if(ent["classname"].Contains("skybox_swapper") && ent.ContainsKey("SkyboxName") )
                 {
+                    if(ent.ContainsKey("targetname"))
+                    {
+                        skybox_swappers.Add(ent["targetname"].ToLower());
+                    }
+                    
                     foreach (string s in new string[] { "", "bk", "dn", "ft", "lf", "rt", "up" })
                     {
                         materials.Add("skybox/" + ent["SkyboxName"] + s + ".vmt");
@@ -284,7 +291,7 @@ namespace CompilePalX.Compilers.BSPPack
                         continue;
                     }
 
-                    var (command, parameter) = io;
+                    var (target, command, parameter) = io;
 
                     switch (command) {
                         case "SetCountdownImage":
@@ -299,6 +306,24 @@ namespace CompilePalX.Compilers.BSPPack
                             (command, parameter) = parameter.Split(' ') switch { var param => (param[0], param[1])};
                             if (command == "r_screenoverlay")
                                 materials.Add(parameter);
+                            break;
+                        case "AddOutput":
+                            if(!parameter.Contains(' '))
+                            {
+                                continue;
+                            }
+                            string k, v;
+                            (k,v) = parameter.Split(' ') switch { var a => (a[0], a[1])};
+
+                            // support packing mats when using addoutput to change skybox_swappers
+                            if(skybox_swappers.Contains(target.ToLower()) && k.ToLower() == "skyboxname")
+                            {
+                                foreach (string s in new string[] { "", "bk", "dn", "ft", "lf", "rt", "up" })
+                                {
+                                    materials.Add("skybox/" + v + s + ".vmt");
+                                    materials.Add("skybox/" + v + "_hdr" + s + ".vmt");
+                                }
+                            }
                             break;
                     }
                 }
@@ -425,7 +450,7 @@ namespace CompilePalX.Compilers.BSPPack
                     if (io == null)
                         continue;
 
-                    var (command, parameter) = io;
+                    var (target, command, parameter) = io;
 
                     if (command == "SetModel")
                         EntModelList.Add(parameter);
@@ -454,7 +479,7 @@ namespace CompilePalX.Compilers.BSPPack
                     if (io == null)
                         continue;
 
-                    var (command, parameter) = io;
+                    var (target, command, parameter) = io;
                     if (command == "PlayVO")
                     {
                         //Parameter value following PlayVO is always either a sound path or an empty string
@@ -487,11 +512,11 @@ namespace CompilePalX.Compilers.BSPPack
         }
 
         /// <summary>
-        /// Parses an IO string for the command and parameter. If the command is "AddOutput", it is parsed and that command/parameter is returned instead
+        /// Parses an IO string for the command and parameter. If the command is "AddOutput", it is parsed returns target, command, parameter 
         /// </summary>
         /// <param name="property">Entity property</param>
-        /// <returns>Tuple containing (command, parameter)</returns>
-        private Tuple<string, string>? ParseIO(string property)
+        /// <returns>Tuple containing (target, command, parameter)</returns>
+        private Tuple<string, string, string>? ParseIO(string property)
         {
             // io is split by unicode escape char
             if (!property.Contains("\u001b"))
@@ -529,7 +554,7 @@ namespace CompilePalX.Compilers.BSPPack
                 }
             }
 
-            return new Tuple<string, string>(targetInput, parameter);
+            return new Tuple<string, string, string>(io[0], targetInput, parameter);
         }
     }
 }
