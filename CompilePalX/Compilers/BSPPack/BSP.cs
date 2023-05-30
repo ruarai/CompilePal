@@ -183,24 +183,11 @@ namespace CompilePalX.Compilers.BSPPack
             // find skybox materials
             Dictionary<string, string> worldspawn = entityList.First(item => item["classname"] == "worldspawn");
             if (worldspawn.ContainsKey("skyname"))
-                foreach (string s in new string[] { "bk", "dn", "ft", "lf", "rt", "up" })
+                foreach (string s in new string[] { "", "bk", "dn", "ft", "lf", "rt", "up" })
                 {
                     TextureList.Add("materials/skybox/" + worldspawn["skyname"] + s + ".vmt");
                     TextureList.Add("materials/skybox/" + worldspawn["skyname"] + "_hdr" + s + ".vmt");
                 }
-
-            // skybox materials in skybox_swapper
-            foreach(var swapper in entityList.FindAll(item => item["classname"] == "skybox_swapper"))
-            {
-                if(swapper.ContainsKey("SkyboxName"))
-                {
-                    foreach (string s in new string[] { "bk", "dn", "ft", "lf", "rt", "up" })
-                    {
-                        TextureList.Add("materials/skybox/" + swapper["SkyboxName"] + s + ".vmt");
-                        TextureList.Add("materials/skybox/" + swapper["SkyboxName"] + "_hdr" + s + ".vmt");
-                    }
-                }
-            }
 
             // find detail materials
             if (worldspawn.ContainsKey("detailmaterial"))
@@ -226,6 +213,15 @@ namespace CompilePalX.Compilers.BSPPack
                             materials.Add(prop.Value + "_locked");
                     }
 
+                }
+
+                if(ent["classname"].Contains("skybox_swapper") && ent.ContainsKey("SkyboxName") )
+                {
+                    foreach (string s in new string[] { "", "bk", "dn", "ft", "lf", "rt", "up" })
+                    {
+                        materials.Add("skybox/" + ent["SkyboxName"] + s + ".vmt");
+                        materials.Add("skybox/" + ent["SkyboxName"] + "_hdr" + s + ".vmt");
+                    }
                 }
 
                 // special condition for sprites
