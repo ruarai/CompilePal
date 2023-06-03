@@ -525,7 +525,7 @@
             </controls:MetroTabItem>
             <controls:MetroTabItem Name="OutputTab" Header="OUTPUT">
                 <Grid Background="{StaticResource CompilePal.Brushes.GridBackground}">
-                    <RichTextBox IsReadOnly="True" x:Name="CompileOutputTextbox" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" BorderThickness="0" Margin="10,10,10,10" FontFamily="Segoe UI, Lucida Sans Unicode, Verdana" IsReadOnlyCaretVisible="True" Block.LineHeight="2" IsDocumentEnabled="True">
+                    <RichTextBox IsReadOnly="True" x:Name="CompileOutputTextbox" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" BorderThickness="0" Margin="10,10,10,10" FontFamily="Cascadia Code PL, Segoe UI, Lucida Sans Unicode, Verdana" Typography.StandardLigatures="True" IsReadOnlyCaretVisible="True" Block.LineHeight="2" IsDocumentEnabled="True">
                         <RichTextBox.Document>
                             <FlowDocument>
                                 <Paragraph Name="OutputParagraph"/>
