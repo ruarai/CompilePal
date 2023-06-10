@@ -39,16 +39,6 @@ namespace CompilePalX.Compilers.BSPPack
         private const string keysFolder = "Keys";
 
         private static bool verbose;
-        private static bool dryrun;
-        private static bool renamenav;
-        private static bool include;
-        private static bool includeDir;
-        private static bool exclude;
-        private static bool excludeDir;
-        private static bool excludevpk;
-        private static bool packvpk;
-        private static bool includefilelist;
-        private static bool usefilelist;
         public static bool genParticleManifest;
 
         public static KeyValuePair<string, string> particleManifest;
@@ -63,15 +53,16 @@ namespace CompilePalX.Compilers.BSPPack
             if (!CanRun(context)) return;
 
             verbose = GetParameterString().Contains("-verbose");
-            dryrun = GetParameterString().Contains("-dryrun");
-            renamenav = GetParameterString().Contains("-renamenav");
-            include = Regex.IsMatch(GetParameterString(), @"-include\b"); // ensures it doesnt match -includedir
-            includeDir = GetParameterString().Contains("-includedir");
-            exclude = Regex.IsMatch(GetParameterString(), @"-exclude\b"); // ensures it doesnt match -excludedir
-            excludeDir = GetParameterString().Contains("-excludedir");
-            excludevpk = GetParameterString().Contains("-excludevpk");
-            packvpk = GetParameterString().Contains("-vpk");
-            includefilelist = GetParameterString().Contains("-includefilelist");
+            bool dryrun = GetParameterString().Contains("-dryrun");
+            bool renamenav = GetParameterString().Contains("-renamenav");
+            bool include = Regex.IsMatch(GetParameterString(), @"-include\b"); // ensures it doesnt match -includedir
+            bool includeDir = GetParameterString().Contains("-includedir");
+            bool exclude = Regex.IsMatch(GetParameterString(), @"-exclude\b"); // ensures it doesnt match -excludedir
+            bool excludeDir = GetParameterString().Contains("-excludedir");
+            bool excludevpk = GetParameterString().Contains("-excludevpk");
+            bool packvpk = GetParameterString().Contains("-vpk");
+            bool includefilelist = GetParameterString().Contains("-includefilelist");
+            bool addSourceDirectory = GetParameterString().Contains("-sourcedirectory");
 
             char[] paramChars = GetParameterString().ToCharArray();
             List<string> parameters = ParseParameters(paramChars);
@@ -211,6 +202,27 @@ namespace CompilePalX.Compilers.BSPPack
 
                 CompilePalLogger.LogLine("Finding sources of game content...");
                 sourceDirectories = GetSourceDirectories(gameFolder);
+
+                if (addSourceDirectory)
+                {
+                    foreach (string parameter in parameters)
+                    {
+                        if (parameter.Contains("sourcedirectory"))
+                        {
+                            var path = parameter.Replace("\"", "")
+                                .Replace("sourcedirectory ", "")
+                                .Replace('/', '\\')
+                                .ToLower().TrimEnd(' ');
+                            //Test that dir exists
+                            if (Directory.Exists(path))
+                                sourceDirectories.Add(path);
+                            else
+                                CompilePalLogger.LogCompileError($"Could not find folder: {path}\n",
+                                    new Error($"Could not find folder: {path}", ErrorSeverity.Caution));
+                        }
+                    }
+                }
+
                 if (verbose)
                 {
                     CompilePalLogger.LogLine("Source directories:");

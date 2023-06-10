@@ -140,6 +140,7 @@ namespace CompilePalX.Compilers
         private void CleanUp()
         {
             // give time for process to release file handles
+            Thread.Sleep(500);
             try
             {
                 if (File.Exists(mapcfg))

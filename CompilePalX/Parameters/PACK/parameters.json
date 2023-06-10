@@ -114,5 +114,16 @@
     "CanHaveValue": true,
     "Warning": "",
     "CanBeUsedMoreThanOnce": true
+  },
+  {
+    "Name": "Add Source Directory",
+    "Parameter": " -sourcedirectory",
+    "Description": "Adds an additional content search directory when looking for content to pack",
+    "Value": null,
+    "ValueIsFile": true,
+    "ValueIsFolder": true, 
+    "CanHaveValue": true,
+    "Warning": "",
+    "CanBeUsedMoreThanOnce": true
   }
 ]
