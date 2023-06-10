@@ -11,6 +11,7 @@ namespace CompilePalX.Compilers.BSPPack
 {
     static class AssetUtils
     {
+        public static ValveKeyValue.KVSerializer KVSerializer = ValveKeyValue.KVSerializer.Create(ValveKeyValue.KVSerializationFormat.KeyValues1Text);
 
         public static Tuple<List<string>, List<string>> findMdlMaterialsAndModels(string path, List<int> skins = null, List<string> vtxVmts = null)
         {
@@ -466,44 +467,26 @@ namespace CompilePalX.Compilers.BSPPack
         // same as above but quotes are not replaced and line does not need to be trimmed, quotes are needed to tell if // are comments or not
         public static string vmtPathParser2(string vmtline)
         {
-            vmtline = vmtline.Trim(new char[] {' ', '\t'});
-            
-            // remove key
-            if(vmtline[0] == '"')
+            var stream = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(vmtline + "\n")); // must add a newline to prevent parsing error
+            var deserialized = KVSerializer.Deserialize(stream);
+            var value = deserialized.Value.ToString();
+
+            if(value == null)
             {
-                vmtline = Regex.Match(vmtline, "\"[^\"]+\"(.*)$").Groups[1].Value;
-            }
-            else
-            {
-                vmtline = Regex.Match(vmtline, "[^ \t]+(.*)$").Groups[1].Value;
+                CompilePalLogger.LogCompileError($"KVSerializer.Deserialize returned null: {vmtline}", 
+                    new Error($"KVSerializer.Deserialize returned null: {vmtline}", ErrorSeverity.Error));
+                return "";
             }
 
-            vmtline = vmtline.TrimStart(new char[] { ' ', '\t' });
-            // process value
-            if (vmtline[0] == '"')
-            {
-                vmtline = Regex.Match(vmtline, "\"([^\"]+)\"").Groups[1].Value;
-            }
-            else
-            {
-                // strip c style comments like this one
-                var commentIndex = vmtline.IndexOf("//");
-                if(commentIndex > -1)
-                {
-                    vmtline = vmtline.Substring(0, commentIndex);
-                }
-                vmtline = Regex.Match(vmtline, "[^ \t]+").Groups[0].Value;
-            }
+            value = value.Trim(new char[] { ' ', '/', '\\' }); // removes leading slashes
+            value = value.Replace('\\', '/'); // normalize slashes
+            value = Regex.Replace(value, "/+", "/"); // remove duplicate slashes
 
-            vmtline = vmtline.Trim(new char[] { ' ', '/', '\\' }); // removes leading slashes
-            vmtline = vmtline.Replace('\\', '/'); // normalize slashes
-            vmtline = Regex.Replace(vmtline, "/+", "/"); // remove duplicate slashes
-
-            if (vmtline.StartsWith("materials/"))
-                vmtline = vmtline.Remove(0, "materials/".Length); // removes materials/ if its the beginning of the string for consistency
-            if (vmtline.EndsWith(".vmt") || vmtline.EndsWith(".vtf")) // removes extentions if present for consistency
-                vmtline = vmtline.Substring(0, vmtline.Length - 4);
-            return vmtline;
+            if (value.StartsWith("materials/"))
+                value = value.Remove(0, "materials/".Length); // removes materials/ if its the beginning of the string for consistency
+            if (value.EndsWith(".vmt") || value.EndsWith(".vtf")) // removes extentions if present for consistency
+                value = value.Substring(0, value.Length - 4);
+            return value;
         }
 
         public static List<string> findSoundscapeSounds(string fullpath)
