@@ -189,7 +189,7 @@ namespace CompilePalX.Compilers.BSPPack
 		        foreach (var folder in potentialSubDir)
 		        {
 			        if (fileInfo.Directory != null 
-			            && fileInfo.Directory.FullName.ToLower().Contains(folder.ToLower()))
+			            && fileInfo.Directory.FullName.Contains(folder, StringComparison.OrdinalIgnoreCase))
 			        {
 				        baseDir = folder;
 						break;
@@ -206,7 +206,7 @@ namespace CompilePalX.Compilers.BSPPack
 		        string internalPath = Regex.Replace(file, Regex.Escape(baseDir + "\\"), "", RegexOptions.IgnoreCase);
 
 				// try to determine file type by extension
-				switch (file.Split('.').Last())
+				switch (fileInfo.Extension)
 		        {
 					case "vmt":
 						AddTexture(internalPath);
