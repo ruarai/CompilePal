@@ -10,6 +10,7 @@ using System.Threading;
 using CompilePalX.Compiling;
 using CompilePalX.KV;
 using CompilePalX.Utilities;
+using GlobExpressions;
 using Microsoft.Win32;
 
 namespace CompilePalX.Compilers.BSPPack
@@ -207,19 +208,28 @@ namespace CompilePalX.Compilers.BSPPack
                 {
                     foreach (string parameter in parameters)
                     {
-                        if (parameter.Contains("sourcedirectory"))
+                        if (!parameter.Contains("sourcedirectory"))
                         {
-                            var path = parameter.Replace("\"", "")
-                                .Replace("sourcedirectory ", "")
-                                .Replace('/', '\\')
-                                .ToLower().TrimEnd(' ');
-                            //Test that dir exists
-                            if (Directory.Exists(path))
-                                sourceDirectories.Add(path);
-                            else
-                                CompilePalLogger.LogCompileError($"Could not find folder: {path}\n",
-                                    new Error($"Could not find folder: {path}", ErrorSeverity.Caution));
+                            continue;
                         }
+
+                        var glob = parameter.Replace("\"", "")
+                            .Replace("sourcedirectory ", "")
+                            .Replace('/', '\\')
+                            .ToLower().TrimEnd(' ');
+
+                        string root = Directory.GetDirectoryRoot(glob);
+
+                        var globResults = Glob.Directories(root, glob.Substring(root.Length), GlobOptions.CaseInsensitive);
+                        if (globResults.Count() == 0)
+                        {
+                            CompilePalLogger.LogCompileError($"Found no matching folders for: {glob}\n",
+                                new Error($"Found no matching folders for: {glob}", ErrorSeverity.Caution));
+                            continue;
+                        }
+
+                        foreach (string path in globResults)
+                            sourceDirectories.Add(root + path);
                     }
                 }
 
