@@ -248,8 +248,9 @@ namespace CompilePalX.Compilers.BSPPack
             List<string> vtxMaterials = new List<string>();
             if (File.Exists(path))
             {
-                using (FileStream vtx = new FileStream(path, FileMode.Open))
+                try
                 {
+                    using FileStream vtx = new FileStream(path, FileMode.Open);
                     BinaryReader reader = new BinaryReader(vtx);
 
                     int version = reader.ReadInt32();
@@ -293,6 +294,11 @@ namespace CompilePalX.Compilers.BSPPack
                             }
                         }
                     }
+                } catch
+                {
+                    CompilePalLogger.LogCompileError($"Failed to parse file: {path}", 
+                        new Error($"Failed to parse file: {path}", ErrorSeverity.Error));
+                    throw;
                 }
             }
 
