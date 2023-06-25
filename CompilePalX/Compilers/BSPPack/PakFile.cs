@@ -208,21 +208,21 @@ namespace CompilePalX.Compilers.BSPPack
 				// try to determine file type by extension
 				switch (fileInfo.Extension)
 		        {
-					case "vmt":
+					case ".vmt":
 						AddTexture(internalPath);
 						break;
-					case "pcf":
+					case ".pcf":
 						AddParticle(internalPath);
 						break;
-					case "mdl":
+					case ".mdl":
 						AddModel(internalPath);
 						break;
-					case "wav":
-					case "mp3":
+					case ".wav":
+					case ".mp3":
 						AddInternalFile(internalPath, file);
 						sndcount++;
 						break;
-                    case "res":
+                    case ".res":
 						AddInternalFile(internalPath, file);
                         foreach (string material in AssetUtils.findResMaterials(file))
                             AddTexture(material);
