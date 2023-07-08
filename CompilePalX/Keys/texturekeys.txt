@@ -57,3 +57,5 @@ $iris
 $ambientoccltexture
 $mraotexture
 $emissiontexture
+$portalmasktexture
+$portalcolortexture
