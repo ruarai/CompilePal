@@ -21,8 +21,6 @@ namespace CompilePalX.Compilers
         string vbspInfo;
         string bspFile;
 
-        bool hidden;
-        
 
         public override void Run(CompileContext context, CancellationToken cancellationToken)
         {
@@ -53,14 +51,30 @@ namespace CompilePalX.Compilers
                     throw new FileNotFoundException();
                 }
 
-                var addtionalParameters = Regex.Replace(GetParameterString(), "\b-hidd3en\b", "");
-                hidden = GetParameterString().Contains("-hidden");
+                var addtionalParameters = Regex.Replace(GetParameterString(), "-hidden", "");
+                addtionalParameters = Regex.Replace(addtionalParameters, @"-iterations \w", "");
+                bool hidden = GetParameterString().Contains("-hidden");
+
+                string buildCubemapCommand = "-buildcubemaps";
+                if (GetParameterString().Contains("-iterations"))
+                {
+                    try
+                    {
+                        int iterations = int.Parse(Regex.Match(GetParameterString(), @"-iterations (\w)").Groups[1].Value);
+                        buildCubemapCommand = $"{buildCubemapCommand} {iterations}";
+                    } catch
+                    {
+                        CompilePalLogger.LogCompileError("-iterations must be an int\n", new Error("-iterations must be an int", "CompilePal Internal Error", ErrorSeverity.FatalError));
+                        return;
+                    }
+                }
+
                 FetchHDRLevels();
 
                 string mapname = System.IO.Path.GetFileName(context.CopyLocation).Replace(".bsp", "");
 
                 string args =
-                    $"-steam -game \"{context.Configuration.GameFolder}\" -windowed -insecure -novid -nosound +mat_specular 0 %HDRevel% +map {mapname} -buildcubemaps {addtionalParameters}";
+                    $"-steam -game \"{context.Configuration.GameFolder}\" -windowed -insecure -novid -nosound +mat_specular 0 %HDRevel% +map {mapname} {buildCubemapCommand} {addtionalParameters}";
 
                 if (hidden)
                     args += " -noborder -x 4000 -y 2000";

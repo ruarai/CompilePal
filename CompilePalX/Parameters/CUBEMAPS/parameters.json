@@ -24,6 +24,14 @@
     "Warning": ""
   },
   {
+    "Name": "Iterations",
+    "Parameter": " -iterations",
+    "Description": "Number of times to build cubemaps. Useful for recursive reflections",
+    "Value": null,
+    "CanHaveValue": true,
+    "Warning": ""
+  },
+  {
     "Name": "Command Line Argument",
     "Parameter": "",
     "Description": "Passes value as a command line argument",
