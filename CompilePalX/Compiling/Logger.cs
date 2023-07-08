@@ -16,6 +16,7 @@ using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Runtime.InteropServices;
 
 namespace CompilePalX.Compiling
 {
@@ -34,6 +35,10 @@ namespace CompilePalX.Compiling
             File.Delete(logFile);
             Thread.CurrentThread.CurrentUICulture = CultureInfo.InvariantCulture;
             Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+
+            // print debug information
+            LogLine($"--- Compile Pal {UpdateManager.CurrentVersion} ---");
+            LogLine($"Runtime: {RuntimeInformation.RuntimeIdentifier}");
         }
         public static event LogWrite OnWrite;
         public static event LogBacktrack OnBacktrack;
