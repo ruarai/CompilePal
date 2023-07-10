@@ -138,17 +138,14 @@ namespace CompilePalX.Compilers.BSPPack
                     AddInternalFile(cc["filename"], FindExternalFile(cc["filename"]));
 
             // find upgrade station files
-            else
+            foreach (Dictionary<string, string> relay in bsp.entityList.Where(item => item["classname"].Length > 0))
             {
-                foreach (Dictionary<string, string> relay in bsp.entityList.Where(item => item["classname"].Length > 0))
+                foreach (string v in relay.Values)
                 {
-                    foreach (string v in relay.Values)
-                    {
-                        if (!v.ToLower().Trim().Contains("setcustomupgradesfile")) continue;
+                    if (!v.ToLower().Trim().Contains("setcustomupgradesfile")) continue;
 
-                        string[] split = v.Split((char)27);
-                        AddInternalFile(split[2], FindExternalFile(split[2]));
-                    }
+                    string[] split = v.Split((char)27);
+                    AddInternalFile(split[2], FindExternalFile(split[2]));
                 }
             }
 
