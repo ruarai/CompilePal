@@ -66,7 +66,7 @@ namespace CompilePalX.Compilers.BSPPack
         public int vscriptcount { get; private set; }
         public int PanoramaMapBackgroundCount { get; private set; }
 
-        public PakFile(BSP bsp, List<string> sourceDirectories, List<string> includeFiles, List<string> excludedFiles, List<string> excludedDirs, List<string> excludedVpkFiles, string outputFile)
+        public PakFile(BSP bsp, List<string> sourceDirectories, List<string> includeFiles, List<string> excludedFiles, List<string> excludedDirs, List<string> excludedVpkFiles, string outputFile, bool noswvtx)
         {
             mdlcount = vmtcount = pcfcount = sndcount = vehiclescriptcount = effectscriptcount = PanoramaMapBackgroundCount = 0;
             sourceDirs = sourceDirectories;
@@ -75,7 +75,6 @@ namespace CompilePalX.Compilers.BSPPack
 	        this.excludedFiles = excludedFiles;
 	        this.excludedDirs = excludedDirs;
 	        this.excludedVpkFiles = excludedVpkFiles;
-
             Files = new Dictionary<string, string>();
 
             if (bsp.nav.Key != default(string))
@@ -138,6 +137,21 @@ namespace CompilePalX.Compilers.BSPPack
                 if (cc.ContainsKey("filename"))
                     AddInternalFile(cc["filename"], FindExternalFile(cc["filename"]));
 
+            // find upgrade station files
+            else
+            {
+                foreach (Dictionary<string, string> relay in bsp.entityList.Where(item => item["classname"].Length > 0))
+                {
+                    foreach (string v in relay.Values)
+                    {
+                        if (!v.ToLower().Trim().Contains("setcustomupgradesfile")) continue;
+
+                        string[] split = v.Split((char)27);
+                        AddInternalFile(split[2], FindExternalFile(split[2]));
+                    }
+                }
+            }
+
             foreach (KeyValuePair<string, string> vehicleScript in bsp.VehicleScriptList)
                 if (AddInternalFile(vehicleScript.Key, vehicleScript.Value))
                     vehiclescriptcount++;
@@ -149,9 +163,9 @@ namespace CompilePalX.Compilers.BSPPack
             foreach (KeyValuePair<string, string> lang in bsp.languages)
                 AddInternalFile(lang.Key, lang.Value);
             foreach (string model in bsp.EntModelList)
-                AddModel(model);
+                AddModel(model, null, noswvtx);
             for (int i = 0; i < bsp.ModelList.Count; i++)
-                AddModel(bsp.ModelList[i], bsp.modelSkinList[i]);
+                AddModel(bsp.ModelList[i], bsp.modelSkinList[i], noswvtx);
             foreach (string vmt in bsp.TextureList)
                 AddTexture(vmt);
             foreach (string vmt in bsp.EntTextureList)
@@ -215,7 +229,7 @@ namespace CompilePalX.Compilers.BSPPack
 						AddParticle(internalPath);
 						break;
 					case ".mdl":
-						AddModel(internalPath);
+						AddModel(internalPath, null, noswvtx);
 						break;
 					case ".wav":
 					case ".mp3":
@@ -275,7 +289,7 @@ namespace CompilePalX.Compilers.BSPPack
                 return false;
         }
 
-        public void AddModel(string internalPath, List<int> skins = null)
+        public void AddModel(string internalPath, List<int> skins = null, bool noswvtx = false)
         {
             // adds mdl files and finds its dependencies
             CompilePalLogger.LogLineDebug($"Packing model: {internalPath}");
@@ -288,11 +302,18 @@ namespace CompilePalX.Compilers.BSPPack
                 foreach (string reference in AssetUtils.findMdlRefs(internalPath))
                 {
                     string ext_path = FindExternalFile(reference);
-                    AddInternalFile(reference, FindExternalFile(reference));
+
+                    //don't pack .sw.vtx files if param is set
+                    if (reference.EndsWith(".sw.vtx") && noswvtx) 
+                        continue;
+                    else    
+                        AddInternalFile(reference, FindExternalFile(reference));
+
                     if (reference.EndsWith(".phy"))
                         foreach (string gib in AssetUtils.findPhyGibs(ext_path))
                             AddModel(gib);
-                    else if (reference.EndsWith(".vtx"))
+
+                    if (reference.EndsWith(".vtx") && (!reference.EndsWith(".sw.vtx") && noswvtx))
                         vtxMaterialNames.AddRange(AssetUtils.FindVtxMaterials(ext_path));
                 }
 
@@ -312,7 +333,7 @@ namespace CompilePalX.Compilers.BSPPack
 					AddTexture(mat);
 
 	            foreach (var model in mdlMatsAndModels.Item2)
-					AddModel(model);
+					AddModel(model, null, noswvtx);
 
             }
         }

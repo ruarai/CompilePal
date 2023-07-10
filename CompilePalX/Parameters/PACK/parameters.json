@@ -125,5 +125,13 @@
     "CanHaveValue": true,
     "Warning": "",
     "CanBeUsedMoreThanOnce": true
+  },
+  {
+    "Name": "No .sw.vtx",
+    "Parameter": " -noswvtx",
+    "Description": "Skip packing unused .sw.vtx files to save filesize.",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": ""
   }
 ]
