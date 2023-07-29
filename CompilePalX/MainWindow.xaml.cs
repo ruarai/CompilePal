@@ -31,6 +31,7 @@ using System.Windows.Media.TextFormatting;
 using CompilePalX.Compilers;
 using CompilePalX.Configuration;
 using Path = System.IO.Path;
+using System.Runtime.InteropServices;
 
 namespace CompilePalX
 {
@@ -110,6 +111,19 @@ namespace CompilePalX
             };
 
             HandleArgs();
+
+
+            // check to see if running on unsupported platform
+            if (OperatingSystem.IsWindowsVersionAtLeast(10))
+            {
+                UnsupportedPlatformButton.Visibility = Visibility.Visible;
+                // show unsupported message on startup only once
+                if (!Convert.ToBoolean(RegistryManager.Read<string>("UnsupportedDialogShown")))
+                {
+                    ShowUnsupportedModal();
+                    RegistryManager.Write("UnsupportedDialogShown", true);
+                }
+            }
         }
 
 		public Task<MessageDialogResult> ShowModal(string title, string message, MessageDialogStyle style = MessageDialogStyle.Affirmative, MetroDialogSettings settings = null)
@@ -968,6 +982,15 @@ namespace CompilePalX
             e.Handled = true;
         }
 
+        private void ShowUnsupportedModal()
+        {
+            ShowModal("Unsupported Platform", $"{RuntimeInformation.OSDescription} is no longer officially supported\nSome features may not work as exepcted\n\nKnown Issues:\nUnable to automatically check for updates");
+        }
+        private void UnsupportedPlatformButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            ShowUnsupportedModal();
+        }
+
         private void TickElapsedTimer(object sender, EventArgs e)
         {
             var time = CompilingManager.GetTime().Elapsed;
@@ -1006,7 +1029,7 @@ namespace CompilePalX
         }
     }
 
-	public static class ObservableCollectionExtension
+    public static class ObservableCollectionExtension
 	{
 		public static ObservableCollection<T> AddRange<T>(this ObservableCollection<T> collection, IEnumerable<T> range)
 		{

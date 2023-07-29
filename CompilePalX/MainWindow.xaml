@@ -31,6 +31,9 @@
 
     <controls:MetroWindow.RightWindowCommands>
         <controls:WindowCommands>
+            <Button Click="UnsupportedPlatformButton_OnClick" Foreground="{StaticResource CompilePal.Brushes.Warning}" ToolTip="Unsupported Platform" x:Name="UnsupportedPlatformButton" Visibility="Collapsed">
+                <iconPacks:Material Kind="Alert" />
+            </Button>
             <Button Click="BugReportButton_OnClick" ToolTip="Report a bug" x:Name="BugReportButton">
                 <iconPacks:Material Kind="Bug" />
             </Button>
