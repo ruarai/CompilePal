@@ -132,23 +132,6 @@ namespace CompilePalX.Compilers.BSPPack
                 }
             }
 
-            // find color correction files
-            foreach (Dictionary<string, string> cc in bsp.entityList.Where(item => item["classname"] == "color_correction"))
-                if (cc.ContainsKey("filename"))
-                    AddInternalFile(cc["filename"], FindExternalFile(cc["filename"]));
-
-            // find upgrade station files
-            foreach (Dictionary<string, string> relay in bsp.entityList.Where(item => item["classname"].Length > 0))
-            {
-                foreach (string v in relay.Values)
-                {
-                    if (!v.ToLower().Trim().Contains("setcustomupgradesfile")) continue;
-
-                    string[] split = v.Split((char)27);
-                    AddInternalFile(split[2], FindExternalFile(split[2]));
-                }
-            }
-
             foreach (KeyValuePair<string, string> vehicleScript in bsp.VehicleScriptList)
                 if (AddInternalFile(vehicleScript.Key, vehicleScript.Value))
                     vehiclescriptcount++;
@@ -167,6 +150,8 @@ namespace CompilePalX.Compilers.BSPPack
                 AddTexture(vmt);
             foreach (string vmt in bsp.EntTextureList)
                 AddTexture(vmt);
+            foreach (string misc in bsp.MiscList)
+                AddInternalFile(misc, FindExternalFile(misc));
             foreach (string sound in bsp.EntSoundList)
                 if (AddInternalFile(sound, FindExternalFile(sound)))
                     sndcount++;
@@ -303,14 +288,14 @@ namespace CompilePalX.Compilers.BSPPack
                     //don't pack .sw.vtx files if param is set
                     if (reference.EndsWith(".sw.vtx") && noswvtx) 
                         continue;
-                    else    
-                        AddInternalFile(reference, FindExternalFile(reference));
+
+                    AddInternalFile(reference, ext_path);
 
                     if (reference.EndsWith(".phy"))
                         foreach (string gib in AssetUtils.findPhyGibs(ext_path))
                             AddModel(gib);
 
-                    if (reference.EndsWith(".vtx") && (!reference.EndsWith(".sw.vtx") && noswvtx))
+                    if (reference.EndsWith(".vtx"))
                         vtxMaterialNames.AddRange(AssetUtils.FindVtxMaterials(ext_path));
                 }
 

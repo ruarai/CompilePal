@@ -36,6 +36,8 @@ namespace CompilePalX.Compilers.BSPPack
 
         public List<string> EntSoundList { get; private set; }
 
+        public List<string> MiscList { get; private set; }
+
         // key/values as internalPath/externalPath
         public KeyValuePair<string, string> particleManifest { get; set; }
         public KeyValuePair<string, string> soundscript { get; set; }
@@ -106,6 +108,8 @@ namespace CompilePalX.Compilers.BSPPack
                 buildTextureList();
 
                 buildEntSoundList();
+
+                buildMiscList();
             }
         }
 
@@ -260,8 +264,12 @@ namespace CompilePalX.Compilers.BSPPack
 				if (ent["classname"].Contains("env_embers"))
 					materials.Add("particle/fire.vmt");
 
-				// special condition for vgui_slideshow_display. directory paramater references all textures in a folder (does not include subfolders)
-				if (ent["classname"].Contains("vgui_slideshow_display"))
+                //special condition for func_dustcloud and func_dustmotes.  Hardcoded to use particle/sparkles.vmt
+                if (ent["classname"].StartsWith("func_dust"))
+                    materials.Add("particle/sparkles.vmt");
+
+                // special condition for vgui_slideshow_display. directory paramater references all textures in a folder (does not include subfolders)
+                if (ent["classname"].Contains("vgui_slideshow_display"))
 	            {
 		            if (ent.ContainsKey("directory"))
 		            {
@@ -283,13 +291,12 @@ namespace CompilePalX.Compilers.BSPPack
             // need to use array form of entity because multiple outputs with same command can't be stored in dict
             foreach (var ent in entityListArrayForm)
             {
-                foreach(var prop in ent)
+                foreach (var prop in ent)
                 {
                     var io = ParseIO(prop.Item2);
-                    if (io is null)
-                    {
+                    if (io == null)
                         continue;
-                    }
+                    
 
                     var (target, command, parameter) = io;
 
@@ -432,7 +439,7 @@ namespace CompilePalX.Compilers.BSPPack
 						// env_beverage spawns item_sodacans
 						else if (prop.Value == "item_sodacan" || prop.Value == "env_beverage")
 							EntModelList.Add("models/can.mdl");
-						// tf_projectile_throwable is hardcoded to  models/props_gameplay/small_loaf.mdl
+						// tf_projectile_throwable is hardcoded to models/props_gameplay/small_loaf.mdl
 						else if (prop.Value == "tf_projectile_throwable")
 							EntModelList.Add("models/props_gameplay/small_loaf.mdl");
 					}
@@ -490,14 +497,41 @@ namespace CompilePalX.Compilers.BSPPack
                     {
                         // format of Command is <command> <parameter>
                         if(!parameter.Contains(' '))
-                        {
                             continue;
-                        }
+                        
                         (command, parameter) = parameter.Split(' ') switch { var param => (param[0], param[1])};
 
                         if (command == "play" || command == "playgamesound" )
                             EntSoundList.Add($"sound/{parameter}");
                     }
+                }
+            }
+        }
+        // color correction, etc.
+        public void buildMiscList()
+        {
+            MiscList = new List<string>();
+
+            // find color correction files
+            foreach (Dictionary<string, string> cc in entityList.Where(item => item["classname"].StartsWith("color_correction")))
+                if (cc.ContainsKey("filename"))
+                    TextureList.Add(cc["filename"]);
+
+            // pack I/O referenced TF2 upgrade files
+            // need to use array form of entity because multiple outputs with same command can't be stored in dict
+            foreach (var ent in entityListArrayForm)
+            {
+                foreach (var prop in ent)
+                {
+                    var io = ParseIO(prop.Item2);
+
+                    if (io == null) continue;
+
+                    var (target, command, parameter) = io;
+                    if (command.ToLower() != "setcustomupgradesfile") continue;
+
+                    MiscList.Add(parameter);
+
                 }
             }
         }
