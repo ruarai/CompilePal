@@ -216,6 +216,25 @@
     "Warning": ""
   },
   {
+    "Name": "Dump Prop Lightmaps",
+    "Parameter": " -dumppropmaps",
+    "Description": "Dump TGA versions of the lightmaps generated for prop_static models.",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": "",
+    "CompatibleGames": [
+      240, // CSS
+      300, // DODS
+      320, // HL2DM
+      360, // HLDMS
+      440, // TF2
+      17740, // Empires
+      243750, // SDK Base 2013 Multiplayer
+      265630, // Fistful of Frags
+      723390 // HDTF (since 2022)
+    ] 
+  },
+  {
     "Name": "Verbose",
     "Parameter": " -verbose",
     "Description": "Turn on verbose output for debug purposes.",
