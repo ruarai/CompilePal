@@ -56,6 +56,14 @@
     "Warning": ""
   }, 
   {
+    "Name": "Normal Priority",
+    "Parameter": " -normal_priority",
+    "Description": "Run process with a normal process priority (be default below normal). Will prevent process from getting run on an efficiency core for certain CPUs",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": "Using above normal process priority can cause other applications to become slow/unresponsive"
+  },
+  {
     "Name": "Verbose",
     "Parameter": " -verbose",
     "Description": "Turn on verbose output for debug purposes.",
