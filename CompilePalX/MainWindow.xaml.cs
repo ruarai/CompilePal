@@ -114,7 +114,7 @@ namespace CompilePalX
 
 
             // check to see if running on unsupported platform
-            if (OperatingSystem.IsWindowsVersionAtLeast(10))
+            if (!OperatingSystem.IsWindowsVersionAtLeast(10))
             {
                 UnsupportedPlatformButton.Visibility = Visibility.Visible;
                 // show unsupported message on startup only once
