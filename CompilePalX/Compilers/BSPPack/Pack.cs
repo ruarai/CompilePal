@@ -393,7 +393,7 @@ namespace CompilePalX.Compilers.BSPPack
                 CompilePalLogger.LogLine(pakfile.vmtcount + " materials found");
                 CompilePalLogger.LogLine(pakfile.mdlcount + " models found");
                 CompilePalLogger.LogLine(pakfile.pcfcount + " particle files found");
-                CompilePalLogger.LogLine(pakfile.sndcount + " sounds found");
+                CompilePalLogger.LogLine(pakfile.soundcount + " sounds found");
                 if (pakfile.vehiclescriptcount != 0)
                     CompilePalLogger.LogLine(pakfile.vehiclescriptcount + " vehicle scripts found");
                 if (pakfile.effectscriptcount != 0)

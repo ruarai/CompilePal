@@ -60,17 +60,20 @@ namespace CompilePalX.Compilers.BSPPack
         public int mdlcount { get; private set; }
         public int vmtcount { get; private set; }
         public int pcfcount { get; private set; }
-        public int sndcount { get; private set; }
+        public int soundcount { get; private set; }
         public int vehiclescriptcount { get; private set; }
         public int effectscriptcount { get; private set; }
         public int vscriptcount { get; private set; }
         public int PanoramaMapBackgroundCount { get; private set; }
 
+        private bool noSwvtx;
+
         public PakFile(BSP bsp, List<string> sourceDirectories, List<string> includeFiles, List<string> excludedFiles, List<string> excludedDirs, List<string> excludedVpkFiles, string outputFile, bool noswvtx)
         {
-            mdlcount = vmtcount = pcfcount = sndcount = vehiclescriptcount = effectscriptcount = PanoramaMapBackgroundCount = 0;
+            mdlcount = vmtcount = pcfcount = soundcount = vehiclescriptcount = effectscriptcount = PanoramaMapBackgroundCount = 0;
             sourceDirs = sourceDirectories;
             fileName = outputFile;
+            noSwvtx = noswvtx;
 
 	        this.excludedFiles = excludedFiles;
 	        this.excludedDirs = excludedDirs;
@@ -117,8 +120,7 @@ namespace CompilePalX.Compilers.BSPPack
                 if (AddFile(bsp.soundscape, (b => b.soundscape = default), bsp))
                 {
                     foreach (string sound in AssetUtils.findSoundscapeSounds(bsp.soundscape.Value))
-                        if (AddInternalFile(sound, FindExternalFile(sound)))
-                            sndcount++;
+                        AddSound(sound);
                 }
             }
             
@@ -127,8 +129,7 @@ namespace CompilePalX.Compilers.BSPPack
                 if (AddFile(bsp.soundscript, (b => b.soundscript = default), bsp))
                 {
                     foreach (string sound in AssetUtils.findSoundscapeSounds(bsp.soundscript.Value))
-                        if (AddInternalFile(sound, FindExternalFile(sound)))
-                            sndcount++;
+                        AddSound(sound);
                 }
             }
 
@@ -143,9 +144,9 @@ namespace CompilePalX.Compilers.BSPPack
             foreach (KeyValuePair<string, string> lang in bsp.languages)
                 AddInternalFile(lang.Key, lang.Value);
             foreach (string model in bsp.EntModelList)
-                AddModel(model, null, noswvtx);
+                AddModel(model);
             for (int i = 0; i < bsp.ModelList.Count; i++)
-                AddModel(bsp.ModelList[i], bsp.modelSkinList[i], noswvtx);
+                AddModel(bsp.ModelList[i], bsp.modelSkinList[i]);
             foreach (string vmt in bsp.TextureList)
                 AddTexture(vmt);
             foreach (string vmt in bsp.EntTextureList)
@@ -153,8 +154,7 @@ namespace CompilePalX.Compilers.BSPPack
             foreach (string misc in bsp.MiscList)
                 AddInternalFile(misc, FindExternalFile(misc));
             foreach (string sound in bsp.EntSoundList)
-                if (AddInternalFile(sound, FindExternalFile(sound)))
-                    sndcount++;
+                AddSound(sound);
             foreach (string vscript in bsp.vscriptList)
                 AddVScript(vscript);
             foreach (KeyValuePair<string, string> teamSelectionBackground in bsp.PanoramaMapBackgrounds)
@@ -211,12 +211,11 @@ namespace CompilePalX.Compilers.BSPPack
 						AddParticle(internalPath);
 						break;
 					case ".mdl":
-						AddModel(internalPath, null, noswvtx);
+						AddModel(internalPath);
 						break;
 					case ".wav":
 					case ".mp3":
-						AddInternalFile(internalPath, file);
-						sndcount++;
+                        AddSound(internalPath);
 						break;
                     case ".res":
 						AddInternalFile(internalPath, file);
@@ -271,7 +270,7 @@ namespace CompilePalX.Compilers.BSPPack
                 return false;
         }
 
-        public void AddModel(string internalPath, List<int> skins = null, bool noswvtx = false)
+        public void AddModel(string internalPath, List<int> skins = null)
         {
             // adds mdl files and finds its dependencies
             CompilePalLogger.LogLineDebug($"Packing model: {internalPath}");
@@ -286,7 +285,7 @@ namespace CompilePalX.Compilers.BSPPack
                     string ext_path = FindExternalFile(reference);
 
                     //don't pack .sw.vtx files if param is set
-                    if (reference.EndsWith(".sw.vtx") && noswvtx) 
+                    if (reference.EndsWith(".sw.vtx") && this.noSwvtx) 
                         continue;
 
                     AddInternalFile(reference, ext_path);
@@ -315,7 +314,7 @@ namespace CompilePalX.Compilers.BSPPack
 					AddTexture(mat);
 
 	            foreach (var model in mdlMatsAndModels.Item2)
-					AddModel(model, null, noswvtx);
+					AddModel(model, null);
 
             }
         }
@@ -364,6 +363,16 @@ namespace CompilePalX.Compilers.BSPPack
             }
         }
 
+        public void AddSound(string internalPath)
+        {
+            // adds vmt files and finds its dependencies
+            string externalPath = FindExternalFile(internalPath);
+            if (AddInternalFile(internalPath, externalPath))
+            {
+                soundcount++;
+            }
+        }
+
         /// <summary>
         /// Adds VScript file and finds it's dependencies
         /// </summary>
@@ -390,8 +399,13 @@ namespace CompilePalX.Compilers.BSPPack
             }
             vscriptcount++;
 
-            foreach (string vscript in AssetUtils.FindVSCriptRefs(externalPath))
+            var (vscripts, models, sounds) = AssetUtils.FindVScriptDependencies(externalPath);
+            foreach (string vscript in vscripts)
                 AddVScript(vscript);
+            foreach (string model in models)
+                AddModel(model);
+            foreach (string sound in sounds)
+                AddSound(sound);
         }
 
         private string FindExternalFile(string internalPath)
