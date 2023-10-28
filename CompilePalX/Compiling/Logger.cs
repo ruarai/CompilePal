@@ -39,6 +39,7 @@ namespace CompilePalX.Compiling
             // print debug information
             LogLine($"--- Compile Pal {UpdateManager.CurrentVersion} ---");
             LogLine($"Runtime: {RuntimeInformation.RuntimeIdentifier}");
+            LogLine($"Locale: {CultureInfo.InstalledUICulture.Name}");
         }
         public static event LogWrite OnWrite;
         public static event LogBacktrack OnBacktrack;
