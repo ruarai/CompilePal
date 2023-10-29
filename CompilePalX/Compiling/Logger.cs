@@ -124,6 +124,10 @@ namespace CompilePalX.Compiling
             File.AppendAllText(logFile, errorText);
             OnErrorFound(e);
         }
+        public static void LogLineCompileError(string errorText, Error e)
+        {
+            LogCompileError(errorText + Environment.NewLine, e);
+        }
 
         private static Dictionary<Error, int> errorsFound = new ();
 
@@ -141,7 +145,7 @@ namespace CompilePalX.Compiling
             }
 
             // Log has completed at least 1 line, process it further
-            List<string> lines = lineBuffer.ToString().Split('\n').ToList();
+            List<string> lines = lineBuffer.ToString().Split("\r\n").ToList();
 
             string suffixText = lines.Last();
 
@@ -155,9 +159,9 @@ namespace CompilePalX.Compiling
                 Error? error = ErrorFinder.GetError(line);
 
                 if (error == null)
-                    Log(line);
+                    LogLine(line);
                 else
-                    LogCompileError(line, error);
+                    LogLineCompileError(line, error);
             }
 
             if (suffixText.Length > 0)
