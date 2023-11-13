@@ -20,10 +20,15 @@ namespace CompilePalX {
 
             CompilePalLogger.LogLineDebug($"Reading Game Config: {filename}");
             var data = new KV.FileData(filename);
-            foreach (KV.DataBlock gamedb in data.headnode.GetFirstByName(new[] { "\"Configs\"", "\"GameConfig.txt\"", "\"hammerplusplus\\hammerplusplus_gameconfig.txt\"" })
-                         .GetFirstByName("\"Games\"").subBlocks)
+            foreach (KV.DataBlock gamedb in data.headnode.GetFirstByName(new[] { "Configs", "GameConfig.txt", "hammerplusplus\\hammerplusplus_gameconfig.txt" })
+                         .GetFirstByName("Games").subBlocks)
             {
-                KV.DataBlock hdb = gamedb.GetFirstByName(new[] { "\"Hammer\"", "\"hammer\"" });
+                KV.DataBlock? hdb = gamedb.GetFirstByName("Hammer");
+                if (hdb == null)
+                {
+                    CompilePalLogger.LogLineDebug($"GameInfo block is missing Hammer section: {gamedb}");
+                    continue;
+                }
 
                 CompilePalLogger.LogLineDebug($"Gamedb: {gamedb}");
 

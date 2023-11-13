@@ -104,7 +104,7 @@ namespace CompilePalX.KV
     public class DataBlock {
         public string name = "";
         public List<DataBlock> subBlocks = new List<DataBlock>();
-        public Dictionary<string, string> values = new Dictionary<string, string>();
+        public Dictionary<string, string> values = new Dictionary<string, string>(StringComparer.CurrentCultureIgnoreCase);
 
         public DataBlock() { }
 
@@ -112,7 +112,7 @@ namespace CompilePalX.KV
         {
             var block = new DataBlock
             {
-                name = name.Trim()
+                name = name.Trim().Replace("\"", "")
             };
 
             string line;
@@ -124,7 +124,6 @@ namespace CompilePalX.KV
                 if (StringUtil.GetUnquotedMaterial(line).Contains("{"))
                 {
                     string pname = prev;
-                    //prev = prev.Replace("\"", "");
                     block.subBlocks.Add(ParseDataBlock(ref reader, pname));
                 }
                 if (StringUtil.GetUnquotedMaterial(line).Contains("}"))
@@ -166,7 +165,7 @@ namespace CompilePalX.KV
             return ParseDataBlock(ref reader, name);
         }
 
-        public void Serialize(ref System.IO.StreamWriter stream, int depth = 0) 
+        public void Serialize(ref StreamWriter stream, int depth = 0) 
         {
             string indenta = "";
             for (int i = 0; i < depth; i++)
@@ -189,7 +188,7 @@ namespace CompilePalX.KV
         public DataBlock? GetFirstByName(string _name) 
         {
             for (int i = 0; i < this.subBlocks.Count; i++)
-                if (_name == this.subBlocks[i].name)
+                if (string.Equals(_name, this.subBlocks[i].name, StringComparison.CurrentCultureIgnoreCase))
                     return this.subBlocks[i];
 
             return null;
@@ -197,7 +196,7 @@ namespace CompilePalX.KV
         public DataBlock? GetFirstByName(string[] names) 
         {
             for (int i = 0; i < this.subBlocks.Count; i++)
-                if (names.Contains(this.subBlocks[i].name))
+                if (names.Contains(this.subBlocks[i].name, StringComparer.CurrentCultureIgnoreCase))
                     return this.subBlocks[i];
 
             return null;
@@ -207,7 +206,7 @@ namespace CompilePalX.KV
         {
             List<DataBlock> c = new List<DataBlock>();
             for (int i = 0; i < this.subBlocks.Count; i++)
-                if (_name == this.subBlocks[i].name)
+                if (string.Equals(_name, this.subBlocks[i].name, StringComparison.CurrentCultureIgnoreCase))
                     c.Add(this.subBlocks[i]);
 
             return c;

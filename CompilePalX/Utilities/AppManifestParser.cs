@@ -16,7 +16,7 @@ namespace CompilePalX.Utilities
 
         public string? GetInstallationDirectory()
         {
-            return head.GetFirstByName("\"AppState\"")?.TryGetStringValue("installdir");
+            return head.GetFirstByName("AppState")?.TryGetStringValue("installdir");
         }
     }
 }

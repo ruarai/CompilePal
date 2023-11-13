@@ -220,7 +220,7 @@ namespace CompilePalX.Compilers.BSPPack
                     var data = KV.DataBlock.FromString(kv);
 
                     var mdlKvBlock = data.GetFirstByName("mdlkeyvalue");
-                    var doorDefaultsBlock = mdlKvBlock?.GetFirstByName("door_options")?.GetFirstByName("\"defaults\"");
+                    var doorDefaultsBlock = mdlKvBlock?.GetFirstByName("door_options")?.GetFirstByName("defaults");
                     if (doorDefaultsBlock != null)
                     {
                         var damageModel1 = doorDefaultsBlock.TryGetStringValue("damage1");
@@ -443,7 +443,7 @@ namespace CompilePalX.Compilers.BSPPack
                 // add default radar
                 DDSs.Add($"{radarPath}_radar.dds");
 
-                var verticalSections = subblock.GetFirstByName("\"verticalsections\"");
+                var verticalSections = subblock.GetFirstByName("verticalsections");
                 if (verticalSections == null)
                     break;
                 

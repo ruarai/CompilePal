@@ -23,7 +23,7 @@ namespace CompilePalX.Utilities
         /// <returns>A list of tuples containing base path and steamID</returns>
         public List<(string basePath, string steamId)>? GetInstallLocations()
         {
-            var folders = this.head.GetFirstByName("\"libraryfolders\"");
+            var folders = this.head.GetFirstByName("libraryfolders");
             if (folders is null)
             {
                 CompilePalLogger.LogLineDebug("No library folders found");

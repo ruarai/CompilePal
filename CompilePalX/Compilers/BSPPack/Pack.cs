@@ -565,8 +565,6 @@ namespace CompilePalX.Compilers.BSPPack
                 }
             };
 
-            //p.StartInfo.EnvironmentVariables["VPROJECT"] = gameFolder;
-
 
             try
             {
@@ -632,111 +630,98 @@ namespace CompilePalX.Compilers.BSPPack
         public static List<string> GetSourceDirectories(string gamePath, bool verbose = true)
         {
             List<string> sourceDirectories = new List<string>();
-            string gameInfo = System.IO.Path.Combine(gamePath, "gameinfo.txt");
-
+            string gameInfoPath = System.IO.Path.Combine(gamePath, "gameinfo.txt");
             string rootPath = Directory.GetParent(gamePath).ToString();
 
-            if (File.Exists(gameInfo))
+            if (!File.Exists(gameInfoPath))
             {
-                var lines = File.ReadAllLines(gameInfo);
+                CompilePalLogger.LogCompileError($"Couldn't find gameinfo.txt at {gameInfoPath}", new Error($"Couldn't find gameinfo.txt at {gameInfoPath}", ErrorSeverity.Error));
+                return new();
+            }
 
-                bool foundSearchPaths = false;
-                for (int i = 0; i < lines.Length; i++)
+            var gameInfo = new KV.FileData(gameInfoPath).headnode.GetFirstByName("GameInfo");
+            if (gameInfo == null)
+            {
+                CompilePalLogger.LogLineDebug($"Failed to parse GameInfo: {gameInfo}");
+                CompilePalLogger.LogCompileError($"Failed to parse GameInfo, did not find GameInfo block\n", new Error($"Failed to parse GameInfo, did not find GameInfo block", ErrorSeverity.Error));
+                return new();
+            }
+
+            var searchPaths = gameInfo.GetFirstByName("FileSystem")?.GetFirstByName("SearchPaths");
+            if (searchPaths == null)
+            {
+                CompilePalLogger.LogLineDebug($"Failed to parse GameInfo: {gameInfo}");
+                CompilePalLogger.LogCompileError($"Failed to parse GameInfo, did not find GameInfo block\n", new Error($"Failed to parse GameInfo, did not find GameInfo block", ErrorSeverity.Error));
+                return new();
+            }
+
+            foreach (string searchPath in searchPaths.values.Values)
+            {
+                // ignore unsearchable paths. TODO: will need to remove .vpk from this check if we add support for packing from assets within vpk files
+                if (searchPath.Contains("|") && !searchPath.Contains("|gameinfo_path|") || searchPath.Contains(".vpk")) continue;
+
+                // wildcard paths
+                if (searchPath.Contains("*"))
                 {
-                    var line = lines[i];
-
-                    if (foundSearchPaths)
+                    string fullPath = searchPath;
+                    if (fullPath.Contains(("|gameinfo_path|")))
                     {
-                        if (line.Contains("}"))
-                            break;
-
-                        if (line.Contains("//") || string.IsNullOrWhiteSpace(line))
-                            continue;
-
-                        string path = GetInfoValue(line).Replace("\"", "");
-
-                        if (path.Contains("|") && !path.Contains("|gameinfo_path|") || path.Contains(".vpk")) continue;
-
-                        if (path.Contains("*"))
-                        {
-							string fullPath = path;
-							if (fullPath.Contains(("|gameinfo_path|")))
-	                        {
-		                        string newPath = path.Replace("*", "").Replace("|gameinfo_path|", "");
-
-		                        fullPath = System.IO.Path.GetFullPath(gamePath + "\\" + newPath.TrimEnd('\\'));
-	                        }
-                            if (Path.IsPathRooted(fullPath.Replace("*", "")))
-                            {
-                                fullPath = fullPath.Replace("*", "");
-                            }
-	                        else
-	                        {
-		                        string newPath = fullPath.Replace("*", "");
-
-		                        fullPath = System.IO.Path.GetFullPath(rootPath + "\\" + newPath.TrimEnd('\\'));
-	                        }
-
-	                        if (verbose)
-		                        CompilePalLogger.LogLine("Found wildcard path: {0}", fullPath);
-
-	                        try
-	                        {
-		                        var directories = Directory.GetDirectories(fullPath);
-		                        sourceDirectories.AddRange(directories);
-	                        }
-	                        catch { }
-                        }
-                        else if (path.Contains("|gameinfo_path|"))
-                        {
-	                        string fullPath = gamePath;
-
-	                        if (verbose)
-		                        CompilePalLogger.LogLine("Found search path: {0}", fullPath);
-
-	                        sourceDirectories.Add(fullPath);
-                        }
-                        else if (Directory.Exists(path))
-                        {
-	                        if (verbose)
-		                        CompilePalLogger.LogLine("Found search path: {0}", path);
-
-	                        sourceDirectories.Add(path);
-
-                        }
-                        else
-                        {
-                            try
-                            {
-                                string fullPath = System.IO.Path.GetFullPath(rootPath + "\\" + path.TrimEnd('\\'));
-
-                                if (verbose)
-                                    CompilePalLogger.LogLine("Found search path: {0}", fullPath);
-
-                                sourceDirectories.Add(fullPath);
-                            }
-                            catch (Exception e)
-                            {
-                                CompilePalLogger.LogDebug("Failed to find search path: " + e);
-                                CompilePalLogger.LogCompileError($"Search path invalid: {rootPath + "\\" + path.TrimEnd('\\')}", new Error($"Search path invalid: {rootPath + "\\" + path.TrimEnd('\\')}", ErrorSeverity.Caution));
-                            }
-                        }
+                        string newPath = searchPath.Replace("*", "").Replace("|gameinfo_path|", "");
+                        fullPath = System.IO.Path.GetFullPath(gamePath + "\\" + newPath.TrimEnd('\\'));
+                    }
+                    if (Path.IsPathRooted(fullPath.Replace("*", "")))
+                    {
+                        fullPath = fullPath.Replace("*", "");
                     }
                     else
                     {
-                        if (line.Contains("SearchPaths"))
-                        {
-                            if (verbose)
-                                CompilePalLogger.LogLine("Found search paths...");
-                            foundSearchPaths = true;
-                            i++;
-                        }
+                        string newPath = fullPath.Replace("*", "");
+                        fullPath = System.IO.Path.GetFullPath(rootPath + "\\" + newPath.TrimEnd('\\'));
+                    }
+
+                    if (verbose)
+                        CompilePalLogger.LogLine("Found wildcard path: {0}", fullPath);
+
+                    try
+                    {
+                        var directories = Directory.GetDirectories(fullPath);
+                        sourceDirectories.AddRange(directories);
+                    }
+                    catch { }
+                }
+                else if (searchPath.Contains("|gameinfo_path|"))
+                {
+                    string fullPath = gamePath;
+
+                    if (verbose)
+                        CompilePalLogger.LogLine("Found search path: {0}", fullPath);
+
+                    sourceDirectories.Add(fullPath);
+                }
+                else if (Directory.Exists(searchPath))
+                {
+                    if (verbose)
+                        CompilePalLogger.LogLine("Found search path: {0}", searchPath);
+
+                    sourceDirectories.Add(searchPath);
+                }
+                else
+                {
+                    try
+                    {
+                        string fullPath = System.IO.Path.GetFullPath(rootPath + "\\" + searchPath.TrimEnd('\\'));
+
+                        if (verbose)
+                            CompilePalLogger.LogLine("Found search path: {0}", fullPath);
+
+                        sourceDirectories.Add(fullPath);
+                    }
+                    catch (Exception e)
+                    {
+                        CompilePalLogger.LogDebug("Failed to find search path: " + e);
+                        CompilePalLogger.LogCompileError($"Search path invalid: {rootPath + "\\" + searchPath.TrimEnd('\\')}", new Error($"Search path invalid: {rootPath + "\\" + searchPath.TrimEnd('\\')}", ErrorSeverity.Caution));
                     }
                 }
-            }
-            else
-            {
-                CompilePalLogger.LogCompileError($"Couldn't find gameinfo.txt at {gameInfo}", new Error($"Couldn't find gameinfo.txt at {gameInfo}", ErrorSeverity.Caution));
             }
 
             // find Chaos engine game mount paths
@@ -760,13 +745,12 @@ namespace CompilePalX.Compilers.BSPPack
         /// <param name="gameInfoPath">Path to gameinfo.txt</param>
         /// <param name="mountsPath">Path to mounts.kv</param>
         /// <returns>A list of additional source directories to search</returns>
-        private static List<string>? GetMountedGamesSourceDirectories(string gameInfoPath, string mountsPath)
+        private static List<string>? GetMountedGamesSourceDirectories(DataBlock gameInfo, string mountsPath)
         {
-            var data = new KV.FileData(gameInfoPath);
             CompilePalLogger.LogLineDebug("Looking for mounted games");
 
             // parse gameinfo.txt to find game mounts
-            var mounts = data.headnode.GetFirstByName("\"GameInfo\"")?.GetFirstByName("mount");
+            var mounts = gameInfo.GetFirstByName("mount");
             if (mounts == null)
             {
                 CompilePalLogger.LogLineDebug("No mounted games detected");
