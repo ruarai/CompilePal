@@ -552,7 +552,8 @@ namespace CompilePalX.Compilers.BSPPack
         /// <param name="fullpath">Full path to VScript file</param>
         /// <returns>List of VSript references</returns>
         private static readonly string[] vscriptFunctions = { "IncludeScript", "DoIncludeScript", "PrecacheSound", "PrecacheModel" };
-        public static (List<string>, List<string>, List<string>) FindVScriptDependencies(string fullpath)
+        private static readonly string[] vscriptHints = { "!CompilePal::IncludeFile", "!CompilePal::IncludeDirectory" };
+        public static (List<string>, List<string>, List<string>, List<string>, List<string>) FindVScriptDependencies(string fullpath)
         {
             var script = File.ReadAllLines(fullpath);
             var commentRegex = new Regex(@"^\/\/");
@@ -561,45 +562,59 @@ namespace CompilePalX.Compilers.BSPPack
             List<string> includedScripts = new ();
             List<string> includedModels = new ();
             List<string> includedSounds = new ();
+            List<string> includedFiles = new ();
+            List<string> includedDirectories = new ();
 
             // currently only squirrel parsing is supported
-            foreach (var line in script.Where(s => !commentRegex.IsMatch(s)))
+            foreach (var line in script)
             {
                 // statements can also be separated with semicolons
                 var statements = line.Split(";").Where(s => !string.IsNullOrWhiteSpace(s));
                 foreach (var statement in statements)
                 {
-                    if (!vscriptFunctions.Any(func => statement.Contains(func))) {
+                    var cleanStatement = statement;
+
+                    // ignore comments, except for packing hints
+                    if (commentRegex.IsMatch(statement)) {
+                        cleanStatement = commentRegex.Replace(statement, "");
+
+                        if (!vscriptHints.Any(func => cleanStatement.Contains(func))) {
+                            continue;
+                        }
+                    } else if (!vscriptFunctions.Any(func => cleanStatement.Contains(func))) {
                         continue;
                     }
 
-                    Match m = functionParametersRegex.Match(statement);
-                    if (!m.Success)
-                    {
-                        CompilePalLogger.LogLineDebug($"Failed to parse function arguments {statement} in file: {fullpath}");
+                    Match m = functionParametersRegex.Match(cleanStatement);
+                    if (!m.Success) {
+                        CompilePalLogger.LogLineDebug($"Failed to parse function arguments {cleanStatement} in file: {fullpath}");
                         continue;
                     }
+
                     // capture group 0 is always full match, 1 is capture
                     var functionParameters = m.Groups[1].Value.Split(",");
 
                     // pack imported VScripts
-                    if (statement.Contains("IncludeScript") || statement.Contains("DoIncludeScript"))
-                    {
+                    if (cleanStatement.Contains("IncludeScript") || cleanStatement.Contains("DoIncludeScript")) {
                         // only want 1st param (filename)
                         includedScripts.Add(Path.Combine("scripts", "vscripts", functionParameters[0].Replace("\"", "").Trim()));
-                    } else if (statement.Contains("PrecacheModel"))
-                    {
+                    } else if (cleanStatement.Contains("PrecacheModel")) {
                         // pack precached models
                         includedSounds.Add(functionParameters[0].Replace("\"", "").Trim());
-                    } else if (statement.Contains("PrecacheSound"))
-                    {
+                    } else if (cleanStatement.Contains("PrecacheSound")) {
                         // pack precached sounds
                         includedSounds.Add(Path.Combine("sound", functionParameters[0].Replace("\"", "").Trim()));                    
+                    } else if (cleanStatement.Contains("!CompilePal::IncludeFile")) {
+                        // pack file hints
+                        includedFiles.Add(Path.Combine(functionParameters[0].Replace("\"", "").Trim()));                    
+                    } else if (cleanStatement.Contains("!CompilePal::IncludeDirectory")) {
+                        // pack directory hints
+                        includedDirectories.Add(Path.Combine(functionParameters[0].Replace("\"", "").Trim()));                    
                     }
                 }
             }
 
-            return (includedScripts, includedModels, includedSounds);
+            return (includedScripts, includedModels, includedSounds, includedFiles, includedDirectories);
 
         }
 
@@ -923,6 +938,5 @@ namespace CompilePalX.Compilers.BSPPack
 
             return Encoding.ASCII.GetString(verString.ToArray()).Trim('\0');
         }
-
     }
 }

@@ -50,6 +50,78 @@ namespace CompilePalX.Compilers.BSPPack
             return false;
         }
 
+        /// <summary>
+        /// Adds a generic file dependency and tries to determine file type by extension
+        /// </summary>
+        /// <param name="internalPath"></param>
+        /// <param name="externalPath"></param>
+        private void AddGenericFile(string internalPath, string externalPath)
+        {
+            FileInfo fileInfo = new FileInfo(externalPath);
+
+            // try to determine file type by extension
+            switch (fileInfo.Extension)
+            {
+                case ".vmt":
+                    AddTexture(internalPath);
+                    break;
+                case ".pcf":
+                    AddParticle(internalPath);
+                    break;
+                case ".mdl":
+                    AddModel(internalPath);
+                    break;
+                case ".wav":
+                case ".mp3":
+                    AddSound(internalPath);
+                    break;
+                case ".res":
+                    AddInternalFile(internalPath, externalPath);
+                    foreach (string material in AssetUtils.findResMaterials(externalPath))
+                        AddTexture(material);
+                    break;
+                case ".nut":
+                    AddVScript(internalPath);
+                    break;
+                default:
+                    AddInternalFile(internalPath, externalPath);
+                    break;
+            }
+        }
+        private bool AddFile(string externalPath)
+        {
+            if (!File.Exists(externalPath))
+                return false;
+
+            // try to get the source directory the file is located in
+            FileInfo fileInfo = new FileInfo(externalPath);
+
+            // default base directory is the game folder
+            string baseDir = GameConfigurationManager.GameConfiguration.GameFolder;
+
+            var potentialSubDir = new List<string>(sourceDirs); // clone to prevent accidental modification
+            potentialSubDir.Remove(baseDir);
+            foreach (var folder in potentialSubDir)
+            {
+                if (fileInfo.Directory != null 
+                    && fileInfo.Directory.FullName.Contains(folder, StringComparison.OrdinalIgnoreCase))
+                {
+                    baseDir = folder;
+                    break;
+                }
+            }
+
+            // check needed for when file does not exist in any sub directory or the base directory
+            if (fileInfo.Directory != null && !fileInfo.Directory.FullName.ToLower().Contains(baseDir.ToLower())) {
+                return false;
+            }
+
+            string internalPath = Regex.Replace(externalPath, Regex.Escape(baseDir + "\\"), "", RegexOptions.IgnoreCase);
+
+            AddGenericFile(internalPath, externalPath);
+            return true;
+        }
+
         private List<string> excludedFiles;
 	    private List<string> excludedDirs;
         private List<string> excludedVpkFiles;
@@ -171,61 +243,10 @@ namespace CompilePalX.Compilers.BSPPack
             }
 
 			// add all manually included files
-			// TODO right now the manually included files search for files it depends on. Not sure if this should be default behavior
 	        foreach (var file in includeFiles)
 	        {
-				// try to get the source directory the file is located in
-				FileInfo fileInfo = new FileInfo(file);
-
-				// default base directory is the game folder
-		        string baseDir = GameConfigurationManager.GameConfiguration.GameFolder;
-
-		        var potentialSubDir = new List<string>(sourceDirs); // clone to prevent accidental modification
-				potentialSubDir.Remove(baseDir);
-		        foreach (var folder in potentialSubDir)
-		        {
-			        if (fileInfo.Directory != null 
-			            && fileInfo.Directory.FullName.Contains(folder, StringComparison.OrdinalIgnoreCase))
-			        {
-				        baseDir = folder;
-						break;
-			        }
-		        }
-
-                // check needed for when file does not exist in any sub directory or the base directory
-                if (fileInfo.Directory != null && !fileInfo.Directory.FullName.ToLower().Contains(baseDir.ToLower()))
-                {
+                if (!AddFile(file))
                     CompilePalLogger.LogCompileError($"Failed to resolve internal path for {file}, skipping\n", new Error($"Failed to resolve internal path for {file}, skipping", ErrorSeverity.Error));
-                    continue;
-                }
-
-		        string internalPath = Regex.Replace(file, Regex.Escape(baseDir + "\\"), "", RegexOptions.IgnoreCase);
-
-				// try to determine file type by extension
-				switch (fileInfo.Extension)
-		        {
-					case ".vmt":
-						AddTexture(internalPath);
-						break;
-					case ".pcf":
-						AddParticle(internalPath);
-						break;
-					case ".mdl":
-						AddModel(internalPath);
-						break;
-					case ".wav":
-					case ".mp3":
-                        AddSound(internalPath);
-						break;
-                    case ".res":
-						AddInternalFile(internalPath, file);
-                        foreach (string material in AssetUtils.findResMaterials(file))
-                            AddTexture(material);
-                        break;
-                    default:
-						AddInternalFile(internalPath, file);
-						break;
-		        }
 	        }
 		}
 
@@ -399,13 +420,37 @@ namespace CompilePalX.Compilers.BSPPack
             }
             vscriptcount++;
 
-            var (vscripts, models, sounds) = AssetUtils.FindVScriptDependencies(externalPath);
+            var (vscripts, models, sounds, includedFiles, includedDirectories) = AssetUtils.FindVScriptDependencies(externalPath);
             foreach (string vscript in vscripts)
                 AddVScript(vscript);
             foreach (string model in models)
                 AddModel(model);
             foreach (string sound in sounds)
                 AddSound(sound);
+            foreach (string internalDirectoryPath in includedDirectories)
+            {
+                var externalDirectoryPath = FindExternalDirectory(internalDirectoryPath);
+                if (externalDirectoryPath is null) {
+                    CompilePalLogger.LogCompileError($"Failed to resolve external path for VScript hint {internalDirectoryPath}, skipping\n", new Error($"Failed to resolve external path for VScript hint {internalDirectoryPath}, skipping", ErrorSeverity.Error));
+                    continue;
+                }
+
+                var files = Directory.GetFiles(externalDirectoryPath, "*", SearchOption.AllDirectories);
+                foreach (var file in files)
+                {
+                    AddFile(file);
+                }
+            }
+            foreach (string internalFilePath in includedFiles)
+            {
+                var externalFilePath = FindExternalFile(internalFilePath);
+                if (!File.Exists(externalFilePath)) {
+                    CompilePalLogger.LogCompileError($"Failed to resolve external path for VScript hint {internalFilePath}, skipping\n", new Error($"Failed to resolve external path for VScript hint {internalFilePath}, skipping", ErrorSeverity.Error));
+                    continue;
+                }
+
+                AddGenericFile(internalFilePath, externalPath);
+            }
         }
 
         private string FindExternalFile(string internalPath)
@@ -415,11 +460,25 @@ namespace CompilePalX.Compilers.BSPPack
 
 	        var sanitizedPath = SanitizePath(internalPath);
 
-			foreach (string source in sourceDirs)
-                if (File.Exists(source +"/"+ sanitizedPath))
-                    return source + "/" + sanitizedPath.Replace("\\", "/");
+            foreach (string source in sourceDirs)
+                if (File.Exists(Path.Combine(source, sanitizedPath)))
+                    return Path.Combine(source, sanitizedPath.Replace("\\", "/"));
             return "";
         }
+
+        private string? FindExternalDirectory(string internalPath)
+        {
+            // Attempts to find the directory from the internalPath
+            // returns the externalPath or null
+
+	        var sanitizedPath = SanitizePath(internalPath);
+
+            foreach (string source in sourceDirs)
+                if (Directory.Exists(Path.Combine(source, sanitizedPath)))
+                    return Path.Combine(source, sanitizedPath.Replace("\\", "/"));
+            return null;
+        }
+
 
 		private static readonly string invalidChars = Regex.Escape(new string(Path.GetInvalidPathChars()));
 		private static readonly string invalidRegString = $@"([{invalidChars}]*\.+$)|([{invalidChars}]+)";
