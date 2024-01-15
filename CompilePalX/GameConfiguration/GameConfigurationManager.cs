@@ -55,6 +55,7 @@ namespace CompilePalX
         public static void ModifyCurrentContext(string val)
         {
             val = val.Replace("COMPILE_PAL_SET ", "");
+            val = Regex.Replace(val, @"\t|\r|\n", "");
             var firstSpace = val.IndexOf(" ");
             var field = val.Substring(0, firstSpace);
             var value = val.Substring(firstSpace + 1).Replace("\"", "");
