@@ -32,6 +32,14 @@
     "Warning": ""
   },
   {
+    "Name": "Nodraw triggers",
+    "Parameter": " -nodrawtriggers",
+    "Description": "Treat trigger faces as if they were textured with nodraw, saving a small amount of lightmap space at the expense of debugability.",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": "Only affects triggers using %compiletrigger. Func_occluders should use toolsoccluder instead of toolstrigger, to avoid issues."
+  },
+  {
     "Name": "Allow Detail Cracks",
     "Parameter": " -allowdetailcracks",
     "Description": "Don't fixup t-junctions on func_detail.",

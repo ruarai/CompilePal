@@ -61,12 +61,12 @@
     "Description": "Trace N times as many rays for indirect light and sky ambient.",
     "Value": null,
     "CanHaveValue": true,
-    "Warning": ""
+    "Warning": "Normal default is 1; -final default is 16"
   },
   {
     "Name": "Lights File",
     "Parameter": " -lights",
-    "Description": "Load a custom lights file in addition to lights.rad and map-specific lights file.",
+    "Description": "Load a custom lights (RAD) file in addition to lights.rad and map-specific lights file.",
     "Value": null,
     "ValueIsFile": true,
     "CanHaveValue": true,
@@ -75,7 +75,7 @@
   {
     "Name": "Smooth",
     "Parameter": " -smooth",
-    "Description": "Set the threshold for smoothing groups, in degrees.",
+    "Description": "Set the smoothing threshold for brush faces without smoothing groups, in degrees.",
     "Value": null,
     "CanHaveValue": true,
     "Warning": ""
@@ -102,7 +102,7 @@
     "Description": "Generate per-vertex prop_static lighting (uses higher/final quality processing)",
     "Value": null,
     "CanHaveValue": false,
-    "Warning": "",
+    "Warning": "always enabled when compiling with -final",
     "CompatibleGames": [
       730 // csgo
     ] 
@@ -167,10 +167,10 @@
   {
     "Name": "Texture Shadows",
     "Parameter": " -TextureShadows",
-    "Description": "Generates lightmap shadows from $translucent surfaces of models. (Not brushes)",
+    "Description": "Generates lightmap shadows from $alphatest and $translucent surfaces of models. (Not brushes)",
     "Value": null,
     "CanHaveValue": false,
-    "Warning": ""
+    "Warning": "Models must be compiled with $casttextureshadows or be listed with forcetextureshadow in the lights file"
   },
   {
     "Name": "AO Scale",
