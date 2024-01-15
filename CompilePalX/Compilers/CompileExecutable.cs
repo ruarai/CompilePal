@@ -13,14 +13,8 @@ namespace CompilePalX.Compilers
 {
     class CompileExecutable : CompileProcess
     {
-        public CompileExecutable(string metadata)
-            : base(metadata)
-        {
-            if (!Directory.Exists(runningDirectory))
-                Directory.CreateDirectory(runningDirectory);
-        }
-
-        private static string runningDirectory = ".";
+        public CompileExecutable(string metadata) : base(metadata) { }
+        
 
         public override void Run(CompileContext c, CancellationToken cancellationToken)
         {
@@ -63,7 +57,7 @@ namespace CompilePalX.Compilers
 
             Process.StartInfo.FileName = GameConfigurationManager.SubstituteValues(Metadata.Path);
             Process.StartInfo.Arguments = string.Join(" ", args);
-            Process.StartInfo.WorkingDirectory = runningDirectory;
+            Process.StartInfo.WorkingDirectory = GameConfigurationManager.GameConfiguration.BinFolder;
 
             CompilePalLogger.LogLineDebug($"Running '{Process.StartInfo.FileName}' with args '{Process.StartInfo.Arguments}'");
 
