@@ -283,6 +283,8 @@ namespace CompilePalX.Compilers.BSPPack
         public bool AddInternalFile(string internalPath, string externalPath)
         {
                 internalPath = internalPath.Replace("\\", "/");
+                // sometimes internal paths can be relative, ex. "materials/vgui/../hud/logos/spray.vmt" should be stored as "materials/hud/logos/spray.vmt".
+                internalPath = Regex.Replace(internalPath, @"\/.*\/\.\.", "");
                 if (!Files.ContainsKey(internalPath))
                 {
                     return AddFile(internalPath, externalPath);
