@@ -318,7 +318,17 @@ namespace CompilePalX.Compilers.BSPPack
                             AddModel(gib);
 
                     if (reference.EndsWith(".vtx"))
-                        vtxMaterialNames.AddRange(AssetUtils.FindVtxMaterials(ext_path));
+                    {
+                        try
+                        {
+                            vtxMaterialNames.AddRange(AssetUtils.FindVtxMaterials(ext_path));
+                        } catch (Exception e)
+                        {
+                            ExceptionHandler.LogException(e, false);
+                            CompilePalLogger.LogCompileError($"Failed to find vtx materials for file {ext_path}", new Error($"Failed to find vtx materials for file {ext_path}", ErrorSeverity.Error));
+                        }
+
+                    }
                 }
 
                 Tuple<List<string>, List<string>> mdlMatsAndModels;
