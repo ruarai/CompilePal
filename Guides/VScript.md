@@ -1,5 +1,5 @@
 # VScript Packing Hints
-Packing hints can be used to pack resources whose paths are generated at runtime
+Packing hints are special comments that can be used to pack resources whose paths are generated at runtime
 
 Example:
 ```js
