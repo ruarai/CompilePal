@@ -43,6 +43,7 @@ Get the latest features without having to wait. Experimental releases may be uns
 * [Custom Compile Step Collection](Guides/CustomCollection.md)
 * [Command Line Arguments](Guides/CMDArgs.md)
 * [Registry Values](Guides/Registry.md)
+* [VScript Packing Hints](Guides/VScript.md)
 
 ## Contributing
 
