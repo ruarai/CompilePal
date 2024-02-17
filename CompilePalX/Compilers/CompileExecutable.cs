@@ -57,7 +57,7 @@ namespace CompilePalX.Compilers
 
             Process.StartInfo.FileName = GameConfigurationManager.SubstituteValues(Metadata.Path);
             Process.StartInfo.Arguments = string.Join(" ", args);
-            Process.StartInfo.WorkingDirectory = GameConfigurationManager.GameConfiguration.BinFolder;
+            Process.StartInfo.WorkingDirectory = Metadata.WorkingDirectory != null ? GameConfigurationManager.SubstituteValues(Metadata.WorkingDirectory, quote: false) : ".";
 
             CompilePalLogger.LogLineDebug($"Running '{Process.StartInfo.FileName}' with args '{Process.StartInfo.Arguments}'");
 

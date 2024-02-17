@@ -9,5 +9,6 @@
   "PresetDefault": false,
   "BasisString": " -treeinfo $mapCopyLocation$",
   "SupportsBSP": true,
-  "CheckExitCode": false 
+  "CheckExitCode": false,
+  "WorkingDirectory": "$binFolder$"
 }

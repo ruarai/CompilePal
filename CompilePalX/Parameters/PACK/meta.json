@@ -11,5 +11,5 @@
   "SupportsBSP": true,
   "IncompatibleGames": [
     4000 // gmod. Certain distributions dont have bspzip.exe
-  ] 
+  ]
 }

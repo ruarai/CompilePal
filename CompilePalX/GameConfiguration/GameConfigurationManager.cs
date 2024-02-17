@@ -19,32 +19,38 @@ namespace CompilePalX
         private static string GameConfigurationFolder = "./GameConfiguration";
         private static readonly string GameConfigurationsPath = Path.Combine(GameConfigurationFolder, "gameConfigs.json");
 
-        public static string SubstituteValues(string text, string mapFile = "")
+        public static string SubstituteValues(string text, string mapFile = "", bool quote = true)
         {
-            text = text.Replace("$vmfFile$", $"\"{mapFile}\"");
-            text = text.Replace("$map$", $"\"{Path.GetFileNameWithoutExtension(mapFile)}\"");
-            text = text.Replace("$bsp$", $"\"{Path.ChangeExtension(mapFile, "bsp")}\"");
+            text = text.Replace("$vmfFile$", FormatValue(mapFile, quote));
+            text = text.Replace("$map$", FormatValue(Path.GetFileNameWithoutExtension(mapFile), quote));
+            text = text.Replace("$bsp$", FormatValue(Path.ChangeExtension(mapFile, "bsp"), quote));
 
-            text = text.Replace("$mapCopyLocation$",
-	            $"\"{Path.Combine(GameConfiguration.MapFolder, Path.ChangeExtension(Path.GetFileName(mapFile), "bsp"))}\"");
+            text = text.Replace("$mapCopyLocation$", FormatValue(Path.Combine(GameConfiguration.MapFolder, Path.ChangeExtension(Path.GetFileName(mapFile), "bsp")), quote));
 
-            text = text.Replace("$game$", $"\"{GameConfiguration.GameFolder}\"");
-            text = text.Replace("$gameEXE$", $"\"{GameConfiguration.GameEXE}\"");
-            text = text.Replace("$binFolder$", $"\"{GameConfiguration.BinFolder}\"");
-            text = text.Replace("$mapFolder$", $"\"{GameConfiguration.MapFolder}\"");
-            text = text.Replace("$gameName$", $"\"{GameConfiguration.Name}\"");
-            text = text.Replace("$sdkFolder$", $"\"{GameConfiguration.SDKMapFolder}\"");
-
-
-            text = text.Replace("$vbsp$", $"\"{GameConfiguration.VBSP}\"");
-            text = text.Replace("$vvis$", $"\"{GameConfiguration.VVIS}\"");
-            text = text.Replace("$vrad$", $"\"{GameConfiguration.VRAD}\"");
+            text = text.Replace("$game$", FormatValue(GameConfiguration.GameFolder, quote));
+            text = text.Replace("$gameEXE$", FormatValue(GameConfiguration.GameEXE, quote));
+            text = text.Replace("$binFolder$", FormatValue(GameConfiguration.BinFolder, quote));
+            text = text.Replace("$mapFolder$", FormatValue(GameConfiguration.MapFolder, quote));
+            text = text.Replace("$gameName$", FormatValue(GameConfiguration.Name, quote));
+            text = text.Replace("$sdkFolder$", FormatValue(GameConfiguration.SDKMapFolder, quote));
 
 
-            text = text.Replace("$bspZip$", $"\"{GameConfiguration.BSPZip}\"");
-            text = text.Replace("$vbspInfo$", $"\"{GameConfiguration.VBSPInfo}\"");
+            text = text.Replace("$vbsp$", FormatValue(GameConfiguration.VBSP, quote));
+            text = text.Replace("$vvis$", FormatValue(GameConfiguration.VVIS, quote));
+            text = text.Replace("$vrad$", FormatValue(GameConfiguration.VRAD, quote));
 
 
+            text = text.Replace("$bspZip$", FormatValue(GameConfiguration.BSPZip, quote));
+            text = text.Replace("$vbspInfo$", FormatValue(GameConfiguration.VBSPInfo, quote));
+
+
+            return text;
+        }
+
+        private static string FormatValue(string text, bool quote)
+        {
+            if (quote)
+                return $"\"{text}\"";
             return text;
         }
 

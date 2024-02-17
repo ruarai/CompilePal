@@ -8,5 +8,6 @@
   "Warning": "",
   "PresetDefault": false,
   "BasisString": " -s",
-  "SupportsBSP": true
+  "SupportsBSP": true,
+  "WorkingDirectory": "$binFolder$"
 }

@@ -202,6 +202,7 @@ namespace CompilePalX
         public bool SupportsBSP { get; set; } = false;
         public HashSet<int>? IncompatibleGames { get; set; }
         public HashSet<int>? CompatibleGames { get; set; }
+        public string? WorkingDirectory { get; set; }
     }
 
     class CompileContext

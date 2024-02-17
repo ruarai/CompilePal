@@ -7,11 +7,12 @@
   "Description": "Command line tool for modifying BSP files.",
   "Warning": "",
   "PresetDefault": false,
-  "Arguments":  " -game $game$ ",
+  "Arguments": " -game $game$ ",
   "BasisString": " $mapCopyLocation$",
   "CheckExitCode": false,
   "SupportsBSP": true,
   "IncompatibleGames": [
     4000 // gmod. Certain distributions dont have bspzip.exe
-  ] 
+  ],
+  "WorkingDirectory": "$binFolder$"
 }

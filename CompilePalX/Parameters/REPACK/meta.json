@@ -14,5 +14,6 @@
     240, // cs:s
     669270 // momentum mod
   ],
-  "CheckExitCode": false 
+  "CheckExitCode": false,
+  "WorkingDirectory": "$binFolder$"
 }

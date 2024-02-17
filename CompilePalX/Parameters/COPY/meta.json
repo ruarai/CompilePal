@@ -7,5 +7,6 @@
   "Description": "Copies the .bsp from the mapsrc folder to maps folder.",
   "Warning": "",
   "PresetDefault": false,
-  "BasisString": " /y /f $bsp$ $mapFolder$"
+  "BasisString": " /y /f $bsp$ $mapFolder$",
+  "WorkingDirectory": "$binFolder$"
 }
