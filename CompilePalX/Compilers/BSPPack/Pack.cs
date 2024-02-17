@@ -243,7 +243,16 @@ namespace CompilePalX.Compilers.BSPPack
 
                 CompilePalLogger.LogLine("Reading BSP...");
 
-                BSP map = new BSP(new FileInfo(bspPath));
+                BSP map;
+                try
+                {
+                    map = new BSP(new FileInfo(bspPath));
+                } catch (CompressedBSPException)
+                {
+                    CompilePalLogger.LogLineCompileError($"BSPZIP does not support compressed BSPs", new Error($"BSPZIP does not support compressed BSPs", ErrorSeverity.FatalError));
+                    return;
+                }
+
                 AssetUtils.findBspUtilityFiles(map, sourceDirectories, renamenav, genParticleManifest);
 
                 // give files unique names based on map so they dont get overwritten

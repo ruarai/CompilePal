@@ -12,10 +12,10 @@ namespace CompilePalX.Compilers.BSPPack
 	// You can find information about the file format here
 	// https://developer.valvesoftware.com/wiki/Source_BSP_File_Format#BSP_file_header
 
+    class CompressedBSPException : Exception { }
+
 	class BSP
     {
-        private FileStream bsp;
-        private BinaryReader reader;
         private KeyValuePair<int, int>[] offsets; // offset/length
         private static readonly char[] SpecialCaracters = { '*', '#', '@', '>', '<', '^', '(', ')', '}', '$', '!', '?', ' ' };
 
@@ -67,53 +67,63 @@ namespace CompilePalX.Compilers.BSPPack
             this.file = file;
 
             offsets = new KeyValuePair<int, int>[64];
-            using (bsp = new FileStream(file.FullName, FileMode.Open))
-            using (reader = new BinaryReader(bsp))
+            using (var bsp = new FileStream(file.FullName, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
-                bsp.Seek(4, SeekOrigin.Begin); //skip header
-                this.bspVersion = reader.ReadInt32();
-
-                //hack for detecting l4d2 maps
-                if (reader.ReadInt32() == 0 && this.bspVersion == 21)
-                        isL4D2 = true;
-
-                // reset reader position
-                bsp.Seek(-4, SeekOrigin.Current);
-
-                //gathers an array of offsets (where things are located in the bsp)
-                for (int i = 0; i < offsets.GetLength(0); i++)
+                using (var reader = new BinaryReader(bsp))
                 {
-                    // l4d2 has different lump order
-                    if (isL4D2)
+                    bsp.Seek(4, SeekOrigin.Begin); //skip header
+                    this.bspVersion = reader.ReadInt32();
+
+                    //hack for detecting l4d2 maps
+                    if (reader.ReadInt32() == 0 && this.bspVersion == 21)
+                            isL4D2 = true;
+
+                    // reset reader position
+                    bsp.Seek(-4, SeekOrigin.Current);
+
+                    //gathers an array of offsets (where things are located in the bsp)
+                    for (int i = 0; i < offsets.GetLength(0); i++)
                     {
-                        bsp.Seek(4, SeekOrigin.Current); //skip version
-                        offsets[i] = new KeyValuePair<int, int>(reader.ReadInt32(), reader.ReadInt32());
-                        bsp.Seek(4, SeekOrigin.Current); //skip id
+                        // l4d2 has different lump order
+                        if (isL4D2)
+                        {
+                            bsp.Seek(4, SeekOrigin.Current); //skip version
+                            offsets[i] = new KeyValuePair<int, int>(reader.ReadInt32(), reader.ReadInt32());
+                            bsp.Seek(4, SeekOrigin.Current); //skip id
+                        }
+                        else
+                        {
+                            offsets[i] = new KeyValuePair<int, int>(reader.ReadInt32(), reader.ReadInt32());
+                            bsp.Seek(8, SeekOrigin.Current); //skip id and version
+                        }
                     }
-                    else
+
+                    // try reading first lump id to see if it's compressed
+                    bsp.Seek(offsets[0].Key, SeekOrigin.Begin);
+                    if (reader.ReadChars(4).SequenceEqual("LZMA".ToCharArray()))
                     {
-                        offsets[i] = new KeyValuePair<int, int>(reader.ReadInt32(), reader.ReadInt32());
-                        bsp.Seek(8, SeekOrigin.Current); //skip id and version
+                        throw new CompressedBSPException();
                     }
+
+
+                    buildEntityList(bsp, reader);
+
+                    buildEntModelList();
+                    buildModelList(bsp, reader);
+
+                    buildParticleList();
+
+                    buildEntTextureList(bsp, reader);
+                    buildTextureList(bsp, reader);
+
+                    buildEntSoundList();
+
+                    buildMiscList();
                 }
-
-                buildEntityList();
-
-                buildEntModelList();
-                buildModelList();
-
-                buildParticleList();
-
-                buildEntTextureList();
-                buildTextureList();
-
-                buildEntSoundList();
-
-                buildMiscList();
             }
         }
 
-        public void buildEntityList()
+        public void buildEntityList(FileStream bsp, BinaryReader reader)
         {
             entityList = new List<Dictionary<string, string>>();
             entityListArrayForm = new List<List<Tuple<string, string>>>();
@@ -167,7 +177,7 @@ namespace CompilePalX.Compilers.BSPPack
             }
         }
 
-        public void buildTextureList()
+        public void buildTextureList(FileStream bsp, BinaryReader reader)
         {
             // builds the list of textures applied to brushes
 
@@ -201,7 +211,7 @@ namespace CompilePalX.Compilers.BSPPack
             TextureList.Add("materials/vgui/maps/menu_photos_" + mapname + ".vmt");
         }
 
-        public void buildEntTextureList()
+        public void buildEntTextureList(FileStream bsp, BinaryReader reader)
         {
             // builds the list of textures referenced in entities
 
@@ -348,7 +358,7 @@ namespace CompilePalX.Compilers.BSPPack
             }
         }
 
-        public void buildModelList()
+        public void buildModelList(FileStream bsp, BinaryReader reader)
         {
             // builds the list of models that are from prop_static
 
