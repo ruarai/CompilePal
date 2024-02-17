@@ -35,7 +35,8 @@ My Plugin/
   "SupportsBSP": "bool",
   "CheckExitCode": "bool",
   "CompatibleGames": "int[]",
-  "IncompatibleGames": "int[]"
+  "IncompatibleGames": "int[]",
+  "WorkingDirectory": "string"
 }
 ```
 | Field | Description |
@@ -43,7 +44,7 @@ My Plugin/
 | Name    | Plugin Name. Must match the folder name.
 | Description | Description shown in the process adder dialog.
 | Warning | Warning shown in the process adder dialog.
-| Path    | Path to a program, relative to the Compile Pal folder. Can be templated, see [Variable Substitution](#Variable-Substitution). (For versions <=v27.28, this is relative to the Compile Pal/CompileLogs folder)
+| Path    | Path to a program, relative to the working directory (by default the Compile Pal folder). Can be templated, see [Variable Substitution](#Variable-Substitution). (For versions <=v27.28, this is relative to the Compile Pal/CompileLogs folder)
 | Arguments | The first arguments passed to the program. Can be templated, see [Variable Substitution](#Variable-Substitution). (>=v27.28)
 | BasisString | The last arguments passed to the program. Can be templated, see [Variable Substitution](#Variable-Substitution). Order of arguments is `Arguments` → `Arguments selected by user` → `BasisString`.
 | Order   | Determines when your step should run. For example, an Order of 1.5 would run between VBSP and VVIS. For the complete ordering, look at the existing compile steps in the `Parameters` folder.
@@ -53,6 +54,7 @@ My Plugin/
 | CheckExitCode | Checks for process exit code and raises a warning when it is not 0. Defaults to `true`. (>=v27.31)
 | CompatibleGames | Whitelist of Steam App IDs for games that this plugin is compatible with. Will override IncompatibleGames if both are set. (>=v27.29)
 | IncompatibleGames | Blacklist of Steam App IDs for games that this plugin is not compatible with. (>=v27.29)
+| WorkingDirectory | Working Directory of the plugin. Defaults to the Compile Pal folder. Can be templated, see [Variable Substitution](#Variable-Substitution). (>=v28.4)
 
 ### Variable Substitution
 | Variable | Description |
