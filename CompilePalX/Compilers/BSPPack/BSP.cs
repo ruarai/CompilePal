@@ -113,7 +113,7 @@ namespace CompilePalX.Compilers.BSPPack
 
                     buildParticleList();
 
-                    buildEntTextureList(bsp, reader);
+                    buildEntTextureList();
                     buildTextureList(bsp, reader);
 
                     buildEntSoundList();
@@ -157,7 +157,7 @@ namespace CompilePalX.Compilers.BSPPack
 
 
 					string rawent = Encoding.ASCII.GetString(ents.ToArray());
-                    Dictionary<string, string> entity = new Dictionary<string, string>();
+                    Dictionary<string, string> entity = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
                     var entityArrayFormat = new List<Tuple<string, string>>();
 					// split on \n, ignore \n inside of quotes
                     foreach (string s in Regex.Split(rawent, "(?=(?:(?:[^\"]*\"){2})*[^\"]*$)\\n"))
@@ -211,7 +211,7 @@ namespace CompilePalX.Compilers.BSPPack
             TextureList.Add("materials/vgui/maps/menu_photos_" + mapname + ".vmt");
         }
 
-        public void buildEntTextureList(FileStream bsp, BinaryReader reader)
+        public void buildEntTextureList()
         {
             // builds the list of textures referenced in entities
 
