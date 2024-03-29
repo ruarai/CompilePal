@@ -169,11 +169,12 @@ namespace CompilePalX
 	                OrderManager.UpdateOrder();
 
                     GameConfigurationManager.BackupCurrentContext();
+                    var buildContext = GameConfigurationManager.BuildContext(map);
 					foreach (var compileProcess in OrderManager.CurrentOrder)
 					{
                         cancellationToken.ThrowIfCancellationRequested();
                         currentCompileProcess = compileProcess;
-                        compileProcess.Run(GameConfigurationManager.BuildContext(map), cancellationToken);
+                        compileProcess.Run(buildContext, cancellationToken);
 
                         compileErrors.AddRange(currentCompileProcess.CompileErrors);
 
@@ -195,7 +196,8 @@ namespace CompilePalX
                     }
 
                     mapErrors.Add(new MapErrors { MapName = cleanMapName, Errors = compileErrors });
-                    
+
+                    CompilePalLogger.LogLineFileLocation($"Compiled Map: {buildContext.CopyLocation}", buildContext.CopyLocation);
                     GameConfigurationManager.RestoreCurrentContext();
                 }
 

@@ -21,6 +21,7 @@ using System.Runtime.InteropServices;
 namespace CompilePalX.Compiling
 {
     internal delegate Run? LogWrite(string s, Brush b);
+    internal delegate Run? LogWriteURL(string s, string url);
     internal delegate void LogBacktrack(List<Run> l);
     internal delegate void CompileErrorLogWrite(string errorText, Error e);
 
@@ -40,6 +41,7 @@ namespace CompilePalX.Compiling
             LogLine($"Locale: {CultureInfo.CurrentCulture.Name}");
         }
         public static event LogWrite OnWrite;
+        public static event LogWriteURL OnWriteURL;
         public static event LogBacktrack OnBacktrack;
         public static event CompileErrorLogWrite OnErrorLog;
 
@@ -87,6 +89,11 @@ namespace CompilePalX.Compiling
         public static Run? LogLine(string s = "", params object[] formatStrings)
         {
             return Log(s + Environment.NewLine, formatStrings);
+        }
+
+        public static Run? LogLineFileLocation(string s, string url)
+        {
+            return OnWriteURL.Invoke(s + Environment.NewLine, url);
         }
 
         public static void LogDebug(string s)

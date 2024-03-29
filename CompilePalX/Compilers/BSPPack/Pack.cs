@@ -429,7 +429,6 @@ namespace CompilePalX.Compilers.BSPPack
                 if (additionalFiles != "")
                     CompilePalLogger.LogLine("Additional Files: " + additionalFiles);
                 CompilePalLogger.LogLine("---------------------");
-
             }
             catch (FileNotFoundException e)
             {

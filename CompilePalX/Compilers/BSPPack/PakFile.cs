@@ -150,7 +150,7 @@ namespace CompilePalX.Compilers.BSPPack
 	        this.excludedFiles = excludedFiles;
 	        this.excludedDirs = excludedDirs;
 	        this.excludedVpkFiles = excludedVpkFiles;
-            Files = new Dictionary<string, string>();
+            Files = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
 
             if (bsp.nav.Key != default(string))
                 AddFile(bsp.nav, (b => b.nav = default), bsp);

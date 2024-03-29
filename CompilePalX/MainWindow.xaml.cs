@@ -71,6 +71,7 @@ namespace CompilePalX
             CompilePalLogger.OnWrite += Logger_OnWrite;
             CompilePalLogger.OnBacktrack += Logger_OnBacktrack;
             CompilePalLogger.OnErrorLog += CompilePalLogger_OnError;
+            CompilePalLogger.OnWriteURL += CompilePalLogger_OnWriteFileLocation;
 
             UpdateManager.OnUpdateFound += UpdateManager_OnUpdateFound;
             UpdateManager.CheckVersion();
@@ -126,7 +127,7 @@ namespace CompilePalX
             }
         }
 
-		public Task<MessageDialogResult> ShowModal(string title, string message, MessageDialogStyle style = MessageDialogStyle.Affirmative, MetroDialogSettings settings = null)
+        public Task<MessageDialogResult> ShowModal(string title, string message, MessageDialogStyle style = MessageDialogStyle.Affirmative, MetroDialogSettings settings = null)
 		{
 			return this.Dispatcher.Invoke(() => this.ShowMessageAsync(title, message, style, settings));
 		}
@@ -247,6 +248,36 @@ namespace CompilePalX
                     run.Text = "";
                 }
             });
+        }
+
+        private Run? CompilePalLogger_OnWriteFileLocation(string s, string url)
+        {
+            return Dispatcher.Invoke(() =>
+            {
+                if (string.IsNullOrEmpty(s))
+                    return null;
+
+                Hyperlink link = new Hyperlink();
+                link.NavigateUri = new Uri(url);
+                link.RequestNavigate += Link_RequestNavigate;
+
+                Run textRun = new Run(s);
+                textRun.Foreground = FindResource("CompilePal.Brushes.Link") as Brush;
+                link.Inlines.Add(textRun);
+
+                OutputParagraph.Inlines.Add(link);
+
+                // scroll to end only if already scrolled to the bottom. 1.0 is an epsilon value for double comparison
+                if (CompileOutputTextbox.VerticalOffset + CompileOutputTextbox.ViewportHeight >= CompileOutputTextbox.ExtentHeight - 1.0)
+                    CompileOutputTextbox.ScrollToEnd();
+
+                return textRun;
+            });
+        }
+
+        private void Link_RequestNavigate(object sender, RequestNavigateEventArgs e)
+        {
+            Process.Start("explorer", $"/select, \"{e.Uri.ToString()}\"");
         }
 
         async void UpdateManager_OnUpdateFound()
@@ -1026,6 +1057,11 @@ namespace CompilePalX
                 // update filters on sources
                 SetSources();
             }
+        }
+
+        private void SettingsButton_Click(object sender, RoutedEventArgs e)
+        {
+            new SettingsWindow().Show();
         }
     }
 
