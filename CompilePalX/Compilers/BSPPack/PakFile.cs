@@ -441,16 +441,19 @@ namespace CompilePalX.Compilers.BSPPack
                 AddSound(sound);
             foreach (string internalDirectoryPath in includedDirectories)
             {
-                var externalDirectoryPath = FindExternalDirectory(internalDirectoryPath);
-                if (externalDirectoryPath is null) {
+                var externalDirectoriesPaths = FindExternalDirectories(internalDirectoryPath);
+                if (externalDirectoriesPaths.Count == 0) {
                     CompilePalLogger.LogCompileError($"Failed to resolve external path for VScript hint {internalDirectoryPath}, skipping\n", new Error($"Failed to resolve external path for VScript hint {internalDirectoryPath}, skipping", ErrorSeverity.Error));
                     continue;
                 }
 
-                var files = Directory.GetFiles(externalDirectoryPath, "*", SearchOption.AllDirectories);
-                foreach (var file in files)
+                foreach (var externalDirectoryPath in externalDirectoriesPaths)
                 {
-                    AddFile(file);
+                    var files = Directory.GetFiles(externalDirectoryPath, "*", SearchOption.AllDirectories);
+                    foreach (var file in files)
+                    {
+                        AddFile(file);
+                    }
                 }
             }
             foreach (string internalFilePath in includedFiles)
@@ -478,17 +481,24 @@ namespace CompilePalX.Compilers.BSPPack
             return "";
         }
 
-        private string? FindExternalDirectory(string internalPath)
+        private List<string> FindExternalDirectories(string internalPath)
         {
             // Attempts to find the directory from the internalPath
             // returns the externalPath or null
 
-	        var sanitizedPath = SanitizePath(internalPath);
+            // Note: unlike with files, the user can have several folders
+            // with matching internal names but with different contents
+            // spread across several custom folders 
+            // If the user desires a folder override rather than a merge
+            // they can use -excludedir to exclude the unwanted folder
+
+            var sanitizedPath = SanitizePath(internalPath);
+            var externalDirs = new List<string>();
 
             foreach (string source in sourceDirs)
                 if (Directory.Exists(Path.Combine(source, sanitizedPath)))
-                    return Path.Combine(source, sanitizedPath.Replace("\\", "/"));
-            return null;
+                    externalDirs.Add(Path.Combine(source, sanitizedPath.Replace("\\", "/")));
+            return externalDirs;
         }
 
 
