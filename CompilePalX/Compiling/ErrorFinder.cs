@@ -19,53 +19,49 @@ namespace CompilePalX
     {
         private static List<Error> errorList = new List<Error>();
 
-        //interlopers list of errors
-        private static string errorURL = "https://www.interlopers.net/includes/errorpage/errorChecker.txt";
-
         private static Regex errorDescriptionPattern = new Regex("<h4>(.*?)</h4>");
 
         private static string errorStyle = Path.Combine("./Compiling", "errorstyle.html");
         private static string errorCache = Path.Combine("./Compiling", "errors.txt");
-        public static void Init()
+        public static void Init(bool refresh = false)
         {
-            Thread t = new Thread(AsyncInit);
+            Thread t = new Thread(() => AsyncInit(ConfigurationManager.Settings.ErrorSourceURL, ConfigurationManager.Settings.ErrorCacheExpirationDays, refresh));
             t.Start();
         }
 
-        static async void AsyncInit()
+        static async void AsyncInit(string errorURL, int errorCacheExpirationDays, bool refresh)
         {
             try
             {
-                if (File.Exists(errorCache) && (DateTime.Now.Subtract(File.GetLastWriteTime(errorCache)).TotalDays < 7))
+                if (!refresh && (File.Exists(errorCache) && (DateTime.Now.Subtract(File.GetLastWriteTime(errorCache)).TotalDays < errorCacheExpirationDays)))
                 {
                     LoadErrorData(File.ReadAllText(errorCache));
+                    return;
                 }
-                else
+                
+                ServicePointManager.Expect100Continue = true;
+                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+
+                try
                 {
-                    ServicePointManager.Expect100Continue = true;
-                    ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+                    var c = new HttpClient();
+                    string result = await c.GetStringAsync(new Uri(errorURL));
 
-                    try
+                    LoadErrorData(result);
+                    await File.WriteAllTextAsync(errorCache, result);
+                }
+                catch (Exception e)
+                {
+                    // fallback to cache if download fails
+                    ExceptionHandler.LogException(e, false);
+                    if (File.Exists((errorCache)))
                     {
-	                    var c = new HttpClient();
-	                    string result = await c.GetStringAsync(new Uri(errorURL));
-
-	                    LoadErrorData(result);
-						await File.WriteAllTextAsync(errorCache, result);
+                        CompilePalLogger.LogLineDebug("Loading error data from cache");
+                        LoadErrorData(await File.ReadAllTextAsync(errorCache));
                     }
-                    catch (Exception e)
+                    else
                     {
-						// fallback to cache if download fails
-						ExceptionHandler.LogException(e, false);
-                        if (File.Exists((errorCache)))
-                        {
-                            CompilePalLogger.LogLineDebug("Loading error data from cache");
-                            LoadErrorData(await File.ReadAllTextAsync(errorCache));
-                        }
-                        else
-                        {
-                            CompilePalLogger.LogLineDebug($"Error cache not found: {errorCache}");
-                        }
+                        CompilePalLogger.LogLineDebug($"Error cache not found: {errorCache}");
                     }
                 }
             }

@@ -12,6 +12,7 @@ using CompilePalX.Compilers;
 using CompilePalX.Compilers.BSPPack;
 using CompilePalX.Compilers.UtilityProcess;
 using CompilePalX.Compiling;
+using CompilePalX.Configuration;
 using Newtonsoft.Json;
 
 namespace CompilePalX
@@ -62,11 +63,13 @@ namespace CompilePalX
     {
         public static ObservableCollection<CompileProcess> CompileProcesses = new ObservableCollection<CompileProcess>();
         public static ObservableCollection<Preset> KnownPresets = new();
+        public static Settings Settings = new Settings();
 
         public static Preset? CurrentPreset = null;
 
         private static readonly string ParametersFolder = "./Parameters";
         private static readonly string PresetsFolder = "./Presets";
+        private static readonly string SettingsFile = "./Settings.json";
         
 
         public static void AssembleParameters()
@@ -190,6 +193,24 @@ namespace CompilePalX
             }
         }
 
+        public static void LoadSettings()
+        {
+            if (!File.Exists(SettingsFile))
+            {
+                CompilePalLogger.LogLine("No settings file found, falling back to default");
+                return;
+            }
+
+            var settings = JsonConvert.DeserializeObject<Settings>(File.ReadAllText(SettingsFile));
+            if (settings is null)
+            {
+                CompilePalLogger.LogLine("Failed to load settings, falling back to default");
+                return;
+            }
+
+            Settings = settings;
+        }
+
         public static void SavePresets()
         {
             foreach (var knownPreset in KnownPresets)
@@ -229,6 +250,13 @@ namespace CompilePalX
 
                 File.WriteAllText(jsonMetadata, JsonConvert.SerializeObject(process.Metadata, Formatting.Indented));
             }
+        }
+
+        public static void SaveSettings(Settings settings)
+        {
+            File.WriteAllText(SettingsFile, JsonConvert.SerializeObject(settings, Formatting.Indented));
+            Settings = settings;
+            ErrorFinder.Init(true);
         }
 
         public static Preset NewPreset(Preset preset)

@@ -1,0 +1,26 @@
+﻿<controls:MetroWindow x:Class="CompilePalX.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+        xmlns:local="clr-namespace:CompilePalX"
+        mc:Ignorable="d"
+        Title="Settings"
+          IconEdgeMode="Aliased" ShowIconOnTitleBar="False"
+          Height="450" Width="800"
+          MinHeight="450" MinWidth="800"
+          BorderBrush="{DynamicResource MahApps.Brushes.Accent}" BorderThickness="1" >
+    <controls:MetroWindow.WindowButtonCommands>
+        <controls:WindowButtonCommands LightCloseButtonStyle="{StaticResource LightButtonStyle}" LightMinButtonStyle="{StaticResource LightButtonStyle}" LightMaxButtonStyle="{StaticResource LightButtonStyle}"/>
+    </controls:MetroWindow.WindowButtonCommands>
+    <Grid>
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <StackPanel Orientation="Vertical" Margin="20, 10, 20, 20" FocusManager.FocusedElement="{Binding ElementName=Name}">
+                <TextBox Template="{StaticResource LabeledTextbox}" Text="{Binding Path=ErrorSourceURL, Mode=TwoWay}" Tag="Error Source" Name="ErrorSourceURL"/>
+                <TextBox Template="{StaticResource LabeledTextbox}" Text="{Binding Path=ErrorCacheExpirationDays , Mode=TwoWay}" Tag="Error Cache Duration" Name="ErrorCacheDurationDays" ToolTip="How many days to cache error information"/>
+                <Button Click="SaveButton_Click" Margin="0, 10, 0, 0">Save</Button>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</controls:MetroWindow>

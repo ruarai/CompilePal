@@ -13,40 +13,6 @@
         <controls:WindowButtonCommands LightCloseButtonStyle="{StaticResource LightButtonStyle}" LightMinButtonStyle="{StaticResource LightButtonStyle}" LightMaxButtonStyle="{StaticResource LightButtonStyle}"/>
     </controls:MetroWindow.WindowButtonCommands>
 
-    <controls:MetroWindow.Resources>
-        <ControlTemplate x:Key="LabeledTextbox" TargetType="TextBox">
-            <StackPanel Margin="0, 0, 0, 5">
-                <StackPanel Orientation="Horizontal">
-                    <Label Padding="0, 5 5, 5" Margin="0, 0, -5, 0" Content="{TemplateBinding Tag}" IsTabStop="False"/>
-                    <Grid Background="Transparent" Margin="2, 2, 0, 0" Height="12" ToolTip="{TemplateBinding ToolTip}">
-                        <iconPacks:PackIconMaterial Height="12" Kind="HelpCircleOutline"  VerticalAlignment="Center" Foreground="{StaticResource CompilePal.Brushes.Link}" IsTabStop="False">
-                            <iconPacks:PackIconMaterial.Style>
-                                <Style TargetType="iconPacks:PackIconMaterial">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource FindAncestor, AncestorType=Grid}}" Value="True">
-                                            <Setter Property="Opacity" Value="0.5"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </iconPacks:PackIconMaterial.Style>
-                        </iconPacks:PackIconMaterial>
-                        <Grid.Style>
-                            <Style TargetType="{x:Type Grid}">
-                                <Setter Property="Visibility" Value="Visible"/>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding RelativeSource={RelativeSource Self}, Path=ToolTip}" Value="{x:Null}">
-                                        <Setter Property="Visibility" Value="Hidden"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Grid.Style>
-                    </Grid>
-                </StackPanel>
-                <TextBox Text="{Binding RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay, Path=Text}" Focusable="True"/>
-            </StackPanel>
-        </ControlTemplate>
-    </controls:MetroWindow.Resources>
-
     <Grid>
         <ScrollViewer VerticalScrollBarVisibility="Auto">
             <StackPanel Orientation="Vertical" Margin="20, 10, 20, 20" FocusManager.FocusedElement="{Binding ElementName=Name}">

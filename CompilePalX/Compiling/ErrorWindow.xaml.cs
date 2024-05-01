@@ -68,7 +68,8 @@ namespace CompilePalX.Compiling
 
             var startInfo = new ProcessStartInfo
             {
-                FileName = url
+                FileName = url,
+                UseShellExecute = true
             };
 
             Process.Start(startInfo);

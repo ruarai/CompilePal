@@ -37,6 +37,9 @@
             <Button Click="BugReportButton_OnClick" ToolTip="Report a bug" x:Name="BugReportButton">
                 <iconPacks:Material Kind="Bug" />
             </Button>
+            <Button Click="SettingsButton_Click" ToolTip="Settings" x:Name="SettingsButton">
+                <iconPacks:Material Kind="Cog" />
+            </Button>
         </controls:WindowCommands>
     </controls:MetroWindow.RightWindowCommands>
 

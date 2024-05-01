@@ -81,6 +81,7 @@ namespace CompilePalX
             ErrorFinder.Init();
 
             ConfigurationManager.AssembleParameters();
+            ConfigurationManager.LoadSettings();
 
             ProgressManager.TitleChange += ProgressManager_TitleChange;
             ProgressManager.ProgressChange += ProgressManager_ProgressChange;
