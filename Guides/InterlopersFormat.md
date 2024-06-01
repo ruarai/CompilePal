@@ -74,3 +74,16 @@ h4 {
     font-weight: 600;
 }
 ```
+
+# Compile Pal Error Format
+```
+{
+    "RegexTrigger": {
+        "Pattern": String,
+        "Options": Int (optional)
+    },
+    "Message": String,
+    "ShortDescription": String
+    "Severity": Int
+}
+```
