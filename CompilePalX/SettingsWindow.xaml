@@ -14,13 +14,17 @@
     <controls:MetroWindow.WindowButtonCommands>
         <controls:WindowButtonCommands LightCloseButtonStyle="{StaticResource LightButtonStyle}" LightMinButtonStyle="{StaticResource LightButtonStyle}" LightMaxButtonStyle="{StaticResource LightButtonStyle}"/>
     </controls:MetroWindow.WindowButtonCommands>
-    <Grid>
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="auto"/>
+        </Grid.RowDefinitions>
         <ScrollViewer VerticalScrollBarVisibility="Auto">
-            <StackPanel Orientation="Vertical" Margin="20, 10, 20, 20" FocusManager.FocusedElement="{Binding ElementName=Name}">
+            <StackPanel Orientation="Vertical" FocusManager.FocusedElement="{Binding ElementName=ErrorSourceURL}">
                 <TextBox Template="{StaticResource LabeledTextbox}" Text="{Binding Path=ErrorSourceURL, Mode=TwoWay}" Tag="Error Source" Name="ErrorSourceURL"/>
-                <TextBox Template="{StaticResource LabeledTextbox}" Text="{Binding Path=ErrorCacheExpirationDays , Mode=TwoWay}" Tag="Error Cache Duration" Name="ErrorCacheDurationDays" ToolTip="How many days to cache error information"/>
-                <Button Click="SaveButton_Click" Margin="0, 10, 0, 0">Save</Button>
+                <TextBox Template="{StaticResource LabeledTextbox}" Text="{Binding Path=ErrorCacheExpirationDays , Mode=TwoWay}" Tag="Error Cache Duration" Name="ErrorCacheDurationDays" ToolTip="How many days to cache error information" PreviewTextInput="ErrorCacheDurationDays_PreviewTextInput"/>
             </StackPanel>
         </ScrollViewer>
+        <Button Grid.Row="1" Click="SaveButton_Click">Save</Button>
     </Grid>
 </controls:MetroWindow>

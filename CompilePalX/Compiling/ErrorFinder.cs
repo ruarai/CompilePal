@@ -12,6 +12,8 @@ using System.Windows;
 using System.Windows.Markup;
 using System.Windows.Media;
 using CompilePalX.Compiling;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace CompilePalX
 {
@@ -35,7 +37,7 @@ namespace CompilePalX
             {
                 if (!refresh && (File.Exists(errorCache) && (DateTime.Now.Subtract(File.GetLastWriteTime(errorCache)).TotalDays < errorCacheExpirationDays)))
                 {
-                    LoadErrorData(File.ReadAllText(errorCache));
+                    LoadJSONErrorData(File.ReadAllText(errorCache));
                     return;
                 }
                 
@@ -45,10 +47,20 @@ namespace CompilePalX
                 try
                 {
                     var c = new HttpClient();
+                    var httpResult = await c.GetAsync(errorURL);
                     string result = await c.GetStringAsync(new Uri(errorURL));
 
-                    LoadErrorData(result);
-                    await File.WriteAllTextAsync(errorCache, result);
+                    IEnumerable<string>? contentType;
+                    httpResult.Headers.TryGetValues("Content-Type", out contentType);
+                    if (contentType != null && contentType.First() == "application/json")
+                    {
+                        LoadJSONErrorData(result);
+                    } else
+                    {
+                        LoadTextErrorData(result);
+                    }
+
+                    await File.WriteAllTextAsync(errorCache, JsonConvert.SerializeObject(errorList, new RegexConverter()));
                 }
                 catch (Exception e)
                 {
@@ -57,7 +69,7 @@ namespace CompilePalX
                     if (File.Exists((errorCache)))
                     {
                         CompilePalLogger.LogLineDebug("Loading error data from cache");
-                        LoadErrorData(await File.ReadAllTextAsync(errorCache));
+                        LoadJSONErrorData(await File.ReadAllTextAsync(errorCache));
                     }
                     else
                     {
@@ -72,7 +84,21 @@ namespace CompilePalX
             }
         }
 
-        static void LoadErrorData(string input)
+        static void LoadJSONErrorData(string input)
+        {
+            var errors = JsonConvert.DeserializeObject<List<Error>>(input, new RegexConverter());
+            if (errors == null)
+            {
+                throw new Exception("Failed to deserialize errors");
+            }
+            for (var i = 0; i < errors.Count; i++)
+            {
+                errors[i].ID = i;
+            }
+            errorList = errors;
+        }
+
+        static void LoadTextErrorData(string input)
         {
             string style = File.ReadAllText(errorStyle);
 
@@ -95,8 +121,6 @@ namespace CompilePalX
                 error.ShortDescription = shortDesc.Success ? shortDesc.Groups[1].Value : "unknown error";
 
                 error.Message = style.Replace("%content%", lines[i]);
-
-                //CompilePalLogger.LogLineColor("Loaded trigger regex: {0}",error.ErrorColor,data[1]);
 
 
                 error.ID = id;
@@ -134,6 +158,7 @@ namespace CompilePalX
         public string ShortDescription;
         public int Severity;
 
+        [JsonIgnore]
         public int ID;
 
         public Error() { }
@@ -155,6 +180,9 @@ namespace CompilePalX
 
         public override bool Equals(object obj)
         {
+            if (obj is not Error) {
+                return false;
+            }
             return ((Error)obj).ID == this.ID;
         }
 
@@ -168,6 +196,7 @@ namespace CompilePalX
 	        return this.MemberwiseClone();
         }
 
+        [JsonIgnore]
         public Brush ErrorColor => GetSeverityBrush(Severity);
 
         public static Brush GetSeverityBrush(int severity)
