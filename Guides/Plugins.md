@@ -147,3 +147,29 @@ Setting the `Path` to `python` or `python3` is not portable. Use the [Python Lau
 
 ## Debugging Plugins
 You can view the program path and arguments in the `debug.log` found in the Compile Pal folder.
+
+## Game Plugin Autodiscovery
+Source Engine games that ship with additional compilers can also distribute Compile Pal plugin definitions, which can be automatically picked up. 
+All thats needed is a `CompilePal` section in the `GameConfig.txt` with a `Plugins` key/value pointing to a folder containing Compile Pal plugins.
+
+ex.
+GameConfig.txt
+```json
+"Configs"
+{
+	"Games"
+	{
+		"Team Fortress 2"
+		{
+			"CompilePal"
+			{
+				"Plugins"		"C:\Program Files (x86)\Steam\steamapps\common\Team Fortress 2\bin\Plugins"
+			}
+			...
+		}
+	}
+}
+
+```
+
+
