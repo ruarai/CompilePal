@@ -6,7 +6,7 @@ Plugins are currently in a beta state, so the format and structure are subject t
 ![image](https://user-images.githubusercontent.com/15372675/218288001-2154a3fa-201c-4f18-ad0f-36959aed9108.png)
 
 ## Installation
-Plugins can be installed by copying the plugin folder into the Compile Pal/Parameters folder.
+Plugins can be installed by copying the plugin folder into the Compile Pal/Plugins folder.
 
 ***USE PLUGINS AT YOUR OWN RISK, DO NOT INSTALL PLUGINS FROM UNTRUSTED SOURCES***
 
@@ -134,7 +134,7 @@ For examples, download [PLUGIN DEMO.zip](https://github.com/ruarai/CompilePal/fi
 
 
 ### Packaging An Application
-It is recomended to package your application inside the plugin folder to make it easier to point to. For example, `Path` can be set to `Parameters\\My Plugin\\plugin.exe`.
+It is recomended to package your application inside the plugin folder to make it easier to point to. For example, `Path` can be set to `Plugins\\My Plugin\\plugin.exe`.
 
 ### Python Plugins
 Setting the `Path` to `python` or `python3` is not portable. Use the [Python Launcher](https://docs.python.org/3/using/windows.html#python-launcher-for-windows) `py` (requires Python >= 3.3), passing the python version in the `Arguments`, Ex.
