@@ -19,6 +19,7 @@ namespace CompilePalX
         public string Name { get; set; }
         public string GameInfoPath => Path.Combine(GameFolder ?? "", "gameinfo.txt");
         public int? SteamAppID { get; set; }
+        public string? PluginFolder { get; set; }
         public object Clone()
         {
             return this.MemberwiseClone();

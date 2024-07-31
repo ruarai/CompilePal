@@ -17,6 +17,7 @@
     <Resource Include="CompilePalIcon.ico" />
     <None Include="Presets/**" CopyToOutputDirectory="PreserveNewest" />
     <None Include="Parameters/**" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Plugins/**" CopyToOutputDirectory="PreserveNewest" />
     <None Include="Keys/**" CopyToOutputDirectory="PreserveNewest" />
     <None Include="Compiling/errorstyle.html" CopyToOutputDirectory="PreserveNewest" />
     <None Include="version.txt" CopyToOutputDirectory="PreserveNewest" />
@@ -49,6 +50,9 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Plugins\" />
   </ItemGroup>
   <!--<Target AfterTargets="AfterBuild;NonWinFodyTarget" Name="CleanReferenceCopyLocalPaths">
     <Delete Files="@(ReferenceCopyLocalPaths->'$(OutDir)%(DestinationSubDirectory)%(Filename).dll')" />

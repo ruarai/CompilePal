@@ -62,8 +62,19 @@ namespace CompilePalX {
                     VPK = vpk,
                 };
 
-                game.SteamAppID = GetSteamAppID(game);
+                KV.DataBlock? cpdb = gamedb.GetFirstByName("CompilePal");
+                if (cpdb != null)
+                {
+                    CompilePalLogger.LogLineDebug($"Found CompilePal GameInfo block");
+                    var pluginFolder = cpdb.TryGetStringValue("Plugins");
+                    if (!string.IsNullOrEmpty(pluginFolder))
+                    {
+                        game.PluginFolder = pluginFolder;
+                    }
+                }
 
+
+                game.SteamAppID = GetSteamAppID(game);
                 gameInfos.Add(game);
             }
 

@@ -24,8 +24,11 @@ namespace CompilePalX
 	    public bool Draggable = true; // set to false if we ever want to disable reordering non custom compile steps
         public List<Error> CompileErrors;
 
-        public CompileProcess(string name)
+        public CompileProcess(string name, string? parameterFolder = null)
         {
+            if (parameterFolder is not null)
+                this.ParameterFolder = parameterFolder;
+
             string jsonMetadata = Path.Combine(ParameterFolder, name, "meta.json");
 
             if (File.Exists(jsonMetadata))
@@ -55,8 +58,7 @@ namespace CompilePalX
 
             }
 
-            ParameterList = ConfigurationManager.GetParameters(Metadata.Name, Metadata.DoRun);
-
+            ParameterList = ConfigurationManager.GetParameters(Metadata.Name, Metadata.DoRun, this.ParameterFolder);
         }
 
         public static CompileMetadata LoadLegacyData(string csvFile)

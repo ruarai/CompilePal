@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -69,6 +70,7 @@ namespace CompilePalX
 
         private static readonly string ParametersFolder = "./Parameters";
         private static readonly string PresetsFolder = "./Presets";
+        private static readonly string PluginFolder = "./Plugins";
         private static readonly string SettingsFile = "./Settings.json";
         
 
@@ -84,8 +86,14 @@ namespace CompilePalX
 			CompileProcesses.Add(new CustomProcess());
 
             //collect new metadatas
+            var metadatas = Directory.GetDirectories(ParametersFolder).Concat(Directory.GetDirectories(PluginFolder)).ToArray();
 
-            var metadatas = Directory.GetDirectories(ParametersFolder);
+            // load autodiscovered plugins
+            if (GameConfigurationManager.GameConfiguration is not null && GameConfigurationManager.GameConfiguration.PluginFolder is not null)
+            {
+                CompilePalLogger.LogLineDebug($"Loading additional plugins from: {GameConfigurationManager.GameConfiguration.PluginFolder}");
+                metadatas = metadatas.Concat(Directory.GetDirectories(GameConfigurationManager.GameConfiguration.PluginFolder)).ToArray();
+            }
 
             foreach (var metadata in metadatas)
             {
@@ -94,9 +102,21 @@ namespace CompilePalX
                 if (CompileProcesses.Any(c => String.Equals(c.Metadata.Name, folderName, StringComparison.CurrentCultureIgnoreCase)))
                     continue;
 
-                var compileProcess = new CompileExecutable(folderName);
+                string? parameterFolder = null;
+                if (!String.Equals(Path.GetDirectoryName(metadata), ParametersFolder, StringComparison.CurrentCultureIgnoreCase))
+                {
+                    parameterFolder = Path.GetDirectoryName(metadata);
+                }
 
-                CompileProcesses.Add(compileProcess);
+                try
+                {
+                    var compileProcess = new CompileExecutable(folderName, parameterFolder);
+                    CompileProcesses.Add(compileProcess);
+                }
+                catch (Exception ex)
+                {
+                    CompilePalLogger.LogLine($"Failed to load Compile Process: {metadata}, {ex}");
+                }
             }
 
             //collect legacy metadatas
@@ -109,12 +129,16 @@ namespace CompilePalX
                 if (CompileProcesses.Any(c => String.Equals(c.Metadata.Name, name, StringComparison.CurrentCultureIgnoreCase)))
                     continue;
 
-                var compileProcess = new CompileExecutable(name);
-
-                CompileProcesses.Add(compileProcess);
+                try
+                {
+                    var compileProcess = new CompileExecutable(name);
+                    CompileProcesses.Add(compileProcess);
+                }
+                catch (Exception ex)
+                {
+                    CompilePalLogger.LogLine($"Failed to load Compile Process: {metadata}, {ex}");
+                }
             }
-
-
 
             CompileProcesses = new ObservableCollection<CompileProcess>(CompileProcesses.OrderBy(c => c.Metadata.Order));
 
@@ -246,8 +270,7 @@ namespace CompilePalX
         {
             foreach (var process in CompileProcesses)
             {
-                string jsonMetadata = Path.Combine("./Parameters", process.Metadata.Name, "meta.json");
-
+                string jsonMetadata = Path.Combine(process.ParameterFolder, process.Metadata.Name, "meta.json");
                 File.WriteAllText(jsonMetadata, JsonConvert.SerializeObject(process.Metadata, Formatting.Indented));
             }
         }
@@ -360,11 +383,16 @@ namespace CompilePalX
         }
 
 
-        public static ObservableCollection<ConfigItem> GetParameters(string processName, bool doRun = false)
+        public static ObservableCollection<ConfigItem> GetParameters(string processName, bool doRun = false, string? parameterFolder = null)
         {
             var list = new ObservableCollection<ConfigItem>();
 
-            string jsonParameters = Path.Combine(ParametersFolder, processName, "parameters.json");
+            if ( parameterFolder is null)
+            {
+                parameterFolder = ParametersFolder;
+            }
+
+            string jsonParameters = Path.Combine(parameterFolder, processName, "parameters.json");
 
             if (File.Exists(jsonParameters))
             {
@@ -388,7 +416,7 @@ namespace CompilePalX
             }
             else
             {
-                string csvParameters = Path.Combine(ParametersFolder, processName + ".csv");
+                string csvParameters = Path.Combine(parameterFolder, processName + ".csv");
 
                 if (File.Exists(csvParameters))
                 {

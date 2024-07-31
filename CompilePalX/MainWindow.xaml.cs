@@ -345,11 +345,16 @@ namespace CompilePalX
 			//BindingOperations.EnableCollectionSynchronization(CurrentOrder, lockObj);
 		}
 
-        public void RefreshSources()
+        public void LoadGameConfiguration(GameConfiguration gameConfiguration)
         {
+            this.Title = $"Compile Pal {UpdateManager.CurrentVersion}X {gameConfiguration.Name}";
+
             PresetConfigListBox.Items.Refresh();
             ConfigDataGrid.Items.Refresh();
             CompileProcessesListBox.Items.Refresh();
+
+            // reload parameters incase new game config has a plugin folder
+            ConfigurationManager.AssembleParameters();
         }
 
         void ProgressManager_ProgressChange(double progress)

@@ -13,7 +13,7 @@ namespace CompilePalX.Compilers
 {
     class CompileExecutable : CompileProcess
     {
-        public CompileExecutable(string metadata) : base(metadata) { }
+        public CompileExecutable(string metadata, string? parameterFolder = null) : base(metadata, parameterFolder) { }
         
 
         public override void Run(CompileContext c, CancellationToken cancellationToken)

@@ -85,12 +85,10 @@ namespace CompilePalX
             }
             else
             {
-				MainWindow.Instance.Title = $"Compile Pal {UpdateManager.CurrentVersion}X {GameConfigurationManager.GameConfiguration.Name}";
                 // refresh item sources to reevaluate process/parameter compatibility
-                MainWindow.Instance.RefreshSources();
+                MainWindow.Instance.LoadGameConfiguration(config);
             }
             Close();
-
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
