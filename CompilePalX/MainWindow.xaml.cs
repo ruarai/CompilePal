@@ -982,6 +982,9 @@ namespace CompilePalX
 		//Search through ProcDataGrid to find corresponding ConfigItem
 		private ConfigItem? GetConfigFromCustomProgram(CustomProgram program)
 	    {
+            if (ProcessDataGrid.ItemsSource is null)
+                return null;
+
 			foreach (var procSourceItem in ProcessDataGrid.ItemsSource)
 			{
 				if (program.Equals(procSourceItem))

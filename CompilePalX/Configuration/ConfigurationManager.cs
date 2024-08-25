@@ -449,7 +449,8 @@ namespace CompilePalX
         {
             var item = new ConfigItem();
 
-            var pieces = line.Split(',');
+            // Split on commas unless they are escaped with a backslash
+            var pieces = Regex.Split(line, "(?<!\\\\),");
 
             if (pieces.Any())
             {
@@ -460,10 +461,10 @@ namespace CompilePalX
                     item.Parameter = pieces[0];
 
                 if (pieces.Count() >= 2)
-                    item.Value = pieces[1];
+                    item.Value = pieces[1].Replace("\\,", ",");
 				//Handle extra information stored for custom programs
 	            if (pieces.Count() >= 3)
-		            item.Value2 = pieces[2];
+		            item.Value2 = pieces[2].Replace("\\,", ",");
 	            if (pieces.Length >= 4)
 		            item.ReadOutput = Convert.ToBoolean(pieces[3]);
 	            if (pieces.Length >= 5)
@@ -476,12 +477,12 @@ namespace CompilePalX
 
 		private static string WritePresetLine(ConfigItem item)
         {
-			//Handle extra information stored for custom programs
+			// Handle extra information stored for custom programs
 	        if (item.Name == "Run Program")
-		        return $"{item.Parameter},{item.Value},{item.Value2},{item.ReadOutput},{item.WaitForExit},{item.Warning}";
+		        return $"{item.Parameter},{item.Value.Replace(",", "\\,")},{item.Value2.Replace(",", "\\,")},{item.ReadOutput},{item.WaitForExit},{item.Warning}";
             else if (item.Name == "Command Line Argument") // Command line arguments have no parameter value
-                return $"{item.Name},{item.Value}";
-            return $"{item.Parameter},{item.Value}";
+                return $"{item.Name},{item.Value.Replace(",", "\\,")}";
+            return $"{item.Parameter},{item.Value.Replace(",", "\\,")}";
         }
 
         private static ConfigItem ParseBaseLine(string line)
