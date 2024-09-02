@@ -702,8 +702,8 @@ namespace CompilePalX.Compilers.BSPPack
                         string externalPath = source + "/" + ent["vehiclescript"];
                         if (File.Exists(externalPath))
                         {
-                            internalPath = ent["vehiclescript"];
                             vehicleScripts.Add(new KeyValuePair<string, string>(ent["vehiclescript"], externalPath));
+                            break;
                         }
                     }
                 }
@@ -721,25 +721,27 @@ namespace CompilePalX.Compilers.BSPPack
 						string externalPath = source + "/" + ent["scriptfile"];
 						if (File.Exists(externalPath))
 						{
-							internalPath = ent["scriptfile"];
 							effectScripts.Add(new KeyValuePair<string, string>(ent["scriptfile"], externalPath));
+                            break;
 						}
 					}
 				}
 			}
 			bsp.EffectScriptList = effectScripts;
 
-			// Res file (for tf2's pd gamemode)
-			Dictionary<string, string>?  pd_ent = bsp.entityList.FirstOrDefault(item => item["classname"] == "tf_logic_player_destruction");
-            if (pd_ent != null && pd_ent.ContainsKey("res_file"))
+            // Res files (for tf2's pd gamemode)
+            foreach (Dictionary<string, string> ent in bsp.entityList)
             {
-                foreach (string source in sourceDirectories)
+                if (ent.ContainsKey("res_file"))
                 {
-                    string externalPath = source + "/" + pd_ent["res_file"];
-                    if (File.Exists(externalPath))
+                    foreach (string source in sourceDirectories)
                     {
-                        bsp.res.Add(new KeyValuePair<string, string>(pd_ent["res_file"], externalPath));
-                        break;
+                        string externalPath = source + "/" + ent["res_file"];
+                        if (File.Exists(externalPath))
+                        {
+                            bsp.res.Add(new KeyValuePair<string, string>(ent["res_file"], externalPath));
+                            break;
+                        }
                     }
                 }
             }
