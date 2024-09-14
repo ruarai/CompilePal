@@ -7,6 +7,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using CompilePalX;
 using CompilePalX.Compiling;
+using ValveKeyValue;
 
 namespace CompilePalX.Compilers.BSPPack
 {
@@ -14,15 +15,14 @@ namespace CompilePalX.Compilers.BSPPack
     {
         public static ValveKeyValue.KVSerializer KVSerializer = ValveKeyValue.KVSerializer.Create(ValveKeyValue.KVSerializationFormat.KeyValues1Text);
 
-        public static Tuple<List<string>, List<string>> findMdlMaterialsAndModels(string path, List<int> skins = null, List<string> vtxVmts = null)
+        public static Tuple<List<string>, List<string>> findMdlMaterialsAndModels(string path, List<int>? skins = null, List<string>? vtxVmts = null)
         {
             List<string> materials = new List<string>();
             List<string> models = new List<string>();
 
             if (File.Exists(path))
             {
-
-                FileStream mdl = new FileStream(path, FileMode.Open);
+                using FileStream mdl = new FileStream(path, FileMode.Open);
                 BinaryReader reader = new BinaryReader(mdl);
 
                 mdl.Seek(4, SeekOrigin.Begin);
@@ -49,18 +49,18 @@ namespace CompilePalX.Compilers.BSPPack
                 int bodypartIndex = reader.ReadInt32();
 
                 // skip to keyvalues
-				mdl.Seek(72, SeekOrigin.Current);
+                mdl.Seek(72, SeekOrigin.Current);
                 int keyvalueIndex = reader.ReadInt32();
                 int keyvalueCount = reader.ReadInt32();
 
-				// skip to includemodel
-				mdl.Seek(16, SeekOrigin.Current);
-				//mdl.Seek(96, SeekOrigin.Current);
-	            int includeModelCount = reader.ReadInt32();
-	            int includeModelIndex = reader.ReadInt32();
+                // skip to includemodel
+                mdl.Seek(16, SeekOrigin.Current);
+                //mdl.Seek(96, SeekOrigin.Current);
+                int includeModelCount = reader.ReadInt32();
+                int includeModelIndex = reader.ReadInt32();
 
-				// find model names
-				for (int i = 0; i < textureCount; i++)
+                // find model names
+                for (int i = 0; i < textureCount; i++)
                 {
                     mdl.Seek(textureOffset + (i * 64), SeekOrigin.Begin);
                     int textureNameOffset = reader.ReadInt32();
@@ -110,7 +110,7 @@ namespace CompilePalX.Compilers.BSPPack
                             for (int k = 0; k < nummeshes; k++)
                             // we are reading an array of mstudiomesh_t
                             {
-                                mdl.Seek( modelFileInputOffset + meshindex + (k * 116), SeekOrigin.Begin);
+                                mdl.Seek(modelFileInputOffset + meshindex + (k * 116), SeekOrigin.Begin);
                                 int mat_index = reader.ReadInt32();
 
                                 if (!material_ids.Contains(mat_index))
@@ -209,31 +209,41 @@ namespace CompilePalX.Compilers.BSPPack
                 if (keyvalueCount > 0)
                 {
                     mdl.Seek(keyvalueIndex, SeekOrigin.Begin);
-                    string kv = new string(reader.ReadChars(keyvalueCount - 1));
+                    string kvString = new string(reader.ReadChars(keyvalueCount - 1));
 
                     // "mdlkeyvalue" and "{" are on separate lines, merge them or it doesnt parse kv name
-                    int firstNewlineIndex = kv.IndexOf("\n", StringComparison.Ordinal);
+                    int firstNewlineIndex = kvString.IndexOf("\n", StringComparison.Ordinal);
                     if (firstNewlineIndex > 0)
-                        kv = kv.Remove(firstNewlineIndex, 1);
+                        kvString = kvString.Remove(firstNewlineIndex, 1);
 
-                    kv = KV.StringUtil.GetFormattedKVString(kv);
-                    var data = KV.DataBlock.FromString(kv);
+                    kvString = KV.StringUtil.GetFormattedKVString(kvString);
 
-                    var mdlKvBlock = data.GetFirstByName("mdlkeyvalue");
-                    var doorDefaultsBlock = mdlKvBlock?.GetFirstByName("door_options")?.GetFirstByName("defaults");
-                    if (doorDefaultsBlock != null)
+                    using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(kvString)))
                     {
-                        var damageModel1 = doorDefaultsBlock.TryGetStringValue("damage1");
-                        if (damageModel1 != "")
-                            models.Add($"models\\{damageModel1}.mdl");
-                        var damageModel2 = doorDefaultsBlock.TryGetStringValue("damage2");
-                        if (damageModel2 != "")
-                            models.Add($"models\\{damageModel2}.mdl");
+                        KVObject kv = KVSerializer.Deserialize(stream);
+
+                        // pack door damage models
+                        var doorBlock = kv["door_options"];
+                        if (doorBlock is not null)
+                        {
+                            var defaultsBlock = doorBlock["defaults"];
+                            if (defaultsBlock is not null)
+                            {
+                                var damageModel1 = defaultsBlock["damage1"];
+                                if (damageModel1 is not null)
+                                    models.Add($"models\\{damageModel1}.mdl");
+
+                                var damageModel2 = defaultsBlock["damage2"];
+                                if (damageModel2 is not null)
+                                    models.Add($"models\\{damageModel2}.mdl");
+
+                                var damageModel3 = defaultsBlock["damage3"];
+                                if (damageModel3 is not null)
+                                    models.Add($"models\\{damageModel3}.mdl");
+                            }
+                        }
                     }
                 }
-
-
-                mdl.Close();
             }
 
             for(int i=0;i<materials.Count;i++)
@@ -328,6 +338,7 @@ namespace CompilePalX.Compilers.BSPPack
                         phy.Seek(solid_size, SeekOrigin.Current);
                         string something = readNullTerminatedString(phy, reader);
 
+                        // TODO: can probably use KVSerializer to parse this
                         string[] entries = something.Split(new char[] { '{', '}' });
                         for (int i = 0; i < entries.Count(); i++)
                         {
@@ -356,7 +367,6 @@ namespace CompilePalX.Compilers.BSPPack
             foreach (string variation in variations)
             {
                 string variant = Path.ChangeExtension(path, variation);
-                //variant = variant.Replace('/', '\\');
                 references.Add(variant);
             }
             return references;
@@ -365,17 +375,20 @@ namespace CompilePalX.Compilers.BSPPack
         public static List<string> findVmtTextures(string fullpath)
         {
             // finds vtfs files associated with vmt file
-
-            List<string> vtfList = new List<string>();
-            foreach (string line in File.ReadAllLines(fullpath))
+            var vtfList = new List<string>();
+            using (var w = File.OpenRead(fullpath))
             {
-                string param = line.Replace("\"", " ").Replace("\t", " ").Trim();
-
-                if (Keys.vmtTextureKeyWords.Any(key => param.ToLower().StartsWith(key + " ")))
+                KVObject kv = KVSerializer.Deserialize(w);
+                foreach (var property in kv)
                 {
-                    vtfList.Add("materials/" + vmtPathParser2(line) + ".vtf");
-                    if (param.ToLower().StartsWith("$envmap" + " "))
-                        vtfList.Add("materials/" + vmtPathParser2(line) + ".hdr.vtf");
+                    if (!Keys.vmtTextureKeyWords.Contains(property.Name))
+                        continue;
+
+                    var path = VmtPathParser(property.Value);
+
+                    vtfList.Add($"materials/{path}.vtf");
+                    if (property.Name == "$envmap")
+                        vtfList.Add($"materials/{path}.hdr.vtf");
                 }
             }
             return vtfList;
@@ -384,14 +397,16 @@ namespace CompilePalX.Compilers.BSPPack
         public static List<string> findVmtMaterials(string fullpath)
         {
             // finds vmt files associated with vmt file
-
-            List<string> vmtList = new List<string>();
-            foreach (string line in File.ReadAllLines(fullpath))
+            var vmtList = new List<string>();
+            using (var w = File.OpenRead(fullpath))
             {
-                string param = line.Replace("\"", " ").Replace("\t", " ").Trim();
-                if (Keys.vmtMaterialKeyWords.Any(key => param.StartsWith(key + " ")))
+                KVObject kv = KVSerializer.Deserialize(w);
+                foreach (var property in kv)
                 {
-                    vmtList.Add("materials/" + vmtPathParser2(line) + ".vmt");
+                    if (!Keys.vmtMaterialKeyWords.Contains(property.Name))
+                        continue;
+
+                    vmtList.Add($"materials/{VmtPathParser(property.Value)}.vmt");
                 }
             }
             return vmtList;
@@ -407,7 +422,7 @@ namespace CompilePalX.Compilers.BSPPack
                 string param = line.Replace("\"", " ").Replace("\t", " ").Trim();
                 if (param.StartsWith("image ", StringComparison.CurrentCultureIgnoreCase))
                 {
-                    string path = "materials/vgui/" + vmtPathParser2(line) + ".vmt";
+                    string path = "materials/vgui/" + VmtPathParser(line) + ".vmt";
                     path = path.Replace("/vgui/..", "");
                     vmtList.Add(path);
                 }
@@ -420,20 +435,17 @@ namespace CompilePalX.Compilers.BSPPack
             // finds vmt files associated with radar overview files
 
             List<string> DDSs = new List<string>();
-            var overviewFile = new KV.FileData(fullpath);
 
-            // Contains no blocks, return empty list
-            if (overviewFile.headnode.subBlocks.Count == 0)
-                return DDSs;
-
-            foreach (var subblock in overviewFile.headnode.subBlocks)
+            using (var w = File.OpenRead(fullpath))
             {
-                var material = subblock.TryGetStringValue("material");
-                // failed to get material, file contains no materials
-                if (material == "")
-                    break;
+                KVObject kv = KVSerializer.Deserialize(w);
+                var material = kv["material"];
 
-                string radarPath = $"resource/{vmtPathParser(material, false)}";
+                // failed to get material, file contains no materials
+                if (material is null)
+                    return DDSs;
+
+                string radarPath = $"resource/{VmtPathParser(material)}";
                 // clean path so it never contains _radar
                 if (radarPath.EndsWith("_radar"))
                 {
@@ -443,57 +455,40 @@ namespace CompilePalX.Compilers.BSPPack
                 // add default radar
                 DDSs.Add($"{radarPath}_radar.dds");
 
-                var verticalSections = subblock.GetFirstByName("verticalsections");
-                if (verticalSections == null)
-                    break;
-                
+                var verticalSections = kv["verticalsections"] as IEnumerable<KVObject>;
+                // file contains no vertical sections
+                if (verticalSections is null)
+                    return DDSs;
+
                 // add multi-level radars
-                foreach (var section in verticalSections.subBlocks)
+                foreach (var section in verticalSections)
                 {
-                    DDSs.Add($"{radarPath}_{section.name.Replace("\"", string.Empty)}_radar.dds");
+                    DDSs.Add($"{radarPath}_{section.Name}_radar.dds");
                 }
             }
 
             return DDSs;
         }
 
-        public static string vmtPathParser(string vmtline, bool needsSplit = true)
+        public static string VmtPathParser(KVValue value)
         {
-            if (needsSplit)
-                vmtline = vmtline.Split(new char[] { ' ' }, 2)[1]; // removes the parameter name
-            vmtline = vmtline.Split(new string[] { "//", "\\\\" }, StringSplitOptions.None)[0]; // removes endline parameter
-            vmtline = vmtline.Trim(new char[] { ' ', '/', '\\' }); // removes leading slashes
-            vmtline = vmtline.Replace('\\', '/'); // normalize slashes
-            if (vmtline.StartsWith("materials/"))
-                vmtline = vmtline.Remove(0, "materials/".Length); // removes materials/ if its the beginning of the string for consistency
-            if (vmtline.EndsWith(".vmt") || vmtline.EndsWith(".vtf")) // removes extentions if present for consistency
-                vmtline = vmtline.Substring(0, vmtline.Length - 4);
-            return vmtline;
-        }
-
-        // same as above but quotes are not replaced and line does not need to be trimmed, quotes are needed to tell if // are comments or not
-        public static string vmtPathParser2(string vmtline)
-        {
-            var stream = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(vmtline + "\n")); // must add a newline to prevent parsing error
-            var deserialized = KVSerializer.Deserialize(stream);
-            var value = deserialized.Value.ToString();
-
-            if(value == null)
+            var line = value.ToString();
+            if (line is null)
             {
-                CompilePalLogger.LogCompileError($"KVSerializer.Deserialize returned null: {vmtline}", 
-                    new Error($"KVSerializer.Deserialize returned null: {vmtline}", ErrorSeverity.Error));
-                return "";
+                CompilePalLogger.LogCompileError($"Failed to parse VMT line value: {value}",
+                    new Error($"KVSerializer.Deserialize returned null: {value}", ErrorSeverity.Error));
+                line = "";
             }
 
-            value = value.Trim(new char[] { ' ', '/', '\\' }); // removes leading slashes
-            value = value.Replace('\\', '/'); // normalize slashes
-            value = Regex.Replace(value, "/+", "/"); // remove duplicate slashes
+            line = line.Trim(new char[] { ' ', '/', '\\' }); // removes leading slashes
+            line = line.Replace('\\', '/'); // normalize slashes
+            line = Regex.Replace(line, "/+", "/"); // remove duplicate slashes
 
-            if (value.StartsWith("materials/"))
-                value = value.Remove(0, "materials/".Length); // removes materials/ if its the beginning of the string for consistency
-            if (value.EndsWith(".vmt") || value.EndsWith(".vtf")) // removes extentions if present for consistency
-                value = value.Substring(0, value.Length - 4);
-            return value;
+            if (line.StartsWith("materials/"))
+                line = line.Remove(0, "materials/".Length); // removes materials/ if its the beginning of the string for consistency
+            if (line.EndsWith(".vmt") || line.EndsWith(".vtf")) // removes extentions if present for consistency
+                line = line.Substring(0, line.Length - 4);
+            return line;
         }
 
         public static List<string> findSoundscapeSounds(string fullpath)

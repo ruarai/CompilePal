@@ -9,9 +9,9 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using CompilePalX.Compiling;
 using CompilePalX.KV;
-using CompilePalX.Utilities;
 using GlobExpressions;
 using Microsoft.Win32;
+using ValveKeyValue;
 
 namespace CompilePalX.Compilers.BSPPack
 {
@@ -31,6 +31,8 @@ namespace CompilePalX.Compilers.BSPPack
         {
 
         }
+
+        private static KVSerializer KVSerializer = KVSerializer.Create(KVSerializationFormat.KeyValues1Text);
 
         private static string bspZip;
         private static string vpk;
@@ -647,100 +649,116 @@ namespace CompilePalX.Compilers.BSPPack
                 return new();
             }
 
-            var gameInfo = new KV.FileData(gameInfoPath).headnode.GetFirstByName("GameInfo");
-            if (gameInfo == null)
+            using (var gameInfoFile = File.OpenRead(gameInfoPath))
             {
-                CompilePalLogger.LogLineDebug($"Failed to parse GameInfo: {gameInfo}");
-                CompilePalLogger.LogCompileError($"Failed to parse GameInfo, did not find GameInfo block\n", new Error($"Failed to parse GameInfo, did not find GameInfo block", ErrorSeverity.Error));
-                return new();
-            }
-
-            var searchPaths = gameInfo.GetFirstByName("FileSystem")?.GetFirstByName("SearchPaths");
-            if (searchPaths == null)
-            {
-                CompilePalLogger.LogLineDebug($"Failed to parse GameInfo: {gameInfo}");
-                CompilePalLogger.LogCompileError($"Failed to parse GameInfo, did not find GameInfo block\n", new Error($"Failed to parse GameInfo, did not find GameInfo block", ErrorSeverity.Error));
-                return new();
-            }
-
-            foreach (string searchPath in searchPaths.values.Values)
-            {
-                // ignore unsearchable paths. TODO: will need to remove .vpk from this check if we add support for packing from assets within vpk files
-                if (searchPath.Contains("|") && !searchPath.Contains("|gameinfo_path|") || searchPath.Contains(".vpk")) continue;
-
-                // wildcard paths
-                if (searchPath.Contains("*"))
+                var gameInfo = KVSerializer.Deserialize(gameInfoFile);
+                if (gameInfo is null)
                 {
-                    string fullPath = searchPath;
-                    if (fullPath.Contains(("|gameinfo_path|")))
-                    {
-                        string newPath = searchPath.Replace("*", "").Replace("|gameinfo_path|", "");
-                        fullPath = System.IO.Path.GetFullPath(gamePath + "\\" + newPath.TrimEnd('\\'));
-                    }
-                    if (Path.IsPathRooted(fullPath.Replace("*", "")))
-                    {
-                        fullPath = fullPath.Replace("*", "");
-                    }
-                    else
-                    {
-                        string newPath = fullPath.Replace("*", "");
-                        fullPath = System.IO.Path.GetFullPath(rootPath + "\\" + newPath.TrimEnd('\\'));
-                    }
-
-                    if (verbose)
-                        CompilePalLogger.LogLine("Found wildcard path: {0}", fullPath);
-
-                    try
-                    {
-                        var directories = Directory.GetDirectories(fullPath);
-                        sourceDirectories.AddRange(directories);
-                    }
-                    catch { }
+                    CompilePalLogger.LogLineDebug($"Failed to parse GameInfo: {gameInfo}");
+                    CompilePalLogger.LogCompileError($"Failed to parse GameInfo", new Error($"Failed to parse GameInfo", ErrorSeverity.Error));
+                    return new();
                 }
-                else if (searchPath.Contains("|gameinfo_path|"))
+
+                if (gameInfo.Name != "GameInfo")
                 {
-                    string fullPath = gamePath;
-
-                    if (verbose)
-                        CompilePalLogger.LogLine("Found search path: {0}", fullPath);
-
-                    sourceDirectories.Add(fullPath);
+                    CompilePalLogger.LogLineDebug($"Failed to parse GameInfo: {gameInfo}");
+                    CompilePalLogger.LogCompileError($"Failed to parse GameInfo, did not find GameInfo block\n", new Error($"Failed to parse GameInfo, did not find GameInfo block", ErrorSeverity.Error));
+                    return new();
                 }
-                else if (Directory.Exists(searchPath))
-                {
-                    if (verbose)
-                        CompilePalLogger.LogLine("Found search path: {0}", searchPath);
 
-                    sourceDirectories.Add(searchPath);
-                }
-                else
+                var searchPaths = gameInfo["FileSystem"]?["SearchPaths"] as IEnumerable<KVObject>;
+                if (searchPaths is null)
                 {
-                    try
+                    CompilePalLogger.LogLineDebug($"Failed to parse GameInfo: {gameInfo}");
+                    CompilePalLogger.LogCompileError($"Failed to parse GameInfo, did not find FileSystem.SearchPaths block\n", new Error($"Failed to parse GameInfo, did not find FileSystem.SearchPaths block", ErrorSeverity.Error));
+                    return new();
+                }
+
+                foreach (var searchPathObject in searchPaths)
+                {
+                    var searchPath = searchPathObject.Value.ToString();
+                    if (searchPath is null)
+                        continue;
+
+                    // ignore unsearchable paths. TODO: will need to remove .vpk from this check if we add support for packing from assets within vpk files
+                    if (searchPath.Contains("|") && !searchPath.Contains("|gameinfo_path|") || searchPath.Contains(".vpk")) continue;
+
+                    // wildcard paths
+                    if (searchPath.Contains("*"))
                     {
-                        string fullPath = System.IO.Path.GetFullPath(rootPath + "\\" + searchPath.TrimEnd('\\'));
+                        string fullPath = searchPath;
+                        if (fullPath.Contains(("|gameinfo_path|")))
+                        {
+                            string newPath = searchPath.Replace("*", "").Replace("|gameinfo_path|", "");
+                            fullPath = System.IO.Path.GetFullPath(gamePath + "\\" + newPath.TrimEnd('\\'));
+                        }
+                        if (Path.IsPathRooted(fullPath.Replace("*", "")))
+                        {
+                            fullPath = fullPath.Replace("*", "");
+                        }
+                        else
+                        {
+                            string newPath = fullPath.Replace("*", "");
+                            fullPath = System.IO.Path.GetFullPath(rootPath + "\\" + newPath.TrimEnd('\\'));
+                        }
+
+                        if (verbose)
+                            CompilePalLogger.LogLine("Found wildcard path: {0}", fullPath);
+
+                        try
+                        {
+                            var directories = Directory.GetDirectories(fullPath);
+                            sourceDirectories.AddRange(directories);
+                        }
+                        catch { }
+                    }
+                    else if (searchPath.Contains("|gameinfo_path|"))
+                    {
+                        string fullPath = gamePath;
 
                         if (verbose)
                             CompilePalLogger.LogLine("Found search path: {0}", fullPath);
 
                         sourceDirectories.Add(fullPath);
                     }
-                    catch (Exception e)
+                    else if (Directory.Exists(searchPath))
                     {
-                        CompilePalLogger.LogDebug("Failed to find search path: " + e);
-                        CompilePalLogger.LogCompileError($"Search path invalid: {rootPath + "\\" + searchPath.TrimEnd('\\')}", new Error($"Search path invalid: {rootPath + "\\" + searchPath.TrimEnd('\\')}", ErrorSeverity.Caution));
+                        if (verbose)
+                            CompilePalLogger.LogLine("Found search path: {0}", searchPath);
+
+                        sourceDirectories.Add(searchPath);
+                    }
+                    else
+                    {
+                        try
+                        {
+                            string fullPath = System.IO.Path.GetFullPath(rootPath + "\\" + searchPath.TrimEnd('\\'));
+
+                            if (verbose)
+                                CompilePalLogger.LogLine("Found search path: {0}", fullPath);
+
+                            sourceDirectories.Add(fullPath);
+                        }
+                        catch (Exception e)
+                        {
+                            CompilePalLogger.LogDebug("Failed to find search path: " + e);
+                            CompilePalLogger.LogCompileError($"Search path invalid: {rootPath + "\\" + searchPath.TrimEnd('\\')}", new Error($"Search path invalid: {rootPath + "\\" + searchPath.TrimEnd('\\')}", ErrorSeverity.Caution));
+                        }
                     }
                 }
-            }
 
-            // find Chaos engine game mount paths
-            var mountedDirectories = GetMountedGamesSourceDirectories(gameInfo, Path.Combine(gamePath, "cfg", "mounts.kv"));
-            if (mountedDirectories != null)
-            {
-                sourceDirectories.AddRange(mountedDirectories);
-                foreach (var directory in mountedDirectories)
+
+                //find Chaos engine game mount paths
+                var mountedDirectories = GetMountedGamesSourceDirectories(gameInfo, Path.Combine(gamePath, "cfg", "mounts.kv"));
+                if (mountedDirectories != null)
                 {
-                    CompilePalLogger.LogLine($"Found mounted search path: {directory}");
+                    sourceDirectories.AddRange(mountedDirectories);
+                    foreach (var directory in mountedDirectories)
+                    {
+                        CompilePalLogger.LogLine($"Found mounted search path: {directory}");
+                    }
                 }
+
             }
 
             return sourceDirectories.Distinct().ToList();
@@ -750,50 +768,56 @@ namespace CompilePalX.Compilers.BSPPack
         /// Finds additional source directories for Chaos Engine game mounts
         /// documentation from https://github.com/momentum-mod/game/pull/1150
         /// </summary>
-        /// <param name="gameInfoPath">Path to gameinfo.txt</param>
+        /// <param name="gameInfo">GameInfo KV document</param>
         /// <param name="mountsPath">Path to mounts.kv</param>
         /// <returns>A list of additional source directories to search</returns>
-        private static List<string>? GetMountedGamesSourceDirectories(DataBlock gameInfo, string mountsPath)
+        private static List<string>? GetMountedGamesSourceDirectories(KVDocument gameInfo, string mountsPath)
         {
             CompilePalLogger.LogLineDebug("Looking for mounted games");
 
             // parse gameinfo.txt to find game mounts
-            var mounts = gameInfo.GetFirstByName("mount");
-            if (mounts == null)
+            var mountBlock = gameInfo["mount"] as IEnumerable<KVObject>;
+            if (mountBlock is null)
             {
                 CompilePalLogger.LogLineDebug("No mounted games detected");
                 return null;
             }
 
+            var mounts = mountBlock.ToList();
+
             // parse mounts.kv to find additional game mounts
             if (File.Exists(mountsPath))
             {
-                var mountData = new KV.FileData(mountsPath);
-                var additionalMounts = mountData.headnode.subBlocks.FirstOrDefault();
-                if (additionalMounts != null)
+                using (var mountsFile = File.OpenRead(mountsPath))
                 {
-                    CompilePalLogger.LogLineDebug("Found additional mounts in mounts.kv");
-                    mounts.subBlocks.AddRange(additionalMounts.subBlocks);
+                    var mountData = KVSerializer.Deserialize(mountsFile);
+                    var additionalMounts = mountData.Children;
 
-                    // remove duplicates, prefer results from mounts.kv
-                    mounts.subBlocks = mounts.subBlocks.GroupBy(g => g.name).Select(grp => grp.Last()).ToList();
-                }
-                else
-                {
-                    CompilePalLogger.LogLineDebug("No mounted games detected in mounts.kv");
+                    if (additionalMounts is not null && additionalMounts.Any())
+                    {
+                        CompilePalLogger.LogLineDebug("Found additional mounts in mounts.kv");
+                        mounts.AddRange(additionalMounts);
+
+                        // remove duplicates, prefer results from mounts.kv
+                        mounts = mounts.GroupBy(g => g.Name).Select(grp => grp.Last()).ToList();
+                    }
+                    else
+                    {
+                        CompilePalLogger.LogLineDebug("No mounted games detected in mounts.kv");
+                    }
+
                 }
             }
 
             // get location of Steam folder to parse libraryfolders.vdf
-            RegistryKey? rk = Registry.CurrentUser.OpenSubKey(@"Software\Valve\Steam");
+            var rk = Registry.CurrentUser.OpenSubKey(@"Software\Valve\Steam");
             if (rk is null)
             {
                 CompilePalLogger.LogLineDebug("Could not find Steam registry key");
                 return null;
             }
 
-            string? steamPath = rk.GetValue("SteamPath") as string;
-            if (steamPath is null)
+            if (rk.GetValue("SteamPath") is not string steamPath)
             {
                 CompilePalLogger.LogLineDebug("Could not find SteamPath registry value");
                 return null;
@@ -803,9 +827,12 @@ namespace CompilePalX.Compilers.BSPPack
             // get game installation locations
             var appLocations = GetAppInstallLocations(steamAppsPath);
 
+            if (appLocations is null)
+                return null;
+
             // parse mounted games
             var directories = new List<string>();
-            foreach (var mount in mounts.subBlocks)
+            foreach (var mount in mounts)
             {
                 var mountDirectories = GetMountedGameSourceDirectories(mount, appLocations);
                 directories.AddRange(mountDirectories);
@@ -817,37 +844,34 @@ namespace CompilePalX.Compilers.BSPPack
         /// <summary>
         /// Finds the mounted directories for a game
         /// </summary>
-        /// <param name="mount">GameInfo datablock for mounted game</param>
+        /// <param name="mount">GameInfo KVObject for mounted game</param>
         /// <param name="appLocations">Dictionary mapping from appId to installation location</param>
         /// <returns>List of mounted folders</returns>
-        private static List<string> GetMountedGameSourceDirectories(DataBlock mount, Dictionary<string, string> appLocations)
+        private static List<string> GetMountedGameSourceDirectories(KVObject mount, Dictionary<string, string> appLocations)
         {
             var directories = new List<string>();
-            string gameId = mount.name;
+            string gameId = mount.Name;
             if (!appLocations.TryGetValue(gameId, out var gameLocation))
             {
                 CompilePalLogger.LogLineDebug($"Could not find location for game {gameId}");
                 return directories;
             }
 
-            CompilePalLogger.LogLineDebug($"Found mount for {gameId}");
-            foreach (var gameFolder in mount.subBlocks)
+            CompilePalLogger.LogLineDebug($"Found mount for {gameId}: {gameLocation}");
+            foreach (var gameFolder in mount.Children)
             {
-                string folder = gameFolder.name.Replace("\"", String.Empty);
+                string folder = gameFolder.Name.Replace("\"", String.Empty);
                 directories.Add(Path.Combine(gameLocation, folder));
 
-                foreach (var subdirMount in gameFolder.values)
+                foreach (var subdirMount in gameFolder.Children)
                 {
-                    string mountType = subdirMount.Key;
+                    string mountType = subdirMount.Name.ToString();
 
                     // only dir mounts supported for now, might add vpk in the future
-                    // currently duplicate blocks have their key incremented, ex multiple dir keys would result in dir, dir1, dir2, etc. Should probably fix this in KV instead of using a regex
-                    if (!Regex.IsMatch(mountType, @"dir[1-9]*$"))
-                    {
+                    if (mountType != "dir")
                         continue;
-                    }
 
-                    string subdir = subdirMount.Value;
+                    string subdir = subdirMount.Value.ToString();
                     directories.Add(Path.Combine(gameLocation, folder, subdir));
                 }
             }
@@ -860,14 +884,43 @@ namespace CompilePalX.Compilers.BSPPack
         /// </summary>
         /// <param name="steamAppsPath">path to the steamapps folder</param>
         /// <returns>A dictionary containing gameId keys and installation folder values</returns>
-        private static Dictionary<string, string?>? GetAppInstallLocations(string steamAppsPath)
+        private static Dictionary<string, string>? GetAppInstallLocations(string steamAppsPath)
         {
             // get installation base path and Steam ID for all installed games
-            var locations = new LibraryFoldersParser(Path.Combine(steamAppsPath, "libraryfolders.vdf")).GetInstallLocations();
-            if (locations is null) return null;
+            var libPath = Path.Combine(steamAppsPath, "libraryfolders.vdf");
+            if (!File.Exists(libPath))
+            {
+                CompilePalLogger.LogLineDebug($"Could not find {libPath}");
+                return null;
+            }
+
+            var locations = new List<(string basePath, string steamId)>();
+            using (var libFile = File.OpenRead(libPath))
+            {
+                var libraries = KVSerializer.Deserialize(libFile);
+                if (libraries is null || libraries.Name != "libraryfolders")
+                {
+                    CompilePalLogger.LogLineDebug($"Failed to parse {libPath}");
+                    return null;
+                }
+
+                // create list of steam ID's and their base path
+                foreach (var folder in libraries.Children)
+                {
+                    var basePath = Path.Combine(folder["path"].ToString(), "steamapps");
+                    var ids = folder["apps"] as IEnumerable<KVObject>;
+                    if (ids == null) continue;
+
+                    foreach (var id in ids)
+                    {
+                        locations.Add((basePath, id.Name));
+                    }
+                }
+            }
+
 
             // find actual installation folder for games from their appmanifest
-            var paths = new Dictionary<string, string?>();
+            var paths = new Dictionary<string, string>();
             foreach ((string basePath, string steamId) in locations)
             {
                 var appManifestPath = Path.Combine(basePath, $"appmanifest_{steamId}.acf");
@@ -876,8 +929,18 @@ namespace CompilePalX.Compilers.BSPPack
                     CompilePalLogger.LogCompileError($"App Manifest {appManifestPath} does not exist, ignoring\n", new Error($"App Manifest does not exist, ignoring\n", ErrorSeverity.Warning));
                     continue;
                 }
-                var installationFolder = new AppManifestParser(appManifestPath).GetInstallationDirectory();
-                paths[steamId] = Path.Combine(basePath, "common", installationFolder);
+
+                using (var appManifestFile = File.OpenRead(appManifestPath))
+                {
+                    var appManifest = KVSerializer.Deserialize(appManifestFile);
+                    if (appManifest is null)
+                    {
+                        CompilePalLogger.LogCompileError($"Failed to parse App Manifest {appManifestPath}, ignoring\n", new Error("Failed to parse App Manifest", ErrorSeverity.Warning));
+                        continue;
+                    }
+
+                    paths[steamId] = Path.Combine(basePath, "common", appManifest["installdir"].ToString());
+                }
             }
 
             return paths;

@@ -5,10 +5,12 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using CompilePalX.Compiling;
+using ValveKeyValue;
 
 namespace CompilePalX {
     class GameConfigurationParser
     {
+        private static KVSerializer KVSerializer = KVSerializer.Create(KVSerializationFormat.KeyValues1Text);
         public static List<GameConfiguration> Parse(string binFolder)
         {
             // prioritize hammer++ configs, fallback to hammer if it doesn't exist
@@ -19,63 +21,65 @@ namespace CompilePalX {
             var gameInfos = new List<GameConfiguration>();
 
             CompilePalLogger.LogLineDebug($"Reading Game Config: {filename}");
-            var data = new KV.FileData(filename);
-            foreach (KV.DataBlock gamedb in data.headnode.GetFirstByName(new[] { "Configs", "GameConfig.txt", "hammerplusplus\\hammerplusplus_gameconfig.txt" })
-                         .GetFirstByName("Games").subBlocks)
+            using (var gameConfigFile = File.OpenRead(filename))
             {
-                KV.DataBlock? hdb = gamedb.GetFirstByName("Hammer");
-                if (hdb == null)
+                var data = KVSerializer.Deserialize(gameConfigFile);
+
+                foreach (var gamedb in (IEnumerable<KVObject>)data["Games"])
                 {
-                    CompilePalLogger.LogLineDebug($"GameInfo block is missing Hammer section: {gamedb}");
-                    continue;
-                }
-
-                CompilePalLogger.LogLineDebug($"Gamedb: {gamedb}");
-
-                // use vbsp as a backup path for finding other compile executables if they are in a non standard location
-                var vbsp = GetFullPath(hdb.TryGetStringValue("BSP"), binFolder);
-                var vbspPath = Path.GetDirectoryName(vbsp);
-
-                var bspzip = FindPath("bspzip.exe", binFolder, vbspPath);
-                var vbspinfo = FindPath("vbspinfo.exe", binFolder, vbspPath);
-                var vpk = FindPath("vpk.exe", binFolder, vbspPath);
-
-                if (Path.GetDirectoryName(bspzip) != binFolder)
-                {
-                    CompilePalLogger.LogLineDebug($"Bin folder \"{binFolder}\" differs from compiler location \"{Path.GetDirectoryName(bspzip)}\"");
-                    binFolder = Path.GetDirectoryName(bspzip);
-                }
-
-                GameConfiguration game = new GameConfiguration
-                {
-                    Name = gamedb.name.Replace("\"", ""),
-                    BinFolder = binFolder,
-                    GameFolder = GetFullPath(gamedb.TryGetStringValue("GameDir"), binFolder),
-                    GameEXE = GetFullPath(hdb.TryGetStringValue("GameExe"), binFolder),
-                    SDKMapFolder = GetFullPath(hdb.TryGetStringValue("MapDir"), binFolder),
-                    VBSP = vbsp,
-                    VVIS = GetFullPath(hdb.TryGetStringValue("Vis"), binFolder),
-                    VRAD = GetFullPath(hdb.TryGetStringValue("Light"), binFolder),
-                    MapFolder = GetFullPath(hdb.TryGetStringValue("BSPDir"), binFolder),
-                    BSPZip = bspzip,
-                    VBSPInfo = vbspinfo,
-                    VPK = vpk,
-                };
-
-                KV.DataBlock? cpdb = gamedb.GetFirstByName("CompilePal");
-                if (cpdb != null)
-                {
-                    CompilePalLogger.LogLineDebug($"Found CompilePal GameInfo block");
-                    var pluginFolder = cpdb.TryGetStringValue("Plugins");
-                    if (!string.IsNullOrEmpty(pluginFolder))
+                    var hdb = gamedb["Hammer"];
+                    if (hdb is null)
                     {
-                        game.PluginFolder = pluginFolder;
+                        CompilePalLogger.LogLineDebug($"GameInfo block is missing Hammer section: {gamedb}");
+                        continue;
                     }
+
+                    CompilePalLogger.LogLineDebug($"Gamedb: {gamedb}");
+
+                    // use vbsp as a backup path for finding other compile executables if they are in a non standard location
+                    var vbsp = GetFullPath(hdb["BSP"].ToString(), binFolder);
+                    var vbspPath = Path.GetDirectoryName(vbsp);
+
+                    var bspzip = FindPath("bspzip.exe", binFolder, vbspPath);
+                    var vbspinfo = FindPath("vbspinfo.exe", binFolder, vbspPath);
+                    var vpk = FindPath("vpk.exe", binFolder, vbspPath);
+
+                    if (Path.GetDirectoryName(bspzip) != binFolder)
+                    {
+                        CompilePalLogger.LogLineDebug($"Bin folder \"{binFolder}\" differs from compiler location \"{Path.GetDirectoryName(bspzip)}\"");
+                        binFolder = Path.GetDirectoryName(bspzip);
+                    }
+
+                    GameConfiguration game = new GameConfiguration
+                    {
+                        Name = gamedb.Name.Replace("\"", ""),
+                        BinFolder = binFolder,
+                        GameFolder = GetFullPath(gamedb["GameDir"].ToString(), binFolder),
+                        GameEXE = GetFullPath(hdb["GameExe"].ToString(), binFolder),
+                        SDKMapFolder = GetFullPath(hdb["MapDir"].ToString(), binFolder),
+                        VBSP = vbsp,
+                        VVIS = GetFullPath(hdb["Vis"].ToString(), binFolder),
+                        VRAD = GetFullPath(hdb["Light"].ToString(), binFolder),
+                        MapFolder = GetFullPath(hdb["BSPDir"].ToString(), binFolder),
+                        BSPZip = bspzip,
+                        VBSPInfo = vbspinfo,
+                        VPK = vpk,
+                    };
+
+                    var cpdb = gamedb["CompilePal"];
+                    if (cpdb is not null)
+                    {
+                        CompilePalLogger.LogLineDebug($"Found CompilePal GameInfo block");
+                        var pluginFolder = cpdb["Plugins"].ToString();
+                        if (!string.IsNullOrEmpty(pluginFolder))
+                        {
+                            game.PluginFolder = pluginFolder;
+                        }
+                    }
+
+                    game.SteamAppID = GetSteamAppID(game);
+                    gameInfos.Add(game);
                 }
-
-
-                game.SteamAppID = GetSteamAppID(game);
-                gameInfos.Add(game);
             }
 
             return gameInfos;
@@ -94,26 +98,16 @@ namespace CompilePalX {
         {
             if (!File.Exists(config.GameInfoPath)) return null;
 
-            foreach (var line in File.ReadLines(config.GameInfoPath))
+            using (var gameInfoFile = File.OpenRead(config.GameInfoPath))
             {
-                // ignore commented out lines
-                if (line.TrimStart().StartsWith("//") || string.IsNullOrWhiteSpace(line))
-                    continue;
+                var gameInfo = KVSerializer.Deserialize(gameInfoFile);
+                var appIDValue = gameInfo["FileSystem"]?["SteamAppId"];
+                if (appIDValue is null)
+                    return null;
 
-                if (!line.Contains("SteamAppId")) continue;
-
-                // sometimes gameinfo contains tabs, replace with spaces and filter them out
-                var splitLine = line.Replace('\t', ' ').Split(' ').Where(c => c != String.Empty).ToList();
-
-                // bad format
-                if (splitLine.Count < 2)
-                    continue;
-
-                Int32.TryParse(splitLine[1], out int appID);
+                Int32.TryParse(appIDValue.ToString(), out int appID);
                 return appID;
             }
-
-            return null;
         }
 
         
