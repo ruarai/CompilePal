@@ -195,7 +195,7 @@ namespace CompilePalX.Compilers.BSPPack
             }
 
             // find skybox materials
-            Dictionary<string, string> worldspawn = entityList.First(item => item["classname"] == "worldspawn");
+            Dictionary<string, string> worldspawn = entityList.FirstOrDefault(item => item["classname"] == "worldspawn", new Dictionary<string, string>());
             if (worldspawn.ContainsKey("skyname"))
                 foreach (string s in new string[] { "", "bk", "dn", "ft", "lf", "rt", "up" })
                 {

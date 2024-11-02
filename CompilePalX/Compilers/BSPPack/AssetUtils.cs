@@ -534,9 +534,6 @@ namespace CompilePalX.Compilers.BSPPack
 	            {
                     foreach (string material in AssetUtils.findVmtMaterials(new FileInfo(file).FullName))
                         bsp.TextureList.Add(material);
-
-					foreach (string material in AssetUtils.findVmtTextures(new FileInfo(file).FullName))
-						bsp.TextureList.Add(material);
 				}
         }
 
@@ -668,7 +665,7 @@ namespace CompilePalX.Compilers.BSPPack
             }
 
             // detail file (.vbsp)
-            Dictionary<string, string> worldspawn = bsp.entityList.First(item => item["classname"] == "worldspawn");
+            Dictionary<string, string> worldspawn = bsp.entityList.FirstOrDefault(item => item["classname"] == "worldspawn", new Dictionary<string, string>());
             if (worldspawn.ContainsKey("detailvbsp"))
             {
                 internalPath = worldspawn["detailvbsp"];
