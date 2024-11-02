@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using CompilePalX.Compiling;
+using ValveKeyValue;
 
 namespace CompilePalX.Compilers.BSPPack
 {
@@ -164,7 +165,8 @@ namespace CompilePalX.Compilers.BSPPack
                     {
                         if (s.Count() != 0)
                         {
-                            string[] c = s.Split('"');
+                            // split on non escaped quotes
+                            string[] c = Regex.Split(s, "(?<!\\\\)[\"\"]");
                             if (!entity.ContainsKey(c[1]))
                                 entity.Add(c[1], c[3]);
                             entityArrayFormat.Add(Tuple.Create(c[1], c[3]));
