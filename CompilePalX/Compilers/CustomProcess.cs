@@ -16,11 +16,11 @@ namespace CompilePalX.Compilers
 	{
 		public CustomProcess() : base("CUSTOM") { }
 
-		public List<CustomProgram> Programs = new List<CustomProgram>();
+		public List<CustomProgram> Programs = [];
 
 		public List<CustomProgram> BuildProgramList()
 		{
-			Programs = new List<CustomProgram>();
+			Programs = [];
 			foreach (var parameter in PresetDictionary[ConfigurationManager.CurrentPreset])
 			{
 				string path = parameter.Value;
@@ -82,7 +82,7 @@ namespace CompilePalX.Compilers
 
 		public override void Run(CompileContext c, CancellationToken cancellationToken)
 		{
-            CompileErrors = new List<Error>();
+            CompileErrors = [];
 
             if (!CanRun(c)) return;
 

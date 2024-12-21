@@ -62,8 +62,8 @@ namespace CompilePalX
 
     static class ConfigurationManager
     {
-        public static ObservableCollection<CompileProcess> CompileProcesses = new ObservableCollection<CompileProcess>();
-        public static ObservableCollection<Preset> KnownPresets = new();
+        public static ObservableCollection<CompileProcess> CompileProcesses = [];
+        public static ObservableCollection<Preset> KnownPresets = [];
         public static Settings Settings = new Settings();
 
         public static Preset? CurrentPreset = null;
@@ -180,7 +180,7 @@ namespace CompilePalX
                     string file = Path.Combine(presetPath, process.PresetFile);
                     if (File.Exists(file))
                     {
-                        process.PresetDictionary.Add(preset, new ObservableCollection<ConfigItem>());
+                        process.PresetDictionary.Add(preset, []);
                         //read the list of preset parameters
                         var lines = File.ReadAllLines(file);
 

@@ -12,7 +12,7 @@ namespace CompilePalX.Configuration
         public int ErrorCacheExpirationDays { get; set; } = 7;
         public object Clone()
         {
-            return this.MemberwiseClone();
+            return MemberwiseClone();
         }
 
         public bool Equals(GameConfiguration? other)

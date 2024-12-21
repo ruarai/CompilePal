@@ -104,7 +104,7 @@ namespace CompilePalX
         public static event CompileFinished OnStart;
         public static event CompileFinished OnFinish;
 
-        public static TrulyObservableCollection<Map> MapFiles = new TrulyObservableCollection<Map>();
+        public static TrulyObservableCollection<Map> MapFiles = [];
 
         private static Stopwatch compileTimeStopwatch = new Stopwatch();
 

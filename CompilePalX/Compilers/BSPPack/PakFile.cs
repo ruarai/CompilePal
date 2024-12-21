@@ -77,7 +77,7 @@ namespace CompilePalX.Compilers.BSPPack
                     break;
                 case ".res":
                     AddInternalFile(internalPath, externalPath);
-                    foreach (string material in AssetUtils.findResMaterials(externalPath))
+                    foreach (string material in AssetUtils.FindResMaterials(externalPath))
                         AddTexture(material);
                     break;
                 case ".nut":
@@ -182,7 +182,7 @@ namespace CompilePalX.Compilers.BSPPack
             {
                 if (AddFile(bsp.particleManifest, (b => b.particleManifest = default), bsp))
                 {
-                    foreach (string particle in AssetUtils.findManifestPcfs(bsp.particleManifest.Value))
+                    foreach (string particle in AssetUtils.FindManifestPcfs(bsp.particleManifest.Value))
                         AddParticle(particle);
                 }
             }
@@ -191,7 +191,7 @@ namespace CompilePalX.Compilers.BSPPack
             {
                 if (AddFile(bsp.soundscape, (b => b.soundscape = default), bsp))
                 {
-                    foreach (string sound in AssetUtils.findSoundscapeSounds(bsp.soundscape.Value))
+                    foreach (string sound in AssetUtils.FindSoundscapeSounds(bsp.soundscape.Value))
                         AddSound(sound);
                 }
             }
@@ -200,7 +200,7 @@ namespace CompilePalX.Compilers.BSPPack
             {
                 if (AddFile(bsp.soundscript, (b => b.soundscript = default), bsp))
                 {
-                    foreach (string sound in AssetUtils.findSoundscapeSounds(bsp.soundscript.Value))
+                    foreach (string sound in AssetUtils.FindSoundscapeSounds(bsp.soundscript.Value))
                         AddSound(sound);
                 }
             }
@@ -236,7 +236,7 @@ namespace CompilePalX.Compilers.BSPPack
             {
                 if (AddFile(res, null, bsp))
                 {
-                    foreach (string material in AssetUtils.findResMaterials(res.Value))
+                    foreach (string material in AssetUtils.FindResMaterials(res.Value))
                         AddTexture(material);
                 }
                 
@@ -302,8 +302,8 @@ namespace CompilePalX.Compilers.BSPPack
             if (AddInternalFile(internalPath, externalPath))
             {
                 mdlcount++;
-                List<string> vtxMaterialNames = new List<string>();
-                foreach (string reference in AssetUtils.findMdlRefs(internalPath))
+                List<string> vtxMaterialNames = [];
+                foreach (string reference in AssetUtils.FindMdlRefs(internalPath))
                 {
                     string ext_path = FindExternalFile(reference);
 
@@ -314,7 +314,7 @@ namespace CompilePalX.Compilers.BSPPack
                     AddInternalFile(reference, ext_path);
 
                     if (reference.EndsWith(".phy"))
-                        foreach (string gib in AssetUtils.findPhyGibs(ext_path))
+                        foreach (string gib in AssetUtils.FindPhyGibs(ext_path))
                             AddModel(gib);
 
                     if (reference.EndsWith(".vtx"))
@@ -334,7 +334,7 @@ namespace CompilePalX.Compilers.BSPPack
                 Tuple<List<string>, List<string>> mdlMatsAndModels;
                 try
                 {
-	                mdlMatsAndModels = AssetUtils.findMdlMaterialsAndModels(externalPath, skins, vtxMaterialNames);
+	                mdlMatsAndModels = AssetUtils.FindMdlMaterialsAndModels(externalPath, skins, vtxMaterialNames);
                 }
                 catch (Exception e)
                 {
@@ -359,9 +359,9 @@ namespace CompilePalX.Compilers.BSPPack
             if (AddInternalFile(internalPath, externalPath))
             {
                 vmtcount++;
-                foreach (string vtf in AssetUtils.findVmtTextures(externalPath))
+                foreach (string vtf in AssetUtils.FindVmtTextures(externalPath))
                     AddInternalFile(vtf, FindExternalFile(vtf));
-                foreach (string vmt in AssetUtils.findVmtMaterials(externalPath))
+                foreach (string vmt in AssetUtils.FindVmtMaterials(externalPath))
                     AddTexture(vmt);
             }
         }

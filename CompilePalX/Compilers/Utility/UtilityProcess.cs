@@ -31,13 +31,13 @@ namespace CompilePalX.Compilers.UtilityProcess
         private static string bspPath;
         private const string keysFolder = "Keys";
 
-        private List<string> sourceDirectories = new List<string>();
-        private List<string> excludedDirectories = new List<string>();
-        private List<string> excludedFiles = new List<string>();
+        private List<string> sourceDirectories = [];
+        private List<string> excludedDirectories = [];
+        private List<string> excludedFiles = [];
 
         public override void Run(CompileContext context, CancellationToken cancellationToken)
         {
-            CompileErrors = new List<Error>();
+            CompileErrors = [];
 
             if (!CanRun(context)) return;
 
@@ -62,8 +62,8 @@ namespace CompilePalX.Compilers.UtilityProcess
                     .ToList();
                 Keys.vmfModelKeys = File.ReadAllLines(System.IO.Path.Combine(keysFolder, "vmfmodelkeys.txt")).ToList();
 
-                excludedDirectories = new List<string>();
-                excludedFiles = new List<string>();
+                excludedDirectories = [];
+                excludedFiles = [];
 
 
                 CompilePalLogger.LogLine("Finding sources of game content...");
@@ -166,7 +166,7 @@ namespace CompilePalX.Compilers.UtilityProcess
                     CompilePalLogger.LogLine("Attempting to update soundscape");
 
                     //Get all script directories
-                    List<string> directories = new List<string>();
+                    List<string> directories = [];
 
                     foreach (string directory in sourceDirectories)
                         if (Directory.Exists(directory + "\\scripts\\"))
@@ -210,7 +210,7 @@ namespace CompilePalX.Compilers.UtilityProcess
             List<string> mapDir;
 
             if (directories == null)
-                mapDir = new List<string>() {bspPath.Replace(bspName, "")};
+                mapDir = [bspPath.Replace(bspName, "")];
             else
             {
                 mapDir = directories;
@@ -339,7 +339,7 @@ namespace CompilePalX.Compilers.UtilityProcess
         //Finds previous versions of files, and returns the highest version. Takes into account subversions such as a1b, a1c, etc
         private static string FindPreviousVersion(List<string> mapDirs, string searchString, string manifestType, bool manifestIsAtFrontOfFilename)
         {
-            List<BspFileName> candidateFiles = new List<BspFileName>();
+            List<BspFileName> candidateFiles = [];
 
             foreach (string mapDir in mapDirs)
             {
@@ -437,7 +437,7 @@ namespace CompilePalX.Compilers.UtilityProcess
 		// parses parameters that can contain '-' in their values. Ex. filepaths
 		private static List<string> ParseParameters(char[] paramChars)
 		{
-			List<string> parameters = new List<string>();
+			List<string> parameters = [];
 			bool inQuote = false;
 			StringBuilder tempParam = new StringBuilder();
 

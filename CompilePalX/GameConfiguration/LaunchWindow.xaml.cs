@@ -17,7 +17,7 @@ namespace CompilePalX
     public partial class LaunchWindow
     {
 
-        private bool GameConfigsEmpty => !GameConfigurationManager.GameConfigurations.Any();
+        private static bool GameConfigsEmpty => GameConfigurationManager.GameConfigurations.Count == 0;
 
         public static LaunchWindow? Instance { get; private set; }
 
@@ -63,7 +63,7 @@ namespace CompilePalX
                             }
                         }
                     }
-                    catch (ArgumentOutOfRangeException e)
+                    catch (ArgumentOutOfRangeException)
                     {
                         //Ignore error
                     }
@@ -95,7 +95,7 @@ namespace CompilePalX
         {
             // walk up dependency tree to make sure click source was not edit/delete button
             DependencyObject? dep = e.OriginalSource as DependencyObject;
-            while ((dep != null) && !(dep is Button) && !(dep is DataGridRow))
+            while ((dep != null) && dep is not Button && dep is not DataGridRow)
             {
                 dep = VisualTreeHelper.GetParent(dep);
             }
@@ -124,7 +124,7 @@ namespace CompilePalX
 
         public void RefreshGameConfigurationList()
         {
-            this.GameGrid.Items.Refresh();
+            GameGrid.Items.Refresh();
 
             // recalculate state
             if (GameConfigsEmpty)
@@ -176,8 +176,7 @@ namespace CompilePalX
             {
                 GameConfigurationManager.GameConfiguration = null;
                 // if game config is already opened in the main window, close it
-                if (MainWindow.Instance != null)
-                    MainWindow.Instance.Close();
+                MainWindow.Instance?.Close();
             }
         }
 

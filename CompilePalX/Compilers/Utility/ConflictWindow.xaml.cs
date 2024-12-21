@@ -22,24 +22,24 @@ namespace CompilePalX.Compilers.UtilityProcess
     //TODO save settings for showing advanced info so user doesnt have to open it every time
     public partial class ConflictWindow
     {
-        private List<PCF> pc;
-        private Dictionary<string, PCF> pcfDict;
-        private List<string> targetParticles;
+        private List<PCF> _pc;
+        private Dictionary<string, PCF> _pcfDict;
+        private List<string> _targetParticles;
 
-        private FileInfo file1;
-        private FileInfo file2;
+        private FileInfo _file1;
+        private FileInfo _file2;
 
         private int oldHeight = 625;
 
         public List<PCF> selectedPCFS;
 
-        public ConflictWindow(List<PCF> particleConflict, List<string> _targetParticles)
+        public ConflictWindow(List<PCF> particleConflict, List<string> targetParticles)
         {
-            pc = particleConflict;
-            targetParticles = _targetParticles;
+            _pc = particleConflict;
+            _targetParticles = targetParticles;
 
             // Correlate pcfs to their filepaths in a dictionary
-            pcfDict = pc.Select(p =>
+            _pcfDict = _pc.Select(p =>
                 {
                     // Normalize filepaths
                     p.FilePath = p.FilePath.Replace('/', '\\');
@@ -50,7 +50,7 @@ namespace CompilePalX.Compilers.UtilityProcess
                 .Select(group => group.First())
                 // Convert to dict
                 .ToDictionary(k => k.FilePath, v => v);
-            selectedPCFS = new List<PCF>();
+            selectedPCFS = [];
             InitializeComponent();
         }
 
@@ -66,7 +66,7 @@ namespace CompilePalX.Compilers.UtilityProcess
             fileBox.Items.Clear();
 
             //Add files to file selection box
-            foreach (PCF pcf in pc)
+            foreach (PCF pcf in _pc)
             {
                 int headerSize = 25;
                 int paragraphSize = 13;
@@ -82,9 +82,11 @@ namespace CompilePalX.Compilers.UtilityProcess
                 //Add advanced info to expanders
                 Grid stack = new Grid();
 
-                Expander expander = new Expander();
-                expander.Header = fileName;
-                expander.Content = stack;
+                Expander expander = new Expander
+                {
+                    Header = fileName,
+                    Content = stack
+                };
                 AdvancedSP.Children.Add(expander);
 
                 //Get file info
@@ -100,53 +102,67 @@ namespace CompilePalX.Compilers.UtilityProcess
                     continue;
                 }
 
-                RichTextBox fileInfo = new RichTextBox();
-                fileInfo.BorderThickness = new Thickness(0);
-                fileInfo.Margin = new Thickness(10, 0, 10, 10);
-                fileInfo.IsReadOnly = true;
-                fileInfo.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
+                RichTextBox fileInfo = new RichTextBox
+                {
+                    BorderThickness = new Thickness(0),
+                    Margin = new Thickness(10, 0, 10, 10),
+                    IsReadOnly = true,
+                    VerticalScrollBarVisibility = ScrollBarVisibility.Hidden
+                };
                 fileInfo.Document.Blocks.Clear();
                 stack.Children.Add(fileInfo);
 
-                Paragraph header = new Paragraph(new Run("File Information"));
-                header.FontSize = headerSize;
-                header.Margin = new Thickness(0);
+                Paragraph header = new Paragraph(new Run("File Information"))
+                {
+                    FontSize = headerSize,
+                    Margin = new Thickness(0)
+                };
                 fileInfo.Document.Blocks.Add(header);
 
-                Paragraph fileSizeInfo = new Paragraph(new Run("Filesize: " + file.Length / 1000 + " KB"));
-                fileSizeInfo.Margin = new Thickness(0);
-                fileSizeInfo.FontSize = paragraphSize;
+                Paragraph fileSizeInfo = new Paragraph(new Run("Filesize: " + file.Length / 1000 + " KB"))
+                {
+                    Margin = new Thickness(0),
+                    FontSize = paragraphSize
+                };
                 fileInfo.Document.Blocks.Add(fileSizeInfo);
 
                 DateTime lastDateModified = System.IO.File.GetLastWriteTime(pcf.FilePath);
 
-                Paragraph fileDateInfo = new Paragraph(new Run("Last Modified: " + lastDateModified));
-                fileDateInfo.Margin = new Thickness(0);
-                fileDateInfo.FontSize = paragraphSize;
+                Paragraph fileDateInfo = new Paragraph(new Run("Last Modified: " + lastDateModified))
+                {
+                    Margin = new Thickness(0),
+                    FontSize = paragraphSize
+                };
                 fileInfo.Document.Blocks.Add(fileDateInfo);
 
                 //Add particle names
-                Paragraph particleHeader = new Paragraph(new Run("Particles"));
-                particleHeader.Margin = new Thickness(0);
-                particleHeader.FontSize = headerSize;
+                Paragraph particleHeader = new Paragraph(new Run("Particles"))
+                {
+                    Margin = new Thickness(0),
+                    FontSize = headerSize
+                };
                 fileInfo.Document.Blocks.Add(particleHeader);
 
                 foreach (string name in pcf.ParticleNames)
                 {
-                    Paragraph particleName = new Paragraph(new Run(name));
-                    particleName.Margin = new Thickness(0, 0, 0, 0);
-                    particleName.FontSize = paragraphSize;
-                    if (targetParticles.Contains(name))
+                    Paragraph particleName = new Paragraph(new Run(name))
+                    {
+                        Margin = new Thickness(0, 0, 0, 0),
+                        FontSize = paragraphSize
+                    };
+                    if (_targetParticles.Contains(name))
                         particleName.Foreground = TryFindResource("MahApps.Brushes.Accent") as SolidColorBrush;
 
                     fileInfo.Document.Blocks.Add(particleName);
                 }
 
                 //Add footer
-                Paragraph footer = new Paragraph(new Run("Used particles are highlighted"));
-                footer.Margin = new Thickness(0);
-                footer.FontSize = paragraphSize;
-                footer.TextAlignment = TextAlignment.Center;
+                Paragraph footer = new Paragraph(new Run("Used particles are highlighted"))
+                {
+                    Margin = new Thickness(0),
+                    FontSize = paragraphSize,
+                    TextAlignment = TextAlignment.Center
+                };
                 fileInfo.Document.Blocks.Add(footer);
             }
         }
@@ -185,7 +201,7 @@ namespace CompilePalX.Compilers.UtilityProcess
             foreach (var selectedItem in fileBox.SelectedItems)
             {
                 string itemPath = selectedItem as string;
-                selectedPCFS.Add(pcfDict[itemPath]);
+                selectedPCFS.Add(_pcfDict[itemPath]);
             }
 
             //Close window

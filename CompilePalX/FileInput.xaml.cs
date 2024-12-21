@@ -111,7 +111,7 @@ namespace CompilePalX
 
 					folderPath = folderDialog.FileName;
 
-					if (String.IsNullOrWhiteSpace(folderPath))
+					if (string.IsNullOrWhiteSpace(folderPath))
 						return;
 
 					textBox.Text = folderPath;
@@ -128,11 +128,10 @@ namespace CompilePalX
 					Title = FileDialogTitle,
                 };
 
-				var filePath = "";
 				fileDialog.ShowDialog();
-				filePath = fileDialog.FileName;
+				var filePath = fileDialog.FileName;;
 
-				if (String.IsNullOrWhiteSpace(filePath))
+				if (string.IsNullOrWhiteSpace(filePath))
 					return;
 
 				textBox.Text = filePath;

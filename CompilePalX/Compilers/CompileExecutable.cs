@@ -11,14 +11,11 @@ using CompilePalX.Compiling;
 
 namespace CompilePalX.Compilers
 {
-    class CompileExecutable : CompileProcess
+    class CompileExecutable(string metadata, string? parameterFolder = null) : CompileProcess(metadata, parameterFolder)
     {
-        public CompileExecutable(string metadata, string? parameterFolder = null) : base(metadata, parameterFolder) { }
-        
-
         public override void Run(CompileContext c, CancellationToken cancellationToken)
         {
-            CompileErrors = new List<Error>();
+            CompileErrors = [];
 
             if (!CanRun(c)) return;
 
@@ -65,7 +62,7 @@ namespace CompilePalX.Compilers
             {
                 if (cancellationToken.IsCancellationRequested)
                 {
-                    CompilePalLogger.LogDebug($"Cancelled {this.Metadata.Name}");
+                    CompilePalLogger.LogDebug($"Cancelled {Metadata.Name}");
                     return;
                 }
                 Process.Start();
@@ -106,7 +103,7 @@ namespace CompilePalX.Compilers
                 if (read == null)
                     read = Process.StandardOutput.ReadAsync(buffer, 0, buffer.Length);
 
-                read.Wait(100); // an arbitrary timeout
+                read.Wait(100, cancellationToken); // an arbitrary timeout
 
                 if (read.IsCompleted)
                 {

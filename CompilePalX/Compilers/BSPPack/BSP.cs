@@ -45,7 +45,7 @@ namespace CompilePalX.Compilers.BSPPack
         public KeyValuePair<string, string> soundscape { get; set; }
         public KeyValuePair<string, string> detail { get; set; }
         public KeyValuePair<string, string> nav { get; set; }
-        public List<KeyValuePair<string, string>> res { get; } = new List<KeyValuePair<string, string>>();
+        public List<KeyValuePair<string, string>> res { get; } = [];
         public KeyValuePair<string, string> kv { get; set; }
         public KeyValuePair<string, string> txt { get; set; }
         public KeyValuePair<string, string> jpg { get; set; }
@@ -126,12 +126,12 @@ namespace CompilePalX.Compilers.BSPPack
 
         public void buildEntityList(FileStream bsp, BinaryReader reader)
         {
-            entityList = new List<Dictionary<string, string>>();
-            entityListArrayForm = new List<List<Tuple<string, string>>>();
+            entityList = [];
+            entityListArrayForm = [];
 
             bsp.Seek(offsets[0].Key, SeekOrigin.Begin);
             byte[] ent = reader.ReadBytes(offsets[0].Value);
-            List<byte> ents = new List<byte>();
+            List<byte> ents = [];
 
 	        const int LCURLY = 123;
 	        const int RCURLY = 125;
@@ -174,7 +174,7 @@ namespace CompilePalX.Compilers.BSPPack
                     }
                     entityList.Add(entity);
                     entityListArrayForm.Add(entityArrayFormat);
-                    ents = new List<byte>();
+                    ents = [];
                 }
             }
         }
@@ -185,7 +185,7 @@ namespace CompilePalX.Compilers.BSPPack
 
             string mapname = bsp.Name.Split('\\').Last().Split('.')[0];
 
-            TextureList = new List<string>();
+            TextureList = [];
             bsp.Seek(offsets[43].Key, SeekOrigin.Begin);
             TextureList = new List<string>(Encoding.ASCII.GetString(reader.ReadBytes(offsets[43].Value)).Split('\0'));
             for (int i = 0; i < TextureList.Count; i++)
@@ -197,7 +197,7 @@ namespace CompilePalX.Compilers.BSPPack
             }
 
             // find skybox materials
-            Dictionary<string, string> worldspawn = entityList.FirstOrDefault(item => item["classname"] == "worldspawn", new Dictionary<string, string>());
+            Dictionary<string, string> worldspawn = entityList.FirstOrDefault(item => item["classname"] == "worldspawn", []);
             if (worldspawn.ContainsKey("skyname"))
                 foreach (string s in new string[] { "", "bk", "dn", "ft", "lf", "rt", "up" })
                 {
@@ -217,8 +217,8 @@ namespace CompilePalX.Compilers.BSPPack
         {
             // builds the list of textures referenced in entities
 
-            List<string> materials = new List<string>();
-            HashSet<string> skybox_swappers = new HashSet<string>();
+            List<string> materials = [];
+            HashSet<string> skybox_swappers = [];
 
             foreach (Dictionary<string, string> ent in entityList)
             {
@@ -349,7 +349,7 @@ namespace CompilePalX.Compilers.BSPPack
             }
 
             // format and add materials
-            EntTextureList = new List<string>();
+            EntTextureList = [];
             foreach (string material in materials)
             {
                 string materialpath = material;
@@ -364,7 +364,7 @@ namespace CompilePalX.Compilers.BSPPack
         {
             // builds the list of models that are from prop_static
 
-            ModelList = new List<string>();
+            ModelList = [];
             // getting information on the gamelump
             int propStaticId = 0;
             bsp.Seek(offsets[35].Key, SeekOrigin.Begin);
@@ -413,7 +413,7 @@ namespace CompilePalX.Compilers.BSPPack
             modelSkinList = new List<int>[modelCount]; // stores the ids of used skins
 
             for (int i = 0; i < modelCount; i++)
-                modelSkinList[i] = new List<int>();
+                modelSkinList[i] = [];
 
             for (int i = 0; i < propCount; i++)
             {
@@ -432,7 +432,7 @@ namespace CompilePalX.Compilers.BSPPack
         {
             // builds the list of models referenced in entities
 
-            EntModelList = new List<string>();
+            EntModelList = [];
 	        foreach (Dictionary<string, string> ent in entityList)
 	        {
 				foreach (KeyValuePair<string, string> prop in ent)
@@ -480,7 +480,7 @@ namespace CompilePalX.Compilers.BSPPack
         public void buildEntSoundList()
         {
             // builds the list of sounds referenced in entities
-            EntSoundList = new List<string>();
+            EntSoundList = [];
 			foreach (Dictionary<string, string> ent in entityList)
 				foreach (KeyValuePair<string, string> prop in ent)
 				{
@@ -522,7 +522,7 @@ namespace CompilePalX.Compilers.BSPPack
         // color correction, etc.
         public void buildMiscList()
         {
-            MiscList = new List<string>();
+            MiscList = [];
 
             // find color correction files
             foreach (Dictionary<string, string> cc in entityList.Where(item => item["classname"].StartsWith("color_correction")))
@@ -550,7 +550,7 @@ namespace CompilePalX.Compilers.BSPPack
 
         public void buildParticleList()
         {
-            ParticleList = new List<string>();
+            ParticleList = [];
             foreach (Dictionary<string, string> ent in entityList)
                 foreach (KeyValuePair<string, string> particle in ent)
                      if (particle.Key.ToLower() == "effect_name")

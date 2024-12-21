@@ -17,11 +17,13 @@ using Newtonsoft.Json.Converters;
 
 namespace CompilePalX
 {
-    static class ErrorFinder
+    static partial class ErrorFinder
     {
-        private static List<Error> errorList = new List<Error>();
+        private static List<Error> errorList = [];
 
-        private static Regex errorDescriptionPattern = new Regex("<h4>(.*?)</h4>");
+        [GeneratedRegex("<h4>(.*?)</h4>")]
+        private static partial Regex ErrorRegex();
+        private static Regex errorDescriptionPattern = ErrorRegex();
 
         private static string errorStyle = Path.Combine("./Compiling", "errorstyle.html");
         private static string errorCache = Path.Combine("./Compiling", "errors.txt");
@@ -40,18 +42,15 @@ namespace CompilePalX
                     LoadJSONErrorData(File.ReadAllText(errorCache));
                     return;
                 }
-                
-                ServicePointManager.Expect100Continue = true;
-                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
 
                 try
                 {
                     var c = new HttpClient();
+                    c.DefaultRequestHeaders.ExpectContinue = true;
                     var httpResult = await c.GetAsync(errorURL);
                     string result = await c.GetStringAsync(new Uri(errorURL));
 
-                    IEnumerable<string>? contentType;
-                    httpResult.Headers.TryGetValues("Content-Type", out contentType);
+                    httpResult.Headers.TryGetValues("Content-Type", out var contentType);
                     if (contentType != null && contentType.First() == "application/json")
                     {
                         LoadJSONErrorData(result);
@@ -86,11 +85,7 @@ namespace CompilePalX
 
         static void LoadJSONErrorData(string input)
         {
-            var errors = JsonConvert.DeserializeObject<List<Error>>(input, new RegexConverter());
-            if (errors == null)
-            {
-                throw new Exception("Failed to deserialize errors");
-            }
+            var errors = JsonConvert.DeserializeObject<List<Error>>(input, new RegexConverter()) ?? throw new Exception("Failed to deserialize errors");
             for (var i = 0; i < errors.Count; i++)
             {
                 errors[i].ID = i;
@@ -102,7 +97,7 @@ namespace CompilePalX
         {
             string style = File.ReadAllText(errorStyle);
 
-            var lines = input.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
+            var lines = input.Split(["\r\n", "\n"], StringSplitOptions.None);
 
             int count = int.Parse(lines[0]);
 
@@ -165,17 +160,17 @@ namespace CompilePalX
 
         public Error(string message, string shortDescription, ErrorSeverity severity, int id = -1)
         {
-            this.Message = message;
-            this.ShortDescription = shortDescription;
-            this.Severity = (int) severity;
-            this.ID = id;
+            Message = message;
+            ShortDescription = shortDescription;
+            Severity = (int) severity;
+            ID = id;
         }
         public Error(string message, ErrorSeverity severity, int id = -1)
         {
-            this.Message = message;
-            this.ShortDescription = message;
-            this.Severity = (int) severity;
-            this.ID = id;
+            Message = message;
+            ShortDescription = message;
+            Severity = (int) severity;
+            ID = id;
         }
 
         public override bool Equals(object obj)
@@ -183,7 +178,7 @@ namespace CompilePalX
             if (obj is not Error) {
                 return false;
             }
-            return ((Error)obj).ID == this.ID;
+            return ((Error)obj).ID == ID;
         }
 
         public override int GetHashCode()
@@ -193,7 +188,7 @@ namespace CompilePalX
 
         public object Clone()
         {
-	        return this.MemberwiseClone();
+	        return MemberwiseClone();
         }
 
         [JsonIgnore]
@@ -201,38 +196,28 @@ namespace CompilePalX
 
         public static Brush GetSeverityBrush(int severity)
         {
-            switch (severity)
+            return severity switch
             {
-                default:
-                    return (Brush) Application.Current.TryFindResource("CompilePal.Brushes.Severity1");
-                case 2:
-                    return (Brush) Application.Current.TryFindResource("CompilePal.Brushes.Severity2");
-                case 3:
-                    return (Brush) Application.Current.TryFindResource("CompilePal.Brushes.Severity3");
-                case 4:
-                    return (Brush) Application.Current.TryFindResource("CompilePal.Brushes.Severity4");
-                case 5:
-                    return (Brush) Application.Current.TryFindResource("CompilePal.Brushes.Severity5");
-            }
+                2 => (Brush)Application.Current.TryFindResource("CompilePal.Brushes.Severity2"),
+                3 => (Brush)Application.Current.TryFindResource("CompilePal.Brushes.Severity3"),
+                4 => (Brush)Application.Current.TryFindResource("CompilePal.Brushes.Severity4"),
+                5 => (Brush)Application.Current.TryFindResource("CompilePal.Brushes.Severity5"),
+                _ => (Brush)Application.Current.TryFindResource("CompilePal.Brushes.Severity1"),
+            };
         }
 
         public string SeverityText
         {
             get
             {
-                switch (Severity)
+                return Severity switch
                 {
-                    default:
-                        return "Info";
-                    case 2:
-                        return "Caution";
-                    case 3:
-                        return "Warning";
-                    case 4:
-                        return "Error";
-                    case 5:
-                        return "Fatal Error";
-                }
+                    2 => "Caution",
+                    3 => "Warning",
+                    4 => "Error",
+                    5 => "Fatal Error",
+                    _ => "Info",
+                };
             }
         }
     }

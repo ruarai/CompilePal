@@ -46,12 +46,12 @@ namespace CompilePalX.Compilers.BSPPack
 
         public static KeyValuePair<string, string> particleManifest;
 
-        private List<string> sourceDirectories = new List<string>();
+        private List<string> sourceDirectories = [];
         private string outputFile = "BSPZipFiles\\files.txt";
 
         public override void Run(CompileContext context, CancellationToken cancellationToken)
         {
-            CompileErrors = new List<Error>();
+            CompileErrors = [];
 
             if (!CanRun(context)) return;
 
@@ -71,10 +71,10 @@ namespace CompilePalX.Compilers.BSPPack
             char[] paramChars = GetParameterString().ToCharArray();
             List<string> parameters = ParseParameters(paramChars);
 
-            List<string> includeFiles = new List<string>();
-            List<string> excludeFiles = new List<string>();
-            List<string> excludeDirs = new List<string>();
-            List<string> excludedVpkFiles = new List<string>();
+            List<string> includeFiles = [];
+            List<string> excludeFiles = [];
+            List<string> excludeDirs = [];
+            List<string> excludedVpkFiles = [];
 
             try
             {
@@ -255,7 +255,7 @@ namespace CompilePalX.Compilers.BSPPack
                     return;
                 }
 
-                AssetUtils.findBspUtilityFiles(map, sourceDirectories, renamenav, genParticleManifest);
+                AssetUtils.FindBspUtilityFiles(map, sourceDirectories, renamenav, genParticleManifest);
 
                 // give files unique names based on map so they dont get overwritten
                 if (dryrun)
@@ -270,7 +270,7 @@ namespace CompilePalX.Compilers.BSPPack
 
                 string unpackDir = System.IO.Path.GetTempPath() + Guid.NewGuid();
                 UnpackBSP(unpackDir);
-                AssetUtils.findBspPakDependencies(map, unpackDir);
+                AssetUtils.FindBspPakDependencies(map, unpackDir);
 
                 CompilePalLogger.LogLine("Initializing pak file...");
                 PakFile pakfile = new PakFile(map, sourceDirectories, includeFiles, excludeFiles, excludeDirs,
@@ -639,14 +639,14 @@ namespace CompilePalX.Compilers.BSPPack
 
         public static List<string> GetSourceDirectories(string gamePath, bool verbose = true)
         {
-            List<string> sourceDirectories = new List<string>();
+            List<string> sourceDirectories = [];
             string gameInfoPath = System.IO.Path.Combine(gamePath, "gameinfo.txt");
             string rootPath = Directory.GetParent(gamePath).ToString();
 
             if (!File.Exists(gameInfoPath))
             {
                 CompilePalLogger.LogCompileError($"Couldn't find gameinfo.txt at {gameInfoPath}", new Error($"Couldn't find gameinfo.txt at {gameInfoPath}", ErrorSeverity.Error));
-                return new();
+                return [];
             }
 
             using (var gameInfoFile = File.OpenRead(gameInfoPath))
@@ -656,14 +656,14 @@ namespace CompilePalX.Compilers.BSPPack
                 {
                     CompilePalLogger.LogLineDebug($"Failed to parse GameInfo: {gameInfo}");
                     CompilePalLogger.LogCompileError($"Failed to parse GameInfo", new Error($"Failed to parse GameInfo", ErrorSeverity.Error));
-                    return new();
+                    return [];
                 }
 
                 if (gameInfo.Name != "GameInfo")
                 {
                     CompilePalLogger.LogLineDebug($"Failed to parse GameInfo: {gameInfo}");
                     CompilePalLogger.LogCompileError($"Failed to parse GameInfo, did not find GameInfo block\n", new Error($"Failed to parse GameInfo, did not find GameInfo block", ErrorSeverity.Error));
-                    return new();
+                    return [];
                 }
 
                 var searchPaths = gameInfo["FileSystem"]?["SearchPaths"] as IEnumerable<KVObject>;
@@ -671,7 +671,7 @@ namespace CompilePalX.Compilers.BSPPack
                 {
                     CompilePalLogger.LogLineDebug($"Failed to parse GameInfo: {gameInfo}");
                     CompilePalLogger.LogCompileError($"Failed to parse GameInfo, did not find FileSystem.SearchPaths block\n", new Error($"Failed to parse GameInfo, did not find FileSystem.SearchPaths block", ErrorSeverity.Error));
-                    return new();
+                    return [];
                 }
 
                 foreach (var searchPathObject in searchPaths)
@@ -961,7 +961,7 @@ namespace CompilePalX.Compilers.BSPPack
         // parses parameters that can contain '-' in their values. Ex. filepaths
         private static List<string> ParseParameters(char[] paramChars)
         {
-            List<string> parameters = new List<string>();
+            List<string> parameters = [];
             bool inQuote = false;
             StringBuilder tempParam = new StringBuilder();
 

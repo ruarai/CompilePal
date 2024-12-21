@@ -144,7 +144,7 @@ namespace CompilePalX
             if (File.Exists(GameConfigurationsPath))
             {
                 string jsonLoadText = File.ReadAllText(GameConfigurationsPath);
-                configs.AddRange(JsonConvert.DeserializeObject<List<GameConfiguration>>(jsonLoadText) ?? new List<GameConfiguration>());
+                configs.AddRange(JsonConvert.DeserializeObject<List<GameConfiguration>>(jsonLoadText) ?? []);
             }
 
             //try loading from registry

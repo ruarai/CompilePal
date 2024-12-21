@@ -20,7 +20,7 @@ namespace CompilePalX.Configuration
 
 		public static void Init()
 		{
-			CurrentOrder = new ObservableCollection<CompileProcess>();
+			CurrentOrder = [];
 			BindingOperations.EnableCollectionSynchronization(CurrentOrder, lockObj);
 		}
 

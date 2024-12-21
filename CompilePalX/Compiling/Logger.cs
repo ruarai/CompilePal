@@ -134,10 +134,10 @@ namespace CompilePalX.Compiling
             LogCompileError(errorText + Environment.NewLine, e);
         }
 
-        private static Dictionary<Error, int> errorsFound = new ();
+        private static Dictionary<Error, int> errorsFound = [];
 
         private static StringBuilder lineBuffer = new ();
-        private static List<Run> tempText = new ();
+        private static List<Run> tempText = [];
         public static void LogProgressive(string s)
         {
             lineBuffer.Append(s);
@@ -173,7 +173,7 @@ namespace CompilePalX.Compiling
             {
                 Run? log = Log(suffixText);
                 if (log != null)
-                    tempText = new List<Run> { log };
+                    tempText = [log];
             }
         }
     }

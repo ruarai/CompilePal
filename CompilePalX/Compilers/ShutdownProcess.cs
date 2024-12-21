@@ -13,7 +13,7 @@ namespace CompilePalX.Compilers
         public override void Run(CompileContext context, CancellationToken cancellationToken)
         {
 
-            CompileErrors = new List<Error>();
+            CompileErrors = [];
             if (!CanRun(context)) return;
 
             if (cancellationToken.IsCancellationRequested)

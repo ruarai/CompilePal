@@ -20,16 +20,16 @@ namespace CompilePalX.Compilers.UtilityProcess
         public int PcfVersion;
 
         public int NumDictStrings;
-        public List<string> StringDict = new List<string>();
+        public List<string> StringDict = [];
 
-        public List<string> ParticleNames = new List<string>();
-        public List<string> MaterialNames = new List<string>();
-        public List<string> ModelNames = new List<string>();
+        public List<string> ParticleNames = [];
+        public List<string> MaterialNames = [];
+        public List<string> ModelNames = [];
 
 
         public List<string> GetModelNames()
         {
-            List<string> modelList = new List<string>();
+            List<string> modelList = [];
             //All strings including model names are stored in string dict for binary 4+
             //TODO I think only binary 4+ support models, but if not we need to implement a method to read them for lower versions
             foreach (string s in StringDict)
@@ -47,7 +47,7 @@ namespace CompilePalX.Compilers.UtilityProcess
         //All strings including materials are stored in string dict of binary v4 pcfs
         public List<string> GetMaterialNamesV4()
         {
-            List<string> materialNames = new List<string>();
+            List<string> materialNames = [];
 
             foreach (string s in StringDict)
             {
@@ -55,7 +55,7 @@ namespace CompilePalX.Compilers.UtilityProcess
                 if (s.EndsWith(".vmt") || s.EndsWith(".vtf"))
                 {
                     // Alien Swarm does not prepend materials/ to particles, add it just in case
-                    if (this.BinaryVersion == 5 && this.PcfVersion == 2)
+                    if (BinaryVersion == 5 && PcfVersion == 2)
                         materialNames.Add("materials\\" + s);
 
                     materialNames.Add(s);
@@ -77,7 +77,7 @@ namespace CompilePalX.Compilers.UtilityProcess
             {
                 fs = new FileStream(filePath, FileMode.Open);
             }
-            catch (FileNotFoundException e)
+            catch (FileNotFoundException)
             {
                 CompilePalLogger.LogCompileError($"Could not find {filePath}\n", new Error($"Could not find {filePath}", ErrorSeverity.Error));
                 return null;
@@ -180,7 +180,7 @@ namespace CompilePalX.Compilers.UtilityProcess
             {
                 fs = new FileStream(filePath, FileMode.Open);
             }
-            catch (FileNotFoundException e)
+            catch (FileNotFoundException)
             {
                 CompilePalLogger.LogCompileError($"Could not find {filePath}\n", new Error($"Could not find {filePath}", ErrorSeverity.Error));
                 return null;
@@ -286,7 +286,7 @@ namespace CompilePalX.Compilers.UtilityProcess
                     int count = (attributeType > 14) ? reader.ReadInt32() : 1;
                     attributeType = (attributeType > 14) ? attributeType - 14 : attributeType;
 
-                    int[] typelength = { 0, 4, 4, 4, 1, 1, 4, 4, 4, 8, 12, 16, 12, 16, 64 };
+                    int[] typelength = [0, 4, 4, 4, 1, 1, 4, 4, 4, 8, 12, 16, 12, 16, 64];
 
                     switch (attributeType)
                     {
@@ -321,7 +321,7 @@ namespace CompilePalX.Compilers.UtilityProcess
 
         private static string ReadNullTerminatedString(FileStream fs, BinaryReader reader)
         {
-            List<byte> verString = new List<byte>();
+            List<byte> verString = [];
             byte v;
             do
             {
@@ -350,7 +350,7 @@ namespace CompilePalX.Compilers.UtilityProcess
 
             baseDirectory = gameFolder + "\\";
 
-            particles = new List<PCF>();
+            particles = [];
 
             //Search directories for pcf and find particles that match used particle names
             //TODO multithread this?
@@ -379,7 +379,7 @@ namespace CompilePalX.Compilers.UtilityProcess
 
             //Check for pcfs that contain the same particle name
             //List<ParticleConflict> conflictingParticles = new List<ParticleConflict>();
-            List<PCF> conflictingParticles = new List<PCF>();
+            List<PCF> conflictingParticles = [];
             if (particles.Count > 1)
             {
                 for (int i = 0; i < particles.Count - 1; i++)
@@ -411,7 +411,7 @@ namespace CompilePalX.Compilers.UtilityProcess
                     particles.Remove(conflictParticle);
                 }
                 
-                List<PCF> resolvedConflicts = new List<PCF>();
+                List<PCF> resolvedConflicts = [];
 
                 //Bring up conflict window
                 //Have to run on STAthread
@@ -467,9 +467,9 @@ namespace CompilePalX.Compilers.UtilityProcess
             }
 
             string internalDirectory = filepath;
-            if(filepath.ToLower().StartsWith(baseDirectory.ToLower()))
+            if(filepath.StartsWith(baseDirectory, StringComparison.CurrentCultureIgnoreCase))
             {
-                internalDirectory = filepath.Substring(baseDirectory.Length);
+                internalDirectory = filepath[baseDirectory.Length..];
             }
             //Store internal/external dir so it can be packed
             particleManifest = new KeyValuePair<string, string>(internalDirectory, filepath);

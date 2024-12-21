@@ -15,10 +15,10 @@ namespace CompilePalX.Compilers.BSPPack
     {
         public static ValveKeyValue.KVSerializer KVSerializer = ValveKeyValue.KVSerializer.Create(ValveKeyValue.KVSerializationFormat.KeyValues1Text);
 
-        public static Tuple<List<string>, List<string>> findMdlMaterialsAndModels(string path, List<int>? skins = null, List<string>? vtxVmts = null)
+        public static Tuple<List<string>, List<string>> FindMdlMaterialsAndModels(string path, List<int>? skins = null, List<string>? vtxVmts = null)
         {
-            List<string> materials = new List<string>();
-            List<string> models = new List<string>();
+            List<string> materials = [];
+            List<string> models = [];
 
             if (File.Exists(path))
             {
@@ -28,8 +28,8 @@ namespace CompilePalX.Compilers.BSPPack
                 mdl.Seek(4, SeekOrigin.Begin);
                 int ver = reader.ReadInt32();
 
-                List<string> modelVmts = new List<string>();
-                List<string> modelDirs = new List<string>();
+                List<string> modelVmts = [];
+                List<string> modelDirs = [];
 
                 mdl.Seek(76, SeekOrigin.Begin);
                 int datalength = reader.ReadInt32();
@@ -66,26 +66,26 @@ namespace CompilePalX.Compilers.BSPPack
                     int textureNameOffset = reader.ReadInt32();
 
                     mdl.Seek(textureOffset + (i * 64) + textureNameOffset, SeekOrigin.Begin);
-                    modelVmts.Add(readNullTerminatedString(mdl, reader));
+                    modelVmts.Add(ReadNullTerminatedString(mdl, reader));
                 }
 
                 // find model dirs
-                List<int> textureDirOffsets = new List<int>();
+                List<int> textureDirOffsets = [];
                 for (int i = 0; i < textureDirCount; i++)
                 {
                     mdl.Seek(textureDirOffset + (4 * i), SeekOrigin.Begin);
                     int offset = reader.ReadInt32();
                     mdl.Seek(offset, SeekOrigin.Begin);
 
-                    string model = readNullTerminatedString(mdl, reader);
-                    model = model.TrimStart(new char[] { '/', '\\' });
+                    string model = ReadNullTerminatedString(mdl, reader);
+                    model = model.TrimStart(['/', '\\']);
                     modelDirs.Add(model);
                 }
 
                 if (skins != null)
                 {
                     // load specific skins
-                    List<int> material_ids = new List<int>();
+                    List<int> material_ids = [];
 
                     for (int i = 0; i < bodypartCount; i++)
                     // we are reading an array of mstudiobodyparts_t
@@ -185,7 +185,7 @@ namespace CompilePalX.Compilers.BSPPack
                         {
                             // go to label offset
                             mdl.Seek(labelOffset, SeekOrigin.Begin);
-                            label = readNullTerminatedString(mdl, reader);
+                            label = ReadNullTerminatedString(mdl, reader);
 
                             // return to current offset
                             mdl.Seek(currentOffset, SeekOrigin.Begin);
@@ -195,7 +195,7 @@ namespace CompilePalX.Compilers.BSPPack
                         {
                             // go to model offset
                             mdl.Seek(includeModelPathOffset + includeOffsetStart, SeekOrigin.Begin);
-                            models.Add(readNullTerminatedString(mdl, reader));
+                            models.Add(ReadNullTerminatedString(mdl, reader));
 
                             // return to current offset
                             mdl.Seek(currentOffset, SeekOrigin.Begin);
@@ -256,7 +256,7 @@ namespace CompilePalX.Compilers.BSPPack
 
         public static List<string> FindVtxMaterials(string path)
         {
-            List<string> vtxMaterials = new List<string>();
+            List<string> vtxMaterials = [];
             if (File.Exists(path))
             {
                 try
@@ -300,7 +300,7 @@ namespace CompilePalX.Compilers.BSPPack
                             if (nameOffset != 0)
                             {
                                 vtx.Seek(streamPositionStart + nameOffset, SeekOrigin.Begin);
-                                vtxMaterials.Add(readNullTerminatedString(vtx, reader));
+                                vtxMaterials.Add(ReadNullTerminatedString(vtx, reader));
                                 vtx.Seek(streamPositionEnd, SeekOrigin.Begin);
                             }
                         }
@@ -316,11 +316,11 @@ namespace CompilePalX.Compilers.BSPPack
             return vtxMaterials;
         }
 
-        public static List<string> findPhyGibs(string path)
+        public static List<string> FindPhyGibs(string path)
         {
             // finds gibs and ragdolls found in .phy files
 
-            List<string> models = new List<string>();
+            List<string> models = [];
 
             if (File.Exists(path))
             {
@@ -336,17 +336,17 @@ namespace CompilePalX.Compilers.BSPPack
                         int solid_size = reader.ReadInt32();
 
                         phy.Seek(solid_size, SeekOrigin.Current);
-                        string something = readNullTerminatedString(phy, reader);
+                        string something = ReadNullTerminatedString(phy, reader);
 
                         // TODO: can probably use KVSerializer to parse this
-                        string[] entries = something.Split(new char[] { '{', '}' });
-                        for (int i = 0; i < entries.Count(); i++)
+                        string[] entries = something.Split(['{', '}']);
+                        for (int i = 0; i < entries.Length; i++)
                         {
                             if (entries[i].Trim().Equals("break"))
                             {
-                                string[] entry = entries[i + 1].Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                                string[] entry = entries[i + 1].Split([' '], StringSplitOptions.RemoveEmptyEntries);
 
-                                for (int j = 0; j < entry.Count(); j++)
+                                for (int j = 0; j < entry.Length; j++)
                                     if (entry[j].Equals("\"model\"") || entry[j].Equals("\"ragdoll\""))
                                         models.Add("models\\" + entry[j + 1].Trim('"') + (entry[j + 1].Trim('"').EndsWith(".mdl") ? "" : ".mdl"));
                             }
@@ -357,7 +357,7 @@ namespace CompilePalX.Compilers.BSPPack
             return models;
         }
 
-        public static List<string> findMdlRefs(string path)
+        public static List<string> FindMdlRefs(string path)
         {
             // finds files associated with .mdl
 
@@ -372,7 +372,7 @@ namespace CompilePalX.Compilers.BSPPack
             return references;
         }
 
-        public static List<string> findVmtTextures(string fullpath)
+        public static List<string> FindVmtTextures(string fullpath)
         {
             // finds vtfs files associated with vmt file
             var vtfList = new List<string>();
@@ -394,7 +394,7 @@ namespace CompilePalX.Compilers.BSPPack
             return vtfList;
         }
 
-        public static List<string> findVmtMaterials(string fullpath)
+        public static List<string> FindVmtMaterials(string fullpath)
         {
             // finds vmt files associated with vmt file
             var vmtList = new List<string>();
@@ -412,11 +412,11 @@ namespace CompilePalX.Compilers.BSPPack
             return vmtList;
         }
 
-        public static List<string> findResMaterials(string fullpath)
+        public static List<string> FindResMaterials(string fullpath)
         {
             // finds vmt files associated with res file
 
-            List<string> vmtList = new List<string>();
+            List<string> vmtList = [];
             foreach (string line in File.ReadAllLines(fullpath))
             {
                 string param = line.Replace("\"", " ").Replace("\t", " ").Trim();
@@ -430,11 +430,11 @@ namespace CompilePalX.Compilers.BSPPack
             return vmtList;
         }
 
-        public static List<string> findRadarDdsFiles(string fullpath)
+        public static List<string> FindRadarDdsFiles(string fullpath)
         {
             // finds vmt files associated with radar overview files
 
-            List<string> DDSs = new List<string>();
+            List<string> DDSs = [];
 
             using (var w = File.OpenRead(fullpath))
             {
@@ -455,9 +455,8 @@ namespace CompilePalX.Compilers.BSPPack
                 // add default radar
                 DDSs.Add($"{radarPath}_radar.dds");
 
-                var verticalSections = kv["verticalsections"] as IEnumerable<KVObject>;
                 // file contains no vertical sections
-                if (verticalSections is null)
+                if (kv["verticalsections"] is not IEnumerable<KVObject> verticalSections)
                     return DDSs;
 
                 // add multi-level radars
@@ -480,59 +479,59 @@ namespace CompilePalX.Compilers.BSPPack
                 line = "";
             }
 
-            line = line.Trim(new char[] { ' ', '/', '\\' }); // removes leading slashes
+            line = line.Trim([' ', '/', '\\']); // removes leading slashes
             line = line.Replace('\\', '/'); // normalize slashes
             line = Regex.Replace(line, "/+", "/"); // remove duplicate slashes
 
             if (line.StartsWith("materials/"))
                 line = line.Remove(0, "materials/".Length); // removes materials/ if its the beginning of the string for consistency
             if (line.EndsWith(".vmt") || line.EndsWith(".vtf")) // removes extentions if present for consistency
-                line = line.Substring(0, line.Length - 4);
+                line = line[..^4];
             return line;
         }
 
-        public static List<string> findSoundscapeSounds(string fullpath)
+        public static List<string> FindSoundscapeSounds(string fullpath)
         {
             // finds audio files from soundscape file
 
-            char [] special_caracters = new char[] {'*', '#', '@', '>', '<', '^', '(', ')', '}', '$', '!', '?', ' '};
+            char [] special_caracters = ['*', '#', '@', '>', '<', '^', '(', ')', '}', '$', '!', '?', ' '];
 
-            List<string> audioFiles = new List<string>();
+            List<string> audioFiles = [];
             foreach (string line in File.ReadAllLines(fullpath))
             {
                 string param = Regex.Replace(line, "[\t|\"]", " ").Trim();
-                if (param.ToLower().StartsWith("wave"))
+                if (param.StartsWith("wave", StringComparison.CurrentCultureIgnoreCase))
                 {
-                    string clip = param.Split(new char[] { ' ' }, 2)[1].Trim(special_caracters);
+                    string clip = param.Split([' '], 2)[1].Trim(special_caracters);
                     audioFiles.Add("sound/" + clip);
                 }
             }
             return audioFiles;
         }
 
-        public static List<string> findManifestPcfs(string fullpath)
+        public static List<string> FindManifestPcfs(string fullpath)
         {
             // finds pcf files from the manifest file
 
-            List<string> pcfs = new List<string>();
+            List<string> pcfs = [];
             foreach (string line in File.ReadAllLines(fullpath))
             {
-                if (line.ToLower().Contains("file"))
+                if (line.Contains("file", StringComparison.CurrentCultureIgnoreCase))
                 {
                     string[] l = line.Split('"');
-                    pcfs.Add(l[l.Count() - 2].TrimStart('!'));
+                    pcfs.Add(l[^2].TrimStart('!'));
                 }
             }
             return pcfs;
         }
 
-        public static void findBspPakDependencies(BSP bsp, string tempdir)
+        public static void FindBspPakDependencies(BSP bsp, string tempdir)
         {
             // Search the temp folder to find dependencies of files extracted from the pak file
             if (Directory.Exists(tempdir))
-	            foreach (String file in Directory.EnumerateFiles(tempdir, "*.vmt", SearchOption.AllDirectories))
+	            foreach (string file in Directory.EnumerateFiles(tempdir, "*.vmt", SearchOption.AllDirectories))
 	            {
-                    foreach (string material in AssetUtils.findVmtMaterials(new FileInfo(file).FullName))
+                    foreach (string material in AssetUtils.FindVmtMaterials(new FileInfo(file).FullName))
                         bsp.TextureList.Add(material);
 				}
         }
@@ -543,19 +542,19 @@ namespace CompilePalX.Compilers.BSPPack
         /// </summary>
         /// <param name="fullpath">Full path to VScript file</param>
         /// <returns>List of VSript references</returns>
-        private static readonly string[] vscriptFunctions = { "IncludeScript", "DoIncludeScript", "PrecacheSound", "PrecacheModel" };
-        private static readonly string[] vscriptHints = { "!CompilePal::IncludeFile", "!CompilePal::IncludeDirectory" };
+        private static readonly string[] vscriptFunctions = ["IncludeScript", "DoIncludeScript", "PrecacheSound", "PrecacheModel"];
+        private static readonly string[] vscriptHints = ["!CompilePal::IncludeFile", "!CompilePal::IncludeDirectory"];
         public static (List<string>, List<string>, List<string>, List<string>, List<string>) FindVScriptDependencies(string fullpath)
         {
             var script = File.ReadAllLines(fullpath);
             var commentRegex = new Regex(@"^\/\/");
             var functionParametersRegex = new Regex("\\((.*?)\\)");
 
-            List<string> includedScripts = new ();
-            List<string> includedModels = new ();
-            List<string> includedSounds = new ();
-            List<string> includedFiles = new ();
-            List<string> includedDirectories = new ();
+            List<string> includedScripts = [];
+            List<string> includedModels = [];
+            List<string> includedSounds = [];
+            List<string> includedFiles = [];
+            List<string> includedDirectories = [];
 
             // currently only squirrel parsing is supported
             foreach (var line in script)
@@ -610,7 +609,7 @@ namespace CompilePalX.Compilers.BSPPack
 
         }
 
-        public static void findBspUtilityFiles(BSP bsp, List<string> sourceDirectories, bool renamenav, bool genparticlemanifest)
+        public static void FindBspUtilityFiles(BSP bsp, List<string> sourceDirectories, bool renamenav, bool genparticlemanifest)
         {
             // Utility files are other files that are not assets and are sometimes not referenced in the bsp
             // those are manifests, soundscapes, nav, radar and detail files
@@ -665,10 +664,10 @@ namespace CompilePalX.Compilers.BSPPack
             }
 
             // detail file (.vbsp)
-            Dictionary<string, string> worldspawn = bsp.entityList.FirstOrDefault(item => item["classname"] == "worldspawn", new Dictionary<string, string>());
-            if (worldspawn.ContainsKey("detailvbsp"))
+            Dictionary<string, string> worldspawn = bsp.entityList.FirstOrDefault(item => item["classname"] == "worldspawn", []);
+            if (worldspawn.TryGetValue("detailvbsp", out var detailvbsp))
             {
-                internalPath = worldspawn["detailvbsp"];
+                internalPath = detailvbsp;
 
                 foreach (string source in sourceDirectories)
                 {
@@ -684,17 +683,17 @@ namespace CompilePalX.Compilers.BSPPack
 
 
             // Vehicle scripts
-            List<KeyValuePair<string, string>> vehicleScripts = new List<KeyValuePair<string, string>>();
+            List<KeyValuePair<string, string>> vehicleScripts = [];
             foreach (Dictionary<string, string> ent in bsp.entityList)
             {
-                if (ent.ContainsKey("vehiclescript"))
+                if (ent.TryGetValue("vehiclescript", out var vehiclescript))
                 {
                     foreach (string source in sourceDirectories)
                     {
-                        string externalPath = source + "/" + ent["vehiclescript"];
+                        string externalPath = source + "/" + vehiclescript;
                         if (File.Exists(externalPath))
                         {
-                            vehicleScripts.Add(new KeyValuePair<string, string>(ent["vehiclescript"], externalPath));
+                            vehicleScripts.Add(new KeyValuePair<string, string>(vehiclescript, externalPath));
                             break;
                         }
                     }
@@ -703,17 +702,17 @@ namespace CompilePalX.Compilers.BSPPack
             bsp.VehicleScriptList = vehicleScripts;
 
 			// Effect Scripts
-			List<KeyValuePair<string, string>> effectScripts = new List<KeyValuePair<string, string>>();
+			List<KeyValuePair<string, string>> effectScripts = [];
 			foreach (Dictionary<string, string> ent in bsp.entityList)
 			{
-				if (ent.ContainsKey("scriptfile"))
+				if (ent.TryGetValue("scriptfile", out var scriptfile))
 				{
 					foreach (string source in sourceDirectories)
 					{
-						string externalPath = source + "/" + ent["scriptfile"];
+						string externalPath = source + "/" + scriptfile;
 						if (File.Exists(externalPath))
 						{
-							effectScripts.Add(new KeyValuePair<string, string>(ent["scriptfile"], externalPath));
+							effectScripts.Add(new KeyValuePair<string, string>(scriptfile, externalPath));
                             break;
 						}
 					}
@@ -724,14 +723,14 @@ namespace CompilePalX.Compilers.BSPPack
             // Res files (for tf2's pd gamemode)
             foreach (Dictionary<string, string> ent in bsp.entityList)
             {
-                if (ent.ContainsKey("res_file"))
+                if (ent.TryGetValue("res_file", out var resFile))
                 {
                     foreach (string source in sourceDirectories)
                     {
-                        string externalPath = source + "/" + ent["res_file"];
+                        string externalPath = source + "/" + resFile;
                         if (File.Exists(externalPath))
                         {
-                            bsp.res.Add(new KeyValuePair<string, string>(ent["res_file"], externalPath));
+                            bsp.res.Add(new KeyValuePair<string, string>(resFile, externalPath));
                             break;
                         }
                     }
@@ -764,7 +763,7 @@ namespace CompilePalX.Compilers.BSPPack
 
             // Radar file
             internalPath = "resource/overviews/" + bsp.file.Name.Replace(".bsp", ".txt");
-            List<KeyValuePair<string, string>> ddsfiles = new List<KeyValuePair<string, string>>();
+            List<KeyValuePair<string, string>> ddsfiles = [];
             foreach (string source in sourceDirectories)
             {
                 string externalPath = source + "/" + internalPath;
@@ -772,9 +771,9 @@ namespace CompilePalX.Compilers.BSPPack
                 if (File.Exists(externalPath))
                 {
                     bsp.radartxt = new KeyValuePair<string, string>(internalPath, externalPath);
-                    bsp.TextureList.AddRange(findVmtMaterials(externalPath));
+                    bsp.TextureList.AddRange(FindVmtMaterials(externalPath));
 
-                    List<string> ddsInternalPaths = findRadarDdsFiles(externalPath);
+                    List<string> ddsInternalPaths = FindRadarDdsFiles(externalPath);
                     //find out if they exists or not
                     foreach (string ddsInternalPath in ddsInternalPaths)
                     {
@@ -872,7 +871,7 @@ namespace CompilePalX.Compilers.BSPPack
             string internalDir = "maps/";
             string name = bsp.file.Name.Replace(".bsp", "");
             string searchPattern = name + "*.txt";
-            List<KeyValuePair<string, string>> langfiles = new List<KeyValuePair<string, string>>();
+            List<KeyValuePair<string, string>> langfiles = [];
 
             foreach (string source in sourceDirectories)
             {
@@ -901,13 +900,13 @@ namespace CompilePalX.Compilers.BSPPack
             bsp.languages = langfiles;
 
             // ASW/Source2009 branch VScripts
-            List<string> vscripts = new List<string>();
+            List<string> vscripts = [];
 
             foreach(Dictionary<string, string> entity in bsp.entityList)
             {
                 foreach(KeyValuePair<string,string> kvp in entity)
                 {
-                    if(kvp.Key.ToLower() == "vscripts")
+                    if(kvp.Key.Equals("vscripts", StringComparison.CurrentCultureIgnoreCase))
                     {
                         string[] scripts = kvp.Value.Split(' ');
                         foreach(string script in scripts)
@@ -920,9 +919,9 @@ namespace CompilePalX.Compilers.BSPPack
             bsp.vscriptList = vscripts.Distinct().ToList();
         }
 
-        private static string readNullTerminatedString(FileStream fs, BinaryReader reader)
+        private static string ReadNullTerminatedString(FileStream fs, BinaryReader reader)
         {
-            List<byte> verString = new List<byte>();
+            List<byte> verString = [];
             byte v;
             do
             {
