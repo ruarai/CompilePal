@@ -931,6 +931,12 @@ namespace CompilePalX.Compilers.BSPPack
             return Encoding.ASCII.GetString(verString.ToArray()).Trim('\0');
         }
 
+        /// <summary>
+        /// Recursively searches KV for specified key
+        /// </summary>
+        /// <param name="kv"></param>
+        /// <param name="key"></param>
+        /// <returns></returns>
         private static List<KVValue> FindKVKey(KVObject kv, string key)
         {
             var values = new List<KVValue>();

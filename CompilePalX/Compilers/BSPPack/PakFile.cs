@@ -38,6 +38,13 @@ namespace CompilePalX.Compilers.BSPPack
                                    && !excludedDirs.Any(externalPath.ToLower().Replace('/', '\\').StartsWith)
                                    && !excludedVpkFiles.Contains(paths.Key.ToLower().Replace('\\', '/')))
             {
+                // ignore files that have already been added
+                if (Files.ContainsKey(paths.Key))
+                {
+                    CompilePalLogger.LogLineDebug($"Ignoring file, already added: {paths}");
+                    return false;
+                }
+
                 Files.Add(paths);
                 return true;
             }
