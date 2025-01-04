@@ -482,7 +482,7 @@ namespace CompilePalX
 		        return $"{item.Parameter},{item.Value.Replace(",", "\\,")},{item.Value2.Replace(",", "\\,")},{item.ReadOutput},{item.WaitForExit},{item.Warning}";
             else if (item.Name == "Command Line Argument") // Command line arguments have no parameter value
                 return $"{item.Name},{item.Value.Replace(",", "\\,")}";
-            return $"{item.Parameter},{item.Value.Replace(",", "\\,")}";
+            return $"{item.Parameter},{item.Value?.Replace(",", "\\,")}";
         }
 
         private static ConfigItem ParseBaseLine(string line)

@@ -417,14 +417,13 @@ namespace CompilePalX.Compilers.BSPPack
             // finds vmt files associated with res file
 
             List<string> vmtList = [];
-            foreach (string line in File.ReadAllLines(fullpath))
+
+            using (var w = File.OpenRead(fullpath))
             {
-                string param = line.Replace("\"", " ").Replace("\t", " ").Trim();
-                if (param.StartsWith("image ", StringComparison.CurrentCultureIgnoreCase))
+                KVObject kv = KVSerializer.Deserialize(w, new KVSerializerOptions { FileLoader = new IncludeFileLoader() });
+                foreach (var value in FindKVKey(kv, "image"))
                 {
-                    string path = "materials/vgui/" + VmtPathParser(line) + ".vmt";
-                    path = path.Replace("/vgui/..", "");
-                    vmtList.Add(path);
+                    vmtList.Add($"materials/vgui/{VmtPathParser(value)}.vmt");
                 }
             }
             return vmtList;
@@ -930,6 +929,36 @@ namespace CompilePalX.Compilers.BSPPack
             } while (v != '\0' && fs.Position != fs.Length);
 
             return Encoding.ASCII.GetString(verString.ToArray()).Trim('\0');
+        }
+
+        private static List<KVValue> FindKVKey(KVObject kv, string key)
+        {
+            var values = new List<KVValue>();
+
+            foreach (var property in kv)
+            {
+                if (key == property.Name)
+                    values.Add(property.Value);
+
+
+                // recursively search KV
+                if (property is KVObject)
+                    values.AddRange(FindKVKey(property, key));
+            }
+
+            return values;
+        }
+    }
+
+    public class IncludeFileLoader : IIncludedFileLoader
+    {
+        public Stream OpenFile(string filePath)
+        {
+            if (File.Exists(filePath))
+                return File.OpenRead(filePath);
+
+            // if file is not found return empty KV file so it doesnt crash
+            return new MemoryStream(Encoding.UTF8.GetBytes("\"\"{}"));
         }
     }
 }
