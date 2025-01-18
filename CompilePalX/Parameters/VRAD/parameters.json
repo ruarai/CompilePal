@@ -235,6 +235,14 @@
     ] 
   },
   {
+    "Name": "No Extra",
+    "Parameter": " -noextra",
+    "Description": "Disable supersampling. This will lead to blockier, less accurate lighting",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": ""
+  },
+  {
     "Name": "Verbose",
     "Parameter": " -verbose",
     "Description": "Turn on verbose output for debug purposes.",
