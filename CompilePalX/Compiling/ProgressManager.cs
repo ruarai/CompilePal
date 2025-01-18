@@ -52,7 +52,10 @@ namespace CompilePalX
                     {
                         TitleChange($"{Math.Floor(progress * 100d)}% - {defaultTitle} {UpdateManager.CurrentVersion}X");
 
-                        System.Media.SystemSounds.Exclamation.Play();
+                        if (ConfigurationManager.Settings.PlaySoundOnCompileCompletion)
+                        {
+                            System.Media.SystemSounds.Exclamation.Play();
+                        }
                     }
                     else if (progress <= 0)
                     {

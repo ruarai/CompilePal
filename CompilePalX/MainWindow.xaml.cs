@@ -1084,8 +1084,8 @@ namespace CompilePalX
             try
             {
                 var converter = new GridLengthConverter();
-                if (ConfigurationManager.Settings.MapBoxHeight is not null)
-                    this.MapListBoxRow.Height = (GridLength)converter.ConvertFromString(ConfigurationManager.Settings.MapBoxHeight);
+                if (ConfigurationManager.Settings.MapListHeight is not null)
+                    this.MapListBoxRow.Height = (GridLength)converter.ConvertFromString(ConfigurationManager.Settings.MapListHeight);
             }
             catch (Exception ex)
             {
@@ -1102,7 +1102,7 @@ namespace CompilePalX
             try
             {
                 var converter = new GridLengthConverter();
-                ConfigurationManager.Settings.MapBoxHeight = converter.ConvertToString(this.MapListBoxRow.Height);
+                ConfigurationManager.Settings.MapListHeight = converter.ConvertToString(this.MapListBoxRow.Height);
 
                 ConfigurationManager.SaveSettings();
             }
