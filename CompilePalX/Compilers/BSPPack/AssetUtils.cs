@@ -381,13 +381,13 @@ namespace CompilePalX.Compilers.BSPPack
                 KVObject kv = KVSerializer.Deserialize(w);
                 foreach (var property in kv)
                 {
-                    if (!Keys.vmtTextureKeyWords.Contains(property.Name))
+                    if (!Keys.vmtTextureKeyWords.Contains(property.Name, StringComparer.OrdinalIgnoreCase))
                         continue;
 
                     var path = VmtPathParser(property.Value);
 
                     vtfList.Add($"materials/{path}.vtf");
-                    if (property.Name == "$envmap")
+                    if (property.Name.Equals("$envmap", StringComparison.OrdinalIgnoreCase))
                         vtfList.Add($"materials/{path}.hdr.vtf");
                 }
             }
@@ -403,7 +403,7 @@ namespace CompilePalX.Compilers.BSPPack
                 KVObject kv = KVSerializer.Deserialize(w);
                 foreach (var property in kv)
                 {
-                    if (!Keys.vmtMaterialKeyWords.Contains(property.Name))
+                    if (!Keys.vmtMaterialKeyWords.Contains(property.Name, StringComparer.OrdinalIgnoreCase))
                         continue;
 
                     vmtList.Add($"materials/{VmtPathParser(property.Value)}.vmt");
@@ -499,7 +499,7 @@ namespace CompilePalX.Compilers.BSPPack
             foreach (string line in File.ReadAllLines(fullpath))
             {
                 string param = Regex.Replace(line, "[\t|\"]", " ").Trim();
-                if (param.StartsWith("wave", StringComparison.CurrentCultureIgnoreCase))
+                if (param.StartsWith("wave", StringComparison.OrdinalIgnoreCase))
                 {
                     string clip = param.Split([' '], 2)[1].Trim(special_caracters);
                     audioFiles.Add("sound/" + clip);
@@ -515,7 +515,7 @@ namespace CompilePalX.Compilers.BSPPack
             List<string> pcfs = [];
             foreach (string line in File.ReadAllLines(fullpath))
             {
-                if (line.Contains("file", StringComparison.CurrentCultureIgnoreCase))
+                if (line.Contains("file", StringComparison.OrdinalIgnoreCase))
                 {
                     string[] l = line.Split('"');
                     pcfs.Add(l[^2].TrimStart('!'));
@@ -530,7 +530,7 @@ namespace CompilePalX.Compilers.BSPPack
             if (Directory.Exists(tempdir))
 	            foreach (string file in Directory.EnumerateFiles(tempdir, "*.vmt", SearchOption.AllDirectories))
 	            {
-                    foreach (string material in AssetUtils.FindVmtMaterials(new FileInfo(file).FullName))
+                    foreach (string material in FindVmtMaterials(new FileInfo(file).FullName))
                         bsp.TextureList.Add(material);
 				}
         }
@@ -932,7 +932,7 @@ namespace CompilePalX.Compilers.BSPPack
         }
 
         /// <summary>
-        /// Recursively searches KV for specified key
+        /// Recursively searches KV for specified key, case insensitive
         /// </summary>
         /// <param name="kv"></param>
         /// <param name="key"></param>
@@ -943,7 +943,7 @@ namespace CompilePalX.Compilers.BSPPack
 
             foreach (var property in kv)
             {
-                if (key == property.Name)
+                if (key.Equals(property.Name, StringComparison.OrdinalIgnoreCase))
                     values.Add(property.Value);
 
 
