@@ -286,7 +286,7 @@ namespace CompilePalX
             Process.Start("explorer", $"/select, \"{e.Uri}\"");
         }
 
-        async void UpdateManager_OnUpdateFound()
+        void UpdateManager_OnUpdateFound()
         {
             UpdateHyperLink.Inlines.Add(
 	            $"An update is available. Current version is {UpdateManager.CurrentVersion}, latest version is {UpdateManager.LatestVersion}.");
@@ -1077,6 +1077,43 @@ namespace CompilePalX
         {
             new SettingsWindow().Show();
         }
+
+        protected override void OnSourceInitialized(EventArgs e)
+        {
+            // load settings on window opening
+            try
+            {
+                var converter = new GridLengthConverter();
+                if (ConfigurationManager.Settings.MapBoxHeight is not null)
+                    this.MapListBoxRow.Height = (GridLength)converter.ConvertFromString(ConfigurationManager.Settings.MapBoxHeight);
+            }
+            catch (Exception ex)
+            {
+                // fail silently, worst case scenario is we use the default height of the list box
+                CompilePalLogger.LogLineDebug($"Failed to load settings on startup: {ex}");
+            }
+
+            base.OnSourceInitialized(e);
+        }
+
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            // save size of map list box on window closing
+            try
+            {
+                var converter = new GridLengthConverter();
+                ConfigurationManager.Settings.MapBoxHeight = converter.ConvertToString(this.MapListBoxRow.Height);
+
+                ConfigurationManager.SaveSettings();
+            }
+            catch (Exception ex)
+            {
+                // fail silently, worst case scenario is the height of the list box doesnt save
+                CompilePalLogger.LogLineDebug($"Failed while saving settings on shutdown: {ex}");
+            }
+            base.OnClosing(e);
+        }
+
     }
 
     public static class ObservableCollectionExtension

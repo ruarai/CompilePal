@@ -10,6 +10,10 @@ namespace CompilePalX.Configuration
     {
         public string ErrorSourceURL { get; set; } = "https://www.interlopers.net/includes/errorpage/errorChecker.txt";
         public int ErrorCacheExpirationDays { get; set; } = 7;
+
+        // not directly editable by user, set in MainWindow.xaml.cs on shutdown
+        public string? MapBoxHeight { get; set; } = null;
+
         public object Clone()
         {
             return MemberwiseClone();

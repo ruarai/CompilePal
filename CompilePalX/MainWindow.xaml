@@ -61,7 +61,7 @@
 
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="89" MinHeight="89" MaxHeight="240"></RowDefinition>
+            <RowDefinition Height="89" MinHeight="89" MaxHeight="240" Name="MapListBoxRow"></RowDefinition>
             <RowDefinition Height="10"></RowDefinition>
             <RowDefinition></RowDefinition>
         </Grid.RowDefinitions>
@@ -114,7 +114,7 @@
         </ListBox>
         <Button x:Name="AddMapButton"  Grid.Row="0" Content="Add Map" Margin="0,10,10,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="75" Click="AddMapButton_Click"/>
         <Button x:Name="RemoveMapButton"  Grid.Row="0" Content="Remove" Margin="0,45,10,0" VerticalAlignment="Top" HorizontalAlignment="Right" Width="75" Click="RemoveMapButton_Click"/>
-        <GridSplitter Grid.Row="1" Height="3" HorizontalAlignment="Stretch" Width="512"></GridSplitter>
+        <GridSplitter Grid.Row="1" Height="3" HorizontalAlignment="Stretch" Width="512"/>
         <controls:MetroTabControl Grid.Row="2" controls:TabControlHelper.Underlined="SelectedTabItem" controls:TabControlHelper.Transition="LeftReplace" Margin="10,10,10,40">
             <controls:MetroTabItem Header="CONFIG">
                 <Grid Background="{StaticResource CompilePal.Brushes.GridBackground}">

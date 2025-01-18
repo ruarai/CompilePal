@@ -281,6 +281,10 @@ namespace CompilePalX
             Settings = settings;
             ErrorFinder.Init(true);
         }
+        public static void SaveSettings()
+        {
+            SaveSettings(Settings);
+        }
 
         public static Preset NewPreset(Preset preset)
         {
