@@ -590,7 +590,7 @@ namespace CompilePalX.Compilers.BSPPack
                         includedScripts.Add(Path.Combine("scripts", "vscripts", functionParameters[0].Replace("\"", "").Trim()));
                     } else if (cleanStatement.Contains("PrecacheModel")) {
                         // pack precached models
-                        includedSounds.Add(functionParameters[0].Replace("\"", "").Trim());
+                        includedModels.Add(functionParameters[0].Replace("\"", "").Trim());
                     } else if (cleanStatement.Contains("PrecacheSound")) {
                         // pack precached sounds
                         includedSounds.Add(Path.Combine("sound", functionParameters[0].Replace("\"", "").Trim()));                    
