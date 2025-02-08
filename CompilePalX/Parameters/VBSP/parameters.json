@@ -267,5 +267,16 @@
     "CompatibleGames": [
       730 // csgo
     ] 
+  },
+  {
+    "Name": "Allow Dynamic Props As Static",
+    "Parameter": " -allowdynamicpropsasstatic",
+    "Description": "Allow all models with the 'static' flag in the model viewer to be used on prop_static, even when their propdata doesn't contain 'allowstatic'.",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": "",
+    "CompatibleGames": [
+      4000 // gmod
+    ]
   }
 ]
