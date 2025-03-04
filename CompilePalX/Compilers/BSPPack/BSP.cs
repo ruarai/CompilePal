@@ -527,7 +527,7 @@ namespace CompilePalX.Compilers.BSPPack
             // find color correction files
             foreach (Dictionary<string, string> cc in entityList.Where(item => item["classname"].StartsWith("color_correction")))
                 if (cc.ContainsKey("filename"))
-                    TextureList.Add(cc["filename"]);
+                    MiscList.Add(cc["filename"]);
 
             // pack I/O referenced TF2 upgrade files
             // need to use array form of entity because multiple outputs with same command can't be stored in dict
