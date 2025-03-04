@@ -378,7 +378,17 @@ namespace CompilePalX.Compilers.BSPPack
             var vtfList = new List<string>();
             using (var w = File.OpenRead(fullpath))
             {
-                KVObject kv = KVSerializer.Deserialize(w);
+                KVObject kv;
+                try
+                {
+                    kv = KVSerializer.Deserialize(w);
+                }
+                catch(Exception e)
+                {
+                    CompilePalLogger.LogCompileError($"Error parsing file {fullpath}", new Error(e.Message, ErrorSeverity.Error));
+                    return vtfList;
+                }
+
                 foreach (var property in kv)
                 {
                     if (!Keys.vmtTextureKeyWords.Contains(property.Name, StringComparer.OrdinalIgnoreCase))

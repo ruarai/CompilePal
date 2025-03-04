@@ -249,7 +249,16 @@ namespace CompilePalX.Compilers.BSPPack
 
                 // special condition for sprites
                 if (ent["classname"].Contains("sprite") && ent.ContainsKey("model"))
-                    materials.Add(ent["model"]);
+                {
+                    var model = ent["model"];
+                    // strip leading materials folder
+                    if(model.StartsWith("materials/", StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        model = model.Substring(10);
+                    }
+                    materials.Add(model);
+                }
+                    
 
                 // special condition for item_teamflag
                 if (ent["classname"].Contains("item_teamflag"))
