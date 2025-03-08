@@ -74,7 +74,13 @@ namespace CompilePalX.Compilers
                 string mapname = System.IO.Path.GetFileName(context.CopyLocation).Replace(".bsp", "");
 
                 string args =
-                    $"-steam -game \"{context.Configuration.GameFolder}\" -windowed -insecure -novid -nosound +mat_specular 0 %HDRevel% +map {mapname} {buildCubemapCommand} {addtionalParameters}";
+                    $"-steam -game \"{context.Configuration.GameFolder}\" -windowed -insecure -novid +mat_specular 0 %HDRevel% +map {mapname} {buildCubemapCommand} {addtionalParameters}";
+
+                // disable -nosound parameter for cs:s, crashes game on startup if present
+                if (GameConfigurationManager.GameConfiguration.SteamAppID != 240)
+                {
+                    args += " -nosound";
+                }
 
                 if (hidden)
                     args += " -noborder -x 4000 -y 2000";
@@ -108,20 +114,28 @@ namespace CompilePalX.Compilers
             catch (Exception exception)
             {
                 CompilePalLogger.LogLine("Something broke:");
-                CompilePalLogger.LogCompileError($"{exception}\n", new Error(exception.ToString(), "CompilePal Internal Error", ErrorSeverity.FatalError));
+                CompilePalLogger.LogLineCompileError($"{exception}", new Error(exception.ToString(), "CompilePal Internal Error", ErrorSeverity.FatalError));
             }
 
         }
 
         public void RunCubemaps(string gameEXE, string args, CancellationToken cancellationToken)
         {
-            var startInfo = new ProcessStartInfo(gameEXE, args);
-            startInfo.UseShellExecute = false;
-            startInfo.CreateNoWindow = false;
+            var startInfo = new ProcessStartInfo(gameEXE, args)
+            {
+                UseShellExecute = false,
+                CreateNoWindow = false,
+            };
+
 
             Process = new Process { StartInfo = startInfo };
             Process.Start();
             Process.WaitForExit();
+
+            if (Process.ExitCode != 0)
+            {
+                CompilePalLogger.LogLineCompileError($"Game exited with non-zero exit code ({Process.ExitCode}) while building cubemaps", new Error($"Cubemap step exited with non-zero exit code", ErrorSeverity.Warning));
+            }
         }
 
         public void FetchHDRLevels()
