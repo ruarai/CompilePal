@@ -147,7 +147,8 @@ namespace CompilePalX.Compilers.BSPPack
 
         private bool noSwvtx;
 
-        public PakFile(BSP bsp, List<string> sourceDirectories, List<string> includeFiles, List<string> excludedFiles, List<string> excludedDirs, List<string> excludedVpkFiles, string outputFile, bool noswvtx)
+        public PakFile(BSP bsp, List<string> sourceDirectories, List<string> includeFiles, List<string> excludedFiles, 
+            List<string> excludedDirs, List<string> excludedVpkFiles, string outputFile, bool noswvtx)
         {
             mdlcount = vmtcount = pcfcount = soundcount = vehiclescriptcount = effectscriptcount = PanoramaMapBackgroundCount = 0;
             sourceDirs = sourceDirectories;
@@ -363,13 +364,32 @@ namespace CompilePalX.Compilers.BSPPack
         {
             // adds vmt files and finds its dependencies
             string externalPath = FindExternalFile(internalPath);
+
+            if (externalPath == "" && internalPath.EndsWith("_wvt_patch.vmt", StringComparison.OrdinalIgnoreCase))
+            {
+                var pattern = new Regex(@"^(materials)/maps/[^/]+/(.+)_wvt_patch.(vmt)$", RegexOptions.IgnoreCase);
+                var match = pattern.Match(internalPath);
+                if(!match.Success)
+                {
+                    return;
+                }
+
+                internalPath = Path.Join(match.Groups[1].Value, $"{match.Groups[2].Value}.{match.Groups[3].Value}");
+                externalPath = FindExternalFile(internalPath);
+            }
+
             if (AddInternalFile(internalPath, externalPath))
             {
                 vmtcount++;
                 foreach (string vtf in AssetUtils.FindVmtTextures(externalPath))
+                {
                     AddInternalFile(vtf, FindExternalFile(vtf));
+                }
+                    
                 foreach (string vmt in AssetUtils.FindVmtMaterials(externalPath))
+                {
                     AddTexture(vmt);
+                }
             }
         }
 
