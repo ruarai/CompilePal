@@ -76,12 +76,6 @@ namespace CompilePalX.Compilers
                 string args =
                     $"-steam -game \"{context.Configuration.GameFolder}\" -windowed -insecure -novid +mat_specular 0 %HDRevel% +map {mapname} {buildCubemapCommand} {addtionalParameters}";
 
-                // disable -nosound parameter for cs:s, crashes game on startup if present
-                if (GameConfigurationManager.GameConfiguration.SteamAppID != 240)
-                {
-                    args += " -nosound";
-                }
-
                 if (hidden)
                     args += " -noborder -x 4000 -y 2000";
 

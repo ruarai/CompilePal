@@ -24,6 +24,17 @@
     "Warning": ""
   },
   {
+    "Name": "No Sound",
+    "Parameter": " -nosound",
+    "Description": "Disables sound",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": "Can cause crashes on certain engine branches",
+    "IncompatibleGames": [
+      240 // cs:s
+    ]
+  },
+  {
     "Name": "Iterations",
     "Parameter": " -iterations",
     "Description": "Number of times to build cubemaps. Useful for recursive reflections",
