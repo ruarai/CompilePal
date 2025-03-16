@@ -197,8 +197,9 @@ namespace CompilePalX.Compilers.BSPPack
                 else
                     TextureList[i] = "materials/" + TextureList[i] + ".vmt";
 
-                var match = patch_pattern.Match(TextureList[i]);
-                if (match.Success)
+                // pack wvt (world vertex transition) patch materials. These are generated when blend textures are used on non displacement brushes and are renamed maps/{mapname}/{material_name}_wvt_patch.vmt
+                // https://github.com/ValveSoftware/source-sdk-2013/blob/a62efecf624923d3bacc67b8ee4b7f8a9855abfd/src/utils/vbsp/worldvertextransitionfixup.cpp#L47
+                if (patch_pattern.Match(TextureList[i]) is Match { Success: true} match)
                 {
                     TextureList[i] = Path.Join("materials", $"{match.Groups[1].Value}.{match.Groups[2].Value}");
                 }
