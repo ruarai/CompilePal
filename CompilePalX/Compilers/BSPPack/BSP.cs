@@ -183,6 +183,8 @@ namespace CompilePalX.Compilers.BSPPack
         {
             // builds the list of textures applied to brushes
 
+            Regex patch_pattern = new Regex(@"^materials/maps/[^/]+/(.+)_wvt_patch.(vmt)$", RegexOptions.IgnoreCase);
+
             string mapname = bsp.Name.Split('\\').Last().Split('.')[0];
 
             TextureList = [];
@@ -194,6 +196,12 @@ namespace CompilePalX.Compilers.BSPPack
                     TextureList[i] = "materials" + TextureList[i] + ".vmt";
                 else
                     TextureList[i] = "materials/" + TextureList[i] + ".vmt";
+
+                var match = patch_pattern.Match(TextureList[i]);
+                if (match.Success)
+                {
+                    TextureList[i] = Path.Join("materials", $"{match.Groups[1].Value}.{match.Groups[2].Value}");
+                }
             }
 
             // find skybox materials
