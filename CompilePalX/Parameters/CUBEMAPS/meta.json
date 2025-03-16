@@ -1,7 +1,7 @@
 {
   "Name": "CUBEMAPS",
   "Path": "builtin",
-  "Order": 9.0,
+  "Order": 11.0,
   "DoRun": false,
   "ReadOutput": true,
   "Description": "Builds cubemaps automatically.",

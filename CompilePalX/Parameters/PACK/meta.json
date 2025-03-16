@@ -1,7 +1,7 @@
 {
   "Name": "PACK",
   "Path": "builtin",
-  "Order": 11.0,
+  "Order": 10.0,
   "DoRun": true,
   "ReadOutput": true,
   "Description": "Finds map dependencies and includes them in the .bsp.",

@@ -1,7 +1,7 @@
 {
   "Name": "UTILITY",
   "Path": "builtin",
-  "Order": 10.0,
+  "Order": 9.0,
   "DoRun": false,
   "ReadOutput": true,
   "Description": "Utilities for generating and updating filenames.",
