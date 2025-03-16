@@ -147,7 +147,8 @@ namespace CompilePalX.Compilers.BSPPack
 
         private bool noSwvtx;
 
-        public PakFile(BSP bsp, List<string> sourceDirectories, List<string> includeFiles, List<string> excludedFiles, List<string> excludedDirs, List<string> excludedVpkFiles, string outputFile, bool noswvtx)
+        public PakFile(BSP bsp, List<string> sourceDirectories, List<string> includeFiles, List<string> excludedFiles, 
+            List<string> excludedDirs, List<string> excludedVpkFiles, string outputFile, bool noswvtx)
         {
             mdlcount = vmtcount = pcfcount = soundcount = vehiclescriptcount = effectscriptcount = PanoramaMapBackgroundCount = 0;
             sourceDirs = sourceDirectories;
@@ -363,13 +364,19 @@ namespace CompilePalX.Compilers.BSPPack
         {
             // adds vmt files and finds its dependencies
             string externalPath = FindExternalFile(internalPath);
+
             if (AddInternalFile(internalPath, externalPath))
             {
                 vmtcount++;
                 foreach (string vtf in AssetUtils.FindVmtTextures(externalPath))
+                {
                     AddInternalFile(vtf, FindExternalFile(vtf));
+                }
+                    
                 foreach (string vmt in AssetUtils.FindVmtMaterials(externalPath))
+                {
                     AddTexture(vmt);
+                }
             }
         }
 
