@@ -54,7 +54,7 @@ namespace CompilePalX.Compilers
                 var addtionalParameters = Regex.Replace(GetParameterString(), "\b-hidden\b", "");
 
                 string args =
-                    $"-steam -game \"{context.Configuration.GameFolder}\" -windowed -insecure -novid -nosound +log 0 +sv_logflush 1 +sv_cheats 1 +map {mapname} {addtionalParameters}";
+                    $"-steam -game \"{context.Configuration.GameFolder}\" -windowed -insecure -novid +log 0 +sv_logflush 1 +sv_cheats 1 +map {mapname} {addtionalParameters}";
 
                 if (hidden)
                     args += " -noborder -x 4000 -y 2000";
