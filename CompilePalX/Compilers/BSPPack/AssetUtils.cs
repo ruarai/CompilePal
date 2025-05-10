@@ -7,6 +7,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using CompilePalX;
 using CompilePalX.Compiling;
+using Segment.Model;
 using ValveKeyValue;
 
 namespace CompilePalX.Compilers.BSPPack
@@ -916,7 +917,7 @@ namespace CompilePalX.Compilers.BSPPack
             }
             bsp.languages = langfiles;
 
-            // ASW/Source2009 branch VScripts
+            // VScripts
             List<string> vscripts = [];
 
             foreach(Dictionary<string, string> entity in bsp.entityList)
@@ -931,6 +932,38 @@ namespace CompilePalX.Compilers.BSPPack
                             vscripts.Add("scripts/vscripts/" + script);
                         }
                     }
+                }
+            }
+            foreach(var entity in bsp.entityListArrayForm)
+            {
+                foreach (var prop in entity)
+                {
+                    var io = bsp.ParseIO(prop.Item2);
+
+                    if (io == null) continue;
+
+                    var (target, command, parameter) = io;
+
+                    if (command.ToLower() == "runscriptfile")
+                        vscripts.Add("scripts/vscripts/" + parameter);
+
+                    else if (command.ToLower() == "runscriptcode" && ( parameter.StartsWith("IncludeScript") || parameter.StartsWith("DoIncludeScript") ))
+                    {
+                        string[] splitparam = parameter.Split('`');
+
+                        if (splitparam.Length != 3 || splitparam[2] != ")")
+                        {
+                            var entname = entity.Find(t => t.Item1 == "targetname")?.Item2;
+
+                            if (entname == null) 
+                                entname = entity.Find(t => t.Item1 == "classname")!.Item2;
+
+                            CompilePalLogger.LogCompileError($"Invalid IncludeScript in '{entname}' ({parameter})\n", new Error($"Invalid IncludeScript in {entname} ({parameter})\n", ErrorSeverity.Error));
+                            continue;
+                        }
+                        vscripts.Add("scripts/vscripts/" + splitparam[1]);
+                    }
+
                 }
             }
             bsp.vscriptList = vscripts.Distinct().ToList();

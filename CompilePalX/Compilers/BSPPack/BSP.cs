@@ -451,7 +451,10 @@ namespace CompilePalX.Compilers.BSPPack
             // builds the list of models referenced in entities
 
             EntModelList = [];
-	        foreach (Dictionary<string, string> ent in entityList)
+
+            //SetModelSimple is a vscript input
+            string[] modelcommands = ["SetModel", "SetCustomModel", "SetCustomModelWithClassAnimations"];
+            foreach (Dictionary<string, string> ent in entityList)
 	        {
 				foreach (KeyValuePair<string, string> prop in ent)
 				{
@@ -489,7 +492,7 @@ namespace CompilePalX.Compilers.BSPPack
 
                     var (target, command, parameter) = io;
 
-                    if (command == "SetModel")
+                    if (modelcommands.Contains(command))
                         EntModelList.Add(parameter);
                 }
             }
@@ -517,7 +520,9 @@ namespace CompilePalX.Compilers.BSPPack
                         continue;
 
                     var (target, command, parameter) = io;
-                    if (command == "PlayVO")
+
+                    // StartsWith to check PlayVO, PlayVORed, PlayVOBlue
+                    if (command.StartsWith("PlayVO"))
                     {
                         //Parameter value following PlayVO is always either a sound path or an empty string
                         if (!string.IsNullOrWhiteSpace(parameter)) 
@@ -558,6 +563,7 @@ namespace CompilePalX.Compilers.BSPPack
                     if (io == null) continue;
 
                     var (target, command, parameter) = io;
+
                     if (command.ToLower() != "setcustomupgradesfile") continue;
 
                     MiscList.Add(parameter);
@@ -580,7 +586,7 @@ namespace CompilePalX.Compilers.BSPPack
         /// </summary>
         /// <param name="property">Entity property</param>
         /// <returns>Tuple containing (target, command, parameter)</returns>
-        private Tuple<string, string, string>? ParseIO(string property)
+        public Tuple<string, string, string>? ParseIO(string property, bool vscriptIO = false)
         {
             // io is split by unicode escape char
             if (!property.Contains("\u001b"))
@@ -617,8 +623,15 @@ namespace CompilePalX.Compilers.BSPPack
                     parameter = splitIo[2];
                 }
             }
+            // Parse VScript RunScriptCode parameters for assets and basic syntax errors
+            else if (vscriptIO && targetInput == "RunScriptCode" && parameter.Contains('`'))
+            {
+                char[] trim = { '(', ',' };
+                string strippedparam = parameter.Trim(trim);
+                string[] splitparam = parameter.Split('`');
+            }
 
-            return new Tuple<string, string, string>(io[0], targetInput, parameter);
+                return new Tuple<string, string, string>(io[0], targetInput, parameter);
         }
     }
 }
