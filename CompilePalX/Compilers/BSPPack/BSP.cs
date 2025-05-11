@@ -18,7 +18,7 @@ namespace CompilePalX.Compilers.BSPPack
 	class BSP
     {
         private KeyValuePair<int, int>[] offsets; // offset/length
-        private static readonly char[] SpecialCaracters = { '*', '#', '@', '>', '<', '^', '(', ')', '}', '$', '!', '?', ' ' };
+        private static readonly char[] SpecialCharacters = { '*', '#', '@', '>', '<', '^', '(', ')', '}', '$', '!', '?', ' ' };
 
         public List<Dictionary<string, string>> entityList { get; private set; }
 
@@ -328,13 +328,13 @@ namespace CompilePalX.Compilers.BSPPack
                         continue;
                     
 
-                    var (target, command, parameter) = io;
+                    var (target, command, parameter, scriptArgs) = io;
 
-                    switch (command) {
-                        case "SetCountdownImage":
+                    switch (command.ToLower()) {
+                        case "setcountdownimage":
                             materials.Add($"vgui/{parameter}");
                             break;
-                        case "Command":
+                        case "command":
                             // format of Command is <command> <parameter>
                             if(!parameter.Contains(' '))
                             {
@@ -344,7 +344,11 @@ namespace CompilePalX.Compilers.BSPPack
                             if (command == "r_screenoverlay")
                                 materials.Add(parameter);
                             break;
-                        case "AddOutput":
+                        case "setoverlaymaterial":
+                            materials.Add(parameter);
+
+                            break;
+                        case "addoutput":
                             if(!parameter.Contains(' '))
                             {
                                 continue;
@@ -359,6 +363,29 @@ namespace CompilePalX.Compilers.BSPPack
                                 {
                                     materials.Add("skybox/" + v + s + ".vmt");
                                     materials.Add("skybox/" + v + "_hdr" + s + ".vmt");
+                                }
+                            }
+                            break;
+                        case "runscriptcode":
+                            if (scriptArgs.Length != 0)
+                            {
+                                for (int i = 0; i < scriptArgs.Length; i++)
+                                {
+                                    string arg = scriptArgs.ElementAtOrDefault(i + 1)!;
+
+                                    if (arg != default)
+                                    {
+                                        if (scriptArgs[i] == "SetSkyboxTexture")
+                                        {
+                                            foreach (string s in new string[] { "", "bk", "dn", "ft", "lf", "rt", "up" })
+                                            {
+                                                materials.Add("skybox/" + arg + s + ".vmt");
+                                                materials.Add("skybox/" + arg + "_hdr" + s + ".vmt");
+                                            }
+                                        }
+                                        else if (scriptArgs[i].Contains("SetScriptOverlayMaterial"))
+                                            materials.Add(arg);
+                                    }
                                 }
                             }
                             break;
@@ -451,9 +478,6 @@ namespace CompilePalX.Compilers.BSPPack
             // builds the list of models referenced in entities
 
             EntModelList = [];
-
-            //SetModelSimple is a vscript input
-            string[] modelcommands = ["SetModel", "SetCustomModel", "SetCustomModelWithClassAnimations"];
             foreach (Dictionary<string, string> ent in entityList)
 	        {
 				foreach (KeyValuePair<string, string> prop in ent)
@@ -482,18 +506,33 @@ namespace CompilePalX.Compilers.BSPPack
 
             // pack I/O referenced models
             // need to use array form of entity because multiple outputs with same command can't be stored in dict
+            string[] modelcommands = ["SetModel", "SetCustomModel", "SetCustomModelWithClassAnimations"];
             foreach (var ent in entityListArrayForm)
             {
                 foreach (var prop in ent)
                 {
                     var io = ParseIO(prop.Item2);
-                    if (io == null)
-                        continue;
+                    if (io == null) continue;
 
-                    var (target, command, parameter) = io;
+                    var (target, command, parameter, scriptArgs) = io;
 
                     if (modelcommands.Contains(command))
                         EntModelList.Add(parameter);
+
+                    if (scriptArgs.Length != 0)
+                    {
+                        for (int i = 0; i < scriptArgs.Length; i++)
+                        {
+                            string arg = scriptArgs.ElementAtOrDefault(i + 1)!;
+
+                            var funcOnly = "";
+                            if (scriptArgs[i].Contains(".Set"))
+                                funcOnly = $"S{scriptArgs[i].Split(".S")[1]}";
+
+                            if ((modelcommands.Contains(funcOnly) || funcOnly == "SetModelSimple") && arg != default)
+                                EntModelList.Add(arg);
+                        }
+                    }
                 }
             }
         }
@@ -506,7 +545,7 @@ namespace CompilePalX.Compilers.BSPPack
 				foreach (KeyValuePair<string, string> prop in ent)
 				{
 					if (Keys.vmfSoundKeys.Contains(prop.Key.ToLower()))
-						EntSoundList.Add("sound/" + prop.Value.Trim(SpecialCaracters));
+						EntSoundList.Add("sound/" + prop.Value.Trim(SpecialCharacters));
 				}
 
             // pack I/O referenced sounds
@@ -519,16 +558,18 @@ namespace CompilePalX.Compilers.BSPPack
                     if (io == null)
                         continue;
 
-                    var (target, command, parameter) = io;
+                    var (target, command, parameter, scriptArgs) = io;
+
+                    command = command.ToLower();
 
                     // StartsWith to check PlayVO, PlayVORed, PlayVOBlue
-                    if (command.StartsWith("PlayVO"))
+                    if (command.StartsWith("playvo"))
                     {
                         //Parameter value following PlayVO is always either a sound path or an empty string
                         if (!string.IsNullOrWhiteSpace(parameter)) 
                             EntSoundList.Add($"sound/{parameter}");
                     }
-                    else if (command == "Command")
+                    else if (command == "command")
                     {
                         // format of Command is <command> <parameter>
                         if(!parameter.Contains(' '))
@@ -538,6 +579,31 @@ namespace CompilePalX.Compilers.BSPPack
 
                         if (command == "play" || command == "playgamesound" )
                             EntSoundList.Add($"sound/{parameter}");
+                    }
+
+                    if (scriptArgs.Length != 0)
+                    {
+                        for (int i = 0; i < scriptArgs.Length; i++)
+                        {
+                            string arg = scriptArgs.ElementAtOrDefault(i + 1)!;
+
+                            if (arg != default)
+                            {
+                                var funcOnly = "";
+
+                                if (scriptArgs[i].Contains(".E"))
+                                    funcOnly = $"E{scriptArgs[i].Split(".E")[1]}";
+
+                                if (funcOnly == "EmitSound" || scriptArgs[i] == "EmitAmbientSoundOn")
+                                    EntSoundList.Add($"sound/{arg}");
+
+                                else if (scriptArgs[i] == "EmitSoundEx")
+                                {
+                                    var table = AssetUtils.VscriptTableToDict(arg);
+                                    EntSoundList.Add($"sound/{table["sound_name"]}");
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -562,7 +628,7 @@ namespace CompilePalX.Compilers.BSPPack
 
                     if (io == null) continue;
 
-                    var (target, command, parameter) = io;
+                    var (target, command, parameter, _) = io;
 
                     if (command.ToLower() != "setcustomupgradesfile") continue;
 
@@ -575,18 +641,51 @@ namespace CompilePalX.Compilers.BSPPack
         public void buildParticleList()
         {
             ParticleList = [];
-            foreach (Dictionary<string, string> ent in entityList)
-                foreach (KeyValuePair<string, string> particle in ent)
-                     if (particle.Key.ToLower() == "effect_name")
-                        ParticleList.Add(particle.Value);
+            string[] particleKeys = ["effect_name", "particle_name", "explode_particle"];
+            foreach (var ent in entityListArrayForm)
+            {
+                foreach (var prop in ent)
+                {
+                    if (particleKeys.Contains(prop.Item2.ToLower()))
+                        ParticleList.Add(prop.Item2.ToLower());
+
+                    var io = ParseIO(prop.Item2); 
+                    
+                    if (io == null) continue;
+
+                    var (_, _, _, scriptArgs) = io;
+
+                    if (scriptArgs.Length != 0)
+                    {
+                        for (int i = 0; i < scriptArgs.Length; i++)
+                        {
+                            string arg = scriptArgs.ElementAtOrDefault(i + 1)!;
+
+                            if (scriptArgs[i] == "DispatchParticleEffect" && arg != default)
+                            {
+                                CompilePalLogger.LogCompileError($"DispatchParticleEffect will not precache custom particles!",
+                                    new Error("DispatchParticleEffect will not precache custom particles!", ErrorSeverity.Caution));
+                                ParticleList.Add(arg);
+                            }
+                        }
+                    }
+                }
+
+            }
+
         }
 
         /// <summary>
-        /// Parses an IO string for the command and parameter. If the command is "AddOutput", it is parsed returns target, command, parameter 
+        /// Parses an IO string and "AddOutput" inputs for the target, command, and parameter
+        /// For "RunScriptCode" inputs: scriptArgs is filled out as follows:
+        /// 1. Function first, comma-separated arguments as the rest
+        /// 2. The parameter itself if not a function (no '(' character found)
+        /// 3. Semicolon separated params get appended to this
+        /// Search 'scriptArgs[i] == "IncludeScript"' in AssetUtils.cs for getting assets from args.
         /// </summary>
         /// <param name="property">Entity property</param>
-        /// <returns>Tuple containing (target, command, parameter)</returns>
-        public Tuple<string, string, string>? ParseIO(string property, bool vscriptIO = false)
+        /// <returns>Tuple containing (target, command, parameter, scriptArgs)</returns>
+        public Tuple<string, string, string, string[]>? ParseIO(string property, bool trimScriptBackticks = true)
         {
             // io is split by unicode escape char
             if (!property.Contains("\u001b"))
@@ -605,8 +704,12 @@ namespace CompilePalX.Compilers.BSPPack
             var targetInput = io[1];
             var parameter = io[2];
 
+            string[] scriptArgs = [];
+
+            string targetInputLower = targetInput.ToLower();
+
             // AddOutput dynamically adds I/O to other entities, parse it to get input/parameter
-            if (targetInput == "AddOutput")
+            if (targetInputLower == "addoutput")
             {
                 // AddOutput format: <output name> <target name>:<input name>:<parameter>:<delay>:<max times to fire> or simple form <key> <value>
                 // only need to convert complex form into simple form
@@ -623,15 +726,60 @@ namespace CompilePalX.Compilers.BSPPack
                     parameter = splitIo[2];
                 }
             }
+
             // Parse VScript RunScriptCode parameters for assets and basic syntax errors
-            else if (vscriptIO && targetInput == "RunScriptCode" && parameter.Contains('`'))
+            // TODO: table args (EmitSoundEx, SpawnEntityFromTable) can use whitespace instead of commas for kv.  can probably be parsed into a dict.
+            // TODO: Trim backticks before returning? would save adding .Trim('`') boilerplate elsewhere
+            else if (targetInputLower == "runscriptcode")
             {
-                char[] trim = { '(', ',' };
-                string strippedparam = parameter.Trim(trim);
-                string[] splitparam = parameter.Split('`');
+                // check for unfinished quotes
+                int backticks = 0;
+
+                foreach (char c in parameter)
+                    if (c == '`')
+                        backticks++;
+
+                if (backticks != 0 && backticks % 2 != 0)
+                {
+                    CompilePalLogger.LogCompileError($"({io[0]}) Invalid string in VScript IO: {parameter}\n", 
+                        new Error($"({io[0]}) Invalid string in VScript IO: {parameter}\n", ErrorSeverity.Error));
+                    return null;
+                }
+
+                string[] splitfuncs = parameter.Split(";");
+
+                // Complex scripts with nested parentheses/weird syntax will have issues with this, regex would probably be better
+                // Wrapping this whole thing in a try/catch so it doesn't blow up compiles if it runs into a param it can't handle
+                List<string> argsList = [];
+                foreach (string func in splitfuncs)
+                {
+                    try
+                    {
+                        string[] splitparam = func.Replace(")", string.Empty).Split('(', StringSplitOptions.TrimEntries);
+
+                        // Add func name as first element, or just the param string if it's standalone.
+                        argsList.Add(splitparam[0]);
+
+                        //table funcs are handled with AssetUtils.VScriptTableToDict
+                        if (splitparam.Length != 0 && splitparam[1].StartsWith('{'))
+                            argsList.Add(splitparam[1]);
+                        else
+                            for (int i = 1; i < splitparam.Length; i++)
+                                argsList.AddRange(splitparam[i].Split(',', StringSplitOptions.TrimEntries));
+                    }
+                    catch
+                    {
+                        CompilePalLogger.LogCompileError($"({io[0]}) Cannot parse VScript IO: {parameter}\n", new Error($"({io[0]}) Cannot parse VScript IO: {parameter}\n", ErrorSeverity.Warning));
+                    }
+                }
+
+                scriptArgs = [..argsList];
+
+                if (trimScriptBackticks)
+                    scriptArgs.Select(x => x = x.Trim('`'));
             }
 
-                return new Tuple<string, string, string>(io[0], targetInput, parameter);
+             return new Tuple<string, string, string, string[]>(io[0], targetInput, parameter, scriptArgs);
         }
     }
 }
