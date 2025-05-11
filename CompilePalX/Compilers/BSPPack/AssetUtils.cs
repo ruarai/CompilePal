@@ -7,7 +7,6 @@ using System.Text;
 using System.Text.RegularExpressions;
 using CompilePalX;
 using CompilePalX.Compiling;
-using Segment.Model;
 using ValveKeyValue;
 
 namespace CompilePalX.Compilers.BSPPack
