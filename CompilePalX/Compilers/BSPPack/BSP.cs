@@ -529,7 +529,7 @@ namespace CompilePalX.Compilers.BSPPack
                             if (scriptArgs[i].Contains(".Set"))
                                 funcOnly = $"S{scriptArgs[i].Split(".S")[1]}";
 
-                            if ((modelcommands.Contains(funcOnly) || funcOnly == "SetModelSimple") && arg != default)
+                            if (funcOnly != "" && (modelcommands.Contains(funcOnly) || funcOnly == "SetModelSimple") && arg != default)
                                 EntModelList.Add(arg);
                         }
                     }
@@ -776,7 +776,7 @@ namespace CompilePalX.Compilers.BSPPack
                 scriptArgs = [..argsList];
 
                 if (trimScriptBackticks)
-                    scriptArgs.Select(x => x = x.Trim('`'));
+                    scriptArgs = [.. scriptArgs.Select(x => x.Trim('`'))];
             }
 
              return new Tuple<string, string, string, string[]>(io[0], targetInput, parameter, scriptArgs);
