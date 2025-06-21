@@ -612,15 +612,49 @@ namespace CompilePalX.Compilers.BSPPack
 
         }
 
+        public static Dictionary<string, string> VscriptTableToDict(string input)
+        {
+            var dict = new Dictionary<string, string>();
+
+            // Remove outer braces
+            input = input.Trim('{', '}');
+
+            // Match either backtick-quoted key with : or unquoted key with =
+            var matches = Regex.Matches(input, @"(?:`([^`]+)`\s*:\s*(?:`([^`]+)`|([^,}\s]+))|([^,}\s]+)\s*=\s*(?:`([^`]+)`|([^,}\s]+)))");
+
+            foreach (Match match in matches)
+            {
+                string key, value;
+
+                if (match.Groups[1].Success)  // Backtick-quoted key
+                {
+                    key = match.Groups[1].Value;
+                    value = match.Groups[2].Success ? match.Groups[2].Value : match.Groups[3].Value;
+                }
+                else  // Unquoted key
+                {
+                    key = match.Groups[4].Value;
+                    value = match.Groups[5].Success ? match.Groups[5].Value : match.Groups[6].Value;
+                }
+
+                dict[key.Trim()] = value.Trim();
+            }
+
+            return dict;
+        }
+
         public static void FindBspUtilityFiles(BSP bsp, List<string> sourceDirectories, bool renamenav, bool genparticlemanifest)
         {
             // Utility files are other files that are not assets and are sometimes not referenced in the bsp
             // those are manifests, soundscapes, nav, radar and detail files
-            
+
+            string mapName = bsp.file.Name;
+
             // Soundscape file
-            string internalPath = "scripts/soundscapes_" + bsp.file.Name.Replace(".bsp", ".txt");
+            string internalPath = "scripts/soundscapes_" + mapName.Replace(".bsp", ".txt");
             // Soundscapes can have either .txt or .vsc extensions
-            string internalPathVsc = "scripts/soundscapes_" + bsp.file.Name.Replace(".bsp", ".vsc");
+            string internalPathVsc = "scripts/soundscapes_" + mapName.Replace(".bsp", ".vsc");
+
             foreach (string source in sourceDirectories)
             {
                 string externalPath = source + "/" + internalPath;
@@ -638,8 +672,9 @@ namespace CompilePalX.Compilers.BSPPack
                 }
             }
 
-            // Soundscript file
-            internalPath = "maps/" + bsp.file.Name.Replace(".bsp", "") + "_level_sounds.txt";
+            // Soundscript file.
+            // TF2 MvM maps use a special script file instead.
+            internalPath = !mapName.StartsWith("mvm_") ? "maps/" + mapName.Replace(".bsp", "") + "_level_sounds.txt" : "scripts/mvm_level_sound_tweaks.txt";
             foreach (string source in sourceDirectories)
             {
                 string externalPath = source + "/" + internalPath;
@@ -652,7 +687,7 @@ namespace CompilePalX.Compilers.BSPPack
             }
 
             // Nav file (.nav)
-            internalPath = "maps/" + bsp.file.Name.Replace(".bsp", ".nav");
+            internalPath = "maps/" + mapName.Replace(".bsp", ".nav");
             foreach (string source in sourceDirectories)
             {
                 string externalPath = source + "/" + internalPath;
@@ -741,7 +776,7 @@ namespace CompilePalX.Compilers.BSPPack
             }
 
             // tf2 tc round overview files
-            internalPath = "resource/roundinfo/" + bsp.file.Name.Replace(".bsp", ".res");
+            internalPath = "resource/roundinfo/" + mapName.Replace(".bsp", ".res");
             foreach (string source in sourceDirectories)
             {
                 string externalPath = source + "/" + internalPath;
@@ -752,7 +787,7 @@ namespace CompilePalX.Compilers.BSPPack
                     break;
                 }
             }
-            internalPath = "materials/overviews/" + bsp.file.Name.Replace(".bsp", ".vmt");
+            internalPath = "materials/overviews/" + mapName.Replace(".bsp", ".vmt");
             foreach (string source in sourceDirectories)
             {
                 string externalPath = source + "/" + internalPath;
@@ -765,7 +800,7 @@ namespace CompilePalX.Compilers.BSPPack
             }
 
             // Radar file
-            internalPath = "resource/overviews/" + bsp.file.Name.Replace(".bsp", ".txt");
+            internalPath = "resource/overviews/" + mapName.Replace(".bsp", ".txt");
             List<KeyValuePair<string, string>> ddsfiles = [];
             foreach (string source in sourceDirectories)
             {
@@ -796,7 +831,7 @@ namespace CompilePalX.Compilers.BSPPack
             bsp.radardds = ddsfiles;
 
             // cs:s radar materials
-            internalPath = $"materials/overviews/{Path.GetFileNameWithoutExtension(bsp.file.Name)}_radar.vmt";
+            internalPath = $"materials/overviews/{Path.GetFileNameWithoutExtension(mapName)}_radar.vmt";
             foreach (string source in sourceDirectories)
             {
                 string externalPath = source + "/" + internalPath;
@@ -810,7 +845,7 @@ namespace CompilePalX.Compilers.BSPPack
 
 
             // csgo kv file (.kv)
-            internalPath = "maps/" + bsp.file.Name.Replace(".bsp", ".kv");
+            internalPath = "maps/" + mapName.Replace(".bsp", ".kv");
             foreach (string source in sourceDirectories)
             {
                 string externalPath = source + "/" + internalPath;
@@ -823,7 +858,7 @@ namespace CompilePalX.Compilers.BSPPack
             }
 
             // csgo loading screen text file (.txt)
-            internalPath = "maps/" + bsp.file.Name.Replace(".bsp", ".txt");
+            internalPath = "maps/" + mapName.Replace(".bsp", ".txt");
             foreach (string source in sourceDirectories)
             {
                 string externalPath = source + "/" + internalPath;
@@ -836,7 +871,7 @@ namespace CompilePalX.Compilers.BSPPack
             }
 
             // csgo loading screen image (.jpg)
-            internalPath = "maps/" + bsp.file.Name.Replace(".bsp", "");
+            internalPath = "maps/" + mapName.Replace(".bsp", "");
             foreach (string source in sourceDirectories)
             {
                 string externalPath = source + "/" + internalPath;
@@ -851,7 +886,7 @@ namespace CompilePalX.Compilers.BSPPack
             foreach (string source in sourceDirectories)
             {
                 string externalPath = source + "/" + internalPath;
-                string bspName = bsp.file.Name.Replace(".bsp", "");
+                string bspName = mapName.Replace(".bsp", "");
 
                 foreach (string resolution in new[] {"360p", "1080p"})
                     if (File.Exists($"{externalPath}{resolution}/{bspName}.png"))
@@ -864,14 +899,14 @@ namespace CompilePalX.Compilers.BSPPack
             foreach (string source in sourceDirectories)
             {
                 string externalPath = source + "/" + internalPath;
-                string bspName = bsp.file.Name.Replace(".bsp", "");
+                string bspName = mapName.Replace(".bsp", "");
                 foreach (string extension in new[] {".svg"})
                     if (File.Exists($"{externalPath }map_icon_{bspName}{extension}"))
                         bsp.PanoramaMapIcon = new KeyValuePair<string, string>($"{internalPath}map_icon_{bspName}{extension}", $"{externalPath}map_icon_{bspName}{extension}");
             }
 
             // csgo dz tablets
-            internalPath = "materials/models/weapons/v_models/tablet/tablet_radar_" + bsp.file.Name.Replace(".bsp", ".vtf");
+            internalPath = "materials/models/weapons/v_models/tablet/tablet_radar_" + mapName.Replace(".bsp", ".vtf");
             foreach (string source in sourceDirectories)
             {
                 string externalPath = source + "/" + internalPath;
@@ -886,7 +921,7 @@ namespace CompilePalX.Compilers.BSPPack
             // language files, particle manifests and soundscript file
             // (these language files are localized text files for tf2 mission briefings)
             string internalDir = "maps/";
-            string name = bsp.file.Name.Replace(".bsp", "");
+            string name = mapName.Replace(".bsp", "");
             string searchPattern = name + "*.txt";
             List<KeyValuePair<string, string>> langfiles = [];
 
@@ -906,7 +941,7 @@ namespace CompilePalX.Compilers.BSPPack
                             continue;
                         }
                         // soundscript
-                        if (f.Name.StartsWith(name + "_level_sounds"))
+                        if (f.Name.StartsWith(name + "_level_sounds") || (mapName.StartsWith("mvm_") && f.Name == "mvm_level_sound_tweaks.txt"))
                             bsp.soundscript =
                                 new KeyValuePair<string, string>(internalDir + f.Name, externalDir + f.Name);
                         // presumably language files
@@ -916,24 +951,38 @@ namespace CompilePalX.Compilers.BSPPack
             }
             bsp.languages = langfiles;
 
-            // ASW/Source2009 branch VScripts
+            // VScripts
             List<string> vscripts = [];
-
-            foreach(Dictionary<string, string> entity in bsp.entityList)
+            foreach (var entity in bsp.entityListArrayForm)
             {
-                foreach(KeyValuePair<string,string> kvp in entity)
+                foreach (var prop in entity)
                 {
-                    if(kvp.Key.Equals("vscripts", StringComparison.CurrentCultureIgnoreCase))
+                    if (prop.Item1.ToLower() == "vscripts")
+                        vscripts.AddRange([.. prop.Item2.Split(' ', StringSplitOptions.TrimEntries).Select(x => $"scripts/vscripts/{x}")]);
+
+                    var io = bsp.ParseIO(prop.Item2);
+
+                    if (io == null) continue;
+
+                    var (target, command, parameter, scriptArgs) = io;
+
+                    if (command.ToLower() == "runscriptfile")
+                        vscripts.Add($"scripts/vscripts/{parameter}");
+
+                    else if (scriptArgs.Length != 0)
                     {
-                        string[] scripts = kvp.Value.Split(' ');
-                        foreach(string script in scripts)
+                        for (int i = 0; i < scriptArgs.Length; i++)
                         {
-                            vscripts.Add("scripts/vscripts/" + script);
+                            string arg = scriptArgs.ElementAtOrDefault(i + 1)!;
+
+                            //EndsWith for DoIncludeScript
+                            if (scriptArgs[i].EndsWith("IncludeScript") && arg != default)
+                                vscripts.Add($"scripts/vscripts/{arg}");
                         }
                     }
                 }
             }
-            bsp.vscriptList = vscripts.Distinct().ToList();
+            bsp.vscriptList = [.. vscripts.Distinct()];
         }
 
         private static string ReadNullTerminatedString(FileStream fs, BinaryReader reader)
