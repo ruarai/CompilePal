@@ -59,9 +59,11 @@ namespace CompilePalX.Compilers
                 if (hidden)
                     args += " -noborder -x 4000 -y 2000";
 
-                var startInfo = new ProcessStartInfo(context.Configuration.GameEXE, args);
-                startInfo.UseShellExecute = false;
-                startInfo.CreateNoWindow = false;
+                var startInfo = new ProcessStartInfo(context.Configuration.GameEXE, args)
+                {
+                    UseShellExecute = false,
+                    CreateNoWindow = false,
+                };
 
                 CompilePalLogger.LogLine("Generating...");
                 if (File.Exists(mapcfg))
@@ -82,20 +84,26 @@ namespace CompilePalX.Compilers
 
                 using (TextReader tr = new StreamReader(File.Open(mapLogPath, FileMode.OpenOrCreate, FileAccess.Read, FileShare.ReadWrite)))
                 {
-                    Process = new Process { StartInfo = startInfo };
-                    Process.Exited += new EventHandler(Process_Exited);
-                    Process.EnableRaisingEvents = true;
+                    Process = new Process { StartInfo = startInfo, EnableRaisingEvents = true };
                     Process.Start();
                 
-                    string line;
+                    string? line;
                     do
                     {
                         Thread.Sleep(100);
                         line = tr.ReadLine();
-                    } while ((line == null || !line.Contains(".nav' saved.")) && !cancellationToken.IsCancellationRequested);
+
+                        if (line != null && line.Contains("Cannot generate Navigation Mesh.")) {
+                            CompilePalLogger.LogLineCompileError($"Failed to build nav: {line}", new Error($"Failed to build nav: {line}", ErrorSeverity.Error));
+                            break;
+                        }
+                    } while ((line == null || !line.Contains(".nav' saved.")) && !cancellationToken.IsCancellationRequested && !Process.HasExited);
                 }
                 
                 ExitClient();
+
+                if (Process.ExitCode > 0) 
+                    CompilePalLogger.LogLineCompileError($"Game exited with non-zero exit code ({Process.ExitCode}) while building nav", new Error($"Nav step exited with non-zero exit code", ErrorSeverity.Warning));
 
                 if (cancellationToken.IsCancellationRequested) return;
                 CompilePalLogger.LogLine("nav file complete!");
@@ -129,13 +137,15 @@ namespace CompilePalX.Compilers
         private void ExitClient()
         {
             if (Process != null && !Process.HasExited)
+            {
                 try
                 {
                     this.Process.Kill();
                 }
                 catch (Win32Exception) { }
-            else
-                CleanUp();
+            }
+
+            CleanUp();
         }
         private void CleanUp()
         {
@@ -159,11 +169,6 @@ namespace CompilePalX.Compilers
         public override void Cancel()
         {
             ExitClient();
-        }
-
-        void Process_Exited(object sender, EventArgs e)
-        {
-            CleanUp();
         }
     }
 }
