@@ -1,5 +1,8 @@
 ﻿{
   "Name": "Pack",
   "Map": "BSP",
-  "MapRegex": ".*\\.bsp$"
+  "MapRegex": ".*\\.bsp$",
+  "Processes": {
+    "PACK": []
+  }
 }

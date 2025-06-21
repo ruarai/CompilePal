@@ -1,4 +1,26 @@
 ﻿{
-    "Name": "Publish - HDR", 
-    "Map": null
+  "Name": "Publish - HDR",
+  "Map": null,
+  "Processes": {
+    "VBSP": [],
+    "VVIS": [],
+    "VRAD": [
+      {
+        "Name": "Final"
+      },
+      {
+        "Name": "Static Prop Lighting"
+      },
+      {
+        "Name": "Static Prop Polys"
+      },
+      {
+        "Name": "HDR"
+      }
+    ],
+    "COPY": [],
+    "NAV": [],
+    "PACK": [],
+    "CUBEMAPS": []
+  }
 }

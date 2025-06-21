@@ -1,4 +1,26 @@
 ﻿{
-    "Name": "Fast", 
-    "Map": null
+  "Name": "Fast",
+  "Map": null,
+  "Processes": {
+    "VBSP": [],
+    "VVIS": [
+      {
+        "Name": "Fast"
+      },
+      {
+        "Name": "No Sort"
+      }
+    ],
+    "VRAD": [
+      {
+        "Name": "Fast"
+      },
+      {
+        "Name": "Bounces",
+        "Value": "2"
+      }
+    ],
+    "COPY": [],
+    "GAME": []
+  }
 }

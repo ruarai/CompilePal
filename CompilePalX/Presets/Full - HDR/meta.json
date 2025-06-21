@@ -1,4 +1,24 @@
 ﻿{
-    "Name": "Full - HDR", 
-    "Map": null
+  "Name": "Full - HDR",
+  "Map": null,
+  "Processes": {
+    "VBSP": [],
+    "VVIS": [],
+    "VRAD": [
+      {
+        "Name": "Final"
+      },
+      {
+        "Name": "Static Prop Lighting"
+      },
+      {
+        "Name": "Static Prop Polys"
+      },
+      {
+        "Name": "HDR"
+      }
+    ],
+    "COPY": [],
+    "GAME": []
+  }
 }

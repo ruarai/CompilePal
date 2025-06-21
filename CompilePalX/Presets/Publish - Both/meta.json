@@ -1,4 +1,26 @@
 ﻿{
-    "Name": "Publish - Both", 
-    "Map": null
+  "Name": "Publish - Both",
+  "Map": null,
+  "Processes": {
+    "VBSP": [],
+    "VVIS": [],
+    "VRAD": [
+      {
+        "Name": "Final"
+      },
+      {
+        "Name": "Static Prop Lighting"
+      },
+      {
+        "Name": "Static Prop Polys"
+      },
+      {
+        "Name": "Both"
+      }
+    ],
+    "COPY": [],
+    "NAV": [],
+    "PACK": [],
+    "CUBEMAPS": []
+  }
 }

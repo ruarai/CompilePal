@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -18,11 +19,43 @@ using Newtonsoft.Json;
 
 namespace CompilePalX
 {
-    public class Preset : IEquatable<Preset>, ICloneable
+    [JsonObject(ItemNullValueHandling = NullValueHandling.Ignore)]
+    public class PresetProcessParameter
     {
         public string Name { get; set; }
+        public string? Value { get; set; }
+        public string? Value2 { get; set; }
+        public bool ReadOutput { get; set; }
+        public bool WaitForExit { get; set; }
+        public string? Order { get; set; }
+
+        public PresetProcessParameter(ConfigItem config)
+        {
+            Name = config.Name;
+            Value = config.Value;
+            Value2 = config.Value2;
+            ReadOutput = config.ReadOutput;
+            WaitForExit = config.WaitForExit;
+            Order = config.Warning; // HACK: old model uses Warning to store the order for CUSTOM PROGRAM step
+        }
+
+        [Newtonsoft.Json.JsonConstructor]
+        public PresetProcessParameter(string name, string? value, string? value2, bool readOutput, bool waitForExit, string? order)
+        {
+            Name = name;
+            Value = value;
+            Value2 = value2;
+            ReadOutput = readOutput;
+            WaitForExit = waitForExit;
+            Order = order;
+        }
+    }
+    public class Preset : IEquatable<Preset>, ICloneable
+    {
+        public required string Name { get; set; }
         public string? Map { get; set; }
         public string? MapRegex { get; set; }
+        public Dictionary<string, List<PresetProcessParameter>> Processes { get; set; } = [];
 
         public bool Equals(Preset? other)
         {
@@ -175,37 +208,82 @@ namespace CompilePalX
                     // legacy presets don't have metadata, use folder name as preset name
                     preset = new Preset() { Name = presetName };
 
-                foreach (var process in CompileProcesses)
+                // handle legacy CSV presets
+                if (preset.Processes.Count == 0)
                 {
-                    string file = Path.Combine(presetPath, process.PresetFile);
-                    if (File.Exists(file))
+                    foreach (var process in CompileProcesses)
                     {
-                        process.PresetDictionary.Add(preset, []);
-                        //read the list of preset parameters
-                        var lines = File.ReadAllLines(file);
-
-                        foreach (var line in lines)
+                        string file = Path.Combine(presetPath, process.PresetFile);
+                        if (File.Exists(file))
                         {
-	                        var item = ParsePresetLine(line);
+                            process.PresetDictionary.Add(preset, []);
+                            //read the list of preset parameters
+                            var lines = File.ReadAllLines(file);
 
-                            if (process.ParameterList.Any(c => c.Parameter == item.Parameter))
+                            foreach (var line in lines)
                             {
-                                //remove .clone if you are a masochist and wish to enter the object oriented version of hell
-                                var equivalentItem = (ConfigItem)process.ParameterList.FirstOrDefault(c => c.Parameter == item.Parameter).Clone();
+                                var item = ParsePresetLine(line);
 
-                                equivalentItem.Value = item.Value;
+                                if (process.ParameterList.Any(c => c.Parameter == item.Parameter))
+                                {
+                                    //remove .clone if you are a masochist and wish to enter the object oriented version of hell
+                                    var equivalentItem = (ConfigItem)process.ParameterList.FirstOrDefault(c => c.Parameter == item.Parameter).Clone();
 
-								//Copy extra information stored for custom programs
-	                            if (item.Parameter == "program")
-	                            {
-									equivalentItem.Value2 = item.Value2;
-									equivalentItem.WaitForExit= item.WaitForExit;
-		                            equivalentItem.Warning = item.Warning;
-	                            }
-	                            
+                                    equivalentItem.Value = item.Value;
 
-                                process.PresetDictionary[preset].Add(equivalentItem);
+                                    //Copy extra information stored for custom programs
+                                    if (item.Parameter == "program")
+                                    {
+                                        equivalentItem.Value2 = item.Value2;
+                                        equivalentItem.WaitForExit= item.WaitForExit;
+                                        equivalentItem.Warning = item.Warning;
+                                    }
+                                    
+                                    process.PresetDictionary[preset].Add(equivalentItem);
+                                }
                             }
+
+                            // convert to new preset parameter model
+                            preset.Processes[process.Name] = process.PresetDictionary[preset].Select(config => new PresetProcessParameter(config)).ToList();
+                        }
+                    }
+                } 
+                else
+                // handle json presets
+                {
+                    foreach ((var processName, var parameters) in preset.Processes)
+                    {
+                        var process = CompileProcesses.FirstOrDefault(p => p.Name == processName);
+                        if (process is null)
+                        {
+                            CompilePalLogger.LogLine($"Failed to find process \"{processName}\" while loading presets");
+                            continue;
+                        }
+
+                        process.PresetDictionary[preset] = [];
+                        foreach (var parameter in parameters)
+                        {
+                            var configItem = process.ParameterList.FirstOrDefault(c => c.Name == parameter.Name);
+                            if (configItem is null)
+                            {
+                                CompilePalLogger.LogLine($"Failed to find parameter \"{parameter.Name}\" while loading preset \"{processName}\"");
+                                continue;
+                            }
+
+                            // TODO: this should be improved at some point. I dont think we need to store extra info such as Warnings, description, etc, for presets
+                            //remove .clone if you are a masochist and wish to enter the object oriented version of hell
+                            var equivalentItem = (ConfigItem)configItem.Clone();
+
+                            equivalentItem.Value = parameter.Value;
+                            equivalentItem.Value2 = parameter.Value2;
+                            equivalentItem.ReadOutput = parameter.ReadOutput;
+                            equivalentItem.WaitForExit = parameter.WaitForExit;
+                            if (processName == "CUSTOM")
+                            {
+                                equivalentItem.Warning = parameter.Order;
+                            }
+
+                            process.PresetDictionary[preset].Add(equivalentItem);
                         }
                     }
                 }
@@ -213,7 +291,6 @@ namespace CompilePalX
                 CompilePalLogger.LogLine($"Added preset {preset.Name} {(preset.Map != null ? $"for map {preset.Map} " : "")}for processes {string.Join(", ", CompileProcesses)}");
                 CurrentPreset = preset;
                 KnownPresets.Add(preset);
-
             }
         }
 
@@ -239,31 +316,28 @@ namespace CompilePalX
         {
             foreach (var knownPreset in KnownPresets)
             {
-                string presetFolder =  GetPresetFolder(knownPreset);
-
-                foreach (var compileProcess in CompileProcesses)
-                {
-                    if (compileProcess.PresetDictionary.ContainsKey(knownPreset))
-                    {
-                        var lines = new List<string>();
-                        foreach (var item in compileProcess.PresetDictionary[knownPreset])
-                        {
-                            string line = WritePresetLine(item);
-                            lines.Add(line);
-                        }
-
-                        string presetPath = Path.Combine(presetFolder, compileProcess.PresetFile);
-
-                        File.WriteAllLines(presetPath, lines);
-                    }
-                }
-
-                // save preset metadata
-                string metadataPath = Path.Combine(presetFolder, "meta.json");
-                string jsonSaveText = JsonConvert.SerializeObject(knownPreset, Formatting.Indented);
-
-                File.WriteAllText(metadataPath, jsonSaveText);
+                SavePreset(knownPreset);
             }
+        }
+
+        public static void SavePreset(Preset preset)
+        {
+            foreach (var compileProcess in CompileProcesses)
+            {
+                // update preset processes/parameters incase they have been updated
+                if (compileProcess.PresetDictionary.ContainsKey(preset))
+                {
+                    // convert ConfigItems to PresetParameters                        
+                    preset.Processes[compileProcess.Name] = compileProcess.PresetDictionary[preset].Select(config => new PresetProcessParameter(config)).ToList();
+                }
+            }
+
+            // save preset metadata
+            string presetFolder = GetPresetFolder(preset);
+            string metadataPath = Path.Combine(presetFolder, "meta.json");
+            string jsonSaveText = JsonConvert.SerializeObject(preset, Formatting.Indented);
+
+            File.WriteAllText(metadataPath, jsonSaveText);
         }
 
         public static void SaveProcesses()
@@ -286,9 +360,13 @@ namespace CompilePalX
             SaveSettings(Settings);
         }
 
-        public static Preset NewPreset(Preset preset)
+        public static Preset NewPreset(Preset preset, bool initializeDefaultProcesses = true)
         {
-            string[] defaultProcesses = new string[] { "VBSP", "VVIS", "VRAD", "COPY", "GAME" };
+            if (initializeDefaultProcesses)
+            {
+                string[] defaultProcesses = new string[] { "VBSP", "VVIS", "VRAD", "COPY", "GAME" };
+                preset.Processes = defaultProcesses.ToDictionary(key => key, key => new List<PresetProcessParameter>());
+            }
 
             // if map specific, append map to name so you can make map specific presets with the same name as global ones
             string folder = GetPresetFolder(preset);
@@ -297,19 +375,7 @@ namespace CompilePalX
             {
                 Directory.CreateDirectory(folder);
 
-                foreach (var process in CompileProcesses)
-                {
-                    if (defaultProcesses.Contains(process.Metadata.Name))
-                    {
-                        string path = Path.ChangeExtension(Path.Combine(folder, process.Metadata.Name), "csv");
-                        File.Create(path).Close();
-                    }
-                }
-
-                // create metadata
-                string metadataPath = Path.Combine(folder, "meta.json");
-                string jsonSaveText = JsonConvert.SerializeObject(preset, Formatting.Indented);
-                File.WriteAllText(metadataPath, jsonSaveText);
+                SavePreset(preset);
             }
 
             AssembleParameters();
@@ -326,17 +392,12 @@ namespace CompilePalX
             // if cloned preset is map specific, append map to name
             string oldFolder = GetPresetFolder(CurrentPreset);
 
+            preset.Processes = CurrentPreset.Processes;
+
             if (!Directory.Exists(newFolder))
             {
-                SavePresets();
-
-                DirectoryCopy(oldFolder, newFolder, true);
-
-                // overwrite metadata
-                string metadataPath = Path.Combine(newFolder, "meta.json");
-                string jsonSaveText = JsonConvert.SerializeObject(preset, Formatting.Indented);
-                File.WriteAllText(metadataPath, jsonSaveText);
-
+                Directory.CreateDirectory(newFolder);
+                SavePreset(preset);
                 AssembleParameters();
             }
 
@@ -350,9 +411,13 @@ namespace CompilePalX
                 return null;
             }
 
+            // copy processes
+            preset.Processes = CurrentPreset.Processes;
+
+            // TODO: this can be improved, deleting and recreating isn't really neccessary now that all preset info is consolidated into one file
             // "Edit" preset by deleting the current preset and adding a new preset, then make it the currently selected preset
             RemovePreset(CurrentPreset);
-            var newPreset = NewPreset(preset);
+            var newPreset = NewPreset(preset, false);
 
             CurrentPreset = newPreset;
 
@@ -376,14 +441,13 @@ namespace CompilePalX
         }
         public static void RemoveProcess(string name)
         {
-            if (CurrentPreset == null)
+            if (CurrentPreset is null)
                 return;
 
-            string presetPath = Path.Combine(GetPresetFolder(CurrentPreset), name.ToLower() + ".csv");
-            if (File.Exists(presetPath))
-            {
-                File.Delete(presetPath);
-            }
+            CurrentPreset.Processes.Remove(name);
+            // make sure value is also removed from preset in master preset list
+            KnownPresets.FirstOrDefault(p => p.Name == CurrentPreset.Name)?.Processes.Remove(name);
+            SavePreset(CurrentPreset);
         }
 
 

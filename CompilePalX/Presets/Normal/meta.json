@@ -1,4 +1,11 @@
 ﻿{
-    "Name": "Normal", 
-    "Map": null
+  "Name": "Normal",
+  "Map": null,
+  "Processes": {
+    "VBSP": [],
+    "VVIS": [],
+    "VRAD": [],
+    "COPY": [],
+    "GAME": []
+  }
 }
