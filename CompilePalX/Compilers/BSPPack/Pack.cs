@@ -467,7 +467,7 @@ namespace CompilePalX.Compilers.BSPPack
             PackBSP(outputFile);
 
             // don't copy if vmf directory is also the output directory
-            if (bspPath != context.BSPFile)
+            if (!Path.GetFullPath(bspPath).Equals(Path.GetFullPath(context.BSPFile), StringComparison.InvariantCultureIgnoreCase))
             {
                 if (File.Exists(context.BSPFile))
                 {

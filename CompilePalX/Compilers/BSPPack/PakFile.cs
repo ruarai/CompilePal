@@ -54,6 +54,7 @@ namespace CompilePalX.Compilers.BSPPack
                 onExcluded(bsp);
             }
 
+            CompilePalLogger.LogLineDebug($"Could not find file: {paths}");
             return false;
         }
 

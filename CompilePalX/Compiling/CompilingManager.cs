@@ -164,6 +164,7 @@ namespace CompilePalX
                     var compileErrors = new List<Error>();
                     CompilePalLogger.LogLine($"Starting a '{ConfigurationManager.CurrentPreset?.Name}' compile for {GameConfigurationManager.GameConfiguration.Name}.");
                     CompilePalLogger.LogLine($"Starting compilation of {cleanMapName}");
+                    CompilePalLogger.LogLineDebug($"Map path: {mapFile}");
 
 					//Update the grid so we have the most up to date order
 	                OrderManager.UpdateOrder();
