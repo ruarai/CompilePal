@@ -646,7 +646,7 @@ namespace CompilePalX.Compilers.BSPPack
             {
                 foreach (var prop in ent)
                 {
-                    if (particleKeys.Contains(prop.Item2.ToLower()))
+                    if (particleKeys.Contains(prop.Item1.ToLower()))
                         ParticleList.Add(prop.Item2.ToLower());
 
                     var io = ParseIO(prop.Item2); 

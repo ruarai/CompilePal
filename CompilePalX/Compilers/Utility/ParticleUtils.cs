@@ -120,7 +120,12 @@ namespace CompilePalX.Compilers.UtilityProcess
             int numElements = reader.ReadInt32();
             for (int i = 0; i < numElements; i++)
             {
-                int typeNameIndex = reader.ReadUInt16();
+                int typeNameIndex;
+                if (pcf.BinaryVersion == 5)
+                    typeNameIndex = (int)reader.ReadUInt32();
+                else
+                    typeNameIndex = reader.ReadUInt16();
+
                 string typeName = pcf.StringDict[typeNameIndex];
 
                 string elementName = "";
@@ -128,39 +133,30 @@ namespace CompilePalX.Compilers.UtilityProcess
                 if (pcf.BinaryVersion != 4 && pcf.BinaryVersion != 5)
                 {
                     elementName = ReadNullTerminatedString(fs, reader);
-                    //Skip data signature
-                    fs.Seek(16, SeekOrigin.Current);
                 }
                 else if (pcf.BinaryVersion == 4)
                 {
                     int elementNameIndex = reader.ReadUInt16();
                     elementName = pcf.StringDict[elementNameIndex];
-                    fs.Seek(16, SeekOrigin.Current);
                 }
                 else if (pcf.BinaryVersion == 5)
                 {
-                    int elementNameIndex = reader.ReadUInt16();
+                    int elementNameIndex = (int)reader.ReadUInt32();
                     elementName = pcf.StringDict[elementNameIndex];
-                    fs.Seek(20, SeekOrigin.Current);
                 }
-                
+
+                //Skip data signature
+                fs.Seek(16, SeekOrigin.Current);
+
                 //Get particle names
                 if (typeName == "DmeParticleSystemDefinition")
                     pcf.ParticleNames.Add(elementName);
 
             }
 
-            bool containsParticle = false;
-            foreach (string particleName in pcf.ParticleNames)
-            {
-                foreach (string targetParticle in targetParticles)
-                {
-                    if (particleName == targetParticle)
-                    {
-                        containsParticle = true;
-                    }
-                }
-            }
+            bool containsParticle = pcf.ParticleNames
+                                    .Intersect(targetParticles, StringComparer.OrdinalIgnoreCase)
+                                    .Any();
 
             //If target particle is not in pcf dont read it
             reader.Close();
@@ -223,7 +219,12 @@ namespace CompilePalX.Compilers.UtilityProcess
             int numElements = reader.ReadInt32();
             for (int i = 0; i < numElements; i++)
             {
-                int typeNameIndex = reader.ReadUInt16();
+                int typeNameIndex;
+                if (pcf.BinaryVersion == 5)
+                    typeNameIndex = (int)reader.ReadUInt32();
+                else
+                    typeNameIndex = reader.ReadUInt16();
+
                 string typeName = pcf.StringDict[typeNameIndex];
 
                 string elementName = "";
@@ -231,22 +232,21 @@ namespace CompilePalX.Compilers.UtilityProcess
                 if (pcf.BinaryVersion != 4 && pcf.BinaryVersion != 5)
                 {
                     elementName = ReadNullTerminatedString(fs, reader);
-                    //Skip data signature
-                    fs.Seek(16, SeekOrigin.Current);
                 }
                 else if (pcf.BinaryVersion == 4)
                 {
                     int elementNameIndex = reader.ReadUInt16();
                     elementName = pcf.StringDict[elementNameIndex];
-                    fs.Seek(16, SeekOrigin.Current);
                 }
                 else if (pcf.BinaryVersion == 5)
                 {
-                    int elementNameIndex = reader.ReadUInt16();
+                    int elementNameIndex = (int)reader.ReadUInt32();
                     elementName = pcf.StringDict[elementNameIndex];
-                    fs.Seek(20, SeekOrigin.Current);
                 }
-                
+
+                //Skip data signature
+                fs.Seek(16, SeekOrigin.Current);
+
                 //Get particle names
                 if (typeName == "DmeParticleSystemDefinition")
                     pcf.ParticleNames.Add(elementName);
