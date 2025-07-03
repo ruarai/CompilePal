@@ -279,7 +279,12 @@ namespace CompilePalX.Compilers.UtilityProcess
                 int numElementAttribs = reader.ReadInt32();
                 for (int n = 0; n < numElementAttribs; n++)
                 {
-                    int typeID = reader.ReadUInt16();
+                    int typeID;
+                    if (pcf.BinaryVersion == 5)
+                        typeID = (int)reader.ReadUInt32();
+                    else
+                        typeID = reader.ReadUInt16();
+
                     int attributeType = reader.ReadByte();
                     string attributeTypeName = pcf.StringDict[typeID];
 
