@@ -136,8 +136,18 @@ namespace CompilePalX.Compilers.UtilityProcess
                 }
                 else if (pcf.BinaryVersion == 5)
                 {
-                    int elementNameIndex = (int)reader.ReadUInt32();
+                    //Structure is either:
+                    //ushort nameIndex
+                    //ushort descIndex //All checked pcfs 5.2 had this set as 00 00 for all cases
+                    //
+                    //or
+                    //uint nameIndex
+                    //
+                    //If it's the second option in order to use the last 2 bytes there would need to be over 65535 strings in the stringDict.
+                    //Since it's unknown which structure is correct it's safer to read it as ushort and skip next 2 bytes
+                    int elementNameIndex = reader.ReadUInt16();
                     elementName = pcf.StringDict[elementNameIndex];
+                    fs.Seek(2, SeekOrigin.Current);
                 }
 
                 //Skip data signature
@@ -235,8 +245,18 @@ namespace CompilePalX.Compilers.UtilityProcess
                 }
                 else if (pcf.BinaryVersion == 5)
                 {
-                    int elementNameIndex = (int)reader.ReadUInt32();
+                    //Structure is either:
+                    //ushort nameIndex
+                    //ushort descIndex //All checked pcfs 5.2 had this set as 00 00 for all cases
+                    //
+                    //or
+                    //uint nameIndex
+                    //
+                    //If it's the second option in order to use the last 2 bytes there would need to be over 65535 strings in the stringDict.
+                    //Since it's unknown which structure is correct it's safer to read it as ushort and skip next 2 bytes
+                    int elementNameIndex = reader.ReadUInt16();
                     elementName = pcf.StringDict[elementNameIndex];
+                    fs.Seek(2, SeekOrigin.Current);
                 }
 
                 //Skip data signature
