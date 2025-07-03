@@ -36,7 +36,7 @@ namespace CompilePalX.Compilers.UtilityProcess
             {
                 if (s.EndsWith(".mdl"))
                 {
-                    modelList.Add(s);
+                    modelList.Add(Path.Combine("models", s));
                 }
             }
             ModelNames = modelList;
@@ -51,14 +51,9 @@ namespace CompilePalX.Compilers.UtilityProcess
 
             foreach (string s in StringDict)
             {
-
                 if (s.EndsWith(".vmt") || s.EndsWith(".vtf"))
                 {
-                    // Alien Swarm does not prepend materials/ to particles, add it just in case
-                    if (BinaryVersion == 5 && PcfVersion == 2)
-                        materialNames.Add("materials\\" + s);
-
-                    materialNames.Add(s);
+                    materialNames.Add(Path.Combine("materials", s));
                 }
             }
             return materialNames;
@@ -120,7 +115,12 @@ namespace CompilePalX.Compilers.UtilityProcess
             int numElements = reader.ReadInt32();
             for (int i = 0; i < numElements; i++)
             {
-                int typeNameIndex = reader.ReadUInt16();
+                int typeNameIndex;
+                if (pcf.BinaryVersion == 5)
+                    typeNameIndex = (int)reader.ReadUInt32();
+                else
+                    typeNameIndex = reader.ReadUInt16();
+
                 string typeName = pcf.StringDict[typeNameIndex];
 
                 string elementName = "";
@@ -128,39 +128,40 @@ namespace CompilePalX.Compilers.UtilityProcess
                 if (pcf.BinaryVersion != 4 && pcf.BinaryVersion != 5)
                 {
                     elementName = ReadNullTerminatedString(fs, reader);
-                    //Skip data signature
-                    fs.Seek(16, SeekOrigin.Current);
                 }
                 else if (pcf.BinaryVersion == 4)
                 {
                     int elementNameIndex = reader.ReadUInt16();
                     elementName = pcf.StringDict[elementNameIndex];
-                    fs.Seek(16, SeekOrigin.Current);
                 }
                 else if (pcf.BinaryVersion == 5)
                 {
+                    //Structure is either:
+                    //ushort nameIndex
+                    //ushort descIndex //All checked pcfs 5.2 had this set as 00 00 for all cases
+                    //
+                    //or
+                    //uint nameIndex
+                    //
+                    //If it's the second option in order to use the last 2 bytes there would need to be over 65535 strings in the stringDict.
+                    //Since it's unknown which structure is correct it's safer to read it as ushort and skip next 2 bytes
                     int elementNameIndex = reader.ReadUInt16();
                     elementName = pcf.StringDict[elementNameIndex];
-                    fs.Seek(20, SeekOrigin.Current);
+                    fs.Seek(2, SeekOrigin.Current);
                 }
-                
+
+                //Skip data signature
+                fs.Seek(16, SeekOrigin.Current);
+
                 //Get particle names
                 if (typeName == "DmeParticleSystemDefinition")
                     pcf.ParticleNames.Add(elementName);
 
             }
 
-            bool containsParticle = false;
-            foreach (string particleName in pcf.ParticleNames)
-            {
-                foreach (string targetParticle in targetParticles)
-                {
-                    if (particleName == targetParticle)
-                    {
-                        containsParticle = true;
-                    }
-                }
-            }
+            bool containsParticle = pcf.ParticleNames
+                                    .Intersect(targetParticles, StringComparer.OrdinalIgnoreCase)
+                                    .Any();
 
             //If target particle is not in pcf dont read it
             reader.Close();
@@ -223,7 +224,12 @@ namespace CompilePalX.Compilers.UtilityProcess
             int numElements = reader.ReadInt32();
             for (int i = 0; i < numElements; i++)
             {
-                int typeNameIndex = reader.ReadUInt16();
+                int typeNameIndex;
+                if (pcf.BinaryVersion == 5)
+                    typeNameIndex = (int)reader.ReadUInt32();
+                else
+                    typeNameIndex = reader.ReadUInt16();
+
                 string typeName = pcf.StringDict[typeNameIndex];
 
                 string elementName = "";
@@ -231,22 +237,31 @@ namespace CompilePalX.Compilers.UtilityProcess
                 if (pcf.BinaryVersion != 4 && pcf.BinaryVersion != 5)
                 {
                     elementName = ReadNullTerminatedString(fs, reader);
-                    //Skip data signature
-                    fs.Seek(16, SeekOrigin.Current);
                 }
                 else if (pcf.BinaryVersion == 4)
                 {
                     int elementNameIndex = reader.ReadUInt16();
                     elementName = pcf.StringDict[elementNameIndex];
-                    fs.Seek(16, SeekOrigin.Current);
                 }
                 else if (pcf.BinaryVersion == 5)
                 {
+                    //Structure is either:
+                    //ushort nameIndex
+                    //ushort descIndex //All checked pcfs 5.2 had this set as 00 00 for all cases
+                    //
+                    //or
+                    //uint nameIndex
+                    //
+                    //If it's the second option in order to use the last 2 bytes there would need to be over 65535 strings in the stringDict.
+                    //Since it's unknown which structure is correct it's safer to read it as ushort and skip next 2 bytes
                     int elementNameIndex = reader.ReadUInt16();
                     elementName = pcf.StringDict[elementNameIndex];
-                    fs.Seek(20, SeekOrigin.Current);
+                    fs.Seek(2, SeekOrigin.Current);
                 }
-                
+
+                //Skip data signature
+                fs.Seek(16, SeekOrigin.Current);
+
                 //Get particle names
                 if (typeName == "DmeParticleSystemDefinition")
                     pcf.ParticleNames.Add(elementName);
@@ -279,7 +294,12 @@ namespace CompilePalX.Compilers.UtilityProcess
                 int numElementAttribs = reader.ReadInt32();
                 for (int n = 0; n < numElementAttribs; n++)
                 {
-                    int typeID = reader.ReadUInt16();
+                    int typeID;
+                    if (pcf.BinaryVersion == 5)
+                        typeID = (int)reader.ReadUInt32();
+                    else
+                        typeID = reader.ReadUInt16();
+
                     int attributeType = reader.ReadByte();
                     string attributeTypeName = pcf.StringDict[typeID];
 
