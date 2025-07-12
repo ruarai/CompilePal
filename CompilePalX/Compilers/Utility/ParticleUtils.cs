@@ -352,22 +352,34 @@ namespace CompilePalX.Compilers.UtilityProcess
 
             particles = [];
 
+            //Append /particles to all source directories
+            //Remove those that don't exist
+            //Add any directories that may be within remaining ones recursively
+            List<string> particleDirectories = [.. sourceDirectories
+                                                .Select(s => Path.Combine(s, internalPath))
+                                                .Where(Directory.Exists)
+                                                .SelectMany(path =>
+                                                    new[] { path }
+                                                    .Concat(Directory.GetDirectories(path, "*", SearchOption.AllDirectories))
+                                                    )
+                                                ];
+
             //Search directories for pcf and find particles that match used particle names
             //TODO multithread this?
-            foreach (string sourceDirectory in sourceDirectories)
+            foreach (string dir in particleDirectories)
             {
-                string externalPath = sourceDirectory + "\\" + internalPath;
-
-                if (Directory.Exists(externalPath) && !ignoreDirectories.Contains(externalPath.Remove(externalPath.Length - 1, 1), StringComparer.OrdinalIgnoreCase))
-                    foreach (string file in Directory.GetFiles(externalPath))
+                if (ignoreDirectories.Contains(dir.TrimEnd('/','\\'), StringComparer.OrdinalIgnoreCase))
+                    continue;
+    
+                foreach (string file in Directory.GetFiles(dir))
+                {
+                    if (file.EndsWith(".pcf") && !excludedFiles.Contains(file.ToLower()))
                     {
-                        if (file.EndsWith(".pcf") && !excludedFiles.Contains(file.ToLower()))
-                        {
-                            PCF pcf = ParticleUtils.IsTargetParticle(file, map.ParticleList);
-                            if (pcf != null && !particles.Exists(p => p.FilePath == pcf.FilePath))
-                                particles.Add(pcf);
-                        }
+                        PCF? pcf = ParticleUtils.IsTargetParticle(file, map.ParticleList);
+                        if (pcf != null && !particles.Exists(p => p.FilePath == pcf.FilePath))
+                            particles.Add(pcf);
                     }
+                }
             }
 
             if (particles == null || particles.Count == 0)
