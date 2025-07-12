@@ -385,7 +385,7 @@ namespace CompilePalX.Compilers.BSPPack
                 }
                 catch(Exception e)
                 {
-                    CompilePalLogger.LogCompileError($"Error parsing file {fullpath}", new Error(e.Message, ErrorSeverity.Error));
+                    CompilePalLogger.LogCompileError($"Error parsing file {fullpath}. This usually happens when a VMT is malformed, make sure all curly braces and quotes are properly closed", new Error(e.Message, ErrorSeverity.Error));
                     return vtfList;
                 }
 
