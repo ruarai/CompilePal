@@ -27,58 +27,65 @@ namespace CompilePalX {
 
                 foreach (var gamedb in (IEnumerable<KVObject>)data["Games"])
                 {
-                    var hdb = gamedb["Hammer"];
-                    if (hdb is null)
+                    try
                     {
-                        CompilePalLogger.LogLineDebug($"GameInfo block is missing Hammer section: {gamedb}");
-                        continue;
-                    }
-
-                    CompilePalLogger.LogLineDebug($"Gamedb: {gamedb}");
-
-                    // use vbsp as a backup path for finding other compile executables if they are in a non standard location
-                    var vbsp = GetFullPath(hdb["BSP"].ToString(), binFolder);
-                    var vbspPath = Path.GetDirectoryName(vbsp);
-
-                    var bspzip = FindPath("bspzip.exe", binFolder, vbspPath);
-                    var vbspinfo = FindPath("vbspinfo.exe", binFolder, vbspPath);
-                    var vpk = FindPath("vpk.exe", binFolder, vbspPath);
-
-                    if (Path.GetDirectoryName(bspzip) != binFolder)
-                    {
-                        CompilePalLogger.LogLineDebug($"Bin folder \"{binFolder}\" differs from compiler location \"{Path.GetDirectoryName(bspzip)}\"");
-                        binFolder = Path.GetDirectoryName(bspzip);
-                    }
-
-                    GameConfiguration game = new GameConfiguration
-                    {
-                        Name = gamedb.Name.Replace("\"", ""),
-                        BinFolder = binFolder,
-                        GameFolder = GetFullPath(gamedb["GameDir"].ToString(), binFolder),
-                        GameEXE = GetFullPath(hdb["GameExe"].ToString(), binFolder),
-                        SDKMapFolder = GetFullPath(hdb["MapDir"].ToString(), binFolder),
-                        VBSP = vbsp,
-                        VVIS = GetFullPath(hdb["Vis"].ToString(), binFolder),
-                        VRAD = GetFullPath(hdb["Light"].ToString(), binFolder),
-                        MapFolder = GetFullPath(hdb["BSPDir"].ToString(), binFolder),
-                        BSPZip = bspzip,
-                        VBSPInfo = vbspinfo,
-                        VPK = vpk,
-                    };
-
-                    var cpdb = gamedb["CompilePal"];
-                    if (cpdb is not null)
-                    {
-                        CompilePalLogger.LogLineDebug($"Found CompilePal GameInfo block");
-                        var pluginFolder = cpdb["Plugins"].ToString();
-                        if (!string.IsNullOrEmpty(pluginFolder))
+                        var hdb = gamedb["Hammer"];
+                        if (hdb is null)
                         {
-                            game.PluginFolder = pluginFolder;
+                            CompilePalLogger.LogLineDebug($"GameInfo block is missing Hammer section: {gamedb}");
+                            continue;
                         }
-                    }
 
-                    game.SteamAppID = GetSteamAppID(game);
-                    gameInfos.Add(game);
+                        CompilePalLogger.LogLineDebug($"Gamedb: {gamedb}");
+
+                        // use vbsp as a backup path for finding other compile executables if they are in a non standard location
+                        var vbsp = GetFullPath(hdb["BSP"].ToString(), binFolder);
+                        var vbspPath = Path.GetDirectoryName(vbsp);
+
+                        var bspzip = FindPath("bspzip.exe", binFolder, vbspPath);
+                        var vbspinfo = FindPath("vbspinfo.exe", binFolder, vbspPath);
+                        var vpk = FindPath("vpk.exe", binFolder, vbspPath);
+
+                        if (Path.GetDirectoryName(bspzip) != binFolder)
+                        {
+                            CompilePalLogger.LogLineDebug($"Bin folder \"{binFolder}\" differs from compiler location \"{Path.GetDirectoryName(bspzip)}\"");
+                            binFolder = Path.GetDirectoryName(bspzip);
+                        }
+
+                        GameConfiguration game = new GameConfiguration
+                        {
+                            Name = gamedb.Name.Replace("\"", ""),
+                            BinFolder = binFolder,
+                            GameFolder = GetFullPath(gamedb["GameDir"].ToString(), binFolder),
+                            GameEXE = GetFullPath(hdb["GameExe"].ToString(), binFolder),
+                            SDKMapFolder = GetFullPath(hdb["MapDir"].ToString(), binFolder),
+                            VBSP = vbsp,
+                            VVIS = GetFullPath(hdb["Vis"].ToString(), binFolder),
+                            VRAD = GetFullPath(hdb["Light"].ToString(), binFolder),
+                            MapFolder = GetFullPath(hdb["BSPDir"].ToString(), binFolder),
+                            BSPZip = bspzip,
+                            VBSPInfo = vbspinfo,
+                            VPK = vpk,
+                        };
+
+                        var cpdb = gamedb["CompilePal"];
+                        if (cpdb is not null)
+                        {
+                            CompilePalLogger.LogLineDebug($"Found CompilePal GameInfo block");
+                            var pluginFolder = cpdb["Plugins"].ToString();
+                            if (!string.IsNullOrEmpty(pluginFolder))
+                            {
+                                game.PluginFolder = pluginFolder;
+                            }
+                        }
+
+                        game.SteamAppID = GetSteamAppID(game);
+                        gameInfos.Add(game);
+                    }
+                    catch (Exception ex)
+                    {
+                        CompilePalLogger.LogLine($"Failed to parse game configuration: {ex}");
+                    }
                 }
             }
 
