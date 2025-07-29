@@ -761,7 +761,7 @@ namespace CompilePalX.Compilers.BSPPack
                         argsList.Add(splitparam[0]);
 
                         //table funcs are handled with AssetUtils.VScriptTableToDict
-                        if (splitparam.Length != 0 && splitparam[1].StartsWith('{'))
+                        if (splitparam.Length > 1 && splitparam[1].StartsWith('{'))
                             argsList.Add(splitparam[1]);
                         else
                             for (int i = 1; i < splitparam.Length; i++)
