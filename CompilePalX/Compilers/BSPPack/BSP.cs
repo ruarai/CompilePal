@@ -282,7 +282,7 @@ namespace CompilePalX.Compilers.BSPPack
                     {
                         materials.Add("vgui/" + ent["flag_icon"]);
                         materials.Add("vgui/" + ent["flag_icon"] + "_red");
-                        materials.Add("vgui/" + ent["flag_icon"] + "_blu");
+                        materials.Add("vgui/" + ent["flag_icon"] + "_blue");
                     }
                 }
 
