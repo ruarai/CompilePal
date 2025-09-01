@@ -44,3 +44,5 @@ disablesound
 m_SoundName
 commentaryfile
 commentaryfile_nohdr
+prop_pickup_sound
+prop_drop_sound
