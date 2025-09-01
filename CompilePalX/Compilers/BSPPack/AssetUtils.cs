@@ -674,13 +674,15 @@ namespace CompilePalX.Compilers.BSPPack
 
             // Soundscript file.
             // TF2 MvM maps use a special script file instead.
-            internalPath = !mapName.StartsWith("mvm_") ? "maps/" + mapName.Replace(".bsp", "") + "_level_sounds.txt" : "scripts/mvm_level_sound_tweaks.txt";
+            internalPath = "maps/" + mapName.Replace(".bsp", "") + "_level_sounds.txt";
             foreach (string source in sourceDirectories)
             {
                 string externalPath = source + "/" + internalPath;
 
                 if (File.Exists(externalPath))
                 {
+                    if (mapName.StartsWith("mvm_"))
+                        internalPath = "scripts/mvm_level_sound_tweaks.txt";
                     bsp.soundscript = new KeyValuePair<string, string>(internalPath, externalPath);
                     break;
                 }
@@ -942,8 +944,11 @@ namespace CompilePalX.Compilers.BSPPack
                         }
                         // soundscript
                         if (f.Name.StartsWith(name + "_level_sounds") || (mapName.StartsWith("mvm_") && f.Name == "mvm_level_sound_tweaks.txt"))
+                        {
+                            string internalName = mapName.StartsWith("mvm_") ? "scripts/mvm_level_sound_tweaks.txt" : internalDir + f.Name;
                             bsp.soundscript =
-                                new KeyValuePair<string, string>(internalDir + f.Name, externalDir + f.Name);
+                                new KeyValuePair<string, string>(internalName, externalDir + f.Name);
+                        }
                         // presumably language files
                         else
                             langfiles.Add(new KeyValuePair<string, string>(internalDir + f.Name, externalDir + f.Name));
