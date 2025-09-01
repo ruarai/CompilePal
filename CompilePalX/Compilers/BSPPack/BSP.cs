@@ -276,6 +276,7 @@ namespace CompilePalX.Compilers.BSPPack
                     {
                         materials.Add("effects/" + ent["flag_trail"]);
                         materials.Add("effects/" + ent["flag_trail"] + "_red");
+                        // this is not a  typo, flag_trail ends in blu for some reason
                         materials.Add("effects/" + ent["flag_trail"] + "_blu");
                     }
                     if (ent.ContainsKey("flag_icon"))

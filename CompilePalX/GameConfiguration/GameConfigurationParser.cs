@@ -39,7 +39,7 @@ namespace CompilePalX {
                         CompilePalLogger.LogLineDebug($"Gamedb: {gamedb}");
 
                         // use vbsp as a backup path for finding other compile executables if they are in a non standard location
-                        var vbsp = GetFullPath(hdb["BSP"].ToString(), binFolder);
+                        var vbsp = GetFullPath((hdb["BSP"] ?? hdb["bsp"]).ToString(), binFolder);
                         var vbspPath = Path.GetDirectoryName(vbsp);
 
                         var bspzip = FindPath("bspzip.exe", binFolder, vbspPath);
@@ -56,13 +56,13 @@ namespace CompilePalX {
                         {
                             Name = gamedb.Name.Replace("\"", ""),
                             BinFolder = binFolder,
-                            GameFolder = GetFullPath(gamedb["GameDir"].ToString(), binFolder),
-                            GameEXE = GetFullPath(hdb["GameExe"].ToString(), binFolder),
-                            SDKMapFolder = GetFullPath(hdb["MapDir"].ToString(), binFolder),
+                            GameFolder = GetFullPath((gamedb["GameDir"] ?? gamedb["gamedir"]).ToString(), binFolder),
+                            GameEXE = GetFullPath((hdb["GameExe"] ?? hdb["gamexe"]).ToString(), binFolder),
+                            SDKMapFolder = GetFullPath((hdb["MapDir"] ?? hdb["mapdir"]).ToString(), binFolder),
                             VBSP = vbsp,
-                            VVIS = GetFullPath(hdb["Vis"].ToString(), binFolder),
-                            VRAD = GetFullPath(hdb["Light"].ToString(), binFolder),
-                            MapFolder = GetFullPath(hdb["BSPDir"].ToString(), binFolder),
+                            VVIS = GetFullPath((hdb["Vis"] ?? hdb["vis"]).ToString(), binFolder),
+                            VRAD = GetFullPath((hdb["Light"] ?? hdb["light"]).ToString(), binFolder),
+                            MapFolder = GetFullPath((hdb["BSPDir"] ?? hdb["bspdir"]).ToString(), binFolder),
                             BSPZip = bspzip,
                             VBSPInfo = vbspinfo,
                             VPK = vpk,
