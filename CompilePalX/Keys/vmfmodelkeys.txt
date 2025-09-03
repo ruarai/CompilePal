@@ -12,3 +12,4 @@ plymodel
 powerup_model
 swapmodel
 prop_model_name
+ModelOverride
