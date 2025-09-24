@@ -643,7 +643,7 @@ namespace CompilePalX.Compilers.BSPPack
             return dict;
         }
 
-        public static void FindBspUtilityFiles(BSP bsp, List<string> sourceDirectories, bool renameparticlemanifest, bool renamenav, bool genparticlemanifest)
+        public static void FindBspUtilityFiles(BSP bsp, List<string> sourceDirectories, bool renamenav, bool renameparticlemanifest, bool genparticlemanifest)
         {
             // Utility files are other files that are not assets and are sometimes not referenced in the bsp
             // those are manifests, soundscapes, nav, radar and detail files
