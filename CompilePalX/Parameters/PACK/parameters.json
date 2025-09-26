@@ -29,7 +29,7 @@
     ]
   },
   {
-    "Name": "Rename Particle Manifest",
+    "Name": "Rename Particle Manifest File",
     "Parameter": " -renameparticlemanifest",
     "Description": "Renames the particle manifest file to particles.txt",
     "Value": null,
