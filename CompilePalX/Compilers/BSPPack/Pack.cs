@@ -58,6 +58,7 @@ namespace CompilePalX.Compilers.BSPPack
             verbose = GetParameterString().Contains("-verbose");
             bool dryrun = GetParameterString().Contains("-dryrun");
             bool renamenav = GetParameterString().Contains("-renamenav");
+            bool renameparticlemanifest = GetParameterString().Contains("-renameparticlemanifest");
             bool include = Regex.IsMatch(GetParameterString(), @"-include\b"); // ensures it doesnt match -includedir
             bool includeDir = GetParameterString().Contains("-includedir");
             bool exclude = Regex.IsMatch(GetParameterString(), @"-exclude\b"); // ensures it doesnt match -excludedir
@@ -255,7 +256,7 @@ namespace CompilePalX.Compilers.BSPPack
                     return;
                 }
 
-                AssetUtils.FindBspUtilityFiles(map, sourceDirectories, renamenav, genParticleManifest);
+                AssetUtils.FindBspUtilityFiles(map, sourceDirectories, renamenav, renameparticlemanifest, genParticleManifest);
 
                 // give files unique names based on map so they dont get overwritten
                 if (dryrun)
