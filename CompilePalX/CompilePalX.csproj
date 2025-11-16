@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net9.0-windows7.0</TargetFramework>
+    <TargetFramework>net10.0-windows7.0</TargetFramework>
     <OutputType>WinExe</OutputType>
     <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
     <UseWPF>True</UseWPF>
@@ -33,10 +33,10 @@
     <PackageReference Include="Glob" Version="1.1.9" />
     <PackageReference Include="Microsoft-WindowsAPICodePack-Shell" Version="1.1.5" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-    <PackageReference Include="Microsoft.Windows.Compatibility" Version="9.0.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="MahApps.Metro" Version="2.4.10" />
-    <PackageReference Include="MahApps.Metro.IconPacks" Version="5.1.0" />
+    <PackageReference Include="Microsoft.Windows.Compatibility" Version="10.0.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+    <PackageReference Include="MahApps.Metro" Version="2.4.11" />
+    <PackageReference Include="MahApps.Metro.IconPacks" Version="6.2.1" />
     <PackageReference Include="ValveKeyValue" Version="0.20.0.417" />
   </ItemGroup>
   <ItemGroup>
