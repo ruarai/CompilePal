@@ -643,7 +643,7 @@ namespace CompilePalX.Compilers.BSPPack
             return dict;
         }
 
-        public static void FindBspUtilityFiles(BSP bsp, List<string> sourceDirectories, bool renamenav, bool genparticlemanifest)
+        public static void FindBspUtilityFiles(BSP bsp, List<string> sourceDirectories, bool renamenav, bool renameparticlemanifest, bool genparticlemanifest)
         {
             // Utility files are other files that are not assets and are sometimes not referenced in the bsp
             // those are manifests, soundscapes, nav, radar and detail files
@@ -681,8 +681,9 @@ namespace CompilePalX.Compilers.BSPPack
 
                 if (File.Exists(externalPath))
                 {
-                    if (mapName.StartsWith("mvm_"))
+                    if (mapName.Contains("mvm"))
                         internalPath = "scripts/mvm_level_sound_tweaks.txt";
+
                     bsp.soundscript = new KeyValuePair<string, string>(internalPath, externalPath);
                     break;
                 }
@@ -698,6 +699,7 @@ namespace CompilePalX.Compilers.BSPPack
                 {
                     if (renamenav)
                         internalPath = "maps/embed.nav";
+
                     bsp.nav = new KeyValuePair<string, string>(internalPath, externalPath);
                     break;
                 }
@@ -936,22 +938,30 @@ namespace CompilePalX.Compilers.BSPPack
                     foreach (FileInfo f in dir.GetFiles(searchPattern))
                     {
                         // particle files if particle manifest is not being generated
-                        if (f.Name.StartsWith(name + "_particles") || f.Name.StartsWith(name + "_manifest"))
+                        if (f.Name.StartsWith(name + "_particles"))
                         {
-                            if(!genparticlemanifest)
+                            if (!genparticlemanifest)
+                            {
+                                if (renameparticlemanifest)
+                                    internalPath = "particles.txt";
+
                                 bsp.particleManifest = new KeyValuePair<string, string>(internalDir + f.Name, externalDir + f.Name);
+                            }
+
                             continue;
                         }
+
                         // soundscript
-                        if (f.Name.StartsWith(name + "_level_sounds") || (mapName.StartsWith("mvm_") && f.Name == "mvm_level_sound_tweaks.txt"))
+                        if (f.Name.StartsWith(name + "_level_sounds") || (mapName.Contains("mvm") && f.Name == "mvm_level_sound_tweaks.txt"))
                         {
-                            string internalName = mapName.StartsWith("mvm_") ? "scripts/mvm_level_sound_tweaks.txt" : internalDir + f.Name;
-                            bsp.soundscript =
-                                new KeyValuePair<string, string>(internalName, externalDir + f.Name);
+                            string internalName = mapName.Contains("mvm") ? "scripts/mvm_level_sound_tweaks.txt" : internalDir + f.Name;
+                            bsp.soundscript = new KeyValuePair<string, string>(internalName, externalDir + f.Name);
+
+                            continue;
                         }
+
                         // presumably language files
-                        else
-                            langfiles.Add(new KeyValuePair<string, string>(internalDir + f.Name, externalDir + f.Name));
+                        langfiles.Add(new KeyValuePair<string, string>(internalDir + f.Name, externalDir + f.Name));
                     }
             }
             bsp.languages = langfiles;

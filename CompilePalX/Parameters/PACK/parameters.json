@@ -23,8 +23,23 @@
     "CanHaveValue": false,
     "Warning": "",
     "CompatibleGames": [
+      240, //css
+      300, //dod
       440 //tf2
-    ] 
+    ]
+  },
+  {
+    "Name": "Rename Particle Manifest File",
+    "Parameter": " -renameparticlemanifest",
+    "Description": "Renames the particle manifest file to particles.txt",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": "",
+    "CompatibleGames": [
+      240, //css
+      300, //dod
+      440 //tf2
+    ]
   },
   {
     "Name": "Include",
