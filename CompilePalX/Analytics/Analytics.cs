@@ -13,27 +13,39 @@ namespace CompilePalX
     static class AnalyticsManager
     {
         private static string anonymousUserID;
-        private static Segment.Model.Properties userProperties;
         private static Options options;
 
         private const bool debuggerCheckOverride = false;
 
         public static bool Enabled = true;
 
-        private static Client client;
-        private static Client legacyClient; // don't know who has access to this client. Keep sending it analytics in case it's still being used
+        private static Client? client;
+        private static Client? legacyClient; // don't know who has access to this client. Keep sending it analytics in case it's still being used
 
         static AnalyticsManager()
         {
             anonymousUserID = getUniqueComputerID();
 
-            userProperties = new Segment.Model.Properties()
-                            {
-                                {"version",UpdateManager.CurrentVersion},
-                                {"game",GameConfigurationManager.GameConfiguration?.Name}
-                            };
+            OperatingSystem os = Environment.OSVersion;
+            options = new Options { 
+                Context = { 
+                    ["direct"] = true,
+                    ["os"] = new Dict() {
+                        ["name"] = os.Platform,
+                        ["version"] = os.VersionString,
+                    },
+                    ["app"] = new Dict()
+                    {
+                        ["name"] = "CompilePal",
+                        ["version"] = UpdateManager.CurrentVersion
+                    }
+                } 
+            };
 
-            options = new Options {Context = {{"direct", true}}};
+            if (!enabled) return;
+
+            client = new Client("KPCewjPBrksT73NkIGqh5pkXBvmrnKAT");
+            legacyClient = new Client("5IMRGFe2K7JV76e1NzyC40oBADmta5Oh");
         }
 
         //Returns a unique, anonymised ID that should allow for more accurate counting of number of users
@@ -57,7 +69,7 @@ namespace CompilePalX
                 id += disk["VolumeSerialNumber"].ToString();
             }
             catch { }
-            
+
             return GetHashString(id);
         }
 
@@ -77,39 +89,60 @@ namespace CompilePalX
         }
         public static void Launch()
         {
-            if (!enabled) return;
-
-            client = new Client("KPCewjPBrksT73NkIGqh5pkXBvmrnKAT");
-            legacyClient= new Client("5IMRGFe2K7JV76e1NzyC40oBADmta5Oh");
-            Track(anonymousUserID, "Launch", userProperties,options );
+            Track(anonymousUserID, "Launch");
         }
         public static void Compile()
         {
-            Track(anonymousUserID, "Compile", userProperties, options);
+            Track(anonymousUserID, "Compile");
         }
         public static void NewPreset()
         {
-            Track(anonymousUserID, "NewPreset", userProperties, options);
+            Track(anonymousUserID, "NewPreset");
         }
         public static void ModifyPreset()
         {
-            Track(anonymousUserID, "ModifyPreset", userProperties, options);
+            Track(anonymousUserID, "ModifyPreset");
+        }
+        public static void NewGameConfiguration(string game)
+        {
+            Track(anonymousUserID, "NewGameConfiguration", new Dict() { ["game"] = game});
+        }
+        public static void ModifyGameConfiguration(string game)
+        {
+            Track(anonymousUserID, "ModifyGameConfiguration", new Dict() { ["game"] = game});
+        }
+        public static void SelectGameConfiguration(string game)
+        {
+            Track(anonymousUserID, "SelectGameConfiguration", new Dict() { ["game"] = game});
         }
         public static void Error()
         {
-            Track(anonymousUserID, "Error", userProperties, options);
+            Track(anonymousUserID, "Error");
         }
         public static void CompileError()
         {
-            Track(anonymousUserID, "CompileError", userProperties, options);
+            Track(anonymousUserID, "CompileError");
         }
 
-        private static void Track(string userId, string eventName, IDictionary<string, object> properties, Options options)
+        private static void Track(string userId, string eventName, IDictionary<string, object>? additionalProperties = null)
         {
             if (enabled)
             {
-                client.Track(userId, eventName, properties, options);
-                legacyClient.Track(userId, eventName, properties, options);
+                var properties = new Segment.Model.Properties()
+                {
+                    {"game", GameConfigurationManager.GameConfiguration?.Name}
+                };
+
+                if (additionalProperties is not null)
+                {
+                    foreach (var item in additionalProperties)
+                    {
+                        properties[item.Key] = item.Value;
+                    }
+                }
+
+                client!.Track(userId, eventName, properties, options);
+                legacyClient!.Track(userId, eventName, properties, options);
             }
         }
 

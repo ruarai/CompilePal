@@ -360,6 +360,7 @@ namespace CompilePalX
 
             // reload parameters incase new game config has a plugin folder
             ConfigurationManager.AssembleParameters();
+            AnalyticsManager.SelectGameConfiguration(gameConfiguration.Name);
         }
 
         void ProgressManager_ProgressChange(double progress)

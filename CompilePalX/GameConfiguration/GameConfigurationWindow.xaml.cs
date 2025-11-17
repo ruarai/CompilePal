@@ -32,12 +32,19 @@ public partial class GameConfigurationWindow
 
     private void SaveButton_OnClick(object sender, RoutedEventArgs e)
     {
+        var config = (GameConfiguration)this.DataContext;
         // TODO: validate
         // if index is not null, this is an edit
         if (this.index != null)
-            GameConfigurationManager.GameConfigurations[(int)this.index] = (GameConfiguration)this.DataContext;
+        {
+            GameConfigurationManager.GameConfigurations[(int)this.index] = config;
+            AnalyticsManager.ModifyGameConfiguration(config.Name);
+        }
         else
-            GameConfigurationManager.GameConfigurations.Add((GameConfiguration)this.DataContext);
+        {
+            GameConfigurationManager.GameConfigurations.Add(config);
+            AnalyticsManager.NewGameConfiguration(config.Name);
+        }
 
         GameConfigurationManager.SaveGameConfigurations();
         LaunchWindow.Instance?.RefreshGameConfigurationList();
