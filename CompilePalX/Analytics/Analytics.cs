@@ -31,8 +31,8 @@ namespace CompilePalX
                 Context = { 
                     ["direct"] = true,
                     ["os"] = new Dict() {
-                        ["name"] = os.Platform,
-                        ["version"] = os.VersionString,
+                        ["name"] = os.Platform.ToString(),
+                        ["version"] = $"{os.Version.Major}.{os.Version.Minor}.{os.Version.Build}",
                     },
                     ["app"] = new Dict()
                     {
