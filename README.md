@@ -16,7 +16,7 @@
 
 #### Latest Release
 
-[Compile Pal V28](https://github.com/ruarai/CompilePal/releases/latest)
+[Compile Pal V29](https://github.com/ruarai/CompilePal/releases/latest)
 
 #### Experimental Releases
 Get the latest features without having to wait. Experimental releases may be unstable, use at your own risk.
