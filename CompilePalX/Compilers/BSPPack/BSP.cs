@@ -257,7 +257,7 @@ namespace CompilePalX.Compilers.BSPPack
                 }
 
                 // special condition for sprites
-                if (ent["classname"].Contains("sprite") && ent.ContainsKey("model"))
+                if ((ent["classname"].Contains("sprite") || ent["classname"].Contains("glow")) && ent.ContainsKey("model"))
                 {
                     var model = ent["model"];
                     // strip leading materials folder
