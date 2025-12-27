@@ -479,7 +479,7 @@ namespace CompilePalX.Compilers.BSPPack
                     continue;
                 }
 
-                AddGenericFile(internalFilePath, externalPath);
+                AddGenericFile(internalFilePath, externalFilePath);
             }
         }
 
