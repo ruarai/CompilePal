@@ -376,7 +376,7 @@
                             <Button Name="AddParameterButton" DockPanel.Dock="Right" MinHeight="25" Width="25" Padding="0" Margin="0, 0, 3, 0" Click="AddParameterButton_Click" ToolTip="Add Parameter">
                                 <iconPacks:Material Kind="Plus" Height="10" Width="10"/>
                             </Button>
-                            <Button Name="RemoveParameterButton" DockPanel.Dock="Right" MinHeight="25" Height="25" Width="25" Padding="0" Margin="0, 0, 3, 0" Click="RemoveParameterButton_OnClickParameterButton_Click" ToolTip="Remove Parameter">
+                            <Button Name="RemoveParameterButton" DockPanel.Dock="Right" MinHeight="25" Width="25" Padding="0" Margin="0, 0, 3, 0" Click="RemoveParameterButton_OnClickParameterButton_Click" ToolTip="Remove Parameter">
                                 <iconPacks:Material Kind="Minus" Height="10" Width="10"/>
                             </Button>
                             <Button Name="AddCustomParameterButton" DockPanel.Dock="Right" MinHeight="25" Width="25" Padding="0" Margin="0, 0, 3, 0" Click="AddCustomParameterButton_Click" ToolTip="Add Custom Parameter">
