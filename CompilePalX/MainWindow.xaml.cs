@@ -394,6 +394,7 @@ namespace CompilePalX
 
             AddParameterButton.IsEnabled = false;
             RemoveParameterButton.IsEnabled = false;
+            AddCustomParameterButton.IsEnabled = false;
 
             AddProcessesButton.IsEnabled = false;
             RemoveProcessesButton.IsEnabled = false;
@@ -424,6 +425,7 @@ namespace CompilePalX
 
             AddParameterButton.IsEnabled = true;
             RemoveParameterButton.IsEnabled = true;
+            AddCustomParameterButton.IsEnabled = true;
 
             AddProcessesButton.IsEnabled = true;
             RemoveProcessesButton.IsEnabled = true;
@@ -501,6 +503,17 @@ namespace CompilePalX
             
             if (selectedItem != null)
                 selectedProcess.PresetDictionary[ConfigurationManager.CurrentPreset].Remove(selectedItem);
+
+            UpdateParameterTextBox();
+        }
+        private void AddCustomParameterButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (selectedProcess != null)
+            {
+                // Always assumes the command line argument is the last in the list.
+                selectedProcess.PresetDictionary[ConfigurationManager.CurrentPreset].Add((ConfigItem)selectedProcess.ParameterList[selectedProcess.ParameterList.Count - 1].Clone());
+            }
+            AnalyticsManager.ModifyPreset();
 
             UpdateParameterTextBox();
         }
@@ -742,6 +755,9 @@ namespace CompilePalX
 
 						RemoveParameterButton.Visibility = Visibility.Hidden;
 						RemoveParameterButton.IsEnabled = false;
+
+                        AddCustomParameterButton.Visibility = Visibility.Hidden;
+                        AddCustomParameterButton.IsEnabled = false;
 					}
 				}
 	            else
@@ -769,7 +785,10 @@ namespace CompilePalX
 
 						RemoveParameterButton.Visibility = Visibility.Visible;
 						RemoveParameterButton.IsEnabled = true;
-					}
+
+                        AddCustomParameterButton.Visibility = Visibility.Visible;
+                        AddCustomParameterButton.IsEnabled = true;
+                    }
 
 					UpdateParameterTextBox();
 	            }
@@ -883,7 +902,10 @@ namespace CompilePalX
 
 				RemoveParameterButton.Visibility = Visibility.Hidden;
 				RemoveParameterButton.IsEnabled = false;
-			}
+
+                AddCustomParameterButton.Visibility = Visibility.Hidden;
+                AddCustomParameterButton.IsEnabled = false;
+            }
 		    else
 		    {
 				AddParameterButton.Visibility = Visibility.Visible;
@@ -891,7 +913,10 @@ namespace CompilePalX
 
 				RemoveParameterButton.Visibility = Visibility.Visible;
 				RemoveParameterButton.IsEnabled = true;
-			}
+
+                AddCustomParameterButton.Visibility = Visibility.Visible;
+                AddCustomParameterButton.IsEnabled = true;
+            }
 		}
 
         private void MapListBox_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
