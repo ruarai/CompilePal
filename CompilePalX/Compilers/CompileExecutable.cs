@@ -87,7 +87,7 @@ namespace CompilePalX.Compilers
                 ReadOutput(cancellationToken);
 
                 if (Metadata.CheckExitCode && Process.ExitCode != 0)
-                    CompilePalLogger.LogCompileError($"{Name} exited with code: {Process.ExitCode}\n", new Error($"{Name} exited with code: {Process.ExitCode}", ErrorSeverity.Warning));
+                    CompilePalLogger.LogCompileError($"{Name} exited with code: 0x{Process.ExitCode.ToString("X")}\n", new Error($"{Name} exited with code: 0x{Process.ExitCode.ToString("X")}", ErrorSeverity.Warning));
             }
         }
 
