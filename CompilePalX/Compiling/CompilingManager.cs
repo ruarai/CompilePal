@@ -198,7 +198,7 @@ namespace CompilePalX
 
                     mapErrors.Add(new MapErrors { MapName = cleanMapName, Errors = compileErrors });
 
-                    CompilePalLogger.LogLineFileLocation($"Compiled Map: {buildContext.CopyLocation}", buildContext.CopyLocation);
+                    CompilePalLogger.LogLineFileLocation($"Compiled Map: {buildContext.CopyLocation}\n", buildContext.CopyLocation);
                     GameConfigurationManager.RestoreCurrentContext();
                 }
 

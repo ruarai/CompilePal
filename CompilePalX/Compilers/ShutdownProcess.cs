@@ -22,7 +22,7 @@ namespace CompilePalX.Compilers
             // don't run unless it's the last map of the queue
             if (CompilingManager.MapFiles.Last().File == context.MapFile)
             {
-                CompilePalLogger.LogLine("\nCompilePal - Shutdown");
+                CompilePalLogger.LogLine("\nCompilePal - Shutdown", 900);
                 CompilePalLogger.LogLine("The system will shutdown soon.");
                 CompilePalLogger.LogLine("You can cancel this shutdown by using the command \"shutdown -a\"");
 

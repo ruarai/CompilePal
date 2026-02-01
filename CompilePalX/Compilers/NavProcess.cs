@@ -32,7 +32,7 @@ namespace CompilePalX.Compilers
 
             try
             {
-                CompilePalLogger.LogLine("\nCompilePal - Nav Generator");
+                CompilePalLogger.LogLine("\nCompilePal - Nav Generator", 900);
 
                 if (!File.Exists(context.CopyLocation))
                 {

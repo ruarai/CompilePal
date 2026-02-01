@@ -20,8 +20,8 @@ using System.Runtime.InteropServices;
 
 namespace CompilePalX.Compiling
 {
-    internal delegate Run? LogWrite(string s, Brush b);
-    internal delegate Run? LogWriteURL(string s, string url);
+    internal delegate Run? LogWrite(string s, Brush? b, int? fontWeight);
+    internal delegate Run? LogWriteURL(string s, string url, int? fontWeight);
     internal delegate void LogBacktrack(List<Run> l);
     internal delegate void CompileErrorLogWrite(string errorText, Error e);
 
@@ -48,7 +48,7 @@ namespace CompilePalX.Compiling
         public static event CompileErrorFound OnErrorFound;
 
 
-        public static Run LogColor(string s, Brush b, params object[] formatStrings)
+        public static Run LogColor(string s, Brush? b, int? fontWeight, params object[] formatStrings)
         {
             string text = s;
             if (formatStrings.Length != 0)
@@ -63,18 +63,22 @@ namespace CompilePalX.Compiling
             }
             catch { }
 
-            return OnWrite?.Invoke(text, b);
+            return OnWrite?.Invoke(text, b, fontWeight);
         }
 
 
         public static Run LogLineColor(string s, Brush b, params object[] formatStrings)
         {
-            return LogColor(s + Environment.NewLine, b, formatStrings);
+            return LogColor(s + Environment.NewLine, b, null, formatStrings);
         }
 
         public static Run? Log(string s = "", params object[] formatStrings)
         {
+            return Log(s, null, formatStrings);
+        }
 
+        public static Run? Log(string s = "", int? fontWeight = null, params object[] formatStrings)
+        {
             // listen for variable updates for plugins
             if (s.StartsWith("COMPILE_PAL_SET"))
             {
@@ -83,9 +87,13 @@ namespace CompilePalX.Compiling
 
             }
 
-            return LogColor(s, null, formatStrings);
+            return LogColor(s, null, fontWeight, formatStrings);
         }
 
+        public static Run? LogLine(string s, int fontWeight, params object[] formatStrings)
+        {
+            return Log(s + Environment.NewLine, fontWeight, formatStrings);
+        }
         public static Run? LogLine(string s = "", params object[] formatStrings)
         {
             return Log(s + Environment.NewLine, formatStrings);
@@ -93,7 +101,7 @@ namespace CompilePalX.Compiling
 
         public static Run? LogLineFileLocation(string s, string url)
         {
-            return OnWriteURL.Invoke(s + Environment.NewLine, url);
+            return OnWriteURL.Invoke(s + Environment.NewLine, url, 600);
         }
 
         public static void LogDebug(string s)

@@ -86,7 +86,7 @@ namespace CompilePalX.Compilers
 
             if (!CanRun(c)) return;
 
-			CompilePalLogger.LogLine("\nCompilePal - " + Path);
+			CompilePalLogger.LogLine("\nCompilePal - " + Path, 900);
 
 			//Find filepath of program associated with filetype
 			//This is similar to using shellexecute, except we can read the output

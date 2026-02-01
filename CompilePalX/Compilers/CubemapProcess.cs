@@ -44,7 +44,7 @@ namespace CompilePalX.Compilers
 
             try
             {
-                CompilePalLogger.LogLine("\nCompilePal - Cubemap Generator");
+                CompilePalLogger.LogLine("\nCompilePal - Cubemap Generator", 900);
 
                 if (!File.Exists(context.CopyLocation))
                 {

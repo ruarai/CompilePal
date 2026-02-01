@@ -68,6 +68,7 @@ namespace CompilePalX.Compilers.BSPPack
             bool includefilelist = GetParameterString().Contains("-includefilelist");
             bool addSourceDirectory = GetParameterString().Contains("-sourcedirectory");
             bool noswvtx = GetParameterString().Contains("-noswvtx");
+            bool generateDetailedReport = GetParameterString().Contains("-detailedreport");
 
             char[] paramChars = GetParameterString().ToCharArray();
             List<string> parameters = ParseParameters(paramChars);
@@ -79,7 +80,7 @@ namespace CompilePalX.Compilers.BSPPack
 
             try
             {
-                CompilePalLogger.LogLine("\nCompilePal - Automated Packaging");
+                CompilePalLogger.LogLine("\nCompilePal - Automated Packaging", 900);
                 bspZip = context.Configuration.BSPZip;
                 vpk = context.Configuration.VPK;
                 gameFolder = context.Configuration.GameFolder;
@@ -306,7 +307,7 @@ namespace CompilePalX.Compilers.BSPPack
                         {
                             var internalPath = filelist[i];
                             var externalPath = filelist[i + 1];
-                            if (!pakfile.AddInternalFile(internalPath, externalPath))
+                            if (!pakfile.AddInternalFile(internalPath, externalPath, AssetCategory.Misc))
                             {
                                 CompilePalLogger.LogCompileError($"Failed to pack ${externalPath}\n",
                                     new Error($"Failed to pack ${externalPath}\n", ErrorSeverity.Error));
@@ -399,8 +400,8 @@ namespace CompilePalX.Compilers.BSPPack
 
                 }
 
-                CompilePalLogger.LogLine("Finished!");
 
+                CompilePalLogger.LogLine("\nFinished!", 800);
                 CompilePalLogger.LogLine("---------------------");
                 CompilePalLogger.LogLine(pakfile.vmtcount + " materials found");
                 CompilePalLogger.LogLine(pakfile.mdlcount + " models found");
@@ -430,8 +431,25 @@ namespace CompilePalX.Compilers.BSPPack
                     (map.kv.Key != default(string) ? "\n-KV file" : "");
 
                 if (additionalFiles != "")
-                    CompilePalLogger.LogLine("Additional Files: " + additionalFiles);
+                    CompilePalLogger.Log("\nAdditional Files:", 800);
+                    CompilePalLogger.LogLine(additionalFiles);
                 CompilePalLogger.LogLine("---------------------");
+
+                if (generateDetailedReport)
+                {
+                    foreach (var category in Enum.GetValues(typeof(AssetCategory)).Cast<AssetCategory>()) {
+                        var files = pakfile.GetFilesByCategory(category);
+                        if (files.Count == 0)
+                            continue;
+
+                        CompilePalLogger.LogLine(category.ToString(), 800);
+                        foreach (var file in files)
+                            CompilePalLogger.LogLine(file);
+
+                        // print empty line to separate each category
+                        CompilePalLogger.LogLine();
+                    }
+                }
             }
             catch (FileNotFoundException e)
             {

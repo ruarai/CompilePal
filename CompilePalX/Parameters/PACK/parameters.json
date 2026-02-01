@@ -1,5 +1,13 @@
 [
   {
+    "Name": "Detailed Report",
+    "Parameter": " -detailedreport",
+    "Description": "Outputs a detailed report of packed assets",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": ""
+  },
+  {
     "Name": "Verbose",
     "Parameter": " -verbose",
     "Description": "Outputs a complete listing of added assets",

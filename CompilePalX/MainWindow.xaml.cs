@@ -219,7 +219,7 @@ namespace CompilePalX
         }
         
 
-        Run? Logger_OnWrite(string s, Brush b = null)
+        Run? Logger_OnWrite(string s, Brush? b = null, int? fontWeight = null)
         {
             return Dispatcher.Invoke(() =>
             {
@@ -230,6 +230,9 @@ namespace CompilePalX
 
                 if (b != null)
                     textRun.Foreground = b;
+
+                if (fontWeight != null)
+                    textRun.FontWeight = FontWeight.FromOpenTypeWeight((int)fontWeight);
 
                 OutputParagraph.Inlines.Add(textRun);
 
@@ -252,7 +255,7 @@ namespace CompilePalX
             });
         }
 
-        private Run? CompilePalLogger_OnWriteFileLocation(string s, string url)
+        private Run? CompilePalLogger_OnWriteFileLocation(string s, string url, int? fontWeight = null)
         {
             return Dispatcher.Invoke(() =>
             {
@@ -269,6 +272,10 @@ namespace CompilePalX
                 {
                     Foreground = FindResource("CompilePal.Brushes.Link") as Brush
                 };
+                if (fontWeight != null)
+                {
+                    textRun.FontWeight = FontWeight.FromOpenTypeWeight((int)fontWeight);
+                }
                 link.Inlines.Add(textRun);
 
                 OutputParagraph.Inlines.Add(link);
