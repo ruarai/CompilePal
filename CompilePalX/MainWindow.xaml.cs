@@ -907,19 +907,16 @@ namespace CompilePalX
                     SelectedMapIndex = MapListBox.Items.Count - 1;
 
                 MapListBox.SelectedIndex = SelectedMapIndex;
-                // refresh preset config listbox to filter the presets
-                CollectionViewSource.GetDefaultView(ConfigurationManager.KnownPresets).Refresh();
-                return;
+            } else
+            {
+                // select the preset of the map
+                ConfigurationManager.CurrentPreset = selectedMap.Preset;
+                PresetConfigListBox.SelectedItem = ConfigurationManager.CurrentPreset;
+                SelectedMapIndex = MapListBox.SelectedIndex;
             }
-
-            // select the preset of the map
-            ConfigurationManager.CurrentPreset = selectedMap.Preset;
-            PresetConfigListBox.SelectedItem = ConfigurationManager.CurrentPreset;
-            SelectedMapIndex = MapListBox.SelectedIndex;
 
             // refresh preset config listbox to filter the presets
             CollectionViewSource.GetDefaultView(ConfigurationManager.KnownPresets).Refresh();
-
             UpdateConfigGrid();
         }
 
