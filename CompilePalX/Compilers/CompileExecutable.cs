@@ -82,6 +82,15 @@ namespace CompilePalX.Compilers
             else 
                 Process.PriorityClass = ProcessPriorityClass.BelowNormal;
 
+            //VRAD can only use up to 16 cores, more cores reduces performance, and increased compile time.
+            //By assigning affinity to the process significantly speed up compiles on CPUs with more than 16 cores.
+            if (this.Name == "VRAD" &&
+                Environment.ProcessorCount > 16)
+            {
+                //Hex 0xffff means core use core 0 through 15.
+                Process.ProcessorAffinity = (IntPtr)0xffff;
+            }
+            
             if (Metadata.ReadOutput)
             { 
                 ReadOutput(cancellationToken);
