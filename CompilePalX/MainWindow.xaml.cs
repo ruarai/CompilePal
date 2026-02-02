@@ -510,8 +510,16 @@ namespace CompilePalX
         {
             if (selectedProcess != null)
             {
-                // Always assumes the command line argument is the last in the list.
-                selectedProcess.PresetDictionary[ConfigurationManager.CurrentPreset].Add((ConfigItem)selectedProcess.ParameterList[selectedProcess.ParameterList.Count - 1].Clone());
+                // Tries to find the Custom Argument ConfigItem, hides the button if not present (should be handled during executable selection)
+                // This just covers an edge case where it for some reason wasn't.
+                var customArgumentItem = selectedProcess.ParameterList.FirstOrDefault(i => i.Name == "Command Line Argument");
+                if (customArgumentItem == null)
+                {
+                    AddCustomParameterButton.IsEnabled = false;
+                    return;
+                }
+                else
+                    selectedProcess.PresetDictionary[ConfigurationManager.CurrentPreset].Add((ConfigItem)customArgumentItem.Clone());
             }
             AnalyticsManager.ModifyPreset();
 
@@ -729,69 +737,79 @@ namespace CompilePalX
 
             if (selectedProcess != null && ConfigurationManager.CurrentPreset != null && selectedProcess.PresetDictionary.ContainsKey(ConfigurationManager.CurrentPreset))
             {
-				//Switch to the process grid for custom program screen
-	            if (selectedProcess.Name == "CUSTOM")
-	            {
-					ProcessDataGrid.BeginAnimation(OpacityProperty, new DoubleAnimation(0, 1, new Duration(TimeSpan.FromMilliseconds(50))));
-					processModeEnabled = true;
+                // Check if the selected process has the custom argument ConfigItem, and enable/disable the button accordingly.
+                var CustomArgumentItem = selectedProcess.ParameterList.FirstOrDefault(i => i.Name == "Command Line Argument");
+                if (CustomArgumentItem == null)
+                {
+                    AddCustomParameterButton.IsEnabled = false;
+                }
+                else
+                {
+                    AddCustomParameterButton.IsEnabled = true;
+                }
+                //Switch to the process grid for custom program screen
+                if (selectedProcess.Name == "CUSTOM")
+                {
+                    ProcessDataGrid.BeginAnimation(OpacityProperty, new DoubleAnimation(0, 1, new Duration(TimeSpan.FromMilliseconds(50))));
+                    processModeEnabled = true;
 
-					ProcessDataGrid.ItemsSource = selectedProcess.PresetDictionary[ConfigurationManager.CurrentPreset];
-		            
-					ConfigDataGrid.IsEnabled = false;
-		            ConfigDataGrid.Visibility = Visibility.Hidden;
-					ParametersTextBox.Visibility = Visibility.Hidden;
+                    ProcessDataGrid.ItemsSource = selectedProcess.PresetDictionary[ConfigurationManager.CurrentPreset];
 
-		            ProcessDataGrid.IsEnabled = true;
-		            ProcessDataGrid.Visibility = Visibility.Visible;
+                    ConfigDataGrid.IsEnabled = false;
+                    ConfigDataGrid.Visibility = Visibility.Hidden;
+                    ParametersTextBox.Visibility = Visibility.Hidden;
 
-		            ProcessTab.IsEnabled = true;
-		            ProcessTab.Visibility = Visibility.Visible;
+                    ProcessDataGrid.IsEnabled = true;
+                    ProcessDataGrid.Visibility = Visibility.Visible;
 
-					//Hide parameter buttons if ORDER is the current tab
-		            if ((string)(ProcessTab.SelectedItem as TabItem)?.Header == "ORDER")
-		            {
-						AddParameterButton.Visibility = Visibility.Hidden;
-						AddParameterButton.IsEnabled = false;
+                    ProcessTab.IsEnabled = true;
+                    ProcessTab.Visibility = Visibility.Visible;
 
-						RemoveParameterButton.Visibility = Visibility.Hidden;
-						RemoveParameterButton.IsEnabled = false;
+                    //Hide parameter buttons if ORDER is the current tab
+                    if ((string)(ProcessTab.SelectedItem as TabItem)?.Header == "ORDER")
+                    {
+                        AddParameterButton.Visibility = Visibility.Hidden;
+                        AddParameterButton.IsEnabled = false;
+
+                        RemoveParameterButton.Visibility = Visibility.Hidden;
+                        RemoveParameterButton.IsEnabled = false;
 
                         AddCustomParameterButton.Visibility = Visibility.Hidden;
                         AddCustomParameterButton.IsEnabled = false;
-					}
-				}
-	            else
-	            {
-					ConfigDataGrid.BeginAnimation(OpacityProperty, new DoubleAnimation(0, 1, new Duration(TimeSpan.FromMilliseconds(50))));
-					processModeEnabled = false;
+                    }
+                }
+                else
+                {
+                    ConfigDataGrid.BeginAnimation(OpacityProperty, new DoubleAnimation(0, 1, new Duration(TimeSpan.FromMilliseconds(50))));
+                    processModeEnabled = false;
 
-					ConfigDataGrid.IsEnabled = true;
-					ConfigDataGrid.Visibility = Visibility.Visible;
-					ParametersTextBox.Visibility = Visibility.Visible;
+                    ConfigDataGrid.IsEnabled = true;
+                    ConfigDataGrid.Visibility = Visibility.Visible;
+                    ParametersTextBox.Visibility = Visibility.Visible;
 
-					ProcessDataGrid.IsEnabled = false;
-					ProcessDataGrid.Visibility = Visibility.Hidden;
+                    ProcessDataGrid.IsEnabled = false;
+                    ProcessDataGrid.Visibility = Visibility.Hidden;
 
-					ProcessTab.IsEnabled = false;
-					ProcessTab.Visibility = Visibility.Hidden;
+                    ProcessTab.IsEnabled = false;
+                    ProcessTab.Visibility = Visibility.Hidden;
 
-					ConfigDataGrid.ItemsSource = selectedProcess.PresetDictionary[ConfigurationManager.CurrentPreset];
+                    ConfigDataGrid.ItemsSource = selectedProcess.PresetDictionary[ConfigurationManager.CurrentPreset];
 
-					//Make buttons visible if they were disabled
-		            if (!AddParameterButton.IsEnabled)
-		            {
-						AddParameterButton.Visibility = Visibility.Visible;
-						AddParameterButton.IsEnabled = true;
+                    //Make buttons visible if they were disabled
+                    if (!AddParameterButton.IsEnabled)
+                    {
+                        AddParameterButton.Visibility = Visibility.Visible;
+                        AddParameterButton.IsEnabled = true;
 
-						RemoveParameterButton.Visibility = Visibility.Visible;
-						RemoveParameterButton.IsEnabled = true;
+                        RemoveParameterButton.Visibility = Visibility.Visible;
+                        RemoveParameterButton.IsEnabled = true;
 
                         AddCustomParameterButton.Visibility = Visibility.Visible;
                         AddCustomParameterButton.IsEnabled = true;
                     }
 
-					UpdateParameterTextBox();
-	            }
+                    UpdateParameterTextBox();
+                }
 
 
             }
