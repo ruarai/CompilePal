@@ -379,8 +379,8 @@
                             <Button Name="RemoveParameterButton" DockPanel.Dock="Right" MinHeight="25" Width="25" Padding="0" Margin="0, 0, 3, 0" Click="RemoveParameterButton_OnClickParameterButton_Click" ToolTip="Remove Parameter">
                                 <iconPacks:Material Kind="Minus" Height="10" Width="10"/>
                             </Button>
-                            <Button Name="AddCustomParameterButton" DockPanel.Dock="Right" MinHeight="25" Width="25" Padding="0" Margin="0, 0, 3, 0" Click="AddCustomParameterButton_Click" ToolTip="Add Custom Parameter">
-                                <iconPacks:Material Kind="Cog" Height="10" Width="10"/>
+                            <Button Name="AddCustomParameterButton" DockPanel.Dock="Right" MinHeight="25" Width="25" Padding="0" Margin="0, 0, 3, 0" Click="AddCustomParameterButton_Click" ToolTip="Add Custom Parameter" IsEnabled="{Binding AddCustomParameterButtonEnabled, ElementName=CompileWindow, UpdateSourceTrigger=PropertyChanged, Mode=OneWay}">
+                                <iconPacks:Material Kind="PlaylistPlus" Height="10" Width="10"/>
                             </Button>
                             <TextBox Name="ParametersTextBox" Margin="20,0, 20,0" IsEnabled="True" IsReadOnly="True" Background="{StaticResource MahApps.Brushes.Gray.SemiTransparent}" FontWeight="DemiBold" BorderThickness="0"/>
                         </DockPanel>

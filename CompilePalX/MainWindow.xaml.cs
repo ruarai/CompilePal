@@ -38,11 +38,28 @@ namespace CompilePalX
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow
+    public partial class MainWindow : INotifyPropertyChanged
     {
+        public event PropertyChangedEventHandler? PropertyChanged;
+        private void OnPropertyChanged(string name)
+        {
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(AddCustomParameterButtonEnabled)));
+        }
+
         public static Dispatcher ActiveDispatcher;
         private ObservableCollection<CompileProcess> CompileProcessesSubList = [];
-	    private bool processModeEnabled;
+	    private bool _processModeEnabled;
+	    private bool processModeEnabled
+        {
+            get => _processModeEnabled;
+            set {
+                if (value == _processModeEnabled)
+                    return;
+
+                _processModeEnabled = value;
+                OnPropertyChanged(nameof(AddCustomParameterButtonEnabled));
+            }
+        }
 
         public bool PresetFilterEnabled { get; set; } = true;
 
@@ -57,6 +74,19 @@ namespace CompilePalX
         }
 
         private int selectedMapIndex = 0;
+
+        private bool _isCompiling = false;
+        public bool IsCompiling { get => _isCompiling; 
+            set {
+                if (value == _isCompiling)
+                    return;
+
+                _isCompiling = value;
+                OnPropertyChanged(nameof(AddCustomParameterButtonEnabled));
+            }
+        }
+
+        public bool AddCustomParameterButtonEnabled { get => !IsCompiling && !processModeEnabled && selectedProcess != null && selectedProcess.SupportsCustomParameters; }
 
 		public MainWindow()
         {
@@ -388,13 +418,14 @@ namespace CompilePalX
 
         private void CompilingManager_OnStart()
         {
+            IsCompiling = true;
+
             ConfigDataGrid.IsEnabled = false;
             ProcessDataGrid.IsEnabled = false;
 	        OrderGrid.IsEnabled = false;
 
             AddParameterButton.IsEnabled = false;
             RemoveParameterButton.IsEnabled = false;
-            AddCustomParameterButton.IsEnabled = false;
 
             AddProcessesButton.IsEnabled = false;
             RemoveProcessesButton.IsEnabled = false;
@@ -418,6 +449,8 @@ namespace CompilePalX
 
         private void CompilingManager_OnFinish()
         {
+            IsCompiling = false;
+
 			//If process grid is enabled, disable config grid
             ConfigDataGrid.IsEnabled = !processModeEnabled;
             ProcessDataGrid.IsEnabled = processModeEnabled;
@@ -425,7 +458,6 @@ namespace CompilePalX
 
             AddParameterButton.IsEnabled = true;
             RemoveParameterButton.IsEnabled = true;
-            AddCustomParameterButton.IsEnabled = true;
 
             AddProcessesButton.IsEnabled = true;
             RemoveProcessesButton.IsEnabled = true;
@@ -510,16 +542,8 @@ namespace CompilePalX
         {
             if (selectedProcess != null)
             {
-                // Tries to find the Custom Argument ConfigItem, hides the button if not present (should be handled during executable selection)
-                // This just covers an edge case where it for some reason wasn't.
                 var customArgumentItem = selectedProcess.ParameterList.FirstOrDefault(i => i.Name == "Command Line Argument");
-                if (customArgumentItem == null)
-                {
-                    AddCustomParameterButton.IsEnabled = false;
-                    return;
-                }
-                else
-                    selectedProcess.PresetDictionary[ConfigurationManager.CurrentPreset].Add((ConfigItem)customArgumentItem.Clone());
+                selectedProcess.PresetDictionary[ConfigurationManager.CurrentPreset].Add((ConfigItem)customArgumentItem.Clone());
             }
             AnalyticsManager.ModifyPreset();
 
@@ -727,7 +751,17 @@ namespace CompilePalX
         }
 
 
-        private CompileProcess selectedProcess;
+        private CompileProcess? _selectedProcess;
+        private CompileProcess? selectedProcess
+        {
+            get => _selectedProcess;
+            set {
+                if (value == selectedProcess)
+                    return;
+                _selectedProcess = value;
+                OnPropertyChanged(nameof(AddCustomParameterButtonEnabled));
+            }
+        }
 
         private void UpdateConfigGrid()
         {
@@ -737,16 +771,6 @@ namespace CompilePalX
 
             if (selectedProcess != null && ConfigurationManager.CurrentPreset != null && selectedProcess.PresetDictionary.ContainsKey(ConfigurationManager.CurrentPreset))
             {
-                // Check if the selected process has the custom argument ConfigItem, and enable/disable the button accordingly.
-                var CustomArgumentItem = selectedProcess.ParameterList.FirstOrDefault(i => i.Name == "Command Line Argument");
-                if (CustomArgumentItem == null)
-                {
-                    AddCustomParameterButton.IsEnabled = false;
-                }
-                else
-                {
-                    AddCustomParameterButton.IsEnabled = true;
-                }
                 //Switch to the process grid for custom program screen
                 if (selectedProcess.Name == "CUSTOM")
                 {
@@ -775,7 +799,6 @@ namespace CompilePalX
                         RemoveParameterButton.IsEnabled = false;
 
                         AddCustomParameterButton.Visibility = Visibility.Hidden;
-                        AddCustomParameterButton.IsEnabled = false;
                     }
                 }
                 else
@@ -805,7 +828,6 @@ namespace CompilePalX
                         RemoveParameterButton.IsEnabled = true;
 
                         AddCustomParameterButton.Visibility = Visibility.Visible;
-                        AddCustomParameterButton.IsEnabled = true;
                     }
 
                     UpdateParameterTextBox();
@@ -922,7 +944,6 @@ namespace CompilePalX
 				RemoveParameterButton.IsEnabled = false;
 
                 AddCustomParameterButton.Visibility = Visibility.Hidden;
-                AddCustomParameterButton.IsEnabled = false;
             }
 		    else
 		    {
@@ -933,7 +954,6 @@ namespace CompilePalX
 				RemoveParameterButton.IsEnabled = true;
 
                 AddCustomParameterButton.Visibility = Visibility.Visible;
-                AddCustomParameterButton.IsEnabled = true;
             }
 		}
 
@@ -1157,7 +1177,6 @@ namespace CompilePalX
             }
             base.OnClosing(e);
         }
-
     }
 
     public static class ObservableCollectionExtension
