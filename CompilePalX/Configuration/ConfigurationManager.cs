@@ -451,7 +451,7 @@ namespace CompilePalX
         }
 
 
-        public static ObservableCollection<ConfigItem> GetParameters(string processName, bool doRun = false, string? parameterFolder = null)
+        public static ObservableCollection<ConfigItem> GetParameters(string processName, bool external = false, string? parameterFolder = null)
         {
             var list = new ObservableCollection<ConfigItem>();
 
@@ -470,8 +470,8 @@ namespace CompilePalX
                     list.Add(configItem);
                 }
 
-                // add custom parameter to all runnable steps
-                if (doRun)
+                // add custom parameter to all external programs
+                if (external)
                 {
                     list.Add(new ConfigItem()
                     {
