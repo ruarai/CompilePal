@@ -58,7 +58,7 @@ namespace CompilePalX
 
             }
 
-            ParameterList = ConfigurationManager.GetParameters(Metadata.Name, Metadata.DoRun, this.ParameterFolder);
+            ParameterList = ConfigurationManager.GetParameters(Metadata.Name, Metadata.IsExternal, this.ParameterFolder);
         }
 
         public static CompileMetadata LoadLegacyData(string csvFile)
@@ -142,6 +142,7 @@ namespace CompilePalX
         }
 
         public ObservableCollection<ConfigItem> ParameterList = [];
+        public bool SupportsCustomParameters { get => ParameterList.Any(i => i.Name == "Command Line Argument"); }
         public ObservableDictionary<Preset, ObservableCollection<ConfigItem>> PresetDictionary = [];
 
 
@@ -190,6 +191,7 @@ namespace CompilePalX
     {
         public string Name { get; set; }
         public string Path { get; set; }
+        public bool IsExternal { get => Path != "builtin"; }
         public string Arguments { get; set; } = String.Empty;
         public float Order { get; set; }
 
