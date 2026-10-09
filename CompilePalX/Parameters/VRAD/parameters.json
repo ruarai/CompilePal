@@ -17,7 +17,7 @@
     "IncompatibleGames": [
       730, // csgo
       550 // l4d2
-    ] 
+    ]
   },
   {
     "Name": "HDR",
@@ -37,7 +37,7 @@
     "IncompatibleGames": [
       730, // csgo
       550 // l4d2
-    ] 
+    ]
   },
   {
     "Name": "Fast",
@@ -105,7 +105,7 @@
     "Warning": "always enabled when compiling with -final",
     "CompatibleGames": [
       730 // csgo
-    ] 
+    ]
   },
   {
     "Name": "Static Prop Lighting Old",
@@ -116,7 +116,7 @@
     "Warning": "",
     "CompatibleGames": [
       730 // csgo
-    ] 
+    ]
   },
   {
     "Name": "Static Prop Bounce",
@@ -127,7 +127,7 @@
     "Warning": "",
     "CompatibleGames": [
       730 // csgo
-    ] 
+    ]
   },
   {
     "Name": "Static Prop Sample Scale",
@@ -138,7 +138,7 @@
     "Warning": "Note that adding -final is the same as having -StaticPropSampleScale 16.",
     "CompatibleGames": [
       730 // csgo
-    ] 
+    ]
   },
   {
     "Name": "Static Prop Polys",
@@ -181,7 +181,7 @@
     "Warning": "",
     "CompatibleGames": [
       730 // csgo
-    ] 
+    ]
   },
   {
     "Name": "Threads",
@@ -232,7 +232,7 @@
       243750, // SDK Base 2013 Multiplayer
       265630, // Fistful of Frags
       723390 // HDTF (since 2022)
-    ] 
+    ]
   },
   {
     "Name": "No Extra",
@@ -249,5 +249,388 @@
     "Value": null,
     "CanHaveValue": false,
     "Warning": ""
+  },
+  {
+    "Name": "Ambient Occlusion",
+    "Parameter": " -ambientocclusion",
+    "Description": "Enhanced light baking that improves shading of corners and crevices, resulting in better shadow defintition and accuracy. Samples are automatically adjusted for -fast and -final mode",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": "A feature of ficool2's VRAD++",
+    "CompatibleGames": [
+      240, // CSS
+      300, // DODS
+      320, // HL2DM
+      440, // TF2
+      4000 // gmod
+    ]
+  },
+  {
+    "Name": "Ambient Occlusion Face Samples",
+    "Parameter": " -aofacesamples",
+    "Description": "",
+    "Value": null,
+    "CanHaveValue": true,
+    "Warning": "A feature of ficool2's VRAD++",
+    "CompatibleGames": [
+      240, // CSS
+      300, // DODS
+      320, // HL2DM
+      440, // TF2
+      4000 // gmod
+    ]
+  },
+  {
+    "Name": "Ambient Occlusion Prop Samples",
+    "Parameter": " -aopropsamples",
+    "Description": "",
+    "Value": null,
+    "CanHaveValue": true,
+    "Warning": "A feature of ficool2's VRAD++",
+    "CompatibleGames": [
+      240, // CSS
+      300, // DODS
+      320, // HL2DM
+      440, // TF2
+      4000 // gmod
+    ]
+  },
+  {
+    "Name": "Ambient Occlusion Radius",
+    "Parameter": " -aoradius",
+    "Description": "Default 32",
+    "Value": 32,
+    "CanHaveValue": true,
+    "Warning": "A feature of ficool2's VRAD++",
+    "CompatibleGames": [
+      240, // CSS
+      300, // DODS
+      320, // HL2DM
+      440, // TF2
+      4000 // gmod
+    ]
+  },
+  {
+    "Name": "Ambient Occlusion Scale",
+    "Parameter": " -aoscale",
+    "Description": "Scale the strength of the ambient occlusion effect. Default 0.5",
+    "Value": 0.5,
+    "CanHaveValue": true,
+    "Warning": "A feature of ficool2's VRAD++",
+    "CompatibleGames": [
+      240, // CSS
+      300, // DODS
+      320, // HL2DM
+      440, // TF2
+      4000 // gmod
+    ]
+  },
+  {
+    "Name": "Force Texture Shadows",
+    "Parameter": " -forcetextureshadows",
+    "Description": "Enable texture shadows on all props without needing to specify them in a .rad file",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": "A feature of ficool2's VRAD++",
+    "CompatibleGames": [
+      240, // CSS
+      300, // DODS
+      320, // HL2DM
+      440, // TF2
+      4000 // gmod
+    ]
+  },
+  {
+    "Name": "Patch Lightmap Size",
+    "Parameter": " -patchlightmapsize",
+    "Description": "Set minimum lightmap size for patches (default is 16). This controls how faces with lower lightmap scales get subdivided for bounced lighting. Lower values will subdivide more, at the cost of increased compile time and memory usage. This may sometimes solve issues with thin surfaces obstructed by geometry not receiving light",
+    "Value": 1,
+    "CanHaveValue": true,
+    "Warning": "A feature of ficool2's VRAD++",
+    "CompatibleGames": [
+      240, // CSS
+      300, // DODS
+      320, // HL2DM
+      440, // TF2
+      4000 // gmod
+    ]
+  },
+  {
+    "Name": "Reflectivity Scale",
+    "Parameter": " -reflectivityscale",
+    "Description": "Scale reflectivity (amount of light bounced off surfaces)",
+    "Value": null,
+    "CanHaveValue": true,
+    "Warning": "A feature of ficool2's VRAD++",
+    "CompatibleGames": [
+      240, // CSS
+      300, // DODS
+      320, // HL2DM
+      440, // TF2
+      4000 // gmod
+    ]
+  },
+  {
+    "Name": "Soft Light Sample Multiplier",
+    "Parameter": " -extrasoft",
+    "Description": "Control sample multiplier for soft lights. Defaults are 1, 0.25 on -fast, 4 on -final",
+    "Value": 1,
+    "CanHaveValue": true,
+    "Warning": "A feature of ficool2's VRAD++",
+    "CompatibleGames": [
+      240, // CSS
+      300, // DODS
+      320, // HL2DM
+      440, // TF2
+      4000 // gmod
+    ]
+  },
+  {
+    "Name": "Static Prop Sample Scale",
+    "Parameter": " -StaticPropSampleScale",
+    "Description": "Controls sample multiplier for prop vertex lighting (default is 1). Defaults to 4 with -final, which will slightly increase compile times. However this will improve quality of prop lighting in areas starved of sunlight or bounced surfaces",
+    "Value": null,
+    "CanHaveValue": true,
+    "Warning": "A feature of ficool2's VRAD++",
+    "CompatibleGames": [
+      240, // CSS
+      300, // DODS
+      320, // HL2DM
+      440, // TF2
+      4000 // gmod
+    ]
+  },
+  {
+    "Name": "Static Props can Shadow Ambient Cubes",
+    "Parameter": " -propambient",
+    "Description": "Vertex lighting on static props will contribute to nearby ambient cubes. -StaticPropLighting does not need to be enabled. Note that this won't solve sunlight applying to entities shadowed by static props, as the engine ignores prop visiblity at runtime",
+    "Value": null,
+    "CanHaveValue": true,
+    "Warning": "A feature of ficool2's VRAD++",
+    "CompatibleGames": [
+      240, // CSS
+      300, // DODS
+      320, // HL2DM
+      440, // TF2
+      4000 // gmod
+    ]
+  },
+  {
+    "Name": "Static Prop Indirect Mode",
+    "Parameter": " -StaticPropIndirectMode",
+    "Description": "ficool2's VRAD++ improves static prop vertex lighting by more accurately calculating the falloff of bounce lighting. The same calculation was used in CS:GO. Supply '1' to use the native TF2 calculation, resulting in darker, more harsh lighting. Supply '2' to use the Orangebox calculation, which dispenses with falloff completely resulting in brighter props",
+    "Value": 1,
+    "CanHaveValue": true,
+    "Warning": "A feature of ficool2's VRAD++",
+    "CompatibleGames": [
+      240, // CSS
+      300, // DODS
+      320, // HL2DM
+      440, // TF2
+      4000 // gmod
+    ]
+  },
+  {
+    "Name": "Subdivide Faces with Texture Lights",
+    "Parameter": " -choptexlights",
+    "Description": "Force subdivision of faces that have texlights. Can create smoother-looking lights from faces but may take longer to compute",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": "A feature of ficool2's VRAD++",
+    "CompatibleGames": [
+      240, // CSS
+      300, // DODS
+      320, // HL2DM
+      440, // TF2
+      4000 // gmod
+    ]
+  },
+  {
+    "Name": "Translucent Shadows",
+    "Parameter": " -translucentshadows",
+    "Description": "Similar to -worldtextureshadows but for $translucent brush textures. Requires -textureshadows and -worldtextureshadows",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": "A feature of ficool2's VRAD++",
+    "CompatibleGames": [
+      240, // CSS
+      300, // DODS
+      320, // HL2DM
+      440, // TF2
+      4000 // gmod
+    ]
+  },
+  {
+    "Name": "Use Original Displacement Bounced Light Calculations",
+    "Parameter": " -DisplacementLightingOld",
+    "Description": "ficool2's VRAD++ features slightly improved displacement bounce lighting that's mostly visible on thin and small displacements. Supply this argument to use the original behaviour",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": "A feature of ficool2's VRAD++",
+    "CompatibleGames": [
+      240, // CSS
+      300, // DODS
+      320, // HL2DM
+      440, // TF2
+      4000 // gmod
+    ]
+  },
+  {
+    "Name": "World Texture Shadows",
+    "Parameter": " -worldtextureshadows",
+    "Description": "Allows $alphatest brush textures to cast proper shadows like props. Requires -textureshadows",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": "A feature of ficool2's VRAD++",
+    "CompatibleGames": [
+      240, // CSS
+      300, // DODS
+      320, // HL2DM
+      440, // TF2
+      4000 // gmod
+    ]
+  },
+  {
+    "Name": "Debug: Ambient",
+    "Parameter": " -ambient",
+    "Description": "When supplied with three RGB values, it will apply a constant light value to every luxel in a map.",
+    "Value": "255 255 255",
+    "CanHaveValue": true,
+    "Warning": "A feature of ficool2's VRAD++",
+    "CompatibleGames": [
+      240, // CSS
+      300, // DODS
+      320, // HL2DM
+      440, // TF2
+      4000 // gmod
+    ]
+  },
+  {
+    "Name": "Debug: Coring",
+    "Parameter": " -coring",
+    "Description": "Scales the light threshold before a luxel is completely unlit. Used to save lightmap data. Default 0.5",
+    "Value": 0.5,
+    "CanHaveValue": true,
+    "Warning": "A feature of ficool2's VRAD++",
+    "CompatibleGames": [
+      240, // CSS
+      300, // DODS
+      320, // HL2DM
+      440, // TF2
+      4000 // gmod
+    ]
+  },
+  {
+    "Name": "Debug: Dlight",
+    "Parameter": " -dlight",
+    "Description": "",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": "A feature of ficool2's VRAD++",
+    "CompatibleGames": [
+      240, // CSS
+      300, // DODS
+      320, // HL2DM
+      440, // TF2
+      4000 // gmod
+    ]
+  },
+  {
+    "Name": "Debug: NoTexScale",
+    "Parameter": " -notexscale",
+    "Description": "",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": "A feature of ficool2's VRAD++",
+    "CompatibleGames": [
+      240, // CSS
+      300, // DODS
+      320, // HL2DM
+      440, // TF2
+      4000 // gmod
+    ]
+  },
+  {
+    "Name": "Debug: Props",
+    "Parameter": " -propdebug",
+    "Description": "Extra information to assist in the identification of props that cause delays in compilation",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": "A feature of ficool2's VRAD++",
+    "CompatibleGames": [
+      240, // CSS
+      300, // DODS
+      320, // HL2DM
+      440, // TF2
+      4000 // gmod
+    ]
+  },
+  {
+    "Name": "Debug: Scale",
+    "Parameter": " -scale",
+    "Description": "",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": "A feature of ficool2's VRAD++",
+    "CompatibleGames": [
+      240, // CSS
+      300, // DODS
+      320, // HL2DM
+      440, // TF2
+      4000 // gmod
+    ]
+  },
+  {
+    "Name": "Debug: Sky",
+    "Parameter": " -sky",
+    "Description": "",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": "A feature of ficool2's VRAD++",
+    "CompatibleGames": [
+      240, // CSS
+      300, // DODS
+      320, // HL2DM
+      440, // TF2
+      4000 // gmod
+    ]
+  },
+  {
+    "Name": "Debug: Visualize Ambient Occlusion",
+    "Parameter": " -aodebug",
+    "Description": "Visualize ambient occlusion",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": "A feature of ficool2's VRAD++",
+    "CompatibleGames": [
+      240, // CSS
+      300, // DODS
+      320, // HL2DM
+      440, // TF2
+      4000 // gmod
+    ]
+  },
+  {
+    "Name": "Debug: Report Search Paths",
+    "Parameter": " -report_search_paths",
+    "Description": "Show search paths for assets",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": "A feature of ficool2's VRAD++",
+    "CompatibleGames": [
+      240, // CSS
+      300, // DODS
+      320, // HL2DM
+      440, // TF2
+      4000 // gmod
+    ]
+  },
+  {
+    "Name": "Dump Arguments",
+    "Parameter": " -dumpargs",
+    "Description": "Dump this tool's arguments to a text file",
+    "Value": "vrad++_args.txt",
+    "CanHaveValue": true,
+    "Warning": "A feature of ficool2's VRAD++"
   }
 ]

@@ -54,7 +54,7 @@
     "Value": null,
     "CanHaveValue": false,
     "Warning": ""
-  }, 
+  },
   {
     "Name": "Normal Priority",
     "Parameter": " -normal_priority",
@@ -70,5 +70,13 @@
     "Value": null,
     "CanHaveValue": false,
     "Warning": ""
+  },
+  {
+    "Name": "Dump Arguments",
+    "Parameter": " -dumpargs",
+    "Description": "Dump this tool's arguments to a text file",
+    "Value": "vvis++_args.txt",
+    "CanHaveValue": true,
+    "Warning": "A feature of ficool2's VVIS++"
   }
 ]
