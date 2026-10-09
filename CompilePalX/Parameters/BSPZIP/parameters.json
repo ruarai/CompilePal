@@ -38,5 +38,29 @@
       240, // cs:s
       669270 // momentum mod
     ]
+  },
+  {
+    "Name": "Threads",
+    "Parameter": " -threads",
+    "Description": "Override the number of CPU threads used.",
+    "Value": null,
+    "CanHaveValue": true,
+    "Warning": "A feature of ficool2's BSPZIP++"
+  },
+  {
+    "Name": "Verbose",
+    "Parameter": " -verbose",
+    "Description": "Turn on verbose output for debug purposes.",
+    "Value": null,
+    "CanHaveValue": false,
+    "Warning": "A feature of ficool2's BSPZIP++"
+  },
+  {
+    "Name": "Dump Arguments",
+    "Parameter": " -dumpargs",
+    "Description": "Dump this tool's arguments to a text file",
+    "Value": "bspzip++_args.txt",
+    "CanHaveValue": true,
+    "Warning": "A feature of ficool2's BSPZIP++"
   }
 ]
