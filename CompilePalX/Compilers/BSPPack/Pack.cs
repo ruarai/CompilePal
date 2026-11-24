@@ -67,7 +67,7 @@ namespace CompilePalX.Compilers.BSPPack
             bool packvpk = GetParameterString().Contains("-vpk");
             bool includefilelist = GetParameterString().Contains("-includefilelist");
             bool addSourceDirectory = GetParameterString().Contains("-sourcedirectory");
-            bool noswvtx = GetParameterString().Contains("-noswvtx");
+            bool nodx80vtx = GetParameterString().Contains("-nodx80vtx");
             bool generateDetailedReport = GetParameterString().Contains("-detailedreport");
 
             char[] paramChars = GetParameterString().ToCharArray();
@@ -276,7 +276,7 @@ namespace CompilePalX.Compilers.BSPPack
 
                 CompilePalLogger.LogLine("Initializing pak file...");
                 PakFile pakfile = new PakFile(map, sourceDirectories, includeFiles, excludeFiles, excludeDirs,
-                    excludedVpkFiles, outputFile, noswvtx);
+                    excludedVpkFiles, outputFile, nodx80vtx);
 
                 if (includefilelist)
                 {

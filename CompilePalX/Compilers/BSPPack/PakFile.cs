@@ -161,15 +161,15 @@ namespace CompilePalX.Compilers.BSPPack
         public int vscriptcount { get; private set; }
         public int PanoramaMapBackgroundCount { get; private set; }
 
-        private bool noSwvtx;
+        private bool noDx80vtx;
 
         public PakFile(BSP bsp, List<string> sourceDirectories, List<string> includeFiles, List<string> excludedFiles, 
-            List<string> excludedDirs, List<string> excludedVpkFiles, string outputFile, bool noswvtx)
+            List<string> excludedDirs, List<string> excludedVpkFiles, string outputFile, bool nodx80vtx)
         {
             mdlcount = vmtcount = pcfcount = soundcount = vehiclescriptcount = effectscriptcount = PanoramaMapBackgroundCount = 0;
             sourceDirs = sourceDirectories;
             fileName = outputFile;
-            noSwvtx = noswvtx;
+            noDx80vtx = nodx80vtx;
 
 	        this.excludedFiles = excludedFiles;
 	        this.excludedDirs = excludedDirs;
@@ -338,8 +338,8 @@ namespace CompilePalX.Compilers.BSPPack
                 {
                     string ext_path = FindExternalFile(reference);
 
-                    //don't pack .sw.vtx files if param is set
-                    if (reference.EndsWith(".sw.vtx") && this.noSwvtx) 
+                    //don't pack .dx80.vtx files if param is set
+                    if (reference.EndsWith(".dx80.vtx") && this.noDx80vtx) 
                         continue;
 
                     AddInternalFile(reference, ext_path, AssetCategory.Model);
